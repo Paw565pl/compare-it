@@ -1,1 +1,36 @@
-spring.application.name=backend
+spring:
+  application:
+    name: backend
+
+  data:
+    web:
+      pageable:
+        default-page-size: 20
+        max-page-size: 50
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+  threads:
+    virtual:
+      enabled: true
+
+  profiles:
+    active: dev
+
+springdoc:
+  api-docs:
+    path: /api/docs
+
+  swagger-ui:
+    path: /api/docs/swagger-ui.html
+
+server:
+  compression:
+    enabled: true
+
+  error:
+    include-message: always
+    include-path: never
