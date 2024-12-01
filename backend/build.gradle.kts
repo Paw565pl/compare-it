@@ -51,6 +51,7 @@ repositories {
 val springdocVersion = "2.7.0"
 val modelMapperVersion = "3.2.1"
 val modelMapperRecordVersion = "1.0.0"
+val dataFakerVersion = "2.4.2"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -72,6 +73,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:mongodb")
     testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("io.rest-assured:rest-assured")
+    testImplementation("net.datafaker:datafaker:${dataFakerVersion}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
