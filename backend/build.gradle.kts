@@ -49,6 +49,8 @@ repositories {
 }
 
 val springdocVersion = "2.7.0"
+val modelMapperVersion = "3.2.1"
+val modelMapperRecordVersion = "1.0.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -59,6 +61,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.modelmapper:modelmapper:${modelMapperVersion}")
+    implementation("org.modelmapper:modelmapper-module-record:${modelMapperRecordVersion}")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
