@@ -1,8 +1,11 @@
+import com.diffplug.spotless.LineEnding
+
 plugins {
     java
     idea
     id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
+    id("com.diffplug.spotless") version "6.25.0"
 }
 
 group = "it.compare"
@@ -18,6 +21,20 @@ idea {
     module {
         isDownloadJavadoc = true
         isDownloadSources = true
+    }
+}
+
+spotless {
+    java {
+        importOrder()
+        removeUnusedImports()
+        cleanthat()
+        lineEndings = LineEnding.UNIX
+        palantirJavaFormat()
+        trimTrailingWhitespace()
+        endWithNewline()
+        indentWithSpaces()
+        formatAnnotations()
     }
 }
 
