@@ -204,3 +204,5 @@ README.html
 Dockerfile
 Dockerfile.*
 .dockerignore
+
+.editorconfig
