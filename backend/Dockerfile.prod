@@ -6,7 +6,9 @@ COPY . .
 
 RUN chmod +x ./gradlew
 
-RUN ["./gradlew", "clean", "bootJar"]
+ENTRYPOINT [ "./gradlew" ]
+
+CMD ["clean", "bootRun"]
 
 
 FROM eclipse-temurin:21-jre-alpine
