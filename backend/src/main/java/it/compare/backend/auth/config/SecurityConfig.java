@@ -20,7 +20,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         http.csrf(AbstractHttpConfigurer::disable);
-        http.sessionManagement((session) -> session.sessionCreationPolicy(STATELESS));
+        http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 
         return http.build();
     }
