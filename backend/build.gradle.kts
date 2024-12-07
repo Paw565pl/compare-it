@@ -6,6 +6,7 @@ plugins {
     id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
     id("com.diffplug.spotless") version "6.25.0"
+    id("se.solrike.sonarlint") version "2.1.0"
 }
 
 group = "it.compare"
