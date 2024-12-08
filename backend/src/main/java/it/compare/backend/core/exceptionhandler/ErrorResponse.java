@@ -1,4 +1,4 @@
-package it.compare.backend.core.exception_handler;
+package it.compare.backend.core.exceptionhandler;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 

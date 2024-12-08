@@ -1,4 +1,4 @@
-package it.compare.backend.core.exception_handler;
+package it.compare.backend.core.exceptionhandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
