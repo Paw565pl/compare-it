@@ -52,6 +52,10 @@ repositories {
 val springdocVersion = "2.7.0"
 val modelMapperVersion = "3.2.1"
 val modelMapperRecordVersion = "1.0.0"
+val httpclientVersion = "5.4.1"
+val httpcoreVersion = "5.3.1"
+val httpcoreH2Version = "5.3.1"
+val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
 
 dependencies {
@@ -65,6 +69,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.modelmapper:modelmapper:${modelMapperVersion}")
     implementation("org.modelmapper:modelmapper-module-record:${modelMapperRecordVersion}")
+    implementation("org.apache.httpcomponents.client5:httpclient5:${httpclientVersion}")
+    implementation("org.apache.httpcomponents.core5:httpcore5:${httpcoreVersion}")
+    implementation("org.apache.httpcomponents.core5:httpcore5-h2:${httpcoreH2Version}")
+    implementation("com.sezinkarli:random-user-agent-generator:${randomUserAgentGeneratorVersion}")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
