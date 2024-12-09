@@ -1,0 +1,28 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://root:password@mongodb:27017/compare-it?authSource=admin
+
+  mail:
+    host: smtp4dev
+    port: 25
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls.enable: false
+
+logging:
+  level:
+    web: debug
+    data: debug
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: debug
+            repository:
+              query: debug
