@@ -1,5 +1,8 @@
 package it.compare.backend;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -8,6 +11,6 @@ class ApplicationTests {
 
     @Test
     void contextLoads() {
-        // this test is empty because it is only for checking if the context loads
+        assertThat(2 + 2, is(4));
     }
 }
