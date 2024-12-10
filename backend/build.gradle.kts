@@ -39,6 +39,14 @@ spotless {
     }
 }
 
+sonarlint {
+    reports {
+        create("sarif") {
+            enabled.set(true)
+        }
+    }
+}
+
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
@@ -57,8 +65,10 @@ val httpcoreVersion = "5.3.1"
 val httpcoreH2Version = "5.3.1"
 val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
+val javaSonarVersion = "7.30.1.34514"
 
 dependencies {
+    sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:${javaSonarVersion}")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
