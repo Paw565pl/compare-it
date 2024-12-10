@@ -22,5 +22,5 @@ jobs:
       - run: chmod +x backend/gradlew
 
       # Build the project
-      - name: Build Project
+      - name: Test Project
         run: cd backend && ./gradlew test

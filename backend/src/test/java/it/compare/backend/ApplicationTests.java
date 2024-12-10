@@ -7,5 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class ApplicationTests {
 
     @Test
-    void contextLoads() {}
+    void contextLoads() {
+        // this test is empty because it is only for checking if the context loads
+    }
 }
