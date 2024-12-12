@@ -2,7 +2,6 @@ name: backend build
 run-name: ${{ github.actor }} is building the Gradle project
 on: [push, pull_request]
 permissions:
-  security-events: write
   contents: write
 jobs:
   build-backend:
