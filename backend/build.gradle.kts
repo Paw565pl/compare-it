@@ -65,7 +65,7 @@ val httpcoreVersion = "5.3.1"
 val httpcoreH2Version = "5.3.1"
 val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
-val javaSonarVersion = "7.30.1.34514"
+val javaSonarVersion = "8.7.0.37452"
 
 dependencies {
     sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:${javaSonarVersion}")
