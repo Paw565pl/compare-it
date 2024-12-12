@@ -1,0 +1,25 @@
+name: backend build
+run-name: ${{ github.actor }} is building the Gradle project
+on: [push, pull_request]
+permissions:
+  contents: write
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v3
+
+      # Setup Java
+      - uses: actions/setup-java@v3
+        with:
+          java-version: "21"
+          distribution: temurin
+          cache: gradle
+
+      # Grant permissions for Gradle wrapper
+      - run: chmod +x backend/gradlew
+
+      # Build the project
+      - name: Build Project
+        run: cd backend && ./gradlew build --no-daemon
