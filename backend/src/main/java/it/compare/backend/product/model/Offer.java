@@ -19,6 +19,9 @@ public class Offer {
     @Field("url")
     @NonNull private String url;
 
+    @Field("shopLogoUrl")
+    @NonNull private String shopLogoUrl;
+
     @Field("priceHistory")
     @NonNull private List<PriceStamp> priceHistory;
 }
