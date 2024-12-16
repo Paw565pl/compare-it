@@ -1,6 +1,7 @@
 package it.compare.backend.product.model;
 
 import com.mongodb.lang.NonNull;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,10 +12,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-@NoArgsConstructor
-@RequiredArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
 @Document(collection = "products")
 public class Product {
     @MongoId
@@ -34,8 +35,8 @@ public class Product {
     @NonNull private Category category;
 
     @Field("images")
-    @NonNull private List<String> images;
+    @NonNull private List<String> images = new ArrayList<>();
 
     @Field("offers")
-    @NonNull private List<Offer> offers;
+    @NonNull private List<Offer> offers = new ArrayList<>();
 }
