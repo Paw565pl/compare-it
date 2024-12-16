@@ -6,18 +6,17 @@ import it.compare.backend.scraping.rtvauroagd.dto.RtvEuroAgdProduct;
 import it.compare.backend.scraping.rtvauroagd.dto.RtvEuroAgdResponse;
 import it.compare.backend.scraping.service.ScrapingService;
 import it.compare.backend.scraping.shopcategorymap.ShopCategoryMap;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
