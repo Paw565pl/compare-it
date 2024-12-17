@@ -4,9 +4,12 @@ import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class ScrapingService {
 
@@ -18,14 +21,17 @@ public class ScrapingService {
 
     @Transactional
     public void createProductsOrAddPriceStamp(List<Product> scrapedProducts) {
-        var products = new ArrayList<Product>();
+        var productsToSave = new ArrayList<Product>();
 
-        scrapedProducts.forEach(product -> {
-            var existingProductOpt = productRepository.findByEan(product.getEan());
+        var eanList = scrapedProducts.stream().map(Product::getEan).toList();
+        var existingProductsMap = productRepository.findAllByEanIn(eanList).stream()
+                .collect(Collectors.toMap(Product::getEan, product -> product));
 
-            if (existingProductOpt.isPresent()) {
-                var existingProduct = existingProductOpt.get();
-                var newOffer = product.getOffers().getFirst();
+        scrapedProducts.forEach(scrapedProduct -> {
+            var existingProduct = existingProductsMap.get(scrapedProduct.getEan());
+
+            if (existingProduct != null) {
+                var newOffer = scrapedProduct.getOffers().getFirst();
                 var newPriceStamp = newOffer.getPriceHistory().getFirst();
 
                 var offers = existingProduct.getOffers();
@@ -37,12 +43,12 @@ public class ScrapingService {
                         .orElse(newOffer);
 
                 offerFromGivenShop.getPriceHistory().add(newPriceStamp);
-                products.add(existingProduct);
+                productsToSave.add(existingProduct);
             } else {
-                products.add(product);
+                productsToSave.add(scrapedProduct);
             }
         });
 
-        products.forEach(productRepository::save);
+        productRepository.saveAll(productsToSave);
     }
 }
