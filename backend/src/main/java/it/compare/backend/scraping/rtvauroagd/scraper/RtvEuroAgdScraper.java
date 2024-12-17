@@ -32,7 +32,11 @@ public class RtvEuroAgdScraper {
 
             worker.scrapeCategory(category, categoryName)
                     .thenAccept(scrapingService::createProductsOrAddPriceStamp)
-                    .thenRun(() -> log.info("Finished scraping category: {}.", category));
+                    .thenRun(() -> log.info("Finished scraping category: {}.", category))
+                    .exceptionally(e -> {
+                        log.error("Error while scraping category: {}. {}", category, e.getMessage());
+                        return null;
+                    });
         });
     }
 }
