@@ -15,11 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class Offer {
-    @Indexed(unique = true)
     @Field("shop")
     @NonNull private Shop shop;
 
-    @Indexed(unique = true)
     @Field("shopLogoUrl")
     @NonNull private String shopLogoUrl;
 
