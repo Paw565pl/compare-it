@@ -20,7 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
-public class RtvEuroAgdScraperWorker {
+class RtvEuroAgdScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.RTV_EURO_AGD;
     private static final String BASE_URL = "https://www.euro.com.pl/rest/api/products/search";
@@ -50,7 +50,7 @@ public class RtvEuroAgdScraperWorker {
                         .queryParam("developSearchMode", "false")
                         .build()
                         .toUri();
-
+                log.info("Scraping page: {}", uri);
                 var productsResponse = this.restClient
                         .get()
                         .uri(uri)
@@ -94,7 +94,9 @@ public class RtvEuroAgdScraperWorker {
                 });
 
                 currentStartFrom += pageSize;
-                Thread.sleep(secureRandom.nextInt(500, 3000));
+                log.info("sleeping...");
+                Thread.sleep(secureRandom.nextInt(500, 1000));
+                log.info("wake up!");
             } catch (RestClientException e) {
                 log.error("Error while fetching products: {}", e.getMessage());
             } catch (InterruptedException e) {
