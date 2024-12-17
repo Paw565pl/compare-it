@@ -9,6 +9,7 @@ spring:
         max-page-size: 50
 
     mongodb:
+      connect-timeout: 30_000
       socket-timeout: 30_000
       auto-index-creation: true
 
