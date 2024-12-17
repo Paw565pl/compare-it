@@ -1,11 +1,8 @@
 package it.compare.backend.scraping.rtvauroagd.scraper;
 
-import it.compare.backend.product.model.Product;
 import it.compare.backend.product.model.Shop;
 import it.compare.backend.scraping.service.ScrapingService;
 import it.compare.backend.scraping.shopcategorymap.ShopCategoryMap;
-import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -30,23 +27,12 @@ public class RtvEuroAgdScraper {
     @Async
     public void scrape() {
         var categories = shopCategoryMap.getValues().get(CURRENT_SHOP);
-        var products = new ArrayList<Product>();
+        categories.forEach((category, categoryValue) -> {
+            log.info("Started scraping category: {}.", category);
 
-        var futures = categories.entrySet().stream()
-                .map(entry -> {
-                    var category = entry.getKey();
-                    var categoryValue = entry.getValue();
-
-                    log.info("Starting scraping category: {}.", category);
-                    return worker.scrapeCategory(category, categoryValue)
-                            .thenAccept(products::addAll)
-                            .thenRun(() -> log.info("Finished scraping category: {}.", category));
-                })
-                .toArray(CompletableFuture[]::new);
-
-        CompletableFuture.allOf(futures).thenRun(() -> {
-            scrapingService.createProductsOrAddPriceStamp(products);
-            log.info("Saved products to database.");
+            worker.scrapeCategory(category, categoryValue)
+                    .thenAccept(scrapingService::createProductsOrAddPriceStamp)
+                    .thenRun(() -> log.info("Finished scraping category: {}.", category));
         });
     }
 }
