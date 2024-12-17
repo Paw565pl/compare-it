@@ -94,7 +94,7 @@ class RtvEuroAgdScraperWorker {
                 });
 
                 currentStartFrom += pageSize;
-                Thread.sleep(secureRandom.nextInt(500, 1000));
+                Thread.sleep(secureRandom.nextInt(500, 3000));
             } catch (RestClientException e) {
                 log.error("Error while fetching products: {}", e.getMessage());
             } catch (InterruptedException e) {
