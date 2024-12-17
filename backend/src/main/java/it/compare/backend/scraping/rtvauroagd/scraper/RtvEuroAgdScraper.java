@@ -27,10 +27,10 @@ public class RtvEuroAgdScraper {
     @Async
     public void scrape() {
         var categories = shopCategoryMap.getValues().get(CURRENT_SHOP);
-        categories.forEach((category, categoryValue) -> {
+        categories.forEach((category, categoryName) -> {
             log.info("Started scraping category: {}.", category);
 
-            worker.scrapeCategory(category, categoryValue)
+            worker.scrapeCategory(category, categoryName)
                     .thenAccept(scrapingService::createProductsOrAddPriceStamp)
                     .thenRun(() -> log.info("Finished scraping category: {}.", category));
         });
