@@ -10,6 +10,7 @@ spring:
 
     mongodb:
       socket-timeout: 30_000
+      auto-index-creation: true
 
   servlet:
     multipart:
