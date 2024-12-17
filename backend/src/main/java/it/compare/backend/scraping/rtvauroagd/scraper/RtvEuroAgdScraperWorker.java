@@ -36,8 +36,8 @@ class RtvEuroAgdScraperWorker {
 
     @Async
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
+        final var pageSize = 25;
         var currentStartFrom = 0;
-        var pageSize = 25;
 
         var products = new ArrayList<Product>();
 
