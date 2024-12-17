@@ -50,7 +50,7 @@ class RtvEuroAgdScraperWorker {
                         .queryParam("developSearchMode", "false")
                         .build()
                         .toUri();
-                log.info("Scraping page: {}", uri);
+
                 var productsResponse = this.restClient
                         .get()
                         .uri(uri)
@@ -94,9 +94,7 @@ class RtvEuroAgdScraperWorker {
                 });
 
                 currentStartFrom += pageSize;
-                log.info("sleeping...");
                 Thread.sleep(secureRandom.nextInt(500, 1000));
-                log.info("wake up!");
             } catch (RestClientException e) {
                 log.error("Error while fetching products: {}", e.getMessage());
             } catch (InterruptedException e) {
