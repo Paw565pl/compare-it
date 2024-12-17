@@ -49,6 +49,6 @@ public class ScrapingService {
             }
         });
 
-        productRepository.saveAll(productsToSave);
+        productsToSave.forEach(productRepository::save);
     }
 }
