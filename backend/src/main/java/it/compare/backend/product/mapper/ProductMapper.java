@@ -46,7 +46,7 @@ public class ProductMapper {
         response.setOfferCount((int) product.getOffers().stream()
                 .filter(o -> o.getPriceHistory().stream().anyMatch(PriceStamp::getIsAvailable))
                 .count());
-        response.setAvailable(!latestPrices.isEmpty());
+        response.setIsAvailable(!latestPrices.isEmpty());
 
         return response;
     }
@@ -68,7 +68,7 @@ public class ProductMapper {
     private ProductDetailResponse.OfferResponse toOfferResponse(Offer offer) {
         ProductDetailResponse.OfferResponse response = new ProductDetailResponse.OfferResponse();
 
-        response.setShopName(offer.getShop().getHumanReadableName());
+        response.setShop(offer.getShop().getHumanReadableName());
         response.setShopLogoUrl(offer.getShopLogoUrl());
         response.setUrl(offer.getUrl());
         response.setPriceHistory(offer.getPriceHistory().stream()
@@ -85,7 +85,7 @@ public class ProductMapper {
         response.setPrice(priceStamp.getPrice());
         response.setCurrency(priceStamp.getCurrency());
         response.setPromoCode(priceStamp.getPromoCode());
-        response.setAvailable(priceStamp.getIsAvailable());
+        response.setIsAvailable(priceStamp.getIsAvailable());
         response.setCondition(priceStamp.getCondition());
 
         return response;

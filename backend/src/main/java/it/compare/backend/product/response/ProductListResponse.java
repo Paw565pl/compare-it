@@ -13,5 +13,5 @@ public class ProductListResponse {
     private BigDecimal lowestCurrentPrice;
     private String lowestPriceShopName;
     private int offerCount;
-    private boolean available;
+    private Boolean isAvailable;
 }

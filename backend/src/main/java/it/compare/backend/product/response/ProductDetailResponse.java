@@ -18,7 +18,7 @@ public class ProductDetailResponse {
 
     @Data
     public static class OfferResponse {
-        private String shopName;
+        private String shop;
         private String shopLogoUrl;
         private String url;
         private List<PriceHistoryResponse> priceHistory;
@@ -30,7 +30,7 @@ public class ProductDetailResponse {
         private BigDecimal price;
         private String currency;
         private String promoCode;
-        private boolean available;
+        private Boolean isAvailable;
         private Condition condition;
     }
 }
