@@ -12,6 +12,6 @@ public class ProductListResponse {
     private String mainImageUrl;
     private BigDecimal lowestCurrentPrice;
     private String lowestPriceShopName;
-    private int offerCount;
+    private Integer offerCount;
     private Boolean isAvailable;
 }

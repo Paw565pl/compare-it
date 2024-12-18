@@ -3,25 +3,26 @@ package it.compare.backend.product.mapper;
 import it.compare.backend.product.model.Offer;
 import it.compare.backend.product.model.PriceStamp;
 import it.compare.backend.product.model.Product;
+import it.compare.backend.product.response.OfferResponse;
+import it.compare.backend.product.response.PriceHistoryResponse;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
 import java.util.Comparator;
-import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProductMapper {
 
     public ProductListResponse toListResponse(Product product) {
-        ProductListResponse response = new ProductListResponse();
+        var response = new ProductListResponse();
 
         // Find latest price stamps for each offer
         record LatestPrice(String shopName, PriceStamp priceStamp) {}
 
-        List<LatestPrice> latestPrices = product.getOffers().stream()
+        var latestPrices = product.getOffers().stream()
                 .filter(offer -> !offer.getPriceHistory().isEmpty())
                 .map(offer -> {
-                    PriceStamp latestPrice = offer.getPriceHistory().stream()
+                    var latestPrice = offer.getPriceHistory().stream()
                             .max(Comparator.comparing(PriceStamp::getTimestamp))
                             .orElse(null);
                     return new LatestPrice(offer.getShop().getHumanReadableName(), latestPrice);
@@ -31,7 +32,7 @@ public class ProductMapper {
                 .toList();
 
         // Find lowest current price and corresponding shop
-        LatestPrice lowestPrice = latestPrices.stream()
+        var lowestPrice = latestPrices.stream()
                 .min(Comparator.comparing(latest -> latest.priceStamp().getPrice()))
                 .orElse(null);
 
@@ -43,16 +44,18 @@ public class ProductMapper {
         response.setLowestCurrentPrice(
                 lowestPrice != null ? lowestPrice.priceStamp().getPrice() : null);
         response.setLowestPriceShopName(lowestPrice != null ? lowestPrice.shopName() : null);
-        response.setOfferCount((int) product.getOffers().stream()
+
+        // Fixed: Convert long to Integer
+        response.setOfferCount(Math.toIntExact(product.getOffers().stream()
                 .filter(o -> o.getPriceHistory().stream().anyMatch(PriceStamp::getIsAvailable))
-                .count());
+                .count()));
         response.setIsAvailable(!latestPrices.isEmpty());
 
         return response;
     }
 
     public ProductDetailResponse toDetailResponse(Product product) {
-        ProductDetailResponse response = new ProductDetailResponse();
+        var response = new ProductDetailResponse();
 
         response.setId(product.getId());
         response.setEan(product.getEan());
@@ -65,8 +68,8 @@ public class ProductMapper {
         return response;
     }
 
-    private ProductDetailResponse.OfferResponse toOfferResponse(Offer offer) {
-        ProductDetailResponse.OfferResponse response = new ProductDetailResponse.OfferResponse();
+    private OfferResponse toOfferResponse(Offer offer) {
+        var response = new OfferResponse();
 
         response.setShop(offer.getShop().getHumanReadableName());
         response.setShopLogoUrl(offer.getShopLogoUrl());
@@ -78,8 +81,8 @@ public class ProductMapper {
         return response;
     }
 
-    private ProductDetailResponse.PriceHistoryResponse toPriceHistoryResponse(PriceStamp priceStamp) {
-        ProductDetailResponse.PriceHistoryResponse response = new ProductDetailResponse.PriceHistoryResponse();
+    private PriceHistoryResponse toPriceHistoryResponse(PriceStamp priceStamp) {
+        var response = new PriceHistoryResponse();
 
         response.setTimestamp(priceStamp.getTimestamp());
         response.setPrice(priceStamp.getPrice());
