@@ -9,13 +9,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@NoArgsConstructor
-@RequiredArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class PriceStamp {
     @NonNull @Field("timestamp")
-    private LocalDateTime timestamp;
+    private LocalDateTime timestamp = LocalDateTime.now();
 
     @NonNull @Field("price")
     private BigDecimal price;
@@ -27,7 +27,7 @@ public class PriceStamp {
     private String promoCode;
 
     @NonNull @Field("isAvailable")
-    private boolean isAvailable;
+    private Boolean isAvailable;
 
     @NonNull @Field("condition")
     private Condition condition;

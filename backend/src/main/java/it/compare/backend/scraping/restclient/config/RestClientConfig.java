@@ -30,8 +30,8 @@ public class RestClientConfig {
                 .build();
 
         var requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        requestFactory.setConnectTimeout(Duration.ofMinutes(1));
-        requestFactory.setConnectionRequestTimeout(Duration.ofMinutes(1));
+        requestFactory.setConnectTimeout(Duration.ofSeconds(30));
+        requestFactory.setConnectionRequestTimeout(Duration.ofSeconds(30));
 
         return restClientBuilder
                 .requestFactory(requestFactory)
