@@ -17,9 +17,15 @@ importers:
         specifier: ^19.0.0
         version: 19.0.0(react@19.0.0)
     devDependencies:
+      "@eslint/compat":
+        specifier: ^1.2.4
+        version: 1.2.4(eslint@9.17.0(jiti@1.21.7))
       "@eslint/eslintrc":
         specifier: ^3.2.0
         version: 3.2.0
+      "@eslint/js":
+        specifier: ^9.17.0
+        version: 9.17.0
       "@types/node":
         specifier: ^22.10.2
         version: 22.10.2
@@ -35,6 +41,18 @@ importers:
       eslint-config-next:
         specifier: 15.1.2
         version: 15.1.2(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@9.17.0(jiti@1.21.7))
+      eslint-plugin-jsx-a11y:
+        specifier: ^6.10.2
+        version: 6.10.2(eslint@9.17.0(jiti@1.21.7))
+      eslint-plugin-no-relative-import-paths:
+        specifier: ^1.5.5
+        version: 1.5.5
+      eslint-plugin-react-hooks:
+        specifier: ^5.1.0
+        version: 5.1.0(eslint@9.17.0(jiti@1.21.7))
       postcss:
         specifier: ^8.4.49
         version: 8.4.49
@@ -44,6 +62,9 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.7.2
+      typescript-eslint:
+        specifier: ^8.18.1
+        version: 8.18.1(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2)
 
 packages:
   "@alloc/quick-lru@5.2.0":
@@ -74,6 +95,18 @@ packages:
         integrity: sha512-CCZCDJuduB9OUkFkY2IgppNZMi2lBQgD2qzwXkEia16cge2pijY/aXi96CJMquDMn3nJdlPV1A5KrJEXwfLNzQ==,
       }
     engines: { node: ^12.0.0 || ^14.0.0 || >=16.0.0 }
+
+  "@eslint/compat@1.2.4":
+    resolution:
+      {
+        integrity: sha512-S8ZdQj/N69YAtuqFt7653jwcvuUj131+6qGLUyDqfDg1OIoBQ66OCuXC473YQfO2AaxITTutiRQiDwoo7ZLYyg==,
+      }
+    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
+    peerDependencies:
+      eslint: ^9.10.0
+    peerDependenciesMeta:
+      eslint:
+        optional: true
 
   "@eslint/config-array@0.19.1":
     resolution:
@@ -1133,6 +1166,15 @@ packages:
       typescript:
         optional: true
 
+  eslint-config-prettier@9.1.0:
+    resolution:
+      {
+        integrity: sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==,
+      }
+    hasBin: true
+    peerDependencies:
+      eslint: ">=7.0.0"
+
   eslint-import-resolver-node@0.3.9:
     resolution:
       {
@@ -1200,6 +1242,12 @@ packages:
     engines: { node: ">=4.0" }
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9
+
+  eslint-plugin-no-relative-import-paths@1.5.5:
+    resolution:
+      {
+        integrity: sha512-UjudFFdBbv93v0CsVdEKcMLbBzRIjeK2PubTctX57tgnHxZcMj1Jm8lDBWoETnPxk0S5g5QLSltEM+511yL4+w==,
+      }
 
   eslint-plugin-react-hooks@5.1.0:
     resolution:
@@ -2687,6 +2735,16 @@ packages:
       }
     engines: { node: ">= 0.4" }
 
+  typescript-eslint@8.18.1:
+    resolution:
+      {
+        integrity: sha512-Mlaw6yxuaDEPQvb/2Qwu3/TfgeBHy9iTJ3mTwe7OvpPmF6KPQjVOfGyEJpPv6Ez2C34OODChhXrzYw/9phI0MQ==,
+      }
+    engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0
+      typescript: ">=4.8.4 <5.8.0"
+
   typescript@5.7.2:
     resolution:
       {
@@ -2806,6 +2864,10 @@ snapshots:
       eslint-visitor-keys: 3.4.3
 
   "@eslint-community/regexpp@4.12.1": {}
+
+  "@eslint/compat@1.2.4(eslint@9.17.0(jiti@1.21.7))":
+    optionalDependencies:
+      eslint: 9.17.0(jiti@1.21.7)
 
   "@eslint/config-array@0.19.1":
     dependencies:
@@ -3497,6 +3559,10 @@ snapshots:
       - eslint-plugin-import-x
       - supports-color
 
+  eslint-config-prettier@9.1.0(eslint@9.17.0(jiti@1.21.7)):
+    dependencies:
+      eslint: 9.17.0(jiti@1.21.7)
+
   eslint-import-resolver-node@0.3.9:
     dependencies:
       debug: 3.2.7
@@ -3579,6 +3645,8 @@ snapshots:
       object.fromentries: 2.0.8
       safe-regex-test: 1.1.0
       string.prototype.includes: 2.0.1
+
+  eslint-plugin-no-relative-import-paths@1.5.5: {}
 
   eslint-plugin-react-hooks@5.1.0(eslint@9.17.0(jiti@1.21.7)):
     dependencies:
@@ -4577,6 +4645,16 @@ snapshots:
       is-typed-array: 1.1.15
       possible-typed-array-names: 1.0.0
       reflect.getprototypeof: 1.0.9
+
+  typescript-eslint@8.18.1(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2):
+    dependencies:
+      "@typescript-eslint/eslint-plugin": 8.18.1(@typescript-eslint/parser@8.18.1(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2))(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2)
+      "@typescript-eslint/parser": 8.18.1(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2)
+      "@typescript-eslint/utils": 8.18.1(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2)
+      eslint: 9.17.0(jiti@1.21.7)
+      typescript: 5.7.2
+    transitivePeerDependencies:
+      - supports-color
 
   typescript@5.7.2: {}
 
