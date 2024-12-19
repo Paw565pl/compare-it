@@ -38,7 +38,7 @@ public class MoreleScraperWorker {
         var products = new ArrayList<Product>();
 
         var uri = UriComponentsBuilder.fromUriString(BASE_URL)
-                .queryParam("q", categoryName) // Use the query parameter for the category
+                .queryParam("q", categoryName)
                 .build()
                 .toUri();
 
@@ -63,6 +63,17 @@ public class MoreleScraperWorker {
                         .header("Accept-Encoding", acceptEncoding)
                         .get();
 
+                var ean = productDocument
+                        .select("div.product-specification__wrapper span.specification__value")
+                        .get(2)
+                        .text();
+
+                if (ean.isEmpty() || !ean.matches("\\d{13}")) {
+                    System.out.println("Zły ean " + ean);
+                    continue;
+                }
+                ;
+
                 var title = productDocument.select("h1.prod-name").getFirst().text();
 
                 var price = productDocument
@@ -70,15 +81,6 @@ public class MoreleScraperWorker {
                         .getFirst()
                         .text();
                 price = price.replaceAll("[^0-9,]", "").replace(",", ".");
-
-                var ean = productDocument
-                        .select("div.product-specification__wrapper span.specification__value")
-                        .get(2)
-                        .text();
-
-                if (ean.isEmpty()) {
-                    continue;
-                }
 
                 List<String> imagesList = new ArrayList<>();
 
@@ -96,6 +98,10 @@ public class MoreleScraperWorker {
                 }
 
                 var priceStamp = new PriceStamp(new BigDecimal(price), "PLN", true, Condition.NEW);
+                var promoCodeElement = productDocument.select("div.product-discount-code span");
+                if (!promoCodeElement.isEmpty()) {
+                    priceStamp.setPromoCode(promoCodeElement.getLast().text());
+                }
                 var offer = new Offer(CURRENT_SHOP, LOGO_URL, href);
                 offer.getPriceHistory().add(priceStamp);
 
