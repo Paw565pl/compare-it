@@ -83,6 +83,7 @@ dependencies {
     implementation("org.apache.httpcomponents.core5:httpcore5:${httpcoreVersion}")
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:${httpcoreH2Version}")
     implementation("com.sezinkarli:random-user-agent-generator:${randomUserAgentGeneratorVersion}")
+    implementation("org.jsoup:jsoup:1.16.1")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
