@@ -14,6 +14,7 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -34,39 +35,111 @@ public class MoreleScraperWorker {
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
         var products = new ArrayList<Product>();
         var currentPage = 1;
+        var acceptLanguage = "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7";
+        var acceptEncoding = "gzip";
 
         while (true) {
             try {
                 var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
                 var uri = buildUri(currentPagePath);
 
-                if (!processPage(uri, category, products)) break;
+                var document = fetchDocument(uri, acceptLanguage, acceptEncoding);
+
+                var pagesCount = getPagesCount(document);
+
+                if (currentPage > pagesCount) {
+                    break;
+                }
+
+                var productLinks = document.select("div.cat-product.card a.productLink");
+                processProductLinks(productLinks, category, acceptLanguage, acceptEncoding, products);
+
                 currentPage++;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 log.error(e.getMessage());
-            } catch (IOException e) {
+            } catch (IOException | NoSuchElementException e) {
                 log.error(e.getMessage());
             }
         }
+
         return CompletableFuture.completedFuture(products);
+    }
+
+    private void processProductLinks(
+            Elements productLinks,
+            Category category,
+            String acceptLanguage,
+            String acceptEncoding,
+            List<Product> products)
+            throws InterruptedException {
+        for (Element link : productLinks) {
+            var href = BASE_URL + link.attr("href");
+            try {
+                var productDocument = fetchProductDocument(href, acceptLanguage, acceptEncoding);
+                var product = createProductFromDocument(productDocument, category, href);
+                if (product != null) {
+                    products.add(product);
+                }
+                Thread.sleep(secureRandom.nextInt(2000, 5000));
+            } catch (HttpStatusException e) {
+                handleHttpStatusException(e, href);
+            } catch (NoSuchElementException | IOException e) {
+                log.error(e.getMessage());
+            }
+        }
+    }
+
+    private Product createProductFromDocument(Document productDocument, Category category, String href) {
+        var ean = extractEan(productDocument);
+        if (ean.isEmpty() || !ean.matches("\\d{13}")) {
+            return null;
+        }
+
+        var title = extractTitle(productDocument);
+        var price = extractPrice(productDocument);
+        var images = extractImages(productDocument);
+        var priceStamp = new PriceStamp(price, "PLN", true, Condition.NEW);
+
+        var promoCodeElement = extractPromoCode(productDocument);
+        if (!promoCodeElement.isEmpty()) {
+            priceStamp.setPromoCode(promoCodeElement.getLast().text());
+        }
+
+        var offer = new Offer(CURRENT_SHOP, LOGO_URL, href);
+        offer.getPriceHistory().add(priceStamp);
+
+        var productEntity = new Product(ean, title, category);
+        productEntity.setImages(images);
+        productEntity.getOffers().add(offer);
+
+        return productEntity;
+    }
+
+    private Document fetchProductDocument(String href, String acceptLanguage, String acceptEncoding)
+            throws IOException {
+        return Jsoup.connect(href)
+                .userAgent(RandomUserAgentGenerator.getNext())
+                .header("Accept-Language", acceptLanguage)
+                .header("Accept-Encoding", acceptEncoding)
+                .get();
+    }
+
+    private void handleHttpStatusException(HttpStatusException e, String href) {
+        if (e.getStatusCode() == 403) {
+            log.warn("403 Forbidden error while accessing product: {}", href);
+        } else {
+            log.error("Error fetching product document: {}", href, e);
+        }
     }
 
     private String buildUri(String path) {
         return UriComponentsBuilder.fromUriString(BASE_URL + path).build().toUriString();
     }
 
-    private int getPagesCount(Document document) { return Integer.parseInt(document.select("div.pagination-btn-nolink-anchor").text()); }
-
-    private boolean processPage(String uri, Category category, List<Product> products) throws InterruptedException, IOException {
-            String acceptLanguage = "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7";
-            String acceptEncoding = "gzip";
-
-            var document = fetchDocument(uri, acceptLanguage, acceptEncoding);
-            if (isLastPage(document)) return false;
-
-            parseLinks(document, category, products, acceptLanguage, acceptEncoding);
-            return true;
+    private int getPagesCount(Document document) {
+        return Integer.parseInt(
+                document.select("div.pagination-btn-nolink-anchor").text());
     }
 
     private Document fetchDocument(String uri, String acceptLanguage, String acceptEncoding) throws IOException {
@@ -77,81 +150,41 @@ public class MoreleScraperWorker {
                 .get();
     }
 
-    private boolean isLastPage(Document document) {
-        var currentPage = Integer.parseInt(document.select("div.pagination-btn-nolink-anchor").text());
-        var totalPages = getPagesCount(document);
-        return currentPage > totalPages;
+    private String extractEan(Document productDocument) {
+        return productDocument
+                .select("div.product-specification__wrapper span.specification__value")
+                .get(2)
+                .text();
     }
 
-    private void parseLinks(Document document, Category category, List<Product> products, String acceptLanguage, String acceptEncoding) throws InterruptedException {
-        var links = document.select("div.cat-product.card a.productLink");
-        for (Element link : links) {
-            var href = BASE_URL + link.attr("href");
-            var productDocument = fetchProductDocument(href, acceptLanguage, acceptEncoding);
-            if (productDocument != null) {
-                Product product = parseProduct(productDocument, category);
-                if (product != null) products.add(product);
-            }
-            Thread.sleep(secureRandom.nextInt(2000, 5000));
-        }
+    private String extractTitle(Document productDocument) {
+        return productDocument.select("h1.prod-name").getFirst().text();
     }
 
-    private Document fetchProductDocument(String href, String acceptLanguage, String acceptEncoding) {
-        try {
-            return Jsoup.connect(href)
-                    .userAgent(RandomUserAgentGenerator.getNext())
-                    .header("Accept-Language", acceptLanguage)
-                    .header("Accept-Encoding", acceptEncoding)
-                    .get();
-        } catch (HttpStatusException e) {
-            if (e.getStatusCode() == 403) {
-                log.warn("403 Forbidden error while accessing product: {}", href);
-            } else {
-                log.error("Error fetching product document: {}", href, e);
-            }
-        } catch (IOException e) {
-            log.error("IO Exception fetching product document: {}", href, e);
-        }
-        return null;
+    private BigDecimal extractPrice(Document productDocument) {
+        var price = productDocument
+                .select("aside.product-sidebar div.product-box-main div.product-price")
+                .getFirst()
+                .text();
+        price = price.replaceAll("[^0-9,]", "").replace(",", ".");
+        return new BigDecimal(price);
     }
 
-    private Product parseProduct(Document document, Category category) {
-        try {
-            var ean = document.select("div.product-specification__wrapper span.specification__value")
-                    .get(2)
-                    .text();
-            if (ean.isEmpty() || !ean.matches("\\d{13}")) return null;
-            var title = document.select("h1.prod-name").getFirst().text();
-            var price = document.select("aside.product-sidebar div.product-box-main div.product-price")
-                    .getFirst()
-                    .text();
-            price = price.replaceAll("[^0-9,]", "").replace(",", ".");
-            var images = parseImages(document);
-            var priceStamp = new PriceStamp(new BigDecimal(price), "PLN", true, Condition.NEW);
-            var promoCodeElement = document.select("div.product-discount-code span");
-            if (!promoCodeElement.isEmpty()) {
-                priceStamp.setPromoCode(promoCodeElement.getLast().text());
-            }
-            var offer = new Offer(CURRENT_SHOP, LOGO_URL, document.location());
-            offer.getPriceHistory().add(priceStamp);
-            var product = new Product(ean, title, category);
-            product.setImages(images);
-            product.getOffers().add(offer);
-            return product;
-        } catch (NoSuchElementException | NullPointerException e) {
-            log.error("Error parsing product", e);
+    private List<String> extractImages(Document productDocument) {
+        List<String> imagesList = new ArrayList<>();
+        var images = productDocument.select("div.swiper-container.swiper-gallery-thumbs img");
+        for (Element img : images) {
+            imagesList.add(img.attr("data-src"));
         }
-        return null;
+        if (imagesList.isEmpty()) {
+            var image =
+                    productDocument.select("div.card-desktop prod-top-info img").attr("src");
+            imagesList.add(image);
+        }
+        return imagesList;
     }
 
-    private List<String> parseImages(Document document) {
-        List<String> images = new ArrayList<>();
-        document.select("div.swiper-container.swiper-gallery-thumbs img")
-                .forEach(img -> images.add(img.attr("data-src")));
-        if (images.isEmpty()) {
-            var image = document.select("div.card-desktop prod-top-info img").attr("src");
-            images.add(image);
-        }
-        return images;
+    private Elements extractPromoCode(Document productDocument) {
+        return productDocument.select("div.product-discount-code span");
     }
 }
