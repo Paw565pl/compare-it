@@ -5,6 +5,7 @@ import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
 import noRelativeImportPaths from "eslint-plugin-no-relative-import-paths";
+import reactCompiler from "eslint-plugin-react-compiler";
 import { dirname, resolve } from "path";
 import tseslint from "typescript-eslint";
 import { fileURLToPath } from "url";
@@ -37,6 +38,14 @@ const eslintConfig = tseslint.config(
         "error",
         { rootDir: "src", prefix: "@", allowSameFolder: false },
       ],
+    },
+  },
+  {
+    plugins: {
+      "react-compiler": reactCompiler,
+    },
+    rules: {
+      "react-compiler/react-compiler": "error",
     },
   },
   eslintConfigPrettier,
