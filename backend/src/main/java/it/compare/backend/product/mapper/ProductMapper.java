@@ -18,7 +18,7 @@ public class ProductMapper {
         var response = modelMapper.map(product, ProductListResponse.class);
 
         // Find latest price stamps for each offer
-        record LatestPrice(String shopName, PriceStamp priceStamp) {}
+        record LatestPrice(String shop, PriceStamp priceStamp) {}
 
         var latestPrices = product.getOffers().stream()
                 .filter(offer -> !offer.getPriceHistory().isEmpty())
@@ -41,10 +41,10 @@ public class ProductMapper {
                 product.getImages().isEmpty() ? null : product.getImages().getFirst());
         response.setLowestCurrentPrice(
                 lowestPrice != null ? lowestPrice.priceStamp().getPrice() : null);
-        response.setLowestPriceShop(lowestPrice != null ? lowestPrice.shopName() : null);
-        response.setOfferCount(Math.toIntExact(product.getOffers().stream()
+        response.setLowestPriceShop(lowestPrice != null ? lowestPrice.shop() : null);
+        response.setOfferCount(product.getOffers().stream()
                 .filter(o -> o.getPriceHistory().stream().anyMatch(PriceStamp::getIsAvailable))
-                .count()));
+                .count());
 
         var isAvailable = lowestPrice != null && lowestPrice.priceStamp().getIsAvailable();
         response.setIsAvailable(isAvailable);
