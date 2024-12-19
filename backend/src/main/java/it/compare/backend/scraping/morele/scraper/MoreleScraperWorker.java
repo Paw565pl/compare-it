@@ -22,8 +22,7 @@ public class MoreleScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.MORELE_NET;
     private static final String BASE_URL = "https://www.morele.net/wyszukiwarka";
-    private static final String LOGO_URL =
-            "https://www.morele.net/assets/img/logos/logo-2.png"; // Adjust the logo URL as needed
+    private static final String LOGO_URL = "https://images.morele.net/doodle/6756d1b5d579c.png";
 
     private final SecureRandom secureRandom;
 
@@ -65,25 +64,47 @@ public class MoreleScraperWorker {
                         .get();
 
                 var title = productDocument.select("h1.prod-name").getFirst().text();
-                System.out.println(title);
 
                 var price = productDocument
                         .select("aside.product-sidebar div.product-box-main div.product-price")
                         .getFirst()
                         .text();
                 price = price.replaceAll("[^0-9,]", "").replace(",", ".");
-                System.out.println(price);
 
                 var ean = productDocument
                         .select("div.product-specification__wrapper span.specification__value")
                         .get(2)
                         .text();
-                System.out.println(ean);
 
-                var productEntity = new Product(ean, title, category);
+                if (ean.isEmpty()) {
+                    continue;
+                }
+
+                List<String> imagesList = new ArrayList<>();
+
+                var images = productDocument.select("div.swiper-container.swiper-gallery-thumbs img");
+                for (Element img : images) {
+                    imagesList.add(img.attr("data-src"));
+                }
+
+                if (imagesList.isEmpty()) {
+                    var image = productDocument
+                            .select("div.card-desktop prod-top-info img")
+                            .first()
+                            .attr("src");
+                    imagesList.add(image);
+                }
+
                 var priceStamp = new PriceStamp(new BigDecimal(price), "PLN", true, Condition.NEW);
                 var offer = new Offer(CURRENT_SHOP, LOGO_URL, href);
                 offer.getPriceHistory().add(priceStamp);
+
+                var productEntity = new Product(ean, title, category);
+                productEntity.setImages(imagesList);
+                productEntity.getOffers().add(offer);
+
+                System.out.println(productEntity);
+
                 Thread.sleep(secureRandom.nextInt(500, 3000));
                 products.add(productEntity);
             }
