@@ -1,4 +1,4 @@
-*.md
+HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -35,11 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-# Docker
-Dockerfile
-Dockerfile.*
-.dockerignore
-
-.gitignore
-.editorconfig
