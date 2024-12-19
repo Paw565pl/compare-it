@@ -2,6 +2,7 @@
 import { includeIgnoreFile } from "@eslint/compat";
 import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
+import tanstackQueryPlugin from "@tanstack/eslint-plugin-query";
 import eslintConfigPrettier from "eslint-config-prettier";
 import noRelativeImportPaths from "eslint-plugin-no-relative-import-paths";
 import reactCompiler from "eslint-plugin-react-compiler";
@@ -47,6 +48,7 @@ const eslintConfig = tseslint.config(
       "react-compiler/react-compiler": "error",
     },
   },
+  tanstackQueryPlugin.configs["flat/recommended"],
   eslintConfigPrettier,
 );
 

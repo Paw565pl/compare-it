@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import Providers from "@/core/providers/providers";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 
@@ -13,7 +14,9 @@ interface RootLayoutProps {
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 };
