@@ -19,12 +19,12 @@ public class ProductRestController {
     private final ProductService productService;
 
     @GetMapping
-    public Page<ProductListResponse> getProducts(Pageable pageable) {
+    public Page<ProductListResponse> findAll(Pageable pageable) {
         return productService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
-    public ProductDetailResponse getProduct(@PathVariable String id) {
+    public ProductDetailResponse findById(@PathVariable String id) {
         return productService.findById(id);
     }
 }
