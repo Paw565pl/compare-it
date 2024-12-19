@@ -41,4 +41,5 @@ Dockerfile
 Dockerfile.*
 .dockerignore
 
+.gitignore
 .editorconfig
