@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "comapre.it",
+  title: "compare.it",
 };
 
 interface RootLayoutProps {
