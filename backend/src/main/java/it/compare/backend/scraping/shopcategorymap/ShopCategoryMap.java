@@ -25,5 +25,17 @@ public class ShopCategoryMap {
                         "plyty-glowne",
                         Category.RAM_MEMORY,
                         "pamieci-ram"));
+
+        values.put(
+                Shop.MORELE_NET,
+                Map.of(
+                        Category.GRAPHICS_CARDS,
+                        "/kategoria/karty-graficzne-12",
+                        Category.PROCESSORS,
+                        "/kategoria/procesory-45",
+                        Category.MOTHERBOARDS,
+                        "/kategoria/plyty-glowne-42",
+                        Category.RAM_MEMORY,
+                        "/kategoria/pamieci-ram-38"));
     }
 }
