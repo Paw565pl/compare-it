@@ -13,6 +13,7 @@
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-query": "^5.62.8",
+    "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
