@@ -4,7 +4,7 @@ import it.compare.backend.product.model.Offer;
 import it.compare.backend.product.model.PriceStamp;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.response.OfferResponse;
-import it.compare.backend.product.response.PriceHistoryResponse;
+import it.compare.backend.product.response.PriceStampResponse;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
 import java.util.Comparator;
@@ -43,7 +43,7 @@ public class ProductMapper {
                 product.getImages().isEmpty() ? null : product.getImages().getFirst());
         response.setLowestCurrentPrice(
                 lowestPrice != null ? lowestPrice.priceStamp().getPrice() : null);
-        response.setLowestPriceShopName(lowestPrice != null ? lowestPrice.shopName() : null);
+        response.setLowestPriceShop(lowestPrice != null ? lowestPrice.shopName() : null);
 
         // Fixed: Convert long to Integer
         response.setOfferCount(Math.toIntExact(product.getOffers().stream()
@@ -81,8 +81,8 @@ public class ProductMapper {
         return response;
     }
 
-    private PriceHistoryResponse toPriceHistoryResponse(PriceStamp priceStamp) {
-        var response = new PriceHistoryResponse();
+    private PriceStampResponse toPriceHistoryResponse(PriceStamp priceStamp) {
+        var response = new PriceStampResponse();
 
         response.setTimestamp(priceStamp.getTimestamp());
         response.setPrice(priceStamp.getPrice());
