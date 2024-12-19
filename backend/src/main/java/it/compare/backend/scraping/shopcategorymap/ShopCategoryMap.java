@@ -30,12 +30,12 @@ public class ShopCategoryMap {
                 Shop.MORELE_NET,
                 Map.of(
                         Category.GRAPHICS_CARDS,
-                        "karty-graficzne",
+                        "/kategoria/karty-graficzne-12",
                         Category.PROCESSORS,
-                        "procesory",
+                        "/kategoria/procesory-45",
                         Category.MOTHERBOARDS,
-                        "plyty-glowne",
+                        "/kategoria/plyty-glowne-42",
                         Category.RAM_MEMORY,
-                        "pamieci-ram"));
+                        "/kategoria/pamieci-ram-38"));
     }
 }
