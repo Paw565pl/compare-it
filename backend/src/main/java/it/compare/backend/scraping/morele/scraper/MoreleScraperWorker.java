@@ -21,11 +21,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 @Component
 public class MoreleScraperWorker {
-
     private static final Shop CURRENT_SHOP = Shop.MORELE_NET;
     private static final String BASE_URL = "https://www.morele.net";
     private static final String LOGO_URL = "https://images.morele.net/doodle/6756d1b5d579c.png";
-
     private final SecureRandom secureRandom;
 
     public MoreleScraperWorker(SecureRandom secureRandom) {
@@ -37,46 +35,18 @@ public class MoreleScraperWorker {
         var products = new ArrayList<Product>();
         var currentPage = 1;
 
-        String acceptLanguage = "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7";
-        String acceptEncoding = "gzip";
-
         while (true) {
-            var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
-
-            var uri = buildUri(currentPagePath);
-
             try {
-                var document = Jsoup.connect(uri)
-                        .userAgent(RandomUserAgentGenerator.getNext())
-                        .header("Accept-Language", acceptLanguage)
-                        .header("Accept-Encoding", acceptEncoding)
-                        .get();
+                var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
+                var uri = buildUri(currentPagePath);
 
-                var pagesCount =
-                        document.select("div.pagination-btn-nolink-anchor").text();
-
-                var links = document.select("div.cat-product.card a.productLink");
-
-                if (currentPage > Integer.parseInt(pagesCount)) {
-                    break;
-                }
-
-                for (Element link : links) {
-                    var href = "https://www.morele.net" + link.attr("href");
-                    var productDocument = fetchProductDocument(href, acceptLanguage, acceptEncoding);
-                    if (productDocument != null) {
-                        Product product = parseProduct(productDocument, category);
-                        if (product != null) products.add(product);
-                    }
-                    Thread.sleep(secureRandom.nextInt(2000, 5000));
-
-                    currentPage++;
-                }
-            } catch (IOException e) {
-                log.error(e.getMessage());
+                if (!processPage(uri, category, products)) break;
+                currentPage++;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
+                log.error(e.getMessage());
+            } catch (IOException e) {
+                log.error(e.getMessage());
             }
         }
         return CompletableFuture.completedFuture(products);
@@ -84,6 +54,46 @@ public class MoreleScraperWorker {
 
     private String buildUri(String path) {
         return UriComponentsBuilder.fromUriString(BASE_URL + path).build().toUriString();
+    }
+
+    private int getPagesCount(Document document) { return Integer.parseInt(document.select("div.pagination-btn-nolink-anchor").text()); }
+
+    private boolean processPage(String uri, Category category, List<Product> products) throws InterruptedException, IOException {
+            String acceptLanguage = "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7";
+            String acceptEncoding = "gzip";
+
+            var document = fetchDocument(uri, acceptLanguage, acceptEncoding);
+            if (isLastPage(document)) return false;
+
+            parseLinks(document, category, products, acceptLanguage, acceptEncoding);
+            return true;
+    }
+
+    private Document fetchDocument(String uri, String acceptLanguage, String acceptEncoding) throws IOException {
+        return Jsoup.connect(uri)
+                .userAgent(RandomUserAgentGenerator.getNext())
+                .header("Accept-Language", acceptLanguage)
+                .header("Accept-Encoding", acceptEncoding)
+                .get();
+    }
+
+    private boolean isLastPage(Document document) {
+        var currentPage = Integer.parseInt(document.select("div.pagination-btn-nolink-anchor").text());
+        var totalPages = getPagesCount(document);
+        return currentPage > totalPages;
+    }
+
+    private void parseLinks(Document document, Category category, List<Product> products, String acceptLanguage, String acceptEncoding) throws InterruptedException {
+        var links = document.select("div.cat-product.card a.productLink");
+        for (Element link : links) {
+            var href = BASE_URL + link.attr("href");
+            var productDocument = fetchProductDocument(href, acceptLanguage, acceptEncoding);
+            if (productDocument != null) {
+                Product product = parseProduct(productDocument, category);
+                if (product != null) products.add(product);
+            }
+            Thread.sleep(secureRandom.nextInt(2000, 5000));
+        }
     }
 
     private Document fetchProductDocument(String href, String acceptLanguage, String acceptEncoding) {
@@ -111,29 +121,22 @@ public class MoreleScraperWorker {
                     .get(2)
                     .text();
             if (ean.isEmpty() || !ean.matches("\\d{13}")) return null;
-
             var title = document.select("h1.prod-name").getFirst().text();
-
             var price = document.select("aside.product-sidebar div.product-box-main div.product-price")
                     .getFirst()
                     .text();
             price = price.replaceAll("[^0-9,]", "").replace(",", ".");
-
             var images = parseImages(document);
-
             var priceStamp = new PriceStamp(new BigDecimal(price), "PLN", true, Condition.NEW);
             var promoCodeElement = document.select("div.product-discount-code span");
             if (!promoCodeElement.isEmpty()) {
                 priceStamp.setPromoCode(promoCodeElement.getLast().text());
             }
-
             var offer = new Offer(CURRENT_SHOP, LOGO_URL, document.location());
             offer.getPriceHistory().add(priceStamp);
-
             var product = new Product(ean, title, category);
             product.setImages(images);
             product.getOffers().add(offer);
-
             return product;
         } catch (NoSuchElementException | NullPointerException e) {
             log.error("Error parsing product", e);
