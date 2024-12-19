@@ -33,7 +33,7 @@ public class MoreleScraperWorker {
     }
 
     @Async
-    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) throws IOException {
+    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
         var products = new ArrayList<Product>();
         var currentPage = 1;
 
@@ -42,104 +42,113 @@ public class MoreleScraperWorker {
 
         while (true) {
             var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
-            System.out.println("current_path: " + currentPagePath);
 
-            var uri = UriComponentsBuilder.fromUriString(BASE_URL + currentPagePath)
-                    .build()
-                    .toUri();
-
-            Document document = Jsoup.connect(uri.toString())
-                    .userAgent(RandomUserAgentGenerator.getNext())
-                    .header("Accept-Language", acceptLanguage)
-                    .header("Accept-Encoding", acceptEncoding)
-                    .get();
-
-            var pagesCount = document.select("div.pagination-btn-nolink-anchor").text();
-            System.out.println("pages_count " + pagesCount);
-
-            var links = document.select("div.cat-product.card a.productLink");
-
-            if (currentPage > Integer.parseInt(pagesCount)) {
-                break;
-            }
+            var uri = buildUri(currentPagePath);
 
             try {
-                for (Element link : links) {
-                    var href = "https://www.morele.net" + link.attr("href");
-                    Document productDocument = null;
-                    try {
-                        productDocument = Jsoup.connect(href)
-                                .userAgent(RandomUserAgentGenerator.getNext())
-                                .header("Accept-Language", acceptLanguage)
-                                .header("Accept-Encoding", acceptEncoding)
-                                .get();
-                    } catch (HttpStatusException e) {
-                        if (e.getStatusCode() == 403) {
-                            log.warn("403 Forbidden error while accessing product: {}", href);
-                            continue;
-                        }
-                        throw e;
-                    }
+                var document = Jsoup.connect(uri)
+                        .userAgent(RandomUserAgentGenerator.getNext())
+                        .header("Accept-Language", acceptLanguage)
+                        .header("Accept-Encoding", acceptEncoding)
+                        .get();
 
-                    try {
-                        var ean = productDocument
-                                .select("div.product-specification__wrapper span.specification__value")
-                                .get(2)
-                                .text();
+                var pagesCount =
+                        document.select("div.pagination-btn-nolink-anchor").text();
 
-                        if (ean.isEmpty() || !ean.matches("\\d{13}")) continue;
+                var links = document.select("div.cat-product.card a.productLink");
 
-                        var title = productDocument
-                                .select("h1.prod-name")
-                                .getFirst()
-                                .text();
-
-                        var price = productDocument
-                                .select("aside.product-sidebar div.product-box-main div.product-price")
-                                .getFirst()
-                                .text();
-                        System.out.println("new_title: " + title + ", new_price: " + price);
-
-                        price = price.replaceAll("[^0-9,]", "").replace(",", ".");
-
-                        List<String> imagesList = new ArrayList<>();
-
-                        var images = productDocument.select("div.swiper-container.swiper-gallery-thumbs img");
-                        for (Element img : images) {
-                            imagesList.add(img.attr("data-src"));
-                        }
-
-                        if (imagesList.isEmpty()) {
-                            var image = productDocument
-                                    .select("div.card-desktop prod-top-info img")
-                                    .attr("src");
-                            imagesList.add(image);
-                        }
-
-                        var priceStamp = new PriceStamp(new BigDecimal(price), "PLN", true, Condition.NEW);
-                        var promoCodeElement = productDocument.select("div.product-discount-code span");
-                        if (!promoCodeElement.isEmpty()) {
-                            priceStamp.setPromoCode(promoCodeElement.last().text());
-                        }
-                        var offer = new Offer(CURRENT_SHOP, LOGO_URL, href);
-                        offer.getPriceHistory().add(priceStamp);
-
-                        var productEntity = new Product(ean, title, category);
-                        productEntity.setImages(imagesList);
-                        productEntity.getOffers().add(offer);
-
-                        Thread.sleep(secureRandom.nextInt(2000, 5000));
-                        products.add(productEntity);
-                    } catch (NoSuchElementException e) {
-                    }
+                if (currentPage > Integer.parseInt(pagesCount)) {
+                    break;
                 }
 
-                currentPage++;
+                for (Element link : links) {
+                    var href = "https://www.morele.net" + link.attr("href");
+                    var productDocument = fetchProductDocument(href, acceptLanguage, acceptEncoding);
+                    if (productDocument != null) {
+                        Product product = parseProduct(productDocument, category);
+                        if (product != null) products.add(product);
+                    }
+                    Thread.sleep(secureRandom.nextInt(2000, 5000));
+
+                    currentPage++;
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
             }
         }
         return CompletableFuture.completedFuture(products);
+    }
+
+    private String buildUri(String path) {
+        return UriComponentsBuilder.fromUriString(BASE_URL + path).build().toUriString();
+    }
+
+    private Document fetchProductDocument(String href, String acceptLanguage, String acceptEncoding) {
+        try {
+            return Jsoup.connect(href)
+                    .userAgent(RandomUserAgentGenerator.getNext())
+                    .header("Accept-Language", acceptLanguage)
+                    .header("Accept-Encoding", acceptEncoding)
+                    .get();
+        } catch (HttpStatusException e) {
+            if (e.getStatusCode() == 403) {
+                log.warn("403 Forbidden error while accessing product: {}", href);
+            } else {
+                log.error("Error fetching product document: {}", href, e);
+            }
+        } catch (IOException e) {
+            log.error("IO Exception fetching product document: {}", href, e);
+        }
+        return null;
+    }
+
+    private Product parseProduct(Document document, Category category) {
+        try {
+            var ean = document.select("div.product-specification__wrapper span.specification__value")
+                    .get(2)
+                    .text();
+            if (ean.isEmpty() || !ean.matches("\\d{13}")) return null;
+
+            var title = document.select("h1.prod-name").getFirst().text();
+
+            var price = document.select("aside.product-sidebar div.product-box-main div.product-price")
+                    .getFirst()
+                    .text();
+            price = price.replaceAll("[^0-9,]", "").replace(",", ".");
+
+            var images = parseImages(document);
+
+            var priceStamp = new PriceStamp(new BigDecimal(price), "PLN", true, Condition.NEW);
+            var promoCodeElement = document.select("div.product-discount-code span");
+            if (!promoCodeElement.isEmpty()) {
+                priceStamp.setPromoCode(promoCodeElement.getLast().text());
+            }
+
+            var offer = new Offer(CURRENT_SHOP, LOGO_URL, document.location());
+            offer.getPriceHistory().add(priceStamp);
+
+            var product = new Product(ean, title, category);
+            product.setImages(images);
+            product.getOffers().add(offer);
+
+            return product;
+        } catch (NoSuchElementException | NullPointerException e) {
+            log.error("Error parsing product", e);
+        }
+        return null;
+    }
+
+    private List<String> parseImages(Document document) {
+        List<String> images = new ArrayList<>();
+        document.select("div.swiper-container.swiper-gallery-thumbs img")
+                .forEach(img -> images.add(img.attr("data-src")));
+        if (images.isEmpty()) {
+            var image = document.select("div.card-desktop prod-top-info img").attr("src");
+            images.add(image);
+        }
+        return images;
     }
 }
