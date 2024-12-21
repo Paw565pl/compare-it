@@ -11,6 +11,7 @@ import lombok.*;
 public class ProductListResponse {
     private String id;
     private String name;
+    private String ean;
     private Category category;
     private String mainImageUrl;
     private BigDecimal lowestCurrentPrice;
