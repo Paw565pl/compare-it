@@ -34,36 +34,44 @@ public class MoreleScraperWorker {
     @Async
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
         var products = new ArrayList<Product>();
-        var currentPage = 1;
         var acceptLanguage = "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7";
         var acceptEncoding = "gzip";
 
-        while (true) {
-            try {
-                var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
-                var uri = buildUri(currentPagePath);
+        try {
+            var initialUri = buildUri(categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/1");
+            var initialDocument = fetchDocument(initialUri, acceptLanguage, acceptEncoding);
+            var pagesCount = getPagesCount(initialDocument);
 
-                var document = fetchDocument(uri, acceptLanguage, acceptEncoding);
-
-                var pagesCount = getPagesCount(document);
-
-                if (currentPage > pagesCount) {
-                    break;
-                }
-
-                var productLinks = document.select("div.cat-product.card a.productLink");
-                scrapeProduct(productLinks, category, acceptLanguage, acceptEncoding, products);
-
-                currentPage++;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.error(e.getMessage());
-            } catch (IOException | NoSuchElementException e) {
-                log.error(e.getMessage());
+            for (var currentPage = 1; currentPage <= pagesCount; currentPage++) {
+                processCurrentPage(categoryName, currentPage, acceptLanguage, acceptEncoding, category, products);
             }
+        } catch (IOException e) {
+            log.error(e.getMessage());
         }
 
         return CompletableFuture.completedFuture(products);
+    }
+
+    private void processCurrentPage(
+            String categoryName,
+            int currentPage,
+            String acceptLanguage,
+            String acceptEncoding,
+            Category category,
+            List<Product> products) {
+        try {
+            var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
+            var uri = buildUri(currentPagePath);
+
+            var document = fetchDocument(uri, acceptLanguage, acceptEncoding);
+            var productLinks = document.select("div.cat-product.card a.productLink");
+            scrapeProduct(productLinks, category, acceptLanguage, acceptEncoding, products);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error(e.getMessage());
+        } catch (IOException | NoSuchElementException e) {
+            log.error(e.getMessage());
+        }
     }
 
     private void scrapeProduct(
