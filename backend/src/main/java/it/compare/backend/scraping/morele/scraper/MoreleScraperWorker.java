@@ -102,7 +102,8 @@ public class MoreleScraperWorker {
         var priceStamp = new PriceStamp(price, "PLN", true, Condition.NEW);
 
         var promoCodeElement = extractPromoCode(productDocument);
-        promoCodeElement.ifPresent(elements -> priceStamp.setPromoCode(elements.getLast().text()));
+        promoCodeElement.ifPresent(
+                elements -> priceStamp.setPromoCode(elements.getLast().text()));
 
         var offer = new Offer(CURRENT_SHOP, LOGO_URL, href);
         offer.getPriceHistory().add(priceStamp);
