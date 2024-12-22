@@ -1,9 +1,9 @@
-package it.compare.backend.scraping.rtvauroagd.scraper;
+package it.compare.backend.scraping.rtveuroagd.scraper;
 
 import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.model.*;
-import it.compare.backend.scraping.rtvauroagd.dto.RtvEuroAgdProduct;
-import it.compare.backend.scraping.rtvauroagd.dto.RtvEuroAgdResponse;
+import it.compare.backend.scraping.rtveuroagd.dto.RtvEuroAgdProduct;
+import it.compare.backend.scraping.rtveuroagd.dto.RtvEuroAgdResponse;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
