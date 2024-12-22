@@ -24,7 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class MoreleScraperWorker {
     private static final Shop CURRENT_SHOP = Shop.MORELE_NET;
     private static final String BASE_URL = "https://www.morele.net";
-    private static final String LOGO_URL = "https://images.morele.net/doodle/6756d1b5d579c.png";
+    private static final String LOGO_URL = "https://www.morele.net/assets/src/images/socials/morele_logo_fb.png";
     private final SecureRandom secureRandom;
 
     public MoreleScraperWorker(SecureRandom secureRandom) {

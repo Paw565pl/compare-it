@@ -4,6 +4,7 @@ import it.compare.backend.product.model.Shop;
 import it.compare.backend.scraping.service.ScrapingService;
 import it.compare.backend.scraping.shopcategorymap.ShopCategoryMap;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -23,6 +24,7 @@ public class MoreleScraper {
         this.moreleScraperWorker = moreleScraperWorker;
     }
 
+    @Async
     public void scrape() {
         var categories = shopCategoryMap.getValues().get(CURRENT_SHOP);
         categories.forEach((category, categoryName) -> {
