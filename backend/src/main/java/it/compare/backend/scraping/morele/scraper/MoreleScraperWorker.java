@@ -8,12 +8,12 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -52,7 +52,7 @@ public class MoreleScraperWorker {
                 }
 
                 var productLinks = document.select("div.cat-product.card a.productLink");
-                processProductLinks(productLinks, category, acceptLanguage, acceptEncoding, products);
+                scrapeProduct(productLinks, category, acceptLanguage, acceptEncoding, products);
 
                 currentPage++;
             } catch (InterruptedException e) {
@@ -66,14 +66,14 @@ public class MoreleScraperWorker {
         return CompletableFuture.completedFuture(products);
     }
 
-    private void processProductLinks(
+    private void scrapeProduct(
             Elements productLinks,
             Category category,
             String acceptLanguage,
             String acceptEncoding,
             List<Product> products)
             throws InterruptedException {
-        for (Element link : productLinks) {
+        for (var link : productLinks) {
             var href = BASE_URL + link.attr("href");
             try {
                 var productDocument = fetchProductDocument(href, acceptLanguage, acceptEncoding);
@@ -96,15 +96,13 @@ public class MoreleScraperWorker {
             return null;
         }
 
-        var title = extractTitle(productDocument);
+        var title = extractName(productDocument);
         var price = extractPrice(productDocument);
         var images = extractImages(productDocument);
         var priceStamp = new PriceStamp(price, "PLN", true, Condition.NEW);
 
         var promoCodeElement = extractPromoCode(productDocument);
-        if (!promoCodeElement.isEmpty()) {
-            priceStamp.setPromoCode(promoCodeElement.getLast().text());
-        }
+        promoCodeElement.ifPresent(elements -> priceStamp.setPromoCode(elements.getLast().text()));
 
         var offer = new Offer(CURRENT_SHOP, LOGO_URL, href);
         offer.getPriceHistory().add(priceStamp);
@@ -157,7 +155,7 @@ public class MoreleScraperWorker {
                 .text();
     }
 
-    private String extractTitle(Document productDocument) {
+    private String extractName(Document productDocument) {
         return productDocument.select("h1.prod-name").getFirst().text();
     }
 
@@ -171,20 +169,22 @@ public class MoreleScraperWorker {
     }
 
     private List<String> extractImages(Document productDocument) {
-        List<String> imagesList = new ArrayList<>();
+        var imagesList = new ArrayList<String>();
         var images = productDocument.select("div.swiper-container.swiper-gallery-thumbs img");
-        for (Element img : images) {
-            imagesList.add(img.attr("data-src"));
+        for (var image : images) {
+            imagesList.add(image.attr("data-src"));
         }
         if (imagesList.isEmpty()) {
             var image =
                     productDocument.select("div.card-desktop prod-top-info img").attr("src");
             imagesList.add(image);
         }
+
+        imagesList.removeIf(String::isEmpty);
         return imagesList;
     }
 
-    private Elements extractPromoCode(Document productDocument) {
-        return productDocument.select("div.product-discount-code span");
+    private Optional<Elements> extractPromoCode(Document productDocument) {
+        return Optional.of(productDocument.select("div.product-discount-code span"));
     }
 }
