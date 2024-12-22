@@ -1,6 +1,6 @@
-package it.compare.backend.scraping.rtvauroagd.watcher;
+package it.compare.backend.scraping.rtveuroagd.watcher;
 
-import it.compare.backend.scraping.rtvauroagd.scraper.RtvEuroAgdScraper;
+import it.compare.backend.scraping.rtveuroagd.scraper.RtvEuroAgdScraper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
