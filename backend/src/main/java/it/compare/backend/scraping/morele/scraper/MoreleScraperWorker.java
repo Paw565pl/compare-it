@@ -15,8 +15,10 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
@@ -26,9 +28,11 @@ public class MoreleScraperWorker {
     private static final String BASE_URL = "https://www.morele.net";
     private static final String LOGO_URL = "https://www.morele.net/assets/src/images/socials/morele_logo_fb.png";
     private final SecureRandom secureRandom;
+    private final RestClient restClient;
 
-    public MoreleScraperWorker(SecureRandom secureRandom) {
+    public MoreleScraperWorker(SecureRandom secureRandom, RestClient restClient) {
         this.secureRandom = secureRandom;
+        this.restClient = restClient;
     }
 
     @Async
@@ -125,11 +129,19 @@ public class MoreleScraperWorker {
 
     private Document fetchProductDocument(String href, String acceptLanguage, String acceptEncoding)
             throws IOException {
-        return Jsoup.connect(href)
-                .userAgent(RandomUserAgentGenerator.getNext())
+        ResponseEntity<String> response = restClient
+                .get()
+                .uri(href)
                 .header("Accept-Language", acceptLanguage)
                 .header("Accept-Encoding", acceptEncoding)
-                .get();
+                .header("User-Agent", RandomUserAgentGenerator.getNext())
+                .retrieve()
+                .toEntity(String.class);
+
+        var responseBody = Optional.ofNullable(response.getBody())
+                .orElseThrow(() -> new IOException("Response body is null for URI: " + href));
+
+        return Jsoup.parse(responseBody);
     }
 
     private void handleHttpStatusException(HttpStatusException e, String href) {
@@ -150,11 +162,19 @@ public class MoreleScraperWorker {
     }
 
     private Document fetchDocument(String uri, String acceptLanguage, String acceptEncoding) throws IOException {
-        return Jsoup.connect(uri)
-                .userAgent(RandomUserAgentGenerator.getNext())
+        ResponseEntity<String> response = restClient
+                .get()
+                .uri(uri)
                 .header("Accept-Language", acceptLanguage)
                 .header("Accept-Encoding", acceptEncoding)
-                .get();
+                .header("User-Agent", RandomUserAgentGenerator.getNext())
+                .retrieve()
+                .toEntity(String.class);
+
+        String responseBody = Optional.ofNullable(response.getBody())
+                .orElseThrow(() -> new IOException("Response body is null for URI: " + uri));
+
+        return Jsoup.parse(responseBody);
     }
 
     private String extractEan(Document productDocument) {
