@@ -50,7 +50,7 @@ public class MoreleScraperWorker {
                 processCurrentPage(categoryName, currentPage, acceptLanguage, acceptEncoding, category, products);
             }
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("io exception", e);
         }
 
         return CompletableFuture.completedFuture(products);
@@ -72,9 +72,9 @@ public class MoreleScraperWorker {
             scrapeProduct(productLinks, category, acceptLanguage, acceptEncoding, products);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error(e.getMessage());
+            log.error("Interapted with error", e);
         } catch (IOException | NoSuchElementException e) {
-            log.error(e.getMessage());
+            log.error("Error occurred", e);
         }
     }
 
@@ -93,11 +93,11 @@ public class MoreleScraperWorker {
                 if (product != null) {
                     products.add(product);
                 }
-                Thread.sleep(secureRandom.nextInt(2000, 5000));
+                Thread.sleep(secureRandom.nextInt(1000, 3000));
             } catch (HttpStatusException e) {
                 handleHttpStatusException(e, href);
             } catch (NoSuchElementException | IOException e) {
-                log.error(e.getMessage());
+                log.error("Error occurred", e);
             }
         }
     }
@@ -107,15 +107,13 @@ public class MoreleScraperWorker {
         if (ean.isEmpty() || !ean.matches("\\d{13}")) {
             return null;
         }
-
         var title = extractName(productDocument);
         var price = extractPrice(productDocument);
         var images = extractImages(productDocument);
         var priceStamp = new PriceStamp(price, "PLN", true, Condition.NEW);
 
         var promoCodeElement = extractPromoCode(productDocument);
-        promoCodeElement.ifPresent(
-                elements -> priceStamp.setPromoCode(elements.getLast().text()));
+        promoCodeElement.ifPresent(priceStamp::setPromoCode);
 
         var offer = new Offer(CURRENT_SHOP, LOGO_URL, href);
         offer.getPriceHistory().add(priceStamp);
@@ -123,7 +121,6 @@ public class MoreleScraperWorker {
         var productEntity = new Product(ean, title, category);
         productEntity.setImages(images);
         productEntity.getOffers().add(offer);
-
         return productEntity;
     }
 
@@ -213,7 +210,13 @@ public class MoreleScraperWorker {
         return imagesList;
     }
 
-    private Optional<Elements> extractPromoCode(Document productDocument) {
-        return Optional.of(productDocument.select("div.product-discount-code span"));
+    private Optional<String> extractPromoCode(Document productDocument) {
+        Elements promoCodeElements =
+                productDocument.select("div.product-discount-code span:not(.product-discount-code__label)");
+
+        if (!promoCodeElements.isEmpty()) {
+            return Optional.of(promoCodeElements.getFirst().text().trim());
+        }
+        return Optional.empty();
     }
 }
