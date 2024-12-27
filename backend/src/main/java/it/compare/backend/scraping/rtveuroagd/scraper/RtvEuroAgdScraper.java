@@ -1,4 +1,4 @@
-package it.compare.backend.scraping.rtvauroagd.scraper;
+package it.compare.backend.scraping.rtveuroagd.scraper;
 
 import it.compare.backend.product.model.Shop;
 import it.compare.backend.scraping.service.ScrapingService;

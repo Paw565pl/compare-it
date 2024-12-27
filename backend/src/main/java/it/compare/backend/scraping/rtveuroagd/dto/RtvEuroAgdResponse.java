@@ -1,4 +1,4 @@
-package it.compare.backend.scraping.rtvauroagd.dto;
+package it.compare.backend.scraping.rtveuroagd.dto;
 
 import java.util.List;
 

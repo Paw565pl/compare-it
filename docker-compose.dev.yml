@@ -33,6 +33,28 @@ services:
         - action: sync+restart
           path: ./backend
           target: /app/
+          ignore:
+            - .gradle/
+            - build/
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app/
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
 
 volumes:
   mongodb-data:
