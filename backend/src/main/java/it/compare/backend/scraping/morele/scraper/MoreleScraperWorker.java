@@ -91,6 +91,7 @@ public class MoreleScraperWorker {
                 var productDocument = fetchProductDocument(href, acceptLanguage, acceptEncoding);
                 var product = createProductFromDocument(productDocument, category, href);
                 if (product != null) {
+                    log.info("Product created: {}", product);
                     products.add(product);
                 }
                 Thread.sleep(secureRandom.nextInt(1000, 3000));
@@ -110,7 +111,8 @@ public class MoreleScraperWorker {
         var title = extractName(productDocument);
         var price = extractPrice(productDocument);
         var images = extractImages(productDocument);
-        var priceStamp = new PriceStamp(price, "PLN", true, Condition.NEW);
+        var condition = extractCondition(productDocument);
+        var priceStamp = new PriceStamp(price, "PLN", true, condition);
 
         var promoCodeElement = extractPromoCode(productDocument);
         promoCodeElement.ifPresent(priceStamp::setPromoCode);
@@ -192,6 +194,10 @@ public class MoreleScraperWorker {
                 .text();
         price = price.replaceAll("[^0-9,]", "").replace(",", ".");
         return new BigDecimal(price);
+    }
+
+    private Condition extractCondition(Document productDocument) {
+        return productDocument.selectFirst("button.product-outlet-btn") != null ? Condition.OUTLET : Condition.NEW;
     }
 
     private List<String> extractImages(Document productDocument) {
