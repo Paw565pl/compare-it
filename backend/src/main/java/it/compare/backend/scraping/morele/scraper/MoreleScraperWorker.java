@@ -15,7 +15,6 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -38,16 +37,14 @@ public class MoreleScraperWorker {
     @Async
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
         var products = new ArrayList<Product>();
-        var acceptLanguage = "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7";
-        var acceptEncoding = "gzip";
 
         try {
             var initialUri = buildUri(categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/1");
-            var initialDocument = fetchDocument(initialUri, acceptLanguage, acceptEncoding);
+            var initialDocument = fetchDocument(initialUri);
             var pagesCount = getPagesCount(initialDocument);
 
             for (var currentPage = 1; currentPage <= pagesCount; currentPage++) {
-                processCurrentPage(categoryName, currentPage, acceptLanguage, acceptEncoding, category, products);
+                processCurrentPage(categoryName, currentPage, category, products);
             }
         } catch (IOException e) {
             log.error("io exception", e);
@@ -56,39 +53,28 @@ public class MoreleScraperWorker {
         return CompletableFuture.completedFuture(products);
     }
 
-    private void processCurrentPage(
-            String categoryName,
-            int currentPage,
-            String acceptLanguage,
-            String acceptEncoding,
-            Category category,
-            List<Product> products) {
+    private void processCurrentPage(String categoryName, int currentPage, Category category, List<Product> products) {
         try {
             var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
             var uri = buildUri(currentPagePath);
 
-            var document = fetchDocument(uri, acceptLanguage, acceptEncoding);
+            var document = fetchDocument(uri);
             var productLinks = document.select("div.cat-product.card a.productLink");
-            scrapeProduct(productLinks, category, acceptLanguage, acceptEncoding, products);
+            scrapeProduct(productLinks, category, products);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("Interapted with error", e);
+            log.error("Interrupted error occurred", e);
         } catch (IOException | NoSuchElementException e) {
             log.error("Error occurred", e);
         }
     }
 
-    private void scrapeProduct(
-            Elements productLinks,
-            Category category,
-            String acceptLanguage,
-            String acceptEncoding,
-            List<Product> products)
+    private void scrapeProduct(Elements productLinks, Category category, List<Product> products)
             throws InterruptedException {
         for (var link : productLinks) {
             var href = BASE_URL + link.attr("href");
             try {
-                var productDocument = fetchProductDocument(href, acceptLanguage, acceptEncoding);
+                var productDocument = fetchDocument(href);
                 var product = createProductFromDocument(productDocument, category, href);
                 if (product != null) {
                     log.info("Product created: {}", product);
@@ -126,23 +112,6 @@ public class MoreleScraperWorker {
         return productEntity;
     }
 
-    private Document fetchProductDocument(String href, String acceptLanguage, String acceptEncoding)
-            throws IOException {
-        ResponseEntity<String> response = restClient
-                .get()
-                .uri(href)
-                .header("Accept-Language", acceptLanguage)
-                .header("Accept-Encoding", acceptEncoding)
-                .header("User-Agent", RandomUserAgentGenerator.getNext())
-                .retrieve()
-                .toEntity(String.class);
-
-        var responseBody = Optional.ofNullable(response.getBody())
-                .orElseThrow(() -> new IOException("Response body is null for URI: " + href));
-
-        return Jsoup.parse(responseBody);
-    }
-
     private void handleHttpStatusException(HttpStatusException e, String href) {
         if (e.getStatusCode() == 403) {
             log.warn("403 Forbidden error while accessing product: {}", href);
@@ -160,17 +129,15 @@ public class MoreleScraperWorker {
                 document.select("div.pagination-btn-nolink-anchor").text());
     }
 
-    private Document fetchDocument(String uri, String acceptLanguage, String acceptEncoding) throws IOException {
-        ResponseEntity<String> response = restClient
+    private Document fetchDocument(String uri) throws IOException {
+        var response = restClient
                 .get()
                 .uri(uri)
-                .header("Accept-Language", acceptLanguage)
-                .header("Accept-Encoding", acceptEncoding)
                 .header("User-Agent", RandomUserAgentGenerator.getNext())
                 .retrieve()
-                .toEntity(String.class);
+                .body(String.class);
 
-        String responseBody = Optional.ofNullable(response.getBody())
+        var responseBody = Optional.ofNullable(response)
                 .orElseThrow(() -> new IOException("Response body is null for URI: " + uri));
 
         return Jsoup.parse(responseBody);
@@ -217,7 +184,7 @@ public class MoreleScraperWorker {
     }
 
     private Optional<String> extractPromoCode(Document productDocument) {
-        Elements promoCodeElements =
+        var promoCodeElements =
                 productDocument.select("div.product-discount-code span:not(.product-discount-code__label)");
 
         if (!promoCodeElements.isEmpty()) {
