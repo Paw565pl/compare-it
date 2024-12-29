@@ -15,6 +15,7 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -113,7 +114,7 @@ public class MoreleScraperWorker {
     }
 
     private void handleHttpStatusException(HttpStatusException e, String href) {
-        if (e.getStatusCode() == 403) {
+        if (e.getStatusCode() == HttpStatus.FORBIDDEN.value()) {
             log.warn("403 Forbidden error while accessing product: {}", href);
         } else {
             log.error("Error fetching product document: {}", href, e);
