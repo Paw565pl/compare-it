@@ -1,5 +1,6 @@
 package it.compare.backend.auth.model;
 
+@SuppressWarnings("java:S6548")
 public enum Role {
     ADMIN;
 
