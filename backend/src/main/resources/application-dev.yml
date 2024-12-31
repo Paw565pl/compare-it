@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://root:password@mongodb:27017/compare-it?authSource=admin
+      uri: mongodb://root:password@localhost:27017/compare-it?authSource=admin
 
   mail:
     host: smtp4dev
