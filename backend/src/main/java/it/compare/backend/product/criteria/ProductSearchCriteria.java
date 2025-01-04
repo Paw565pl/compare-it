@@ -1,6 +1,8 @@
 package it.compare.backend.product.criteria;
 
-import io.micrometer.common.util.StringUtils;
+import it.compare.backend.product.model.Category;
+import it.compare.backend.product.model.Shop;
+import java.util.Arrays;
 import lombok.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 
@@ -17,16 +19,26 @@ public class ProductSearchCriteria {
     public Criteria toCriteria() {
         Criteria criteria = new Criteria();
 
-        if (StringUtils.isNotBlank(name)) {
+        if (name != null) {
             criteria.and("name").regex(name, "i");
         }
 
-        if (StringUtils.isNotBlank(category)) {
-            criteria.and("category").is(category.toUpperCase());
+        if (category != null) {
+            Category matchingCategory = Arrays.stream(Category.values())
+                    .filter(c -> c.getHumanReadableName().equalsIgnoreCase(category))
+                    .findFirst()
+                    .orElse(null);
+
+            criteria.and("category").is(matchingCategory != null ? matchingCategory : "NON_EXISTENT_CATEGORY");
         }
 
-        if (StringUtils.isNotBlank(shop)) {
-            criteria.and("offers.shop").is(shop.toUpperCase());
+        if (shop != null) {
+            Shop matchingShop = Arrays.stream(Shop.values())
+                    .filter(s -> s.getHumanReadableName().equalsIgnoreCase(shop))
+                    .findFirst()
+                    .orElse(null);
+
+            criteria.and("offers.shop").is(matchingShop != null ? matchingShop : "NON_EXISTENT_SHOP");
         }
 
         return criteria;

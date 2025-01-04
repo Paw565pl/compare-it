@@ -6,6 +6,7 @@ import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,7 +17,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,10 +39,7 @@ public class ProductService {
         List<Product> products = mongoTemplate.find(query, Product.class);
 
         return new PageImpl<>(
-                products.stream().map(productMapper::toListResponse).toList(),
-                pageable,
-                total
-        );
+                products.stream().map(productMapper::toListResponse).toList(), pageable, total);
     }
 
     public ProductDetailResponse findById(String id) {
