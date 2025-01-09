@@ -6,14 +6,12 @@ import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,20 +24,26 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final MongoTemplate mongoTemplate;
 
-    public Page<ProductListResponse> findAll(String name, String category, String shop, Pageable pageable) {
-        ProductSearchCriteria productSearchCriteria = ProductSearchCriteria.builder()
+    public Page<ProductListResponse> findAll(
+            String name, String category, String shop, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+
+        ProductSearchCriteria criteria = ProductSearchCriteria.builder()
                 .name(name)
                 .category(category)
                 .shop(shop)
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .pageable(pageable)
                 .build();
-        Criteria criteria = productSearchCriteria.toCriteria();
-        Query query = Query.query(criteria).with(pageable);
 
-        long total = mongoTemplate.count(Query.query(criteria), Product.class);
-        List<Product> products = mongoTemplate.find(query, Product.class);
+        List<Product> products = mongoTemplate.find(criteria.toQuery(), Product.class);
 
-        return new PageImpl<>(
-                products.stream().map(productMapper::toListResponse).toList(), pageable, total);
+        List<ProductListResponse> responses =
+                products.stream().map(productMapper::toListResponse).toList();
+
+        responses = criteria.applyPriceFiltering(responses);
+        responses = criteria.applySorting(responses);
+        return criteria.applyPagination(responses);
     }
 
     public ProductDetailResponse findById(String id) {
