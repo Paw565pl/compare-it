@@ -14,6 +14,12 @@ spring:
           auth: false
           starttls.enable: false
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://compare-it.eu.auth0.com/
+
 logging:
   level:
     web: debug

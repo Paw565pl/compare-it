@@ -3,7 +3,7 @@ import com.diffplug.spotless.LineEnding
 plugins {
     java
     idea
-    id("org.springframework.boot") version "3.4.0"
+    id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.6"
     id("com.diffplug.spotless") version "6.25.0"
     id("se.solrike.sonarlint") version "2.1.0"
@@ -58,7 +58,7 @@ repositories {
 }
 
 val springdocVersion = "2.7.0"
-val modelMapperVersion = "3.2.1"
+val modelMapperVersion = "3.2.2"
 val modelMapperRecordVersion = "1.0.0"
 val httpclientVersion = "5.4.1"
 val httpcoreVersion = "5.3.1"
@@ -66,6 +66,7 @@ val httpcoreH2Version = "5.3.1"
 val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
 val javaSonarVersion = "8.7.0.37452"
+val jsoupVersion = "1.18.3"
 
 dependencies {
     sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:${javaSonarVersion}")
@@ -83,6 +84,7 @@ dependencies {
     implementation("org.apache.httpcomponents.core5:httpcore5:${httpcoreVersion}")
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:${httpcoreH2Version}")
     implementation("com.sezinkarli:random-user-agent-generator:${randomUserAgentGeneratorVersion}")
+    implementation("org.jsoup:jsoup:${jsoupVersion}")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
