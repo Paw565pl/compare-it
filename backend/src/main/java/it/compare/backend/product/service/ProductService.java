@@ -1,12 +1,12 @@
 package it.compare.backend.product.service;
 
 import it.compare.backend.product.criteria.ProductSearchCriteria;
+import it.compare.backend.product.dto.ProductFiltersDto;
 import it.compare.backend.product.mapper.ProductMapper;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
-import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,15 +24,13 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final MongoTemplate mongoTemplate;
 
-    public Page<ProductListResponse> findAll(
-            String name, String category, String shop, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
-
-        ProductSearchCriteria criteria = ProductSearchCriteria.builder()
-                .name(name)
-                .category(category)
-                .shop(shop)
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
+    public Page<ProductListResponse> findAll(ProductFiltersDto filters, Pageable pageable) {
+        var criteria = ProductSearchCriteria.builder()
+                .name(filters.name())
+                .category(filters.category())
+                .shop(filters.shop())
+                .minPrice(filters.minPrice())
+                .maxPrice(filters.maxPrice())
                 .pageable(pageable)
                 .build();
 
