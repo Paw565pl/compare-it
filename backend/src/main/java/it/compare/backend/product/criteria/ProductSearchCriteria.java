@@ -32,8 +32,8 @@ public class ProductSearchCriteria {
     public boolean requiresInMemoryProcessing() {
         return (minPrice != null || maxPrice != null)
                 || (pageable.getSort().isSorted()
-                && pageable.getSort().stream()
-                .anyMatch(order -> order.getProperty().equals(PRICE_FIELD)));
+                        && pageable.getSort().stream()
+                                .anyMatch(order -> order.getProperty().equals(PRICE_FIELD)));
     }
 
     public Query toQuery() {
