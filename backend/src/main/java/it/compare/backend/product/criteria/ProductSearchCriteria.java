@@ -39,7 +39,7 @@ public class ProductSearchCriteria {
     }
 
     public Query toQuery() {
-        Query query = Query.query(toCriteria());
+        var query = Query.query(toCriteria());
 
         // Add MongoDB sorting for all fields except lowestCurrentPrice
         if (pageable.getSort().isSorted()) {
@@ -63,7 +63,7 @@ public class ProductSearchCriteria {
     }
 
     public Criteria toCriteria() {
-        Criteria criteria = new Criteria();
+        var criteria = new Criteria();
 
         if (name != null) {
             criteria.and("name").regex(name, "i");
