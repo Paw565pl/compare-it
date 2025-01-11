@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,19 +30,17 @@ public class ProductSearchCriteria {
     private static final String PRICE_FIELD = "lowestCurrentPrice";
 
     public boolean requiresInMemoryProcessing() {
-
         return (minPrice != null || maxPrice != null)
                 || (pageable.getSort().isSorted()
-                        && pageable.getSort().stream()
-                                .anyMatch(order -> order.getProperty().equals(PRICE_FIELD)));
+                && pageable.getSort().stream()
+                .anyMatch(order -> order.getProperty().equals(PRICE_FIELD)));
     }
 
     public Query toQuery() {
         var query = Query.query(toCriteria());
 
-        // Add MongoDB sorting for all fields except lowestCurrentPrice
         if (pageable.getSort().isSorted()) {
-            List<Sort.Order> orders = pageable.getSort().stream()
+            var orders = pageable.getSort().stream()
                     .filter(order -> !order.getProperty().equals(PRICE_FIELD))
                     .map(order -> new Sort.Order(
                             order.getDirection(), order.getProperty().toLowerCase()))
@@ -54,7 +51,6 @@ public class ProductSearchCriteria {
             }
         }
 
-        // Apply pagination only if we don't need in-memory processing
         if (!requiresInMemoryProcessing()) {
             query.with(pageable);
         }
@@ -70,7 +66,7 @@ public class ProductSearchCriteria {
         }
 
         if (category != null) {
-            Category matchingCategory = Arrays.stream(Category.values())
+            var matchingCategory = Arrays.stream(Category.values())
                     .filter(c -> c.getHumanReadableName().equalsIgnoreCase(category))
                     .findFirst()
                     .orElse(null);
@@ -79,7 +75,7 @@ public class ProductSearchCriteria {
         }
 
         if (shop != null) {
-            Shop matchingShop = Arrays.stream(Shop.values())
+            var matchingShop = Arrays.stream(Shop.values())
                     .filter(s -> s.getHumanReadableName().equalsIgnoreCase(shop))
                     .findFirst()
                     .orElse(null);
@@ -89,11 +85,7 @@ public class ProductSearchCriteria {
 
         return criteria;
     }
-    /**
-     * Applies price range filtering to the response list.
-     * This is done in memory because lowestCurrentPrice is calculated from price history
-     * and not stored directly in the database.
-     */
+
     public List<ProductListResponse> applyPriceFiltering(List<ProductListResponse> responses) {
         return responses.stream()
                 .filter(response -> {
@@ -107,17 +99,13 @@ public class ProductSearchCriteria {
                 })
                 .toList();
     }
-    /**
-     * Applies sorting by lowestCurrentPrice if requested.
-     * This is done in memory because lowestCurrentPrice is a calculated field.
-     * Other sorts are handled by MongoDB query directly.
-     */
+
     public List<ProductListResponse> applySorting(List<ProductListResponse> responses) {
         if (!pageable.getSort().isSorted()) {
             return responses;
         }
 
-        Optional<Sort.Order> priceOrder = pageable.getSort().stream()
+        var priceOrder = pageable.getSort().stream()
                 .filter(order -> order.getProperty().equals(PRICE_FIELD))
                 .findFirst();
 
@@ -125,7 +113,7 @@ public class ProductSearchCriteria {
             return responses;
         }
 
-        Comparator<ProductListResponse> comparator = Comparator.comparing(
+        var comparator = Comparator.comparing(
                 ProductListResponse::getLowestCurrentPrice, Comparator.nullsLast(Comparator.naturalOrder()));
 
         if (priceOrder.get().getDirection() == Sort.Direction.DESC) {
@@ -136,8 +124,8 @@ public class ProductSearchCriteria {
     }
 
     public Page<ProductListResponse> applyPagination(List<ProductListResponse> responses) {
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), responses.size());
+        var start = (int) pageable.getOffset();
+        var end = Math.min((start + pageable.getPageSize()), responses.size());
 
         return new PageImpl<>(responses.subList(start, end), pageable, responses.size());
     }
