@@ -1,10 +1,11 @@
-import { ProductList } from "@/feature/product-list-page/components";
+import { SingleProduct } from "@/feature/product-list-page/components";
 
 const ProductListPage = () => {
   return (
-    <>
-      <ProductList />
-    </>
+    <div className="flex justify-center bg-slate-300">
+      {/* <ProductList /> */}
+      <SingleProduct />
+    </div>
   );
 };
 
