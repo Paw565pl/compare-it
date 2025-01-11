@@ -135,6 +135,7 @@ public class MoreleScraperWorker {
                 .get()
                 .uri(uri)
                 .header("User-Agent", RandomUserAgentGenerator.getNext())
+                .header("Accept-Encoding", "gzip")
                 .retrieve()
                 .body(String.class);
 
