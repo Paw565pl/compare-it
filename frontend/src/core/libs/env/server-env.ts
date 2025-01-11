@@ -14,6 +14,7 @@ const serverEnv = createEnv({
     AUTH_AUTH0_SECRET: z.string(),
   },
   experimental__runtimeEnv: process.env,
+  skipValidation: process.env.CI ? true : false,
 });
 
 export default serverEnv;

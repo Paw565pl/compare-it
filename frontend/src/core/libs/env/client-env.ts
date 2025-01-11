@@ -12,6 +12,7 @@ const clientEnv = createEnv({
     NEXT_PUBLIC_AUTH_AUTH0_ISSUER: process.env.NEXT_PUBLIC_AUTH_AUTH0_ISSUER,
     NEXT_PUBLIC_AUTH_AUTH0_ID: process.env.NEXT_PUBLIC_AUTH_AUTH0_ID,
   },
+  skipValidation: process.env.CI ? true : false,
 });
 
 export default clientEnv;
