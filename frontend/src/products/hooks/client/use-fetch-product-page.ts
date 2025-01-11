@@ -1,6 +1,12 @@
 import { PaginationOptions } from "@/core/services/api/types/pagination-options";
+import { ProductFiltersDto } from "@/products/dtos/product-filters-dto";
 import { getProductPageQueryOptions } from "@/products/hooks/get-product-page-query-options";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export const useFetchProductPage = (paginationOptions?: PaginationOptions) =>
-  useInfiniteQuery(getProductPageQueryOptions(paginationOptions));
+export const useFetchProductPage = (
+  productFilters?: ProductFiltersDto,
+  paginationOptions?: PaginationOptions,
+) =>
+  useInfiniteQuery(
+    getProductPageQueryOptions(productFilters, paginationOptions),
+  );
