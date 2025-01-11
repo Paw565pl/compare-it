@@ -10,7 +10,7 @@ const SearchBar = () => {
         placeholder="Wyszukaj wymarzony produkt"
       />
       <Link href={"/filter"}>
-        <div className="flex rounded-r-lg bg-blue-700 p-1 px-2 font-semibold text-white">
+        <div className="flex rounded-r-lg bg-blue-700 p-1 px-2 font-semibold text-white hover:bg-blue-800">
           <Search />
           <div className="ml-1">Wyszukaj</div>
         </div>
