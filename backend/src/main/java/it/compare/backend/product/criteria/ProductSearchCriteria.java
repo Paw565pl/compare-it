@@ -28,6 +28,15 @@ public class ProductSearchCriteria {
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private Pageable pageable;
+    private static final String PRICE_FIELD = "lowestCurrentPrice";
+
+    public boolean requiresInMemoryProcessing() {
+
+        return (minPrice != null || maxPrice != null)
+                || (pageable.getSort().isSorted()
+                        && pageable.getSort().stream()
+                                .anyMatch(order -> order.getProperty().equals(PRICE_FIELD)));
+    }
 
     public Query toQuery() {
         Query query = Query.query(toCriteria());
@@ -35,7 +44,7 @@ public class ProductSearchCriteria {
         // Add MongoDB sorting for all fields except lowestCurrentPrice
         if (pageable.getSort().isSorted()) {
             List<Sort.Order> orders = pageable.getSort().stream()
-                    .filter(order -> !order.getProperty().equals("lowestCurrentPrice"))
+                    .filter(order -> !order.getProperty().equals(PRICE_FIELD))
                     .map(order -> new Sort.Order(
                             order.getDirection(), order.getProperty().toLowerCase()))
                     .toList();
@@ -43,6 +52,11 @@ public class ProductSearchCriteria {
             if (!orders.isEmpty()) {
                 query.with(Sort.by(orders));
             }
+        }
+
+        // Apply pagination only if we don't need in-memory processing
+        if (!requiresInMemoryProcessing()) {
+            query.with(pageable);
         }
 
         return query;
@@ -104,7 +118,7 @@ public class ProductSearchCriteria {
         }
 
         Optional<Sort.Order> priceOrder = pageable.getSort().stream()
-                .filter(order -> order.getProperty().equals("lowestCurrentPrice"))
+                .filter(order -> order.getProperty().equals(PRICE_FIELD))
                 .findFirst();
 
         if (priceOrder.isEmpty()) {

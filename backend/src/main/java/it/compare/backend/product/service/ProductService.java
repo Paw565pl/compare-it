@@ -10,8 +10,10 @@ import it.compare.backend.product.response.ProductListResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,14 +36,21 @@ public class ProductService {
                 .pageable(pageable)
                 .build();
 
-        List<Product> products = mongoTemplate.find(criteria.toQuery(), Product.class);
-
-        List<ProductListResponse> responses =
-                products.stream().map(productMapper::toListResponse).toList();
-
-        responses = criteria.applyPriceFiltering(responses);
-        responses = criteria.applySorting(responses);
-        return criteria.applyPagination(responses);
+        if (criteria.requiresInMemoryProcessing()) {
+            List<Product> products = mongoTemplate.find(criteria.toQuery(), Product.class);
+            List<ProductListResponse> responses =
+                    products.stream().map(productMapper::toListResponse).toList();
+            responses = criteria.applyPriceFiltering(responses);
+            responses = criteria.applySorting(responses);
+            return criteria.applyPagination(responses);
+        } else {
+            Query query = criteria.toQuery();
+            long total = mongoTemplate.count(query, Product.class);
+            List<Product> products = mongoTemplate.find(query, Product.class);
+            List<ProductListResponse> responses =
+                    products.stream().map(productMapper::toListResponse).toList();
+            return new PageImpl<>(responses, pageable, total);
+        }
     }
 
     public ProductDetailResponse findById(String id) {
