@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import { Navbar } from "@/core/components/navbar";
 import Providers from "@/core/providers/providers";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
@@ -15,7 +16,10 @@ const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html lang="en">
       <body className="antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          <main className="container mx-auto">{children}</main>
+        </Providers>
       </body>
     </html>
   );
