@@ -38,6 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           accessTokenExpiresIn: account.expires_in,
           accessTokenExpiresAt: account.expires_at,
           refreshToken: account.refresh_token,
+          idToken: account.id_token,
         };
 
         return { user, tokens };
@@ -76,6 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               accessTokenExpiresAt: calculateTokenExpirationTime(
                 newTokens.expires_in,
               ),
+              idToken: newTokens.id_token,
             },
           };
         } catch {

@@ -3,4 +3,5 @@ export interface Tokens {
   readonly accessTokenExpiresIn?: number;
   readonly accessTokenExpiresAt?: number;
   readonly refreshToken?: string;
+  readonly idToken?: string;
 }
