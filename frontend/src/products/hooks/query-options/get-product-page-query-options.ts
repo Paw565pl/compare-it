@@ -4,7 +4,7 @@ import { PaginatedData } from "@/core/services/api/types/paginated-data";
 import { PaginationOptions } from "@/core/services/api/types/pagination-options";
 import { ProductFiltersDto } from "@/products/dtos/product-filters-dto";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
-import { productsQueryKey } from "@/products/hooks/products-query-key";
+import { productsQueryKey } from "@/products/hooks/query-options/products-query-key";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
