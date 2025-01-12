@@ -1,4 +1,4 @@
 export interface PaginationOptions {
-  readonly size?: number;
-  readonly sort?: string;
+  size?: number;
+  sort?: string;
 }
