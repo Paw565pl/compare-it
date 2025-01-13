@@ -13,7 +13,10 @@ public record RtvEuroAgdProduct(
         List<Image> images,
         List<String> eanCodes) {
 
-    public record Prices(Long mainPrice, Long promotionalPrice, Long voucherDiscountedPrice, Long unitPrice) {}
+    public record Prices(
+            Long mainPrice, PromotionalPrice promotionalPrice, Long voucherDiscountedPrice, Long unitPrice) {}
+
+    public record PromotionalPrice(Long price) {}
 
     public record Image(String url, String type) {}
 

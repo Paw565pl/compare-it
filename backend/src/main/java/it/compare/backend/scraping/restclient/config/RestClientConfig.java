@@ -30,8 +30,8 @@ public class RestClientConfig {
                 .build();
 
         var requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        requestFactory.setConnectTimeout(Duration.ofSeconds(30));
-        requestFactory.setConnectionRequestTimeout(Duration.ofSeconds(30));
+        requestFactory.setConnectTimeout(Duration.ofSeconds(20));
+        requestFactory.setConnectionRequestTimeout(Duration.ofSeconds(20));
 
         return restClientBuilder
                 .requestFactory(requestFactory)
@@ -60,6 +60,6 @@ public class RestClientConfig {
 
     @Bean
     public HttpRequestRetryStrategy httpRequestRetryStrategy() {
-        return new HttpRequestRetryStrategy(5, TimeValue.ofSeconds(3), List.of(HttpStatus.FORBIDDEN.value()));
+        return new HttpRequestRetryStrategy(3, TimeValue.ofSeconds(2), List.of(HttpStatus.FORBIDDEN.value()));
     }
 }

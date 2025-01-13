@@ -110,7 +110,8 @@ class RtvEuroAgdScraperWorker {
         var priceList = new ArrayList<Long>();
 
         if (prices.mainPrice() != null) priceList.add(prices.mainPrice());
-        if (prices.promotionalPrice() != null) priceList.add(prices.promotionalPrice());
+        if (prices.promotionalPrice() != null)
+            priceList.add(prices.promotionalPrice().price());
         if (prices.voucherDiscountedPrice() != null) priceList.add(prices.voucherDiscountedPrice());
 
         outletPrices.ifPresent(priceList::addAll);
