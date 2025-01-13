@@ -11,7 +11,7 @@ const CategoriesList = () => {
     <div className="flex flex-col items-start rounded-lg bg-white p-2 text-blue-700">
       <h2 className="text-2xl font-bold">Categories</h2>
       <ul>
-        {categoriesList.map((category, index) => (
+        {categoriesList?.map((category, index) => (
           <li key={index}>{category}</li>
         ))}
       </ul>

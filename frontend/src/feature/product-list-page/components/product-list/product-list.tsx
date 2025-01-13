@@ -13,13 +13,17 @@ const ProductList = () => {
     limit: 10,
   });
 
-  const { data } = useFetchProductPage(filters);
+  const { data: productsList } = useFetchProductPage(filters);
 
-  console.log(data);
+  console.log(productsList);
   return (
     <div className="w-full rounded-lg bg-white p-2">
       Product List
-      <ul></ul>
+      <ul>
+        {productsList?.pages.map((page) =>
+          page.content.map((product, index) => <li key={index}>{index}</li>),
+        )}
+      </ul>
     </div>
   );
 };

@@ -10,11 +10,7 @@ const FilterBar = () => {
   return (
     <div className="mt-4 flex flex-col items-start rounded-lg bg-white p-2 text-blue-700">
       <h2 className="text-2xl font-bold">Sklepy</h2>
-      <ul>
-        {shopList.map((shop, index) => (
-          <li key={index}>{shop}</li>
-        ))}
-      </ul>
+      <ul>{shopList?.map((shop, index) => <li key={index}>{shop}</li>)}</ul>
     </div>
   );
 };
