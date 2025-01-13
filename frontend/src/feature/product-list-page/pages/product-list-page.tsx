@@ -7,7 +7,7 @@ import {
 
 const ProductListPage = () => {
   return (
-    <div className="flex flex-col justify-center bg-slate-300 p-8">
+    <div className="flex w-auto flex-col bg-gray-300 p-8">
       <SearchBar />
       <div className="flex">
         <div className="mr-4 w-1/5">
