@@ -1,19 +1,21 @@
 import {
-  SearchBar,
-  SingleProduct,
-  ProductList,
+  CategoriesList,
   FilterBar,
-  CategoriesList
+  ProductList,
+  SearchBar,
 } from "@/feature/product-list-page/components/index";
 
 const ProductListPage = () => {
   return (
     <div className="flex flex-col justify-center bg-slate-300 p-8">
       <SearchBar />
-      {/* <ProductList /> */}
-      {/* <FilterBar /> */}
-      <CategoriesList />
-      <FilterBar />
+      <div className="flex">
+        <div className="mr-4 w-1/5">
+          <CategoriesList />
+          <FilterBar />
+        </div>
+        <ProductList />
+      </div>
       {/* <SingleProduct /> */}
     </div>
   );

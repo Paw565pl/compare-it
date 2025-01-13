@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
 
 const CategoriesList = () => {
@@ -8,8 +8,8 @@ const CategoriesList = () => {
   if (error) return <div>Something went wrong!</div>;
 
   return (
-    <div className="flex flex-col items-start bg-white text-blue-700 p-2 w-1/6 rounded-lg">
-      <h2 className="font-bold text-2xl">Categories</h2>
+    <div className="flex flex-col items-start rounded-lg bg-white p-2 text-blue-700">
+      <h2 className="text-2xl font-bold">Categories</h2>
       <ul>
         {categoriesList.map((category, index) => (
           <li key={index}>{category}</li>

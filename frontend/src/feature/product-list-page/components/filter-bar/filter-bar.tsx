@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
 
 const FilterBar = () => {
@@ -8,8 +8,8 @@ const FilterBar = () => {
   if (error) return <div>Something went wrong!</div>;
 
   return (
-    <div className="flex flex-col items-start rounded-lg text-blue-700 p-2 bg-white w-1/6 mt-4">
-      <h2 className="font-bold text-2xl">Sklepy</h2>
+    <div className="mt-4 flex flex-col items-start rounded-lg bg-white p-2 text-blue-700">
+      <h2 className="text-2xl font-bold">Sklepy</h2>
       <ul>
         {shopList.map((shop, index) => (
           <li key={index}>{shop}</li>
