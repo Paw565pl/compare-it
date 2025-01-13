@@ -1,5 +1,6 @@
 import { SingleProduct } from "@/feature/product-list-page/types/single-product";
 import { Star } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 const SingleProduct = ({
@@ -14,8 +15,8 @@ const SingleProduct = ({
   offerCount,
 }: SingleProduct) => {
   return (
-    <div className="w-2/3 rounded-lg border-2 border-blue-700 p-4 text-blue-700">
-      {/* <Image widht={200} height={200} /> */}
+    <div className="flex rounded-lg border-2 border-blue-700 p-4 text-blue-700">
+      <Image src={mainImageUrl} width={200} height={200} alt={name} />
       <div className="flex justify-center">
         <h1 className="mr-4">{name}</h1>
         <div className="flex text-white">

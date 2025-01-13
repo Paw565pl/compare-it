@@ -5,4 +5,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
 };
 
+module.exports = {
+  images: {
+    domains: ["f00.esfr.pl"],
+  },
+};
+
 export default nextConfig;
