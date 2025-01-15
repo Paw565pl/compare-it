@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Getter
 @Setter
@@ -21,10 +22,14 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @RequiredArgsConstructor
 @Document(collection = "comments")
 @CompoundIndex(
-        name = "one_comment_per_product_by_author_index",
+        name = "one_comment_per_product_by_user_index",
         def = "{'product._id': 1, 'author._id': 1}",
         unique = true)
 public class Comment {
+
+    @MongoId
+    @Field("_id")
+    private String id;
 
     @DocumentReference
     @Field("author")
