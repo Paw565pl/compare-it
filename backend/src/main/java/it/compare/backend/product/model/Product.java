@@ -8,6 +8,7 @@ import lombok.*;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -48,6 +49,7 @@ public class Product {
     @Field("offers")
     @NonNull private List<Offer> offers = new ArrayList<>();
 
+    @DocumentReference
     @Field("comments")
     private List<Comment> comments = new ArrayList<>();
 }

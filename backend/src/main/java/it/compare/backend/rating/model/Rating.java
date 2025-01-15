@@ -1,10 +1,13 @@
 package it.compare.backend.rating.model;
 
 import it.compare.backend.auth.model.User;
+import it.compare.backend.comment.model.Comment;
 import java.time.LocalDateTime;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -13,6 +16,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
+@Document(collection = "ratings")
+@CompoundIndex(
+        name = "one_rating_per_comment_by_author_index",
+        def = "{'comment._id': 1, 'author._id': 1}",
+        unique = true)
 public class Rating {
 
     @DocumentReference
@@ -26,4 +34,8 @@ public class Rating {
     @CreatedDate
     @Field("createdAt")
     private LocalDateTime createdAt;
+
+    @DocumentReference
+    @Field("comment")
+    @NonNull private Comment comment;
 }
