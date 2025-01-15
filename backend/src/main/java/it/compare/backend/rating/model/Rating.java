@@ -19,8 +19,8 @@ public class Rating {
     @Field("author")
     private User author;
 
-    @Field("isUpVote")
-    @NonNull private Boolean isUpVote;
+    @Field("isPositiveRating")
+    @NonNull private Boolean isPositiveRating;
 
     @Indexed
     @CreatedDate
