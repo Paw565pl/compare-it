@@ -1,0 +1,16 @@
+meta {
+  name: Delete Product's Comment
+  type: http
+  seq: 10
+}
+
+delete {
+  url: http://localhost:8080/api/v1/products/:productId/comments/:commentId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  commentId: 6788f6dfd8df4d3bc1addb8d
+  productId: 6782ada046f0732d61462539
+}

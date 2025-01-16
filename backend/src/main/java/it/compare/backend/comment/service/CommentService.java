@@ -1,7 +1,9 @@
 package it.compare.backend.comment.service;
 
 import it.compare.backend.auth.details.OAuthUserDetails;
+import it.compare.backend.auth.model.Role;
 import it.compare.backend.auth.repository.UserRepository;
+import it.compare.backend.auth.util.AuthUtil;
 import it.compare.backend.comment.dto.CommentDto;
 import it.compare.backend.comment.mapper.CommentMapper;
 import it.compare.backend.comment.model.Comment;
@@ -63,5 +65,20 @@ public class CommentService {
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityViolationException("You have already commented on this product.");
         }
+    }
+
+    @Transactional
+    public void deleteById(OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
+        var user = userRepository
+                .findById(oAuthUserDetails.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        productService.findProductOrThrow(productId);
+        var comment = findCommentOrThrow(commentId);
+
+        var canDelete = user.getId().equals(comment.getAuthor().getId())
+                || AuthUtil.hasRole(oAuthUserDetails.getAuthorities(), Role.ADMIN);
+        if (!canDelete) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        commentRepository.deleteById(commentId);
     }
 }

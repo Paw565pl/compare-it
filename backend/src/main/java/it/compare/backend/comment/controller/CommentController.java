@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +33,19 @@ public class CommentController {
 
     @IsAuthenticated
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public CommentResponse create(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String productId,
             @Valid @RequestBody CommentDto commentDto) {
         return commentService.create(OAuthUserDetails.fromJwt(jwt), productId, commentDto);
+    }
+
+    @IsAuthenticated
+    @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(
+            @AuthenticationPrincipal Jwt jwt, @PathVariable String productId, @PathVariable String commentId) {
+        commentService.deleteById(OAuthUserDetails.fromJwt(jwt), productId, commentId);
     }
 }
