@@ -10,8 +10,8 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -23,7 +23,8 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Document(collection = "comments")
 @CompoundIndex(
         name = "one_comment_per_product_by_user_index",
-        def = "{'product._id': 1, 'author._id': 1}",
+        def = "{'product.$id': 1, 'author.$id': 1}",
+        partialFilter = "{ 'author': { $exists: true } }",
         unique = true)
 public class Comment {
 
@@ -31,7 +32,7 @@ public class Comment {
     @Field("_id")
     private String id;
 
-    @DocumentReference
+    @DBRef(lazy = true)
     @Field("author")
     private User author;
 
@@ -43,10 +44,11 @@ public class Comment {
     @Field("createdAt")
     private LocalDateTime createdAt;
 
-    @DocumentReference
+    @DBRef
     @Field("product")
     @NonNull private Product product;
 
+    @DBRef(lazy = true)
     @Field("ratings")
     private List<Rating> ratings = new ArrayList<>();
 }
