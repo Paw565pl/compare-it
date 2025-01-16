@@ -53,7 +53,7 @@ public class ProductService {
         return productMapper.toDetailResponse(findProductOrThrow(id));
     }
 
-    private Product findProductOrThrow(String id) {
+    public Product findProductOrThrow(String id) {
         return productRepository
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
