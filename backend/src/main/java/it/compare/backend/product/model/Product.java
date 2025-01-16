@@ -1,12 +1,10 @@
 package it.compare.backend.product.model;
 
 import com.mongodb.lang.NonNull;
-import it.compare.backend.comment.model.Comment;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -39,8 +37,4 @@ public class Product {
 
     @Field("offers")
     @NonNull private List<Offer> offers = new ArrayList<>();
-
-    @DBRef(lazy = true)
-    @Field("comments")
-    private List<Comment> comments = new ArrayList<>();
 }

@@ -7,7 +7,6 @@ import it.compare.backend.comment.mapper.CommentMapper;
 import it.compare.backend.comment.model.Comment;
 import it.compare.backend.comment.repository.CommentRepository;
 import it.compare.backend.comment.response.CommentResponse;
-import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,7 +23,6 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
-    private final ProductRepository productRepository;
     private final ProductService productService;
     private final UserRepository userRepository;
 
@@ -60,9 +58,6 @@ public class CommentService {
             comment.setAuthor(user);
             comment.setProduct(product);
             var savedComment = commentRepository.save(comment);
-
-            product.getComments().add(savedComment);
-            productRepository.save(product);
 
             return commentMapper.toResponse(savedComment);
         } catch (DataIntegrityViolationException e) {
