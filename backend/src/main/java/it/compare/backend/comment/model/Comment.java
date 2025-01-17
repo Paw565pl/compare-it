@@ -2,10 +2,7 @@ package it.compare.backend.comment.model;
 
 import it.compare.backend.auth.model.User;
 import it.compare.backend.product.model.Product;
-import it.compare.backend.rating.model.Rating;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -44,11 +41,7 @@ public class Comment {
     @Field("createdAt")
     private LocalDateTime createdAt;
 
-    @DBRef
+    @DBRef(lazy = true)
     @Field("product")
     @NonNull private Product product;
-
-    @DBRef(lazy = true)
-    @Field("ratings")
-    private List<Rating> ratings = new ArrayList<>();
 }
