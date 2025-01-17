@@ -1,5 +1,7 @@
 package it.compare.backend.comment.controller;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 import it.compare.backend.auth.annotation.IsAuthenticated;
 import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.comment.dto.CommentDto;
@@ -9,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -22,7 +25,9 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping
-    public Page<CommentResponse> findAll(@PathVariable String productId, Pageable pageable) {
+    public Page<CommentResponse> findAll(
+            @PathVariable String productId,
+            @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
         return commentService.findAll(productId, pageable);
     }
 
