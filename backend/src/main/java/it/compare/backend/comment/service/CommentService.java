@@ -139,7 +139,6 @@ public class CommentService {
 
     @Transactional
     public CommentResponse create(OAuthUserDetails oAuthUserDetails, String productId, CommentDto commentDto) {
-        // TODO: manually set calculated fields to 0 when creating new comment
         var user = userRepository
                 .findById(oAuthUserDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -151,7 +150,11 @@ public class CommentService {
             comment.setProduct(product);
             var savedComment = commentRepository.save(comment);
 
-            return commentMapper.toResponse(savedComment);
+            var commentResponse = commentMapper.toResponse(savedComment);
+            commentResponse.setPositiveRatingsCount(0L);
+            commentResponse.setNegativeRatingsCount(0L);
+
+            return commentResponse;
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityViolationException("You have already commented on this product.");
         }
