@@ -10,9 +10,6 @@ import it.compare.backend.comment.model.Comment;
 import it.compare.backend.comment.repository.CommentRepository;
 import it.compare.backend.comment.response.CommentResponse;
 import it.compare.backend.product.service.ProductService;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -29,6 +26,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,8 @@ public class CommentService {
     }
 
     public Page<CommentResponse> findAll(String productId, Pageable pageable) {
-        record CountResult(long total) {}
+        record CountResult(long total) {
+        }
 
         productService.findProductOrThrow(productId);
 
@@ -133,8 +135,9 @@ public class CommentService {
                 .aggregate(aggregation, Comment.class, CommentResponse.class)
                 .getUniqueMappedResult();
 
-        // TODO: throw exception if result is null
-        return result != null ? result : commentMapper.toResponse(findCommentOrThrow(commentId));
+        if (result == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+
+        return result;
     }
 
     @Transactional
