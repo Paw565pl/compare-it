@@ -10,9 +10,6 @@ import it.compare.backend.comment.model.Comment;
 import it.compare.backend.comment.repository.CommentRepository;
 import it.compare.backend.comment.response.CommentResponse;
 import it.compare.backend.product.service.ProductService;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -30,6 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -42,7 +43,7 @@ public class CommentService {
 
     private static final String RATINGS_COLLECTION = "ratings";
     private static final String RATING = "rating";
-    private static final String IS_POSITIVE_RATING_FIELD = "rating.isPositiveRating";
+    private static final String IS_POSITIVE_RATING_FIELD = "rating.isPositive";
     private static final String POSITIVE_RATINGS_COUNT_FIELD = "positiveRatingsCount";
     private static final String NEGATIVE_RATINGS_COUNT_FIELD = "negativeRatingsCount";
     private static final String AUTHOR_FIELD = "author";
@@ -55,7 +56,8 @@ public class CommentService {
     }
 
     public Page<CommentResponse> findAll(String productId, Pageable pageable) {
-        record CountResult(long total) {}
+        record CountResult(long total) {
+        }
 
         productService.findProductOrThrow(productId);
 

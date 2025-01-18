@@ -34,7 +34,7 @@ public class Rating {
     private User author;
 
     @Field("isPositiveRating")
-    @NonNull private Boolean isPositiveRating;
+    @NonNull private Boolean isPositive;
 
     @Indexed
     @CreatedDate
