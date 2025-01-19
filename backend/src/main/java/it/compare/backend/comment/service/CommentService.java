@@ -11,10 +11,8 @@ import it.compare.backend.comment.repository.CommentRepository;
 import it.compare.backend.comment.response.CommentResponse;
 import it.compare.backend.product.service.ProductService;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -89,8 +87,7 @@ public class CommentService {
                 .as(AUTHOR_FIELD);
 
         var sortOrders = new ArrayList<Sort.Order>();
-        var validSortProperties =
-                new HashSet<>(Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD));
+        var validSortProperties = Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD);
         pageable.getSort().forEach(order -> {
             var property = order.getProperty();
             if (validSortProperties.contains(property)) sortOrders.add(new Sort.Order(order.getDirection(), property));
@@ -151,20 +148,16 @@ public class CommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         var product = productService.findProductOrThrow(productId);
 
-        try {
-            var comment = commentMapper.toEntity(commentDto);
-            comment.setAuthor(user);
-            comment.setProduct(product);
-            var savedComment = commentRepository.save(comment);
+        var comment = commentMapper.toEntity(commentDto);
+        comment.setAuthor(user);
+        comment.setProduct(product);
+        var savedComment = commentRepository.save(comment);
 
-            var commentResponse = commentMapper.toResponse(savedComment);
-            commentResponse.setPositiveRatingsCount(0L);
-            commentResponse.setNegativeRatingsCount(0L);
+        var commentResponse = commentMapper.toResponse(savedComment);
+        commentResponse.setPositiveRatingsCount(0L);
+        commentResponse.setNegativeRatingsCount(0L);
 
-            return commentResponse;
-        } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException("You have already commented on this product.");
-        }
+        return commentResponse;
     }
 
     @Transactional
