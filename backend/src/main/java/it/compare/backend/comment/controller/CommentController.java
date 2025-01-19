@@ -25,10 +25,10 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping
-    public Page<CommentResponse> findAll(
+    public Page<CommentResponse> findAllByProductId(
             @PathVariable String productId,
             @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
-        return commentService.findAll(productId, pageable);
+        return commentService.findAllByProductId(productId, pageable);
     }
 
     @GetMapping("/{commentId}")
@@ -44,6 +44,16 @@ public class CommentController {
             @PathVariable String productId,
             @Valid @RequestBody CommentDto commentDto) {
         return commentService.create(OAuthUserDetails.fromJwt(jwt), productId, commentDto);
+    }
+
+    @IsAuthenticated
+    @PutMapping("/{commentId}")
+    public CommentResponse update(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String productId,
+            @PathVariable String commentId,
+            @Valid @RequestBody CommentDto commentDto) {
+        return commentService.update(OAuthUserDetails.fromJwt(jwt), productId, commentId, commentDto);
     }
 
     @IsAuthenticated

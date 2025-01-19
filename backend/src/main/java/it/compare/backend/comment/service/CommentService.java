@@ -52,7 +52,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
     }
 
-    public Page<CommentResponse> findAll(String productId, Pageable pageable) {
+    public Page<CommentResponse> findAllByProductId(String productId, Pageable pageable) {
         record CountResult(long total) {}
 
         productService.findProductOrThrow(productId);
@@ -161,14 +161,28 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteById(OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
-        var user = userRepository
-                .findById(oAuthUserDetails.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+    public CommentResponse update(
+            OAuthUserDetails oAuthUserDetails, String productId, String commentId, CommentDto commentDto) {
+        var userId = oAuthUserDetails.getId();
         productService.findProductOrThrow(productId);
         var comment = findCommentOrThrow(commentId);
 
-        var canDelete = user.getId().equals(comment.getAuthor().getId())
+        var canUpdate = userId.equals(comment.getAuthor().getId());
+        if (!canUpdate) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        comment.setText(commentDto.text());
+        var savedComment = commentRepository.save(comment);
+
+        return commentMapper.toResponse(savedComment);
+    }
+
+    @Transactional
+    public void deleteById(OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
+        var userId = oAuthUserDetails.getId();
+        productService.findProductOrThrow(productId);
+        var comment = findCommentOrThrow(commentId);
+
+        var canDelete = userId.equals(comment.getAuthor().getId())
                 || AuthUtil.hasRole(oAuthUserDetails.getAuthorities(), Role.ADMIN);
         if (!canDelete) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
