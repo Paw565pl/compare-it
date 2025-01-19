@@ -11,6 +11,7 @@ import it.compare.backend.comment.repository.CommentRepository;
 import it.compare.backend.comment.response.CommentResponse;
 import it.compare.backend.product.service.ProductService;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Size;
 import org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq;
@@ -39,17 +41,37 @@ public class CommentService {
     private final UserRepository userRepository;
 
     private static final String RATINGS_COLLECTION = "ratings";
-    private static final String RATING = "rating";
-    private static final String IS_POSITIVE_RATING_FIELD = "rating.isPositive";
     private static final String POSITIVE_RATINGS_COUNT_FIELD = "positiveRatingsCount";
     private static final String NEGATIVE_RATINGS_COUNT_FIELD = "negativeRatingsCount";
-    private static final String AUTHOR_FIELD = "author";
     private static final String CREATED_AT_FIELD = "createdAt";
 
     public Comment findCommentOrThrow(String id) {
         return commentRepository
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+    }
+
+    private List<AggregationOperation> getCommentRatingsAggregationOperations() {
+        var ratingsLookup = Aggregation.lookup(RATINGS_COLLECTION, "_id", "comment.$id", RATINGS_COLLECTION);
+        var authorLookup = Aggregation.lookup("users", "author.$id", "_id", "author");
+
+        var positiveRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
+                .as("rating")
+                .by(Eq.valueOf("rating.isPositive").equalToValue(true));
+        var negativeRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
+                .as("rating")
+                .by(Eq.valueOf("rating.isPositive").equalToValue(false));
+        var addFields = Aggregation.addFields()
+                .addFieldWithValue(POSITIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(positiveRatingsCountFilter))
+                .addFieldWithValue(NEGATIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(negativeRatingsCountFilter))
+                .build();
+
+        var project = Aggregation.project(
+                        "id", "text", CREATED_AT_FIELD, POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD)
+                .and("author.username")
+                .as("author");
+
+        return List.of(ratingsLookup, authorLookup, addFields, project);
     }
 
     public Page<CommentResponse> findAllByProductId(String productId, Pageable pageable) {
@@ -67,38 +89,25 @@ public class CommentService {
                 ? 0
                 : countResults.getMappedResults().getFirst().total();
 
-        var ratingsLookup = Aggregation.lookup(RATINGS_COLLECTION, "_id", "comment.$id", RATINGS_COLLECTION);
-        var authorLookup = Aggregation.lookup("users", "author.$id", "_id", AUTHOR_FIELD);
-
-        var positiveRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
-                .as(RATING)
-                .by(Eq.valueOf(IS_POSITIVE_RATING_FIELD).equalToValue(true));
-        var negativeRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
-                .as(RATING)
-                .by(Eq.valueOf(IS_POSITIVE_RATING_FIELD).equalToValue(false));
-        var addFields = Aggregation.addFields()
-                .addFieldWithValue(POSITIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(positiveRatingsCountFilter))
-                .addFieldWithValue(NEGATIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(negativeRatingsCountFilter))
-                .build();
-
-        var project = Aggregation.project(
-                        "id", "text", CREATED_AT_FIELD, POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD)
-                .and("author.username")
-                .as(AUTHOR_FIELD);
+        var operations = new ArrayList<>(getCommentRatingsAggregationOperations());
+        operations.addFirst(match);
 
         var sortOrders = new ArrayList<Sort.Order>();
         var validSortProperties = Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD);
+
         pageable.getSort().forEach(order -> {
             var property = order.getProperty();
             if (validSortProperties.contains(property)) sortOrders.add(new Sort.Order(order.getDirection(), property));
         });
         var sort = Aggregation.sort(Sort.by(sortOrders));
+        operations.add(sort);
 
         var skip = Aggregation.skip(pageable.getOffset());
         var limit = Aggregation.limit(pageable.getPageSize());
+        operations.add(skip);
+        operations.add(limit);
 
-        var aggregation = Aggregation.newAggregation(
-                Comment.class, match, ratingsLookup, authorLookup, addFields, project, sort, skip, limit);
+        var aggregation = Aggregation.newAggregation(Comment.class, operations);
         var results =
                 mongoTemplate.aggregate(aggregation, CommentResponse.class).getMappedResults();
 
@@ -108,30 +117,13 @@ public class CommentService {
     public CommentResponse findById(String productId, String commentId) {
         productService.findProductOrThrow(productId);
 
-        var match = Aggregation.match(
-                Criteria.where("product.$id").is(productId).and("_id").is(commentId));
-        var ratingsLookup = Aggregation.lookup(RATINGS_COLLECTION, "_id", "comment.$id", RATINGS_COLLECTION);
-        var authorLookup = Aggregation.lookup("users", "author.$id", "_id", AUTHOR_FIELD);
+        var criteria = Criteria.where("product.$id").is(productId).and("_id").is(commentId);
+        var match = Aggregation.match(criteria);
 
-        var positiveRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
-                .as(RATING)
-                .by(Eq.valueOf(IS_POSITIVE_RATING_FIELD).equalToValue(true));
-        var negativeRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
-                .as(RATING)
-                .by(Eq.valueOf(IS_POSITIVE_RATING_FIELD).equalToValue(false));
+        var operations = new ArrayList<>(getCommentRatingsAggregationOperations());
+        operations.addFirst(match);
 
-        var addFields = Aggregation.addFields()
-                .addFieldWithValue(POSITIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(positiveRatingsCountFilter))
-                .addFieldWithValue(NEGATIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(negativeRatingsCountFilter))
-                .build();
-
-        var project = Aggregation.project(
-                        "id", "text", CREATED_AT_FIELD, POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD)
-                .and("author.username")
-                .as(AUTHOR_FIELD);
-
-        var aggregation =
-                Aggregation.newAggregation(Comment.class, match, ratingsLookup, authorLookup, addFields, project);
+        var aggregation = Aggregation.newAggregation(Comment.class, operations);
         var result = mongoTemplate
                 .aggregate(aggregation, Comment.class, CommentResponse.class)
                 .getUniqueMappedResult();
