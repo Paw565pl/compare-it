@@ -20,9 +20,9 @@ public class RatingController {
     private final RatingService ratingService;
 
     @GetMapping
-    public RatingResponse find(
+    public RatingResponse findByAuthorIdAndCommentId(
             @AuthenticationPrincipal Jwt jwt, @PathVariable String productId, @PathVariable String commentId) {
-        return ratingService.find(OAuthUserDetails.fromJwt(jwt), productId, commentId);
+        return ratingService.findByAuthorIdAndCommentId(OAuthUserDetails.fromJwt(jwt), productId, commentId);
     }
 
     @PostMapping
@@ -46,8 +46,8 @@ public class RatingController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(
+    public void deleteByAuthorIdAndCommentId(
             @AuthenticationPrincipal Jwt jwt, @PathVariable String productId, @PathVariable String commentId) {
-        ratingService.deleteById(OAuthUserDetails.fromJwt(jwt), productId, commentId);
+        ratingService.deleteByAuthorIdAndCommentId(OAuthUserDetails.fromJwt(jwt), productId, commentId);
     }
 }
