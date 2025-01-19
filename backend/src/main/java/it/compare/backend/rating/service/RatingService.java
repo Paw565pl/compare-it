@@ -32,12 +32,14 @@ public class RatingService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rating not found"));
     }
 
-    public RatingResponse find(OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
+    public RatingResponse findByAuthorIdAndCommentId(
+            OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
         var userId = oAuthUserDetails.getId();
         productService.findProductOrThrow(productId);
         commentService.findCommentOrThrow(commentId);
 
-        var rating = findRatingOrThrow(userId, commentId);
+        var rating =
+                ratingRepository.findByAuthorIdAndCommentId(userId, commentId).orElse(new Rating());
         return ratingMapper.toResponse(rating);
     }
 
@@ -77,7 +79,7 @@ public class RatingService {
     }
 
     @Transactional
-    public void deleteById(OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
+    public void deleteByAuthorIdAndCommentId(OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
         var userId = oAuthUserDetails.getId();
         productService.findProductOrThrow(productId);
         commentService.findCommentOrThrow(commentId);
