@@ -5,14 +5,25 @@ import { useEffect } from "react";
 import { SingleProduct } from "../index";
 
 const ProductList = () => {
-  const [filters, setFilters] = useQueryStates({ category: "Karty graficzne" });
+  const [filters, setFilters] = useQueryStates({
+    category: "Karty graficzne",
+    minPrice: 1900,
+    maxPrice: 2000,
+    shop: "Morele.net",
+  });
   const [pagination, setPagination] = useQueryStates({ size: 20 });
+  console.log("filters: ", filters);
 
   // to initialize default url params as we dont have the home page with proper buttons
   useEffect(() => {
-    if (!filters.category) setFilters({ category: "Karty graficzne" });
+    if (!filters.category)
+      setFilters({
+        category: "Karty graficzne",
+        minPrice: 1900,
+        maxPrice: 2000,
+      });
 
-    if (!pagination.size) setPagination({ size: 20 });
+    if (!pagination.size) setPagination({ size: 5 });
   }, [filters, pagination, setFilters, setPagination]);
 
   const { data: productsList } = useFetchProductPage(filters, pagination);

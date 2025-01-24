@@ -13,7 +13,7 @@ public class MoreleWatcher {
         this.moreleScraper = moreleScraper;
     }
 
-    @Scheduled(fixedDelay = 36000)
+    @Scheduled(cron = "0 0 */2 * * *")
     public void startTask() {
         moreleScraper.scrape();
     }

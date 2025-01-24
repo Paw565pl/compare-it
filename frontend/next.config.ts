@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
 
 module.exports = {
   images: {
-    domains: ["f00.esfr.pl"],
+    domains: ["f00.esfr.pl", "images.morele.net"],
   },
 };
 
