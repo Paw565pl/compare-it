@@ -1,11 +1,21 @@
 "use client";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import { useQueryStates } from "nuqs";
+import { useEffect } from "react";
 import { SingleProduct } from "../index";
 
 const ProductList = () => {
   const [filters, setFilters] = useQueryStates({ category: "Karty graficzne" });
   const [pagination, setPagination] = useQueryStates({ page: 1, limit: 10 });
+
+  // to initialize default url params as we dont have the home page with proper buttons
+  useEffect(() => {
+    if (!filters.category) setFilters({ category: "Karty graficzne" });
+
+    if (!pagination.page || !pagination.limit)
+      setPagination({ page: 1, limit: 10 });
+  }, [filters, pagination, setFilters, setPagination]);
+
   const { data: productsList } = useFetchProductPage(filters, pagination);
 
   return (
@@ -35,12 +45,12 @@ const ProductList = () => {
       <div className="mt-6 flex items-center justify-between">
         <button
           className="rounded-lg bg-blue-700 px-4 py-2 text-white hover:bg-blue-600"
-          // onClick={() =>
-          //   setPagination((prev) => ({
-          //     ...prev,
-          //     page: Math.max(prev.page - 1, 1),
-          //   }))
-          // }
+          onClick={() =>
+            setPagination((prev) => ({
+              ...prev,
+              page: Math.max(prev.page - 1, 1),
+            }))
+          }
           disabled={pagination.page === 1}
         >
           Poprzednia
@@ -48,9 +58,9 @@ const ProductList = () => {
         <span className="text-gray-700">Strona {pagination.page}</span>
         <button
           className="rounded-lg bg-blue-700 px-4 py-2 text-white hover:bg-blue-600"
-          // onClick={() =>
-          //   setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
-          // }
+          onClick={() =>
+            setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+          }
           disabled={
             !productsList || productsList.pages.length < pagination.limit
           }
