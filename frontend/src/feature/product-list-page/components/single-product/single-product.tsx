@@ -1,5 +1,4 @@
 import { SingleProduct as SingleProductProps } from "@/feature/product-list-page/types/single-product";
-import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -33,15 +32,6 @@ const SingleProduct = ({
         <div>
           <h1 className="mb-2 text-xl font-bold">{name}</h1>
           <p className="mb-4 text-sm text-gray-500">Kategoria: {category}</p>
-
-          {/* Ocena */}
-          <div className="mb-4 flex items-center text-yellow-500">
-            <Star />
-            <Star />
-            <Star />
-            <Star />
-            <Star />
-          </div>
 
           {/* Dostępność */}
           <div className="mb-4 text-sm">
