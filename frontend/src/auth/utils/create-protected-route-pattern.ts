@@ -2,9 +2,9 @@ import { Role } from "@/auth/types/role";
 import escapeStringRegexp from "escape-string-regexp";
 
 export interface ProtectedRoutePattern {
-  path: string;
-  pattern: RegExp;
-  roles?: Role[];
+  readonly path: string;
+  readonly pattern: RegExp;
+  readonly roles?: Role[];
 }
 
 export const createProtectedRoutePattern = {
