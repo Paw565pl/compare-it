@@ -1,7 +1,6 @@
 import { auth } from "@/auth/config/auth-config";
 import { protectedRoutes } from "@/auth/config/protected-routes";
 import { hasRequiredRole } from "@/auth/utils/has-required-role";
-import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
 
 export const middleware = auth(async (req) => {
@@ -13,6 +12,21 @@ export const middleware = auth(async (req) => {
     page.pattern.test(currentPathName),
   );
 
+  // role check
+  const requiresRolesCheck = !!protectedRoute?.roles?.length;
+  if (protectedRoute && requiresRolesCheck) {
+    const hasRequiredRoles = protectedRoute.roles?.every((role) =>
+      hasRequiredRole(auth, role),
+    );
+
+    if (!hasRequiredRoles) {
+      const notFoundUrl = nextUrl.clone();
+      notFoundUrl.pathname = "/not-found";
+
+      return NextResponse.redirect(notFoundUrl);
+    }
+  }
+
   // auth check
   if (protectedRoute && !isUserLoggedIn) {
     const signInUrl = nextUrl.clone();
@@ -21,15 +35,6 @@ export const middleware = auth(async (req) => {
     signInUrl.searchParams.set("redirectTo", currentPathName);
 
     return NextResponse.redirect(signInUrl);
-  }
-
-  // role check
-  const requiresRolesCheck = !!protectedRoute?.roles?.length;
-  if (protectedRoute && isUserLoggedIn && requiresRolesCheck) {
-    const hasRequiredRoles = protectedRoute.roles?.every((role) =>
-      hasRequiredRole(auth, role),
-    );
-    if (!hasRequiredRoles) return notFound();
   }
 
   return NextResponse.next();
