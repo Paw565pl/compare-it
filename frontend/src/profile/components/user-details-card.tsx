@@ -22,7 +22,7 @@ export const UserDetailsCard = () => {
 
   return (
     <>
-      <H1 className="mb-4 sm:mb-8">Twój profil</H1>
+      <H1>Twój profil</H1>
 
       <Card className="w-full max-w-md">
         <CardHeader>

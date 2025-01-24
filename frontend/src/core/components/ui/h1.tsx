@@ -7,5 +7,9 @@ interface H1Props {
 }
 
 export const H1 = ({ children, className }: H1Props) => {
-  return <h1 className={cn("text-4xl font-bold", className)}>{children}</h1>;
+  return (
+    <h1 className={cn("mb-5 text-4xl font-bold sm:mb-8", className)}>
+      {children}
+    </h1>
+  );
 };
