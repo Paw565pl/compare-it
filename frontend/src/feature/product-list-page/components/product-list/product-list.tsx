@@ -6,14 +6,13 @@ import { SingleProduct } from "../index";
 
 const ProductList = () => {
   const [filters, setFilters] = useQueryStates({ category: "Karty graficzne" });
-  const [pagination, setPagination] = useQueryStates({ page: 1, limit: 10 });
+  const [pagination, setPagination] = useQueryStates({ size: 20 });
 
   // to initialize default url params as we dont have the home page with proper buttons
   useEffect(() => {
     if (!filters.category) setFilters({ category: "Karty graficzne" });
 
-    if (!pagination.page || !pagination.limit)
-      setPagination({ page: 1, limit: 10 });
+    if (!pagination.size) setPagination({ size: 20 });
   }, [filters, pagination, setFilters, setPagination]);
 
   const { data: productsList } = useFetchProductPage(filters, pagination);

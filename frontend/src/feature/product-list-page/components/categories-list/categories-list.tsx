@@ -1,8 +1,11 @@
 "use client";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
+import { useQueryStates } from "nuqs";
 
 const CategoriesList = () => {
   const { data: categoriesList, isLoading, error } = useFetchCategoriesList();
+
+  const [_, setFilters] = useQueryStates({ category: "Karty graficzne" });
 
   if (isLoading) return <div className="text-blue-700">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
@@ -16,7 +19,9 @@ const CategoriesList = () => {
             key={index}
             className="cursor-pointer rounded-lg px-4 py-2 transition-colors duration-200 hover:bg-blue-700 hover:text-white"
           >
-            {category}
+            <button onClick={() => setFilters({ category: category })}>
+              {category}
+            </button>
           </li>
         ))}
       </ul>
