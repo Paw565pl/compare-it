@@ -1,13 +1,20 @@
 "use client";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
 import { useQueryStates } from "nuqs";
+import { useState } from "react";
 
 const FilterBar = () => {
   const { data: shopList, isLoading, error } = useFetchShopsList();
-  const [priceFilters, setPriceFilters] = useQueryStates({
+  const [_, setProductFilters] = useQueryStates({
     shop: "Morele.net",
     minPrice: 1,
-    maxPrice: 10000,
+    maxPrice: 100000,
+  });
+
+  const [tempProductFilters, setTempProductFilters] = useState({
+    shop: "Morele.net",
+    minPrice: 1,
+    maxPrice: 100000,
   });
 
   if (isLoading) return <div className="text-blue-700">Ładowanie...</div>;
@@ -16,7 +23,7 @@ const FilterBar = () => {
   const handlePriceChange = (e) => {
     const { name, value } = e.target;
 
-    setPriceFilters((prev) => ({
+    setTempProductFilters((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -32,7 +39,7 @@ const FilterBar = () => {
               key={index}
               className="cursor-pointer rounded-lg px-4 py-2 transition-colors duration-200 hover:bg-blue-700 hover:text-white"
             >
-              <button onClick={() => setPriceFilters({ shop: shop })}>
+              <button onClick={() => setProductFilters({ shop: shop })}>
                 {shop}
               </button>
             </li>
@@ -56,6 +63,10 @@ const FilterBar = () => {
             id="maxPrice"
             placeholder="Do"
           />
+
+          <button onClick={() => setProductFilters(tempProductFilters)}>
+            FILTRUJ
+          </button>
         </div>
       </div>
     </>
