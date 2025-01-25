@@ -12,26 +12,23 @@ import {
   AlertDialogTrigger,
 } from "@/core/components/ui/alert-dialog";
 import { Button } from "@/core/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { ReactNode } from "react";
+import { Ban, Trash2 } from "lucide-react";
 
 interface DeleteConfirmationAlertDialogProps {
-  children?: ReactNode;
+  alertDialogTriggerLabel?: string;
   handleDelete: () => void;
 }
 
 export const DeleteConfirmationAlertDialog = ({
-  children,
+  alertDialogTriggerLabel,
   handleDelete,
 }: DeleteConfirmationAlertDialogProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        {children || (
-          <Button variant="destructive">
-            <Trash2 /> Usuń
-          </Button>
-        )}
+        <Button variant="destructive">
+          <Trash2 /> {alertDialogTriggerLabel || "Usuń"}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -41,9 +38,11 @@ export const DeleteConfirmationAlertDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Anuluj</AlertDialogCancel>
+          <AlertDialogCancel>
+            <Ban /> Anuluj
+          </AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={handleDelete}>
-            Usuń
+            <Trash2 /> Usuń
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
