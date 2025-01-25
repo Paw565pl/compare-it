@@ -1,4 +1,5 @@
 import { DeleteConfirmationAlertDialog } from "@/core/components/delete-confirmation-alert-dialog";
+import { Button } from "@/core/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,6 +10,7 @@ import {
 } from "@/core/components/ui/card";
 import { PriceAlertFormDialog } from "@/price-alerts/components/price-alert-form-dialog";
 import { MockAlertData } from "@/price-alerts/components/price-alerts-grid";
+import { Pen } from "lucide-react";
 import Link from "next/link";
 
 interface PriceAlertCardProps {
@@ -17,7 +19,7 @@ interface PriceAlertCardProps {
 
 export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
   return (
-    <Card className="w-[350px]">
+    <Card className="w-[22rem]">
       <CardHeader>
         {/* FIXME: add image host to config and use Image component */}
         <img src={alertData.mainImageUrl} alt={alertData.name} />
@@ -42,7 +44,15 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
         <DeleteConfirmationAlertDialog
           handleDelete={() => console.log("delete price alert")}
         />
-        <PriceAlertFormDialog dialogTriggerLabel="Edytuj" />
+        <PriceAlertFormDialog
+          dialogTrigger={
+            <Button>
+              <Pen /> Edytuj
+            </Button>
+          }
+          dialogHeader="Edytuj alert cenowy"
+          handleSubmit={() => console.log("submit")}
+        />
       </CardFooter>
     </Card>
   );

@@ -19,23 +19,25 @@ import {
 import { ReactNode } from "react";
 
 interface PriceAlertFormDialogProps {
-  dialogTriggerLabel: ReactNode;
-  // TODO: accept optionl prop for edited object
+  dialogTrigger: ReactNode;
+  dialogHeader: string;
+  // TODO: use proper data type
+  handleSubmit: (data: FormData) => void;
 }
 
 export const PriceAlertFormDialog = ({
-  dialogTriggerLabel,
+  dialogTrigger,
+  dialogHeader,
+  handleSubmit,
 }: PriceAlertFormDialogProps) => {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button>{dialogTriggerLabel}</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edytuj alert cenowy</DialogTitle>
+          <DialogTitle>{dialogHeader}</DialogTitle>
         </DialogHeader>
-        <form>
+        <form onSubmit={() => handleSubmit(new FormData())}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="desiredCondition" className="text-right">
