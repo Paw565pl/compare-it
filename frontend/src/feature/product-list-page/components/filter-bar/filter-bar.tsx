@@ -71,9 +71,9 @@ const FilterBar = () => {
           {shopList?.map((shop, index) => (
             <li
               key={index}
-              className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-secondary hover:text-white"
+              className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-hover hover:text-white"
             >
-              <label className="flex items-center space-x-2">
+              <label className="flex items-center space-x-2 hover:cursor-pointer">
                 <input
                   type="checkbox"
                   name="shop"
@@ -111,7 +111,7 @@ const FilterBar = () => {
 
           <button
             onClick={applyFilters}
-            className="bg-secondary px-4 py-2 text-white"
+            className="bg-secondary px-4 py-2 text-white hover:bg-hover"
           >
             FILTRUJ
           </button>

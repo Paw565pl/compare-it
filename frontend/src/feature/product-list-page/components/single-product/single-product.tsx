@@ -60,7 +60,7 @@ const SingleProduct = ({
           </p>
           <Link
             href={`/product/${id}`}
-            className="block bg-secondary px-4 py-2 text-center font-semibold text-white transition hover:bg-secondary"
+            className="block bg-secondary px-4 py-2 text-center font-semibold text-white transition hover:bg-hover"
           >
             Porównaj oferty
           </Link>

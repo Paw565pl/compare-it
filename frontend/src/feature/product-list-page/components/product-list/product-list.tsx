@@ -9,18 +9,18 @@ const ProductList = () => {
     category: "Karty graficzne",
     minPrice: 1900,
     maxPrice: 2000,
-    shop: "Morele.net",
   });
-  const [pagination, setPagination] = useQueryStates({ size: 20 });
-  console.log("filters: ", filters);
+  const [pagination, setPagination] = useQueryStates({ size: 50 });
 
   // to initialize default url params as we dont have the home page with proper buttons
   useEffect(() => {
     if (!filters.category)
       setFilters({
         category: "Karty graficzne",
+        size: 5,
         minPrice: 1900,
         maxPrice: 2000,
+        shop: ["Morele.net", "RTV Euro AGD", "Media Expert"],
       });
 
     if (!pagination.size) setPagination({ size: 5 });
