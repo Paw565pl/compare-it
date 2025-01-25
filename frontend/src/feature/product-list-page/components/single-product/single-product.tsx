@@ -14,7 +14,7 @@ const SingleProduct = ({
   offerCount,
 }: SingleProductProps) => {
   return (
-    <div className="border-grey-100 flex flex-col bg-white p-6 text-blue-700 md:flex-row">
+    <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
       {/* Produkt: Obrazek */}
       <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
         <Link href={`/product/${id}`}>
@@ -55,12 +55,12 @@ const SingleProduct = ({
               </span>
             )}
           </div>
-          <p className="mb-2 text-lg font-semibold text-blue-700">
+          <p className="mb-2 text-lg font-semibold text-secondary">
             Najniższa cena: {lowestCurrentPrice} zł
           </p>
           <Link
             href={`/product/${id}`}
-            className="block rounded-lg bg-blue-700 px-4 py-2 text-center font-semibold text-white transition hover:bg-blue-600"
+            className="block bg-secondary px-4 py-2 text-center font-semibold text-white transition hover:bg-secondary"
           >
             Porównaj oferty
           </Link>

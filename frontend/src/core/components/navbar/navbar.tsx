@@ -4,7 +4,7 @@ import { SearchBar } from "./search-bar";
 
 export const Navbar = () => {
   return (
-    <nav className="mb-8 flex items-center justify-between border-b-2 border-b-black px-4 py-6">
+    <nav className="mb-8 flex items-center justify-between px-4">
       <Logo />
       <SearchBar />
       <AuthSection />

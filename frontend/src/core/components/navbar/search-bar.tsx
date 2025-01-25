@@ -3,16 +3,16 @@ import Link from "next/link";
 
 const SearchBar = () => {
   return (
-    <div className="mb-8 flex w-full items-center justify-center">
+    <div className="flex w-full items-center justify-center">
       <input
         type="text"
-        className="w-full border-2 border-r-0 border-gray-100 px-4 py-2 text-lg focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 md:w-1/3"
+        className="w-full border-2 border-r-0 border-gray-100 p-2 text-sm focus:outline-none md:w-1/3"
         placeholder="Wyszukaj wymarzony produkt"
       />
       <Link href={"/filter"}>
-        <div className="flex items-center rounded-r-lg bg-blue-700 p-3 px-4 font-semibold text-white transition-colors duration-300 hover:bg-blue-800">
+        <div className="flex items-center bg-secondary p-2 font-semibold text-white transition-colors duration-300 hover:bg-secondary">
           <Search className="text-lg" />
-          <div className="ml-2">Wyszukaj</div>
+          <div className="ml-2">WYSZUKAJ</div>
         </div>
       </Link>
     </div>

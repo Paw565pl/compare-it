@@ -30,7 +30,7 @@ const ProductList = () => {
 
   return (
     <div>
-      <h1 className="mb-2 text-2xl font-bold text-blue-700">Lista produktów</h1>
+      <h1 className="mb-2 text-2xl font-bold text-secondary">Produkty</h1>
       <ul className="space-y-4">
         {productsList?.pages.map((page, pageIndex) => (
           <div key={pageIndex} className="space-y-1">
@@ -54,7 +54,7 @@ const ProductList = () => {
       </ul>
       <div className="mt-6 flex items-center justify-between">
         <button
-          className="rounded-lg bg-blue-700 px-4 py-2 text-white hover:bg-blue-600"
+          className="rounded-lg bg-secondary px-4 py-2 text-white hover:bg-secondary"
           onClick={() =>
             setPagination((prev) => ({
               ...prev,
@@ -67,7 +67,7 @@ const ProductList = () => {
         </button>
         <span className="text-gray-700">Strona {pagination.page}</span>
         <button
-          className="rounded-lg bg-blue-700 px-4 py-2 text-white hover:bg-blue-600"
+          className="rounded-lg bg-secondary px-4 py-2 text-white hover:bg-secondary"
           onClick={() =>
             setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
           }

@@ -17,7 +17,7 @@ const FilterBar = () => {
     maxPrice: 100000,
   });
 
-  if (isLoading) return <div className="text-blue-700">Ładowanie...</div>;
+  if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   const handlePriceChange = (e) => {
@@ -31,16 +31,16 @@ const FilterBar = () => {
 
   return (
     <>
-      <h2 className="mt-6 text-2xl font-bold text-blue-700">Filtry</h2>
-      <div className="mt-2 flex flex-col items-start rounded-b-lg border border-gray-100 bg-white">
-        <h3 className="mb-2 pl-4 pt-2 text-xl font-bold text-blue-700">
+      <h2 className="mt-6 text-2xl font-bold text-secondary">Filtry</h2>
+      <div className="mt-2 flex flex-col items-start border border-background bg-white">
+        <h3 className="mb-2 pl-4 pt-2 text-xl font-bold text-secondary">
           Sklepy
         </h3>
         <ul className="w-full space-y-2">
           {shopList?.map((shop, index) => (
             <li
               key={index}
-              className="cursor-pointer rounded-lg px-4 py-2 transition-colors duration-200 hover:bg-blue-700 hover:text-white"
+              className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-secondary hover:text-white"
             >
               <button onClick={() => setProductFilters({ shop: shop })}>
                 {shop}
@@ -48,7 +48,7 @@ const FilterBar = () => {
             </li>
           ))}
         </ul>
-        <h3 className="pl-4 pt-2 text-xl font-bold text-blue-700">Cena</h3>
+        <h3 className="pl-4 pt-2 text-xl font-bold text-secondary">Cena</h3>
         <div className="flex w-full flex-col">
           <div className="space-y-1 p-4">
             <input
@@ -56,22 +56,22 @@ const FilterBar = () => {
               name="minPrice"
               onChange={handlePriceChange}
               id="minPrice"
-              placeholder="Od"
-              className="rounded-lg bg-gray-100 px-2 py-1"
+              placeholder="od"
+              className="bg-gray-100 p-2 text-sm focus:outline-none"
             />
             <input
               type="text"
               name="maxPrice"
               onChange={handlePriceChange}
               id="maxPrice"
-              placeholder="Do"
-              className="mb-8 rounded-lg bg-gray-100 px-2 py-1"
+              placeholder="do"
+              className="mb-8 bg-gray-100 p-2 text-sm focus:outline-none"
             />
           </div>
 
           <button
             onClick={() => setProductFilters(tempProductFilters)}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-white"
+            className="bg-secondary px-4 py-2 text-white"
           >
             FILTRUJ
           </button>
