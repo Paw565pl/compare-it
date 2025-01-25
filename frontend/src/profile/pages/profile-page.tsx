@@ -2,6 +2,7 @@
 
 import { Button } from "@/core/components/ui/button";
 import { PriceAlertsGrid } from "@/price-alerts/components/price-alerts-grid";
+import { PriceAlertsNotificationsGrid } from "@/price-alerts/components/price-alerts-notifications-grid";
 import { UserDetailsCard } from "@/profile/components/user-details-card";
 import { AlarmClock, Heart, NotebookPen, User } from "lucide-react";
 import { ReactNode, useState } from "react";
@@ -37,7 +38,7 @@ export const ProfilePage = () => {
     },
     {
       title: "Historia alertów",
-      component: <div>Historia alertów</div>,
+      component: <PriceAlertsNotificationsGrid />,
       icon: <AlarmClock className={asideButtonClassName} />,
     },
   ];
