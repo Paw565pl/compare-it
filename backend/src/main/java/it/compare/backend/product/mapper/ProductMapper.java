@@ -57,11 +57,11 @@ public class ProductMapper {
         return response;
     }
 
-    public ProductDetailResponse toDetailResponse(Product product, Integer priceStampRange) {
+    public ProductDetailResponse toDetailResponse(Product product, Integer priceStampRangeDays) {
         var response = modelMapper.map(product, ProductDetailResponse.class);
 
-        if (priceStampRange != null) {
-            LocalDateTime startDate = LocalDateTime.now().minusDays(priceStampRange);
+        if (priceStampRangeDays != null) {
+            LocalDateTime startDate = LocalDateTime.now().minusDays(priceStampRangeDays);
             response.getOffers().forEach(offer -> {
                 List<PriceStampResponse> filteredHistory = offer.getPriceHistory().stream()
                         .filter(price -> price.getTimestamp().isAfter(startDate))
