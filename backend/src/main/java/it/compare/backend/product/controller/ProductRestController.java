@@ -23,7 +23,7 @@ public class ProductRestController {
 
     @GetMapping("/{id}")
     public ProductDetailResponse findById(
-            @PathVariable String id, @RequestParam(required = false) Integer priceStampRange) {
+            @PathVariable String id, @RequestParam(required = false, defaultValue = "90") Integer priceStampRange) {
         return productService.findById(id, priceStampRange);
     }
 }
