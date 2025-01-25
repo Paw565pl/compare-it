@@ -29,11 +29,11 @@ const ProductList = () => {
   const { data: productsList } = useFetchProductPage(filters, pagination);
 
   return (
-    <div className="w-full rounded-lg bg-white p-6 shadow-lg">
-      <h1 className="mb-4 text-2xl font-bold text-blue-700">Lista produktów</h1>
+    <div>
+      <h1 className="mb-2 text-2xl font-bold text-blue-700">Lista produktów</h1>
       <ul className="space-y-4">
         {productsList?.pages.map((page, pageIndex) => (
-          <div key={pageIndex} className="space-y-4">
+          <div key={pageIndex} className="space-y-1">
             {page.content.map((product) => (
               <li key={product.id}>
                 <SingleProduct

@@ -31,9 +31,12 @@ const FilterBar = () => {
 
   return (
     <>
-      <div className="mt-4 flex flex-col items-start rounded-lg border border-gray-200 bg-white p-4 shadow-md">
-        <h2 className="mb-4 text-2xl font-bold text-blue-700">Sklepy</h2>
-        <ul className="space-y-2">
+      <h2 className="mt-6 text-2xl font-bold text-blue-700">Filtry</h2>
+      <div className="mt-2 flex flex-col items-start rounded-b-lg border border-gray-100 bg-white">
+        <h3 className="mb-2 pl-4 pt-2 text-xl font-bold text-blue-700">
+          Sklepy
+        </h3>
+        <ul className="w-full space-y-2">
           {shopList?.map((shop, index) => (
             <li
               key={index}
@@ -45,26 +48,31 @@ const FilterBar = () => {
             </li>
           ))}
         </ul>
-      </div>
-      <div className="mt-4 flex flex-col items-start rounded-lg border border-gray-200 bg-white p-4 shadow-md">
-        <h2 className="mb-4 text-2xl font-bold text-blue-700">Cena</h2>
-        <div>
-          <input
-            type="text"
-            name="minPrice"
-            onChange={handlePriceChange}
-            id="minPrice"
-            placeholder="Od"
-          />
-          <input
-            type="text"
-            name="maxPrice"
-            onChange={handlePriceChange}
-            id="maxPrice"
-            placeholder="Do"
-          />
+        <h3 className="pl-4 pt-2 text-xl font-bold text-blue-700">Cena</h3>
+        <div className="flex w-full flex-col">
+          <div className="space-y-1 p-4">
+            <input
+              type="text"
+              name="minPrice"
+              onChange={handlePriceChange}
+              id="minPrice"
+              placeholder="Od"
+              className="rounded-lg bg-gray-100 px-2 py-1"
+            />
+            <input
+              type="text"
+              name="maxPrice"
+              onChange={handlePriceChange}
+              id="maxPrice"
+              placeholder="Do"
+              className="mb-8 rounded-lg bg-gray-100 px-2 py-1"
+            />
+          </div>
 
-          <button onClick={() => setProductFilters(tempProductFilters)}>
+          <button
+            onClick={() => setProductFilters(tempProductFilters)}
+            className="rounded-lg bg-blue-700 px-4 py-2 text-white"
+          >
             FILTRUJ
           </button>
         </div>

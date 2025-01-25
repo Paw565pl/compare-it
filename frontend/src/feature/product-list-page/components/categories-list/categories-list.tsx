@@ -11,9 +11,9 @@ const CategoriesList = () => {
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   return (
-    <div className="flex flex-col items-start rounded-lg border border-gray-200 bg-white p-4 shadow-md">
-      <h2 className="mb-4 text-2xl font-bold text-blue-700">Kategorie</h2>
-      <ul className="space-y-3">
+    <div className="flex flex-col items-start">
+      <h2 className="text-2xl font-bold text-blue-700">Kategorie</h2>
+      <ul className="mt-2 w-full space-y-3 bg-white">
         {categoriesList?.map((category, index) => (
           <li
             key={index}
