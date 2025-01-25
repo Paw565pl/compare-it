@@ -36,7 +36,7 @@ const FilterBar = () => {
         <h3 className="mb-2 pl-4 pt-2 text-xl font-bold text-secondary">
           Sklepy
         </h3>
-        <ul className="w-full space-y-2">
+        <ul className="w-full">
           {shopList?.map((shop, index) => (
             <li
               key={index}
@@ -49,15 +49,15 @@ const FilterBar = () => {
           ))}
         </ul>
         <h3 className="pl-4 pt-2 text-xl font-bold text-secondary">Cena</h3>
-        <div className="flex w-full flex-col">
-          <div className="space-y-1 p-4">
+        <div className="flex w-full flex-col justify-start">
+          <div className="mb-4 w-full space-y-1 p-4">
             <input
               type="text"
               name="minPrice"
               onChange={handlePriceChange}
               id="minPrice"
               placeholder="od"
-              className="bg-gray-100 p-2 text-sm focus:outline-none"
+              className="w-full bg-background p-2 text-sm focus:outline-none"
             />
             <input
               type="text"
@@ -65,7 +65,7 @@ const FilterBar = () => {
               onChange={handlePriceChange}
               id="maxPrice"
               placeholder="do"
-              className="mb-8 bg-gray-100 p-2 text-sm focus:outline-none"
+              className="w-full bg-background p-2 text-sm focus:outline-none"
             />
           </div>
 
