@@ -11,7 +11,7 @@ export const SignInButton = () => {
       }}
     >
       <Button
-        className="rounded-none bg-secondary text-lg hover:bg-hover cursor-pointer"
+        className="cursor-pointer rounded-none bg-secondary text-lg hover:bg-hover"
         type="submit"
       >
         ZALOGUJ SIĘ

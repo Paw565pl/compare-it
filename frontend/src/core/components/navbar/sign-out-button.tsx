@@ -18,11 +18,11 @@ export const SignOutButton = () => {
     router.replace(signOutUrl);
   };
 
-  return 
-    <Button 
-      onClick={() => handleSignOut()}
-      className="rounded-none bg-secondary text-lg hover:bg-hover cursor-pointer"
-    >
-      Wyloguj się
-    </Button>;
+  return;
+  <Button
+    onClick={() => handleSignOut()}
+    className="cursor-pointer rounded-none bg-secondary text-lg hover:bg-hover"
+  >
+    Wyloguj się
+  </Button>;
 };
