@@ -33,6 +33,7 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
           <span>EAN: {alertData.ean}</span>
         </CardDescription>
       </CardHeader>
+
       <CardContent>
         <p>Oczekiwany stan: {alertData.alert.desiredCondition}</p>
         <p>
@@ -40,6 +41,7 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
           {alertData.alert.desiredCurrency}
         </p>
       </CardContent>
+
       <CardFooter className="flex items-center justify-between">
         <DeleteConfirmationAlertDialog
           handleDelete={() => console.log("delete price alert")}
