@@ -1,3 +1,4 @@
+import { DeleteConfirmationAlertDialog } from "@/core/components/delete-confirmation-alert-dialog";
 import {
   Card,
   CardContent,
@@ -6,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { DeletePriceAlertDialog } from "@/price-alerts/components/delete-price-alert-dialog";
 import { PriceAlertFormDialog } from "@/price-alerts/components/price-alert-form-dialog";
 import { MockAlertData } from "@/price-alerts/components/price-alerts-grid";
 import Link from "next/link";
@@ -21,10 +21,15 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
       <CardHeader>
         {/* FIXME: add image host to config and use Image component */}
         <img src={alertData.mainImageUrl} alt={alertData.name} />
+
         <CardTitle className="text-2xl">
           <Link href={`/produkty/${alertData.id}`}>{alertData.name}</Link>
         </CardTitle>
-        <CardDescription>{alertData.category}</CardDescription>
+
+        <CardDescription className="flex items-center justify-between">
+          <span>{alertData.category}</span>
+          <span>EAN: {alertData.ean}</span>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <p>Oczekiwany stan: {alertData.alert.desiredCondition}</p>
@@ -34,7 +39,9 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
         </p>
       </CardContent>
       <CardFooter className="flex items-center justify-between">
-        <DeletePriceAlertDialog />
+        <DeleteConfirmationAlertDialog
+          handleDelete={() => console.log("delete price alert")}
+        />
         <PriceAlertFormDialog dialogTriggerLabel="Edytuj" />
       </CardFooter>
     </Card>

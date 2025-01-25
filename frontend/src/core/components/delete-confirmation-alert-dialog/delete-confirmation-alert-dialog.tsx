@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,14 +12,26 @@ import {
   AlertDialogTrigger,
 } from "@/core/components/ui/alert-dialog";
 import { Button } from "@/core/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { ReactNode } from "react";
 
-// TODO: accept optionl prop for deleted object
+interface DeleteConfirmationAlertDialogProps {
+  children?: ReactNode;
+  handleDelete: () => void;
+}
 
-export const DeletePriceAlertDialog = () => {
+export const DeleteConfirmationAlertDialog = ({
+  children,
+  handleDelete,
+}: DeleteConfirmationAlertDialogProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">Usuń</Button>
+        {children || (
+          <Button variant="destructive">
+            <Trash2 /> Usuń
+          </Button>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -28,7 +42,9 @@ export const DeletePriceAlertDialog = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Anuluj</AlertDialogCancel>
-          <AlertDialogAction variant="destructive">Usuń</AlertDialogAction>
+          <AlertDialogAction variant="destructive" onClick={handleDelete}>
+            Usuń
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
