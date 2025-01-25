@@ -1,5 +1,5 @@
 import { H1 } from "@/core/components/ui/h1";
-import { PriceAlertCard } from "@/profile/components/price-alert-card";
+import { PriceAlertCard } from "@/price-alerts/components/price-alert-card";
 
 export interface MockAlertData {
   id: string;

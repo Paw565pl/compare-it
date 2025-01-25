@@ -16,12 +16,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/core/components/ui/select";
+import { ReactNode } from "react";
 
-export const EditPriceAlertDialog = () => {
+interface PriceAlertFormDialogProps {
+  dialogTriggerLabel: ReactNode;
+  // TODO: accept optionl prop for edited object
+}
+
+export const PriceAlertFormDialog = ({
+  dialogTriggerLabel,
+}: PriceAlertFormDialogProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Edytuj</Button>
+        <Button>{dialogTriggerLabel}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

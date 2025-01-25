@@ -6,9 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { DeletePriceAlertDialog } from "@/profile/components/delete-price-alert-dialog";
-import { EditPriceAlertDialog } from "@/profile/components/edit-price-alert-dialog";
-import { MockAlertData } from "@/profile/components/price-alerts-grid";
+import { DeletePriceAlertDialog } from "@/price-alerts/components/delete-price-alert-dialog";
+import { PriceAlertFormDialog } from "@/price-alerts/components/price-alert-form-dialog";
+import { MockAlertData } from "@/price-alerts/components/price-alerts-grid";
 import Link from "next/link";
 
 interface PriceAlertCardProps {
@@ -35,7 +35,7 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
       </CardContent>
       <CardFooter className="flex items-center justify-between">
         <DeletePriceAlertDialog />
-        <EditPriceAlertDialog />
+        <PriceAlertFormDialog dialogTriggerLabel="Edytuj" />
       </CardFooter>
     </Card>
   );

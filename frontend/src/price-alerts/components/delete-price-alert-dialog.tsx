@@ -11,6 +11,8 @@ import {
 } from "@/core/components/ui/alert-dialog";
 import { Button } from "@/core/components/ui/button";
 
+// TODO: accept optionl prop for deleted object
+
 export const DeletePriceAlertDialog = () => {
   return (
     <AlertDialog>
