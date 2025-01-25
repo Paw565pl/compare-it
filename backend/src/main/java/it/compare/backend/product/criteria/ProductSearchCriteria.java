@@ -23,7 +23,7 @@ import org.springframework.data.mongodb.core.query.Query;
 public class ProductSearchCriteria {
     private String name;
     private String category;
-    private String shop;
+    private List<String> shop;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private Pageable pageable;
@@ -74,13 +74,17 @@ public class ProductSearchCriteria {
             criteria.and("category").is(matchingCategory != null ? matchingCategory : "NON_EXISTENT_CATEGORY");
         }
 
-        if (shop != null) {
-            var matchingShop = Arrays.stream(Shop.values())
-                    .filter(s -> s.getHumanReadableName().equalsIgnoreCase(shop))
-                    .findFirst()
-                    .orElse(null);
+        if (shop != null && !shop.isEmpty()) {
+            var matchingShops = Arrays.stream(Shop.values())
+                    .filter(s -> shop.stream()
+                            .anyMatch(singleShop -> s.getHumanReadableName().equalsIgnoreCase(singleShop)))
+                    .toList();
 
-            criteria.and("offers.shop").is(matchingShop != null ? matchingShop : "NON_EXISTENT_SHOP");
+            if (!matchingShops.isEmpty()) {
+                criteria.and("offers.shop").in(matchingShops);
+            } else {
+                criteria.and("offers.shop").in(List.of("NON_EXISTENT_SHOP"));
+            }
         }
 
         return criteria;
