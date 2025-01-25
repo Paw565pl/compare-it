@@ -24,7 +24,6 @@ public class ProductRestController {
     @GetMapping("/{id}")
     public ProductDetailResponse findById(
             @PathVariable String id, @RequestParam(required = false, defaultValue = "90") Integer priceStampRangeDays) {
-        int days = priceStampRangeDays < 0 || priceStampRangeDays > 180 ? 90 : priceStampRangeDays;
-        return productService.findById(id, days);
+        return productService.findById(id, priceStampRangeDays);
     }
 }
