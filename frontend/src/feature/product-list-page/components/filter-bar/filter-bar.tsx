@@ -5,16 +5,20 @@ import { useState } from "react";
 
 const FilterBar = () => {
   const { data: shopList, isLoading, error } = useFetchShopsList();
-  const [_, setProductFilters] = useQueryStates({
-    shop: "Morele.net",
-    minPrice: 1,
-    maxPrice: 100000,
+  const [productFilters, setProductFilters] = useQueryStates({
+    category: "Karty graficzne",
+    size: 5,
+    minPrice: 1900,
+    maxPrice: 2000,
+    shop: ["Morele.net", "RTV Euro AGD", "Media Expert"],
   });
 
   const [tempProductFilters, setTempProductFilters] = useState({
-    shop: "Morele.net",
-    minPrice: 1,
-    maxPrice: 100000,
+    category: "Karty graficzne",
+    size: 5,
+    minPrice: 1900,
+    maxPrice: 2000,
+    shop: ["Morele.net", "RTV Euro AGD", "Media Expert"],
   });
 
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
@@ -26,6 +30,33 @@ const FilterBar = () => {
     setTempProductFilters((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleShopChange = (e) => {
+    const { value, checked } = e.target;
+
+    setTempProductFilters((prev) => {
+      const updatedShops = checked
+        ? [...prev.shop, value]
+        : prev.shop.filter((shop) => shop !== value);
+
+      return {
+        ...prev,
+        shop: updatedShops,
+      };
+    });
+  };
+
+  const applyFilters = () => {
+    const filtersWithShops = {
+      ...tempProductFilters,
+      shop: tempProductFilters.shop.join(","),
+    };
+
+    setProductFilters((prevFilters) => ({
+      ...prevFilters,
+      ...filtersWithShops,
     }));
   };
 
@@ -42,9 +73,16 @@ const FilterBar = () => {
               key={index}
               className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-secondary hover:text-white"
             >
-              <button onClick={() => setProductFilters({ shop: shop })}>
-                {shop}
-              </button>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="shop"
+                  value={shop}
+                  checked={tempProductFilters.shop.includes(shop)}
+                  onChange={handleShopChange}
+                />
+                <span>{shop}</span>
+              </label>
             </li>
           ))}
         </ul>
@@ -57,6 +95,7 @@ const FilterBar = () => {
               onChange={handlePriceChange}
               id="minPrice"
               placeholder="od"
+              value={tempProductFilters.minPrice}
               className="w-full bg-background p-2 text-sm focus:outline-none"
             />
             <input
@@ -65,12 +104,13 @@ const FilterBar = () => {
               onChange={handlePriceChange}
               id="maxPrice"
               placeholder="do"
+              value={tempProductFilters.maxPrice}
               className="w-full bg-background p-2 text-sm focus:outline-none"
             />
           </div>
 
           <button
-            onClick={() => setProductFilters(tempProductFilters)}
+            onClick={applyFilters}
             className="bg-secondary px-4 py-2 text-white"
           >
             FILTRUJ
