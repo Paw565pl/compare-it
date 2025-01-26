@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Size;
 import org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,21 +76,14 @@ public class CommentService {
     }
 
     public Page<CommentResponse> findAllByProductId(String productId, Pageable pageable) {
-        record CountResult(long total) {}
-
         productService.findProductOrThrow(productId);
 
         var criteria = Criteria.where("product.$id").is(productId);
-        var match = Aggregation.match(criteria);
-
-        var countOperation = Aggregation.count().as("total");
-        var countAggregation = Aggregation.newAggregation(match, countOperation);
-        var countResults = mongoTemplate.aggregate(countAggregation, "comments", CountResult.class);
-        var total = countResults.getMappedResults().isEmpty()
-                ? 0
-                : countResults.getMappedResults().getFirst().total();
+        var total = mongoTemplate.count(Query.query(criteria), Comment.class);
 
         var operations = new ArrayList<>(getCommentRatingsAggregationOperations());
+
+        var match = Aggregation.match(criteria);
         operations.addFirst(match);
 
         var sortOrders = new ArrayList<Sort.Order>();
