@@ -22,7 +22,8 @@ public class ProductRestController {
     }
 
     @GetMapping("/{id}")
-    public ProductDetailResponse findById(@PathVariable String id) {
-        return productService.findById(id);
+    public ProductDetailResponse findById(
+            @PathVariable String id, @RequestParam(required = false, defaultValue = "90") Integer priceStampRangeDays) {
+        return productService.findById(id, priceStampRangeDays);
     }
 }
