@@ -10,6 +10,7 @@ import it.compare.backend.comment.model.Comment;
 import it.compare.backend.comment.repository.CommentRepository;
 import it.compare.backend.comment.response.CommentResponse;
 import it.compare.backend.product.service.ProductService;
+import it.compare.backend.rating.repository.RatingRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,7 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final ProductService productService;
     private final UserRepository userRepository;
+    private final RatingRepository ratingRepository;
 
     private static final String RATINGS_COLLECTION = "ratings";
     private static final String POSITIVE_RATINGS_COUNT_FIELD = "positiveRatingsCount";
@@ -172,6 +174,7 @@ public class CommentService {
                 || AuthUtil.hasRole(oAuthUserDetails.getAuthorities(), Role.ADMIN);
         if (!canDelete) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
+        ratingRepository.deleteAllByCommentId(commentId);
         commentRepository.deleteById(commentId);
     }
 }
