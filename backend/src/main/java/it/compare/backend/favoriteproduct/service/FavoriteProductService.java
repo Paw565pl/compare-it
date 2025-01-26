@@ -42,7 +42,7 @@ public class FavoriteProductService {
 
         var match = Aggregation.match(criteria);
 
-        final String PRODUCT_FIELD = "product";
+        final var PRODUCT_FIELD = "product";
         var lookupProduct = Aggregation.lookup("products", "product.$id", "_id", PRODUCT_FIELD);
         var unwindProduct = Aggregation.unwind(PRODUCT_FIELD);
 
