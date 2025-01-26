@@ -12,7 +12,9 @@ const CategoriesList = () => {
 
   return (
     <div className="flex flex-col items-start">
-      <h2 className="text-2xl font-bold text-secondary">Kategorie</h2>
+      <h2 className="ml-4 text-2xl font-bold text-secondary sm:ml-0">
+        Kategorie
+      </h2>
       <ul className="mt-2 w-full bg-white">
         {categoriesList?.map((category, index) => (
           <li

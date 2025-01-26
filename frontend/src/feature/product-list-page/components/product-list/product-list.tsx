@@ -8,7 +8,9 @@ const ProductList = () => {
   const [filters, setFilters] = useQueryStates({
     category: "Karty graficzne",
     minPrice: 1900,
+    size: 5,
     maxPrice: 2000,
+    shop: "Morele.net,RTV Euro AGD,Media Expert",
   });
   const [pagination, setPagination] = useQueryStates({ size: 50 });
 
@@ -20,18 +22,20 @@ const ProductList = () => {
         size: 5,
         minPrice: 1900,
         maxPrice: 2000,
-        shop: ["Morele.net", "RTV Euro AGD", "Media Expert"],
+        shop: "Morele.net,RTV Euro AGD,Media Expert",
       });
 
-    if (!pagination.size) setPagination({ size: 5 });
+    if (!pagination.size) setPagination({ size: 15 });
   }, [filters, pagination, setFilters, setPagination]);
 
   const { data: productsList } = useFetchProductPage(filters, pagination);
 
   return (
     <div>
-      <h1 className="mb-2 text-2xl font-bold text-secondary">Produkty</h1>
-      <ul className="space-y-4">
+      <h1 className="mb-2 ml-4 text-2xl font-bold text-secondary sm:ml-0">
+        Produkty
+      </h1>
+      <ul className="space-y-2">
         {productsList?.pages.map((page, pageIndex) => (
           <div key={pageIndex} className="space-y-1">
             {page.content.map((product) => (

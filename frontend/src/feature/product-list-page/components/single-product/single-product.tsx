@@ -4,7 +4,6 @@ import Link from "next/link";
 
 const SingleProduct = ({
   category,
-  ean,
   id,
   isAvailable,
   lowestCurrentPrice,
@@ -28,20 +27,16 @@ const SingleProduct = ({
         </Link>
       </div>
 
-      {/* Produkt: Szczegóły */}
       <div className="flex flex-grow flex-col justify-between">
-        {/* Górna sekcja */}
         <div>
           <Link href={`/product/${id}`}>
             <h1 className="mb-2 text-xl font-bold">{name}</h1>
           </Link>
           <p className="mb-4 text-sm text-gray-500">Kategoria: {category}</p>
 
-          {/* Liczba ofert */}
           <p className="text-sm text-gray-600">Liczba ofert: {offerCount}</p>
         </div>
 
-        {/* Dolna sekcja */}
         <div className="mt-1">
           <p className="mb-1 text-sm text-gray-600">Sklep: {lowestPriceShop}</p>
           <div className="mb-4 text-sm">

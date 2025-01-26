@@ -10,7 +10,7 @@ const FilterBar = () => {
     size: 5,
     minPrice: 1900,
     maxPrice: 2000,
-    shop: ["Morele.net", "RTV Euro AGD", "Media Expert"],
+    shop: "Morele.net,RTV Euro AGD,Media Expert",
   });
 
   const [tempProductFilters, setTempProductFilters] = useState({
@@ -62,8 +62,10 @@ const FilterBar = () => {
 
   return (
     <>
-      <h2 className="mt-6 text-2xl font-bold text-secondary">Filtry</h2>
-      <div className="mt-2 flex flex-col items-start border border-background bg-white">
+      <h2 className="ml-4 mt-6 text-2xl font-bold text-secondary sm:ml-0">
+        Filtry
+      </h2>
+      <div className="mb-4 mt-2 flex flex-col items-start border border-background bg-white">
         <h3 className="mb-2 pl-4 pt-2 text-xl font-bold text-secondary">
           Sklepy
         </h3>
