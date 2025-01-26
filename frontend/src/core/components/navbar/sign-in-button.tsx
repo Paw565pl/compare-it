@@ -1,5 +1,6 @@
 import { signIn } from "@/auth/config/auth-config";
 import { Button } from "@/core/components/ui/button";
+import { AlignJustify } from "lucide-react";
 
 export const SignInButton = () => {
   return (
@@ -11,10 +12,11 @@ export const SignInButton = () => {
       }}
     >
       <Button
-        className="cursor-pointer rounded-none bg-secondary text-lg hover:bg-hover"
+        className="text-md cursor-pointer rounded-none bg-secondary hover:bg-hover sm:text-lg"
         type="submit"
       >
-        ZALOGUJ SIĘ
+        <div className="hidden md:block">ZALOGUJ SIĘ</div>
+        <AlignJustify className="md:hidden" />
       </Button>
     </form>
   );
