@@ -1,6 +1,6 @@
-import { SingleProductProps } from "@/feature/product-list-page/components/single-product/single-product-props";
 import Image from "next/image";
 import Link from "next/link";
+import { ProductListEntity } from "@/products/entities/product-list-entity";
 
 const SingleProduct = ({
   category,
@@ -11,7 +11,7 @@ const SingleProduct = ({
   mainImageUrl,
   name,
   offerCount,
-}: SingleProductProps) => {
+}: ProductListEntity) => {
   return (
     <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
       <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
