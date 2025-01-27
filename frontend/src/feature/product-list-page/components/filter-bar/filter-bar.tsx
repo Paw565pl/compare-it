@@ -5,9 +5,8 @@ import { useState } from "react";
 
 const FilterBar = () => {
   const { data: shopList, isLoading, error } = useFetchShopsList();
-  const [productFilters, setProductFilters] = useQueryStates({
+  const [_, setProductFilters] = useQueryStates({
     category: "Karty graficzne",
-    size: 5,
     minPrice: 1900,
     maxPrice: 2000,
     shop: "Morele.net,RTV Euro AGD,Media Expert",
@@ -15,7 +14,6 @@ const FilterBar = () => {
 
   const [tempProductFilters, setTempProductFilters] = useState({
     category: "Karty graficzne",
-    size: 5,
     minPrice: 1900,
     maxPrice: 2000,
     shop: ["Morele.net", "RTV Euro AGD", "Media Expert"],
@@ -73,7 +71,7 @@ const FilterBar = () => {
           {shopList?.map((shop, index) => (
             <li
               key={index}
-              className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-hover hover:text-white"
+              className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-hover hover:text-white sm:text-lg"
             >
               <label className="flex items-center space-x-2 hover:cursor-pointer">
                 <input

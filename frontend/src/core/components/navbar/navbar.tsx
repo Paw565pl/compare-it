@@ -5,7 +5,10 @@ import { SearchBar } from "./search-bar";
 export const Navbar = () => {
   return (
     <nav className="mb-8 flex flex-col items-center justify-between sm:flex-row">
-      <div className="flex w-full justify-between">
+      <div className="hidden sm:flex">
+        <Logo />
+      </div>
+      <div className="flex w-full justify-between sm:hidden">
         <div className="flex items-center">
           <Logo />
         </div>
@@ -14,7 +17,7 @@ export const Navbar = () => {
         </div>
       </div>
       <div className="mt-4 w-full p-4 sm:mt-0 sm:p-0">
-        <SearchBar />
+        <SearchBar className="mt-4 w-full p-4 sm:mt-0 sm:p-0" />
       </div>
       <div className="hidden sm:block">
         <AuthSection />

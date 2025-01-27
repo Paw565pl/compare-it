@@ -1,5 +1,6 @@
 "use client";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { useEffect } from "react";
 import { SingleProduct } from "../index";
@@ -8,27 +9,33 @@ const ProductList = () => {
   const [filters, setFilters] = useQueryStates({
     category: "Karty graficzne",
     minPrice: 1900,
-    size: 5,
     maxPrice: 2000,
     shop: "Morele.net,RTV Euro AGD,Media Expert",
   });
-  const [pagination, setPagination] = useQueryStates({ size: 50 });
+  const [pagination, setPagination] = useQueryStates({ page: 1, size: 10 });
 
   // to initialize default url params as we dont have the home page with proper buttons
   useEffect(() => {
     if (!filters.category)
       setFilters({
         category: "Karty graficzne",
-        size: 5,
         minPrice: 1900,
         maxPrice: 2000,
         shop: "Morele.net,RTV Euro AGD,Media Expert",
       });
 
-    if (!pagination.size) setPagination({ size: 15 });
+    if (!pagination.size) setPagination({ page: 0, size: 10 });
   }, [filters, pagination, setFilters, setPagination]);
 
-  const { data: productsList } = useFetchProductPage(filters, pagination);
+  const {
+    data: productsList,
+    isLoading,
+    error,
+    hasNextPage,
+  } = useFetchProductPage(filters, pagination);
+
+  if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
+  if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   return (
     <div>
@@ -36,6 +43,7 @@ const ProductList = () => {
         Produkty
       </h1>
       <ul className="space-y-2">
+        {hasNextPage && <>JEST NEXT {hasNextPage}</>}
         {productsList?.pages.map((page, pageIndex) => (
           <div key={pageIndex} className="space-y-1">
             {page.content.map((product) => (
@@ -58,28 +66,26 @@ const ProductList = () => {
       </ul>
       <div className="mt-6 flex items-center justify-between">
         <button
-          className="rounded-lg bg-secondary px-4 py-2 text-white hover:bg-secondary"
+          className="m-4 mt-0 bg-secondary px-4 py-2 text-white hover:bg-secondary disabled:bg-gray-500 sm:m-0"
           onClick={() =>
             setPagination((prev) => ({
               ...prev,
-              page: Math.max(prev.page - 1, 1),
+              page: Math.max(prev.page - 1, 0),
             }))
           }
-          disabled={pagination.page === 1}
+          disabled={pagination.page === 0}
         >
-          Poprzednia
+          <ChevronLeft />
         </button>
-        <span className="text-gray-700">Strona {pagination.page}</span>
+        <span className="text-gray-700">Strona {pagination.page + 1}</span>
         <button
-          className="rounded-lg bg-secondary px-4 py-2 text-white hover:bg-secondary"
+          className="m-4 mt-0 bg-secondary px-4 py-2 text-white hover:bg-secondary disabled:bg-gray-500 sm:m-0"
           onClick={() =>
             setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
           }
-          disabled={
-            !productsList || productsList.pages.length < pagination.limit
-          }
+          disabled={!hasNextPage}
         >
-          Następna
+          <ChevronRight />
         </button>
       </div>
     </div>

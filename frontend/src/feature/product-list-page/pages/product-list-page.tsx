@@ -6,9 +6,9 @@ import {
 
 const ProductListPage = () => {
   return (
-    <div className="flex w-auto flex-col bg-background p-0 sm:p-4">
-      <div className="flex flex-col sm:flex-row">
-        <div className="mr-0 w-full sm:mr-4 sm:w-1/5">
+    <div className="flex w-auto flex-col bg-background p-0 lg:p-4">
+      <div className="flex flex-col lg:flex-row">
+        <div className="mr-0 w-full lg:mr-4 lg:w-1/5">
           <CategoriesList />
           <FilterBar />
         </div>
