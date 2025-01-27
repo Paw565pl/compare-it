@@ -5,10 +5,10 @@ import {
   ProductList,
 } from "@/products/components/index";
 import { prefetchCategoriesList } from "@/products/hooks/server/prefetch-categories-list";
+import { prefetchProductPage } from "@/products/hooks/server/prefetch-product-page";
+import { prefetchShopsList } from "@/products/hooks/server/prefetch-shops-list";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
-import { prefetchProductPage } from "../hooks/server/prefetch-product-page";
-import { prefetchShopsList } from "../hooks/server/prefetch-shops-list";
 
 const ProductListPage = () => {
   const queryClient = getQueryClient();
@@ -28,7 +28,7 @@ const ProductListPage = () => {
               <FilterBar />
             </Suspense>
           </div>
-          <div className="flex flex-col">
+          <div className="flex w-full flex-col">
             <Suspense>
               <ProductList />
             </Suspense>
