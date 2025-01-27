@@ -23,9 +23,12 @@ const CategoriesList = () => {
         {categoriesList?.map((category, index) => (
           <li
             key={index}
-            className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-hover hover:text-white"
+            className="cursor-pointer transition-colors duration-200 hover:bg-hover hover:text-white"
           >
-            <button onClick={() => setFilters({ category: category })}>
+            <button
+              onClick={() => setFilters({ category: category })}
+              className="flex w-full items-start px-4 py-2"
+            >
               {category}
             </button>
           </li>

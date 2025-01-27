@@ -21,8 +21,8 @@ const ProductList = () => {
     shop: parseAsString.withDefault("Morele.net,RTV Euro AGD"),
   });
   const [pagination, setPagination] = useQueryStates({
-    page: parseAsInteger.withDefault(1),
-    size: parseAsInteger.withDefault(10),
+    page: parseAsInteger.withDefault(0),
+    size: parseAsInteger.withDefault(20),
     sort: parseAsString.withDefault("default"),
   });
 
@@ -36,8 +36,7 @@ const ProductList = () => {
         shop: "Morele.net,RTV Euro AGD",
       });
 
-    if (!pagination.size)
-      setPagination({ page: 0, size: 10, sort: "Domyślne" });
+    if (!pagination.size) setPagination({ page: 0, size: 10, sort: "default" });
   }, [filters, pagination, setFilters, setPagination]);
 
   const {
