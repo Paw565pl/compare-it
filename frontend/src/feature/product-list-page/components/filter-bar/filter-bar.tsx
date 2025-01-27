@@ -60,7 +60,7 @@ const FilterBar = () => {
 
   return (
     <>
-      <h2 className="ml-4 mt-6 text-2xl font-bold text-secondary sm:ml-0">
+      <h2 className="mb-1 ml-4 mt-6 text-2xl font-bold text-secondary sm:ml-0">
         Filtry
       </h2>
       <div className="mb-4 mt-2 flex flex-col items-start border border-background bg-white">

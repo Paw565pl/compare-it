@@ -12,7 +12,9 @@ const ProductListPage = () => {
           <CategoriesList />
           <FilterBar />
         </div>
-        <ProductList />
+        <div className="flex flex-col items-end">
+          <ProductList />
+        </div>
       </div>
     </div>
   );

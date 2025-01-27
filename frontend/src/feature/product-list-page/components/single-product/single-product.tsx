@@ -14,7 +14,6 @@ const SingleProduct = ({
 }: SingleProductProps) => {
   return (
     <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
-      {/* Produkt: Obrazek */}
       <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
         <Link href={`/product/${id}`}>
           <Image

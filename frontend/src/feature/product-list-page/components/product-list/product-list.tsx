@@ -3,7 +3,7 @@ import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-p
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { useEffect } from "react";
-import { SingleProduct } from "../index";
+import { SingleProduct, SortBar } from "../index";
 
 const ProductList = () => {
   const [filters, setFilters] = useQueryStates({
@@ -12,7 +12,11 @@ const ProductList = () => {
     maxPrice: 15000,
     shop: "Morele.net,RTV Euro AGD",
   });
-  const [pagination, setPagination] = useQueryStates({ page: 1, size: 10 });
+  const [pagination, setPagination] = useQueryStates({
+    page: 1,
+    size: 10,
+    sort: "lowestCurrentPrice",
+  });
 
   // to initialize default url params as we dont have the home page with proper buttons
   useEffect(() => {
@@ -24,7 +28,8 @@ const ProductList = () => {
         shop: "Morele.net,RTV Euro AGD",
       });
 
-    if (!pagination.size) setPagination({ page: 0, size: 10 });
+    if (!pagination.size)
+      setPagination({ page: 0, size: 10, sort: "lowestCurrentPrice" });
   }, [filters, pagination, setFilters, setPagination]);
 
   const {
@@ -39,11 +44,13 @@ const ProductList = () => {
 
   return (
     <div>
-      <h1 className="mb-2 ml-4 text-2xl font-bold text-secondary sm:ml-0">
-        Produkty
-      </h1>
+      <div className="mb-1 flex justify-between">
+        <h1 className="mb-2 ml-4 text-2xl font-bold text-secondary sm:ml-0">
+          Produkty
+        </h1>
+        <SortBar />
+      </div>
       <ul className="space-y-2">
-        {hasNextPage && <>JEST NEXT {hasNextPage}</>}
         {productsList?.pages.map((page, pageIndex) => (
           <div key={pageIndex} className="space-y-1">
             {page.content.map((product) => (
