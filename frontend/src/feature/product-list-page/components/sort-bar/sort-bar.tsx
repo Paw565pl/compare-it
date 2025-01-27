@@ -47,11 +47,12 @@ const SortBar = () => {
                 onClick={() => handleSortChange(key, value)}
                 className="w-full cursor-pointer px-4 py-2 text-left hover:bg-hover hover:text-white"
               >
-              {key}
-            </button>
-          </li>
+                {key}
+              </button>
+            </li>
           ))}
-        </ul>)}
+        </ul>
+      )}
     </div>
   );
 };
