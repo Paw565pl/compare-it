@@ -26,7 +26,12 @@ const createComment = async (
 
 export const useCreateComment = (accessToken: string, productId: string) =>
   useMutation<CommentEntity, AxiosError<ErrorResponse>, CommentDto>({
-    mutationKey: [...productsQueryKey, productId, "createComment"] as const,
+    mutationKey: [
+      ...productsQueryKey,
+      productId,
+      ...commentsQueryKey,
+      "create",
+    ] as const,
     mutationFn: (commentDto) =>
       createComment(accessToken, productId, commentDto),
     onSuccess: () => {
