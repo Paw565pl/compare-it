@@ -1,9 +1,6 @@
 "use client";
 import { getQueryClient } from "@/core/libs/tanstack-query";
-import {
-  SingleProduct,
-  SortBar,
-} from "@/feature/product-list-page/components/index";
+import { SingleProduct, SortBar } from "@/products/components/index";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import { prefetchProductPage } from "@/products/hooks/server/prefetch-product-page";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";

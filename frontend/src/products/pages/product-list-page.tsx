@@ -2,7 +2,7 @@ import {
   CategoriesList,
   FilterBar,
   ProductList,
-} from "@/feature/product-list-page/components/index";
+} from "@/products/components/index";
 import { Suspense } from "react";
 
 const ProductListPage = () => {
