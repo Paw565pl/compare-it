@@ -1,6 +1,6 @@
 import { AuthSection } from "@/core/components/navbar/auth-section";
 import { Logo } from "@/core/components/navbar/logo";
-import { SearchBar } from "./search-bar";
+import { SearchBar } from "@/core/components/navbar/search-bar";
 
 export const Navbar = () => {
   return (

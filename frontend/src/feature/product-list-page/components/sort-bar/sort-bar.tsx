@@ -16,7 +16,7 @@ const sortOptions = {
 
 const SortBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedSort, setSelectedSort] = useState("Domyślne");
+  const [_, setSelectedSort] = useState("Domyślne");
   const [_, setSort] = useQueryStates({ sort: "Domyślne" });
 
   const toggleDropdown = () => {

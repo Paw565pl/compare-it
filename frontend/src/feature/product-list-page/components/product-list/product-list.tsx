@@ -3,7 +3,7 @@ import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-p
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { useEffect } from "react";
-import { SingleProduct, SortBar } from "../index";
+import { SingleProduct, SortBar } from "@/feature/product-list-page/components/index";
 
 const ProductList = () => {
   const [filters, setFilters] = useQueryStates({
