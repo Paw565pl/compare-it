@@ -47,7 +47,6 @@ export const useUpdateComment = (
         ...productsQueryKey,
         productId,
         ...commentsQueryKey,
-        commentId,
       ] as const;
 
       queryClient.invalidateQueries({ queryKey });
