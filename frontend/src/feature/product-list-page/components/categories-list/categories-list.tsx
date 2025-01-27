@@ -1,8 +1,6 @@
 "use client";
 import { getQueryClient } from "@/core/libs/tanstack-query";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
-import { prefetchCategoriesList } from "@/products/hooks/server/prefetch-categories-list";
-import { HydrationBoundary } from "@tanstack/react-query";
 import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 
 const CategoriesList = () => {
