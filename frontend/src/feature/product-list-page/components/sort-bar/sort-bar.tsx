@@ -19,24 +19,15 @@ const SortBar = () => {
     setIsDropdownOpen(false);
   };
 
-  const sortParams = [
-    "default",
-    "lowestCurrentPrice",
-    "lowestCurrentPrice,desc",
-    "name",
-    "name,desc",
-    "offerCount",
-    "offerCount,desc",
-  ];
-  const sortOptions = [
-    "Domyślne",
-    "Cena rosnąco",
-    "Cena malejąco",
-    "Nazwa a-z",
-    "Nazwa z-a",
-    "Liczba ofert rosnąco",
-    "Liczba ofert malejąco",
-  ];
+  const sortOptions = {
+    Domyślne: "default",
+    "Cena rosnąco": "lowestCurrentPrice",
+    "Cena malejąco": "lowestCurrentPrice,desc",
+    "Nazwa a-z": "name",
+    "Nazwa z-a": "name,desc",
+    "Liczba ofert rosnąco": "offerCount",
+    "Liczba ofert malejąco": "offerCount,desc",
+  };
 
   return (
     <div className="text-md relative items-center">
@@ -50,13 +41,13 @@ const SortBar = () => {
 
       {isDropdownOpen && (
         <ul className="absolute left-0 mt-2 border bg-white shadow-lg">
-          {sortOptions.map((option, index) => (
+          {Object.entries(sortOptions).map(([key, value]) => (
             <li
-              key={index}
-              onClick={() => handleSortChange(option, sortParams[index])}
+              key={value}
+              onClick={() => handleSortChange(key, value)}
               className="cursor-pointer px-4 py-2 hover:bg-hover hover:text-white"
             >
-              {option}
+              {key}
             </li>
           ))}
         </ul>

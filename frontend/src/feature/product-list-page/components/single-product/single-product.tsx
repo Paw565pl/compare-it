@@ -1,6 +1,6 @@
+import { ProductListEntity } from "@/products/entities/product-list-entity";
 import Image from "next/image";
 import Link from "next/link";
-import { ProductListEntity } from "@/products/entities/product-list-entity";
 
 const SingleProduct = ({
   category,
