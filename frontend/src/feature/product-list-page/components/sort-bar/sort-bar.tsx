@@ -16,8 +16,8 @@ const sortOptions = {
 
 const SortBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [_, setSelectedSort] = useState("Domyślne");
-  const [_, setSort] = useQueryStates({ sort: "Domyślne" });
+  const [, setSelectedSort] = useState("Domyślne");
+  const [, setSort] = useQueryStates({ sort: "Domyślne" });
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -42,16 +42,16 @@ const SortBar = () => {
       {isDropdownOpen && (
         <ul className="absolute left-0 mt-2 border bg-white shadow-lg">
           {Object.entries(sortOptions).map(([key, value]) => (
-            <li
-              key={value}
-              onClick={() => handleSortChange(key, value)}
-              className="cursor-pointer px-4 py-2 hover:bg-hover hover:text-white"
-            >
+            <li key={value}>
+              <button
+                onClick={() => handleSortChange(key, value)}
+                className="w-full cursor-pointer px-4 py-2 text-left hover:bg-hover hover:text-white"
+              >
               {key}
-            </li>
+            </button>
+          </li>
           ))}
-        </ul>
-      )}
+        </ul>)}
     </div>
   );
 };

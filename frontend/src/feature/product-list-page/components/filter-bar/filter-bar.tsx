@@ -5,7 +5,7 @@ import { useState } from "react";
 
 const FilterBar = () => {
   const { data: shopList, isLoading, error } = useFetchShopsList();
-  const [_, setProductFilters] = useQueryStates({
+  const [, setProductFilters] = useQueryStates({
     category: "Karty graficzne",
     minPrice: 1,
     maxPrice: 1000000,

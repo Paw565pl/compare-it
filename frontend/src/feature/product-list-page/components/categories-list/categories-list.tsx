@@ -5,7 +5,7 @@ import { useQueryStates } from "nuqs";
 const CategoriesList = () => {
   const { data: categoriesList, isLoading, error } = useFetchCategoriesList();
 
-  const [_, setFilters] = useQueryStates({ category: "Karty graficzne" });
+  const [, setFilters] = useQueryStates({ category: "Karty graficzne" });
 
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
