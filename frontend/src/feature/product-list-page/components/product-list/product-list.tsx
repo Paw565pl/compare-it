@@ -8,9 +8,9 @@ import { SingleProduct } from "../index";
 const ProductList = () => {
   const [filters, setFilters] = useQueryStates({
     category: "Karty graficzne",
-    minPrice: 1900,
-    maxPrice: 2000,
-    shop: "Morele.net,RTV Euro AGD,Media Expert",
+    minPrice: 100,
+    maxPrice: 15000,
+    shop: "Morele.net,RTV Euro AGD",
   });
   const [pagination, setPagination] = useQueryStates({ page: 1, size: 10 });
 
@@ -19,9 +19,9 @@ const ProductList = () => {
     if (!filters.category)
       setFilters({
         category: "Karty graficzne",
-        minPrice: 1900,
-        maxPrice: 2000,
-        shop: "Morele.net,RTV Euro AGD,Media Expert",
+        minPrice: 100,
+        maxPrice: 15000,
+        shop: "Morele.net,RTV Euro AGD",
       });
 
     if (!pagination.size) setPagination({ page: 0, size: 10 });
@@ -79,7 +79,7 @@ const ProductList = () => {
         </button>
         <span className="text-gray-700">Strona {pagination.page + 1}</span>
         <button
-          className="m-4 mt-0 bg-secondary px-4 py-2 text-white hover:bg-secondary disabled:bg-gray-500 sm:m-0"
+          className="m-4 mt-0 bg-secondary px-4 py-2 text-white hover:bg-hover disabled:bg-gray-500 sm:m-0"
           onClick={() =>
             setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
           }

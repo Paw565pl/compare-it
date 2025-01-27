@@ -7,16 +7,16 @@ const FilterBar = () => {
   const { data: shopList, isLoading, error } = useFetchShopsList();
   const [_, setProductFilters] = useQueryStates({
     category: "Karty graficzne",
-    minPrice: 1900,
-    maxPrice: 2000,
-    shop: "Morele.net,RTV Euro AGD,Media Expert",
+    minPrice: 100,
+    maxPrice: 15000,
+    shop: "Morele.net,RTV Euro AGD",
   });
 
   const [tempProductFilters, setTempProductFilters] = useState({
     category: "Karty graficzne",
-    minPrice: 1900,
-    maxPrice: 2000,
-    shop: ["Morele.net", "RTV Euro AGD", "Media Expert"],
+    minPrice: 100,
+    maxPrice: 15000,
+    shop: ["Morele.net", "RTV Euro AGD"],
   });
 
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
@@ -68,23 +68,25 @@ const FilterBar = () => {
           Sklepy
         </h3>
         <ul className="w-full">
-          {shopList?.map((shop, index) => (
-            <li
-              key={index}
-              className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-hover hover:text-white sm:text-lg"
-            >
-              <label className="flex items-center space-x-2 hover:cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="shop"
-                  value={shop}
-                  checked={tempProductFilters.shop.includes(shop)}
-                  onChange={handleShopChange}
-                />
-                <span>{shop}</span>
-              </label>
-            </li>
-          ))}
+          {shopList
+            ?.filter((shop) => shop !== "Media Expert")
+            .map((shop, index) => (
+              <li
+                key={index}
+                className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-hover hover:text-white sm:text-lg"
+              >
+                <label className="flex items-center space-x-2 hover:cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="shop"
+                    value={shop}
+                    checked={tempProductFilters.shop.includes(shop)}
+                    onChange={handleShopChange}
+                  />
+                  <span>{shop}</span>
+                </label>
+              </li>
+            ))}
         </ul>
         <h3 className="pl-4 pt-2 text-xl font-bold text-secondary">Cena</h3>
         <div className="flex w-full flex-col justify-start">
