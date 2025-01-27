@@ -36,7 +36,7 @@ const ProductList = () => {
         shop: "Morele.net,RTV Euro AGD",
       });
 
-    if (!pagination.size) setPagination({ page: 0, size: 10, sort: "default" });
+    if (!pagination.size) setPagination({ page: 0, size: 20, sort: "default" });
   }, [filters, pagination, setFilters, setPagination]);
 
   const {
