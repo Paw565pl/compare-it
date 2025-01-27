@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { useQueryStates } from "nuqs";
+import { parseAsString, useQueryStates } from "nuqs";
 import { useState } from "react";
 
 const sortOptions = {
@@ -17,13 +17,13 @@ const sortOptions = {
 const SortBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [, setSelectedSort] = useState("Domyślne");
-  const [, setSort] = useQueryStates({ sort: "Domyślne" });
+  const [, setSort] = useQueryStates({ sort: parseAsString });
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
-  const handleSortChange = (option, param) => {
+  const handleSortChange = (option: string, param: string) => {
     setSelectedSort(option);
     setSort({ sort: param });
     setIsDropdownOpen(false);

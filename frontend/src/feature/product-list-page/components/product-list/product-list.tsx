@@ -5,20 +5,25 @@ import {
 } from "@/feature/product-list-page/components/index";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useQueryStates } from "nuqs";
+import {
+  parseAsFloat,
+  parseAsInteger,
+  parseAsString,
+  useQueryStates,
+} from "nuqs";
 import { useEffect } from "react";
 
 const ProductList = () => {
   const [filters, setFilters] = useQueryStates({
-    category: "Karty graficzne",
-    minPrice: 1,
-    maxPrice: 15000,
-    shop: "Morele.net,RTV Euro AGD",
+    category: parseAsString.withDefault("Karty graficzne"),
+    minPrice: parseAsFloat.withDefault(1),
+    maxPrice: parseAsFloat.withDefault(100000),
+    shop: parseAsString.withDefault("Morele.net,RTV Euro AGD"),
   });
   const [pagination, setPagination] = useQueryStates({
-    page: 1,
-    size: 10,
-    sort: "Domyślne",
+    page: parseAsInteger.withDefault(1),
+    size: parseAsInteger.withDefault(10),
+    sort: parseAsString.withDefault("default"),
   });
 
   // to initialize default url params as we dont have the home page with proper buttons

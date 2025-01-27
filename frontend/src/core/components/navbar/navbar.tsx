@@ -17,7 +17,9 @@ export const Navbar = () => {
         </div>
       </div>
       <div className="mt-4 w-full p-4 sm:mt-0 sm:p-0">
-        <SearchBar className="mt-4 w-full p-4 sm:mt-0 sm:p-0" />
+        <div className="mt-4 w-full p-4 sm:mt-0 sm:p-0">
+          <SearchBar />
+        </div>
       </div>
       <div className="hidden sm:block">
         <AuthSection />

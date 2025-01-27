@@ -1,28 +1,28 @@
 "use client";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
-import { useQueryStates } from "nuqs";
+import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 import { useState } from "react";
 
 const FilterBar = () => {
   const { data: shopList, isLoading, error } = useFetchShopsList();
   const [, setProductFilters] = useQueryStates({
-    category: "Karty graficzne",
-    minPrice: 1,
-    maxPrice: 1000000,
-    shop: "Morele.net,RTV Euro AGD",
+    category: parseAsString,
+    minPrice: parseAsFloat,
+    maxPrice: parseAsFloat,
+    shop: parseAsString,
   });
 
   const [tempProductFilters, setTempProductFilters] = useState({
     category: "Karty graficzne",
-    minPrice: 1,
-    maxPrice: 1000000,
+    minPrice: null,
+    maxPrice: null,
     shop: ["Morele.net", "RTV Euro AGD"],
   });
 
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
-  const handlePriceChange = (e) => {
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     setTempProductFilters((prev) => ({
@@ -31,7 +31,7 @@ const FilterBar = () => {
     }));
   };
 
-  const handleShopChange = (e) => {
+  const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
 
     setTempProductFilters((prev) => {

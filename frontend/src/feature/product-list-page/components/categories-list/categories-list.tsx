@@ -1,12 +1,16 @@
 "use client";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
-import { useQueryStates } from "nuqs";
+import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 
 const CategoriesList = () => {
   const { data: categoriesList, isLoading, error } = useFetchCategoriesList();
 
-  const [, setFilters] = useQueryStates({ category: "Karty graficzne" });
-
+  const [, setFilters] = useQueryStates({
+    category: parseAsString,
+    minPrice: parseAsFloat,
+    maxPrice: parseAsFloat,
+    shop: parseAsString,
+  });
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
