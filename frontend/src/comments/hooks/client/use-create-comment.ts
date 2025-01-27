@@ -36,7 +36,11 @@ export const useCreateComment = (accessToken: string, productId: string) =>
       createComment(accessToken, productId, commentDto),
     onSuccess: () => {
       const queryClient = getQueryClient();
-      const queryKey = [...productsQueryKey, productId, ...commentsQueryKey];
+      const queryKey = [
+        ...productsQueryKey,
+        productId,
+        ...commentsQueryKey,
+      ] as const;
 
       queryClient.invalidateQueries({ queryKey });
     },
