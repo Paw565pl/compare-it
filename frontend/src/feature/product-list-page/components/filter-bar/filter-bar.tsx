@@ -2,7 +2,7 @@
 import { getQueryClient } from "@/core/libs/tanstack-query";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
 import { prefetchShopsList } from "@/products/hooks/server/prefetch-shops-list";
-import { HydrationBoundary } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 import { useState } from "react";
 
@@ -66,7 +66,7 @@ const FilterBar = () => {
   };
 
   return (
-    <HydrationBoundary dehydrate={queryClient}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <h2 className="mb-1 ml-4 mt-6 text-2xl font-bold text-secondary sm:ml-0">
         Filtry
       </h2>

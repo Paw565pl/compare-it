@@ -1,6 +1,8 @@
 "use client";
 import { getQueryClient } from "@/core/libs/tanstack-query";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
+import { prefetchCategoriesList } from "@/products/hooks/server/prefetch-categories-list";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 
 const CategoriesList = () => {
@@ -18,7 +20,7 @@ const CategoriesList = () => {
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   return (
-    <HydrationBoundary dehydrate={queryClient}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex flex-col items-start">
         <h2 className="mb-1 ml-4 text-2xl font-bold text-secondary sm:ml-0">
           Kategorie

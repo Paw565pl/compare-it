@@ -6,7 +6,7 @@ import {
 } from "@/feature/product-list-page/components/index";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import { prefetchProductPage } from "@/products/hooks/server/prefetch-product-page";
-import { HydrationBoundary } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   parseAsFloat,
@@ -56,7 +56,7 @@ const ProductList = () => {
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   return (
-    <HydrationBoundary dehydrate={queryClient}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="mb-1 flex justify-between">
         <h1 className="mb-2 ml-4 text-2xl font-bold text-secondary sm:ml-0">
           Produkty
