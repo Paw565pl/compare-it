@@ -4,6 +4,16 @@ import { ChevronDown } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { useState } from "react";
 
+const sortOptions = {
+  Domyślne: "default",
+  "Cena rosnąco": "lowestCurrentPrice",
+  "Cena malejąco": "lowestCurrentPrice,desc",
+  "Nazwa a-z": "name",
+  "Nazwa z-a": "name,desc",
+  "Liczba ofert rosnąco": "offerCount",
+  "Liczba ofert malejąco": "offerCount,desc",
+};
+
 const SortBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState("Domyślne");
@@ -17,16 +27,6 @@ const SortBar = () => {
     setSelectedSort(option);
     setSort({ sort: param });
     setIsDropdownOpen(false);
-  };
-
-  const sortOptions = {
-    Domyślne: "default",
-    "Cena rosnąco": "lowestCurrentPrice",
-    "Cena malejąco": "lowestCurrentPrice,desc",
-    "Nazwa a-z": "name",
-    "Nazwa z-a": "name,desc",
-    "Liczba ofert rosnąco": "offerCount",
-    "Liczba ofert malejąco": "offerCount,desc",
   };
 
   return (
