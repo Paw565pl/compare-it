@@ -1,9 +1,12 @@
 "use client";
+import {
+  SingleProduct,
+  SortBar,
+} from "@/feature/product-list-page/components/index";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { useEffect } from "react";
-import { SingleProduct, SortBar } from "@/feature/product-list-page/components/index";
 
 const ProductList = () => {
   const [filters, setFilters] = useQueryStates({
