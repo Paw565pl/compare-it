@@ -1,11 +1,12 @@
 import { commentsQueryKey } from "@/comments/hooks/query-options/comments-query-key";
 import { getQueryClient } from "@/core/libs/tanstack-query";
+import { apiService } from "@/core/services/api";
 import { ErrorResponse } from "@/core/services/api/types/error-response";
 import { productsQueryKey } from "@/products/hooks/query-options/products-query-key";
 import { RatingDto } from "@/rating/dto/rating-dto";
 import { RatingEntity } from "@/rating/entities/rating-entity";
 import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 
 const createRating = async (
   accessToken: string,
@@ -13,7 +14,7 @@ const createRating = async (
   commentId: string,
   ratingDto: RatingDto,
 ) => {
-  const { data } = await axios.post<RatingEntity>(
+  const { data } = await apiService.post<RatingEntity>(
     `/v1/products/${productId}/comments/${commentId}/rate`,
     ratingDto,
     {

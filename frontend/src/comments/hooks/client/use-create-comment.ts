@@ -2,17 +2,18 @@ import { CommentDto } from "@/comments/dtos/comment-dto";
 import { CommentEntity } from "@/comments/entities/comment-entity";
 import { commentsQueryKey } from "@/comments/hooks/query-options/comments-query-key";
 import { getQueryClient } from "@/core/libs/tanstack-query";
+import { apiService } from "@/core/services/api";
 import { ErrorResponse } from "@/core/services/api/types/error-response";
 import { productsQueryKey } from "@/products/hooks/query-options/products-query-key";
 import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 
 const createComment = async (
   accessToken: string,
   productId: string,
   commentDto: CommentDto,
 ) => {
-  const { data } = await axios.post<CommentEntity>(
+  const { data } = await apiService.post<CommentEntity>(
     `/v1/products/${productId}/comments`,
     commentDto,
     {
