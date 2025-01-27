@@ -1,9 +1,12 @@
 "use client";
+import { getQueryClient } from "@/core/libs/tanstack-query";
 import {
   SingleProduct,
   SortBar,
 } from "@/feature/product-list-page/components/index";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
+import { prefetchProductPage } from "@/products/hooks/server/prefetch-product-page";
+import { HydrationBoundary } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   parseAsFloat,
@@ -14,6 +17,9 @@ import {
 import { useEffect } from "react";
 
 const ProductList = () => {
+  const queryClient = getQueryClient();
+  prefetchProductPage(queryClient);
+
   const [filters, setFilters] = useQueryStates({
     category: parseAsString.withDefault("Karty graficzne"),
     minPrice: parseAsFloat.withDefault(1),
@@ -50,7 +56,7 @@ const ProductList = () => {
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   return (
-    <div>
+    <HydrationBoundary dehydrate={queryClient}>
       <div className="mb-1 flex justify-between">
         <h1 className="mb-2 ml-4 text-2xl font-bold text-secondary sm:ml-0">
           Produkty
@@ -102,7 +108,7 @@ const ProductList = () => {
           <ChevronRight />
         </button>
       </div>
-    </div>
+    </HydrationBoundary>
   );
 };
 
