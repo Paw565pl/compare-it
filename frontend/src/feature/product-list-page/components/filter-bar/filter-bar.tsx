@@ -7,15 +7,15 @@ const FilterBar = () => {
   const { data: shopList, isLoading, error } = useFetchShopsList();
   const [_, setProductFilters] = useQueryStates({
     category: "Karty graficzne",
-    minPrice: 100,
-    maxPrice: 15000,
+    minPrice: 1,
+    maxPrice: 1000000,
     shop: "Morele.net,RTV Euro AGD",
   });
 
   const [tempProductFilters, setTempProductFilters] = useState({
     category: "Karty graficzne",
-    minPrice: 100,
-    maxPrice: 15000,
+    minPrice: 1,
+    maxPrice: 1000000,
     shop: ["Morele.net", "RTV Euro AGD"],
   });
 

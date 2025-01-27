@@ -8,14 +8,14 @@ import { SingleProduct, SortBar } from "../index";
 const ProductList = () => {
   const [filters, setFilters] = useQueryStates({
     category: "Karty graficzne",
-    minPrice: 100,
+    minPrice: 1,
     maxPrice: 15000,
     shop: "Morele.net,RTV Euro AGD",
   });
   const [pagination, setPagination] = useQueryStates({
     page: 1,
     size: 10,
-    sort: "lowestCurrentPrice",
+    sort: "Domyślne",
   });
 
   // to initialize default url params as we dont have the home page with proper buttons
@@ -23,13 +23,13 @@ const ProductList = () => {
     if (!filters.category)
       setFilters({
         category: "Karty graficzne",
-        minPrice: 100,
-        maxPrice: 15000,
+        minPrice: 1,
+        maxPrice: 1000000,
         shop: "Morele.net,RTV Euro AGD",
       });
 
     if (!pagination.size)
-      setPagination({ page: 0, size: 10, sort: "lowestCurrentPrice" });
+      setPagination({ page: 0, size: 10, sort: "Domyślne" });
   }, [filters, pagination, setFilters, setPagination]);
 
   const {
