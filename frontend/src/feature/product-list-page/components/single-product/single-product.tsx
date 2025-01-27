@@ -1,4 +1,4 @@
-import { SingleProduct as SingleProductProps } from "@/feature/product-list-page/types/single-product";
+import { SingleProductProps } from "@/feature/product-list-page/components/single-product/single-product-props";
 import Image from "next/image";
 import Link from "next/link";
 

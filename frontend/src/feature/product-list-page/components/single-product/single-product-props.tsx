@@ -1,4 +1,4 @@
-export interface SingleProduct {
+export interface SingleProductProps {
   category: string;
   ean: string;
   id: string;
