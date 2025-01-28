@@ -12,7 +12,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
-        background: "hsl(0, 0%, 95%)",
+        background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
           DEFAULT: "hsl(var(--card))",
@@ -27,7 +27,7 @@ export default {
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "hsl(267, 84%, 43%)",
+          DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
         muted: {
@@ -43,8 +43,8 @@ export default {
           foreground: "hsl(var(--destructive-foreground))",
         },
         hover: {
-          DEFAULT: "hsl(267, 84%, 53%)",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "hsl(var(--hover))",
+          foreground: "hsl(var(--hover-foreground))",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
