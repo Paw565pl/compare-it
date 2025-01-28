@@ -6,4 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface RatingRepository extends MongoRepository<Rating, String> {
     Optional<Rating> findByAuthorIdAndCommentId(String authorId, String commentId);
+
+    void deleteAllByCommentId(String commentId);
 }
