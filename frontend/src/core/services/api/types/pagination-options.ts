@@ -1,4 +1,4 @@
 export interface PaginationOptions {
-  size?: number;
-  sort?: string;
+  size: number | null;
+  sort: string | null;
 }

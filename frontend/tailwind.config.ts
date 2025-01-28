@@ -42,6 +42,10 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        hover: {
+          DEFAULT: "hsl(var(--hover))",
+          foreground: "hsl(var(--hover-foreground))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
