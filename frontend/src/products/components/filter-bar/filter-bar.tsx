@@ -4,7 +4,7 @@ import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 import { useState } from "react";
 
 const FilterBar = () => {
-  const { data: shopList, isLoading, error } = useFetchShopsList();
+  const { data: shopList } = useFetchShopsList();
   const [, setProductFilters] = useQueryStates({
     category: parseAsString,
     minPrice: parseAsFloat,
@@ -18,9 +18,6 @@ const FilterBar = () => {
     maxPrice: null,
     shop: ["Morele.net", "RTV Euro AGD"],
   });
-
-  if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
-  if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -82,6 +79,7 @@ const FilterBar = () => {
                     value={shop}
                     checked={tempProductFilters.shop.includes(shop)}
                     onChange={handleShopChange}
+                    className="cursor-pointer"
                   />
                   <span>{shop}</span>
                 </label>

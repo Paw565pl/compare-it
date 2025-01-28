@@ -3,7 +3,7 @@ import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-catego
 import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
 
 const CategoriesList = () => {
-  const { data: categoriesList, isLoading, error } = useFetchCategoriesList();
+  const { data: categoriesList } = useFetchCategoriesList();
 
   const [, setFilters] = useQueryStates({
     category: parseAsString,
@@ -12,9 +12,6 @@ const CategoriesList = () => {
     shop: parseAsString,
     name: parseAsString,
   });
-  if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
-  if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
-
   return (
     <div className="flex flex-col items-start">
       <h2 className="mb-1 ml-4 text-2xl font-bold text-secondary sm:ml-0">
