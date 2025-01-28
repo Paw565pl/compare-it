@@ -10,6 +10,7 @@ const CategoriesList = () => {
     minPrice: parseAsFloat,
     maxPrice: parseAsFloat,
     shop: parseAsString,
+    name: parseAsString,
   });
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;

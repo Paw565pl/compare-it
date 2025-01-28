@@ -10,6 +10,7 @@ const FilterBar = () => {
     minPrice: parseAsFloat,
     maxPrice: parseAsFloat,
     shop: parseAsString,
+    name: parseAsString,
   });
 
   const [tempProductFilters, setTempProductFilters] = useState({

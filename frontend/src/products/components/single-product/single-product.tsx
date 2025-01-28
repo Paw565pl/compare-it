@@ -53,7 +53,7 @@ const SingleProduct = ({
             Najniższa cena: {lowestCurrentPrice} zł
           </p>
           <Link
-            href={`/product/${id}`}
+            href={`/produkty/${id}`}
             className="block bg-secondary px-4 py-2 text-center font-semibold text-white transition hover:bg-hover"
           >
             Porównaj oferty

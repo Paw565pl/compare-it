@@ -1,6 +1,7 @@
 import { AuthSection } from "@/core/components/navbar/auth-section";
 import { Logo } from "@/core/components/navbar/logo";
 import { SearchBar } from "@/core/components/navbar/search-bar";
+import { Suspense } from "react";
 
 export const Navbar = () => {
   return (
@@ -18,7 +19,9 @@ export const Navbar = () => {
       </div>
       <div className="mt-4 w-full p-4 sm:mt-0 sm:p-0">
         <div className="mt-4 w-full p-4 sm:mt-0 sm:p-0">
-          <SearchBar />
+          <Suspense>
+            <SearchBar />
+          </Suspense>
         </div>
       </div>
       <div className="hidden sm:block">

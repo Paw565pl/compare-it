@@ -8,33 +8,20 @@ import {
   parseAsString,
   useQueryStates,
 } from "nuqs";
-import { useEffect } from "react";
 
 const ProductList = () => {
-  const [filters, setFilters] = useQueryStates({
+  const [filters] = useQueryStates({
     category: parseAsString.withDefault("Karty graficzne"),
     minPrice: parseAsFloat.withDefault(1),
     maxPrice: parseAsFloat.withDefault(100000),
     shop: parseAsString.withDefault("Morele.net,RTV Euro AGD"),
+    name: parseAsString.withDefault(""),
   });
   const [pagination, setPagination] = useQueryStates({
     page: parseAsInteger.withDefault(0),
     size: parseAsInteger.withDefault(20),
     sort: parseAsString.withDefault("default"),
   });
-
-  // to initialize default url params as we dont have the home page with proper buttons
-  useEffect(() => {
-    if (!filters.category)
-      setFilters({
-        category: "Karty graficzne",
-        minPrice: 1,
-        maxPrice: 1000000,
-        shop: "Morele.net,RTV Euro AGD",
-      });
-
-    if (!pagination.size) setPagination({ page: 0, size: 20, sort: "default" });
-  }, [filters, pagination, setFilters, setPagination]);
 
   const {
     data: productsList,
