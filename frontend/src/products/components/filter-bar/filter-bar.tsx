@@ -14,7 +14,6 @@ const FilterBar = () => {
   });
 
   const [tempProductFilters, setTempProductFilters] = useState({
-    category: "Karty graficzne",
     minPrice: null,
     maxPrice: null,
     shop: ["Morele.net", "RTV Euro AGD"],
