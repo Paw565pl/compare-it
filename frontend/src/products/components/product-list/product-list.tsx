@@ -11,11 +11,11 @@ import {
 
 const ProductList = () => {
   const [filters] = useQueryStates({
-    category: parseAsString.withDefault("Karty graficzne"),
-    minPrice: parseAsFloat.withDefault(1),
-    maxPrice: parseAsFloat.withDefault(100000),
+    category: parseAsString.withDefault(null),
+    minPrice: parseAsFloat.withDefault(null),
+    maxPrice: parseAsFloat.withDefault(null),
     shop: parseAsString.withDefault("Morele.net,RTV Euro AGD"),
-    name: parseAsString.withDefault(""),
+    name: parseAsString.withDefault(null),
   });
   const [pagination, setPagination] = useQueryStates({
     page: parseAsInteger.withDefault(0),
