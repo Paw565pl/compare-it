@@ -11,16 +11,17 @@ import {
 
 const ProductList = () => {
   const [filters] = useQueryStates({
-    category: parseAsString.withDefault(null),
-    minPrice: parseAsFloat.withDefault(null),
-    maxPrice: parseAsFloat.withDefault(null),
+    category: parseAsString,
+    minPrice: parseAsFloat,
+    maxPrice: parseAsFloat,
     shop: parseAsString.withDefault("Morele.net,RTV Euro AGD"),
-    name: parseAsString.withDefault(null),
+    name: parseAsString,
   });
+
   const [pagination, setPagination] = useQueryStates({
     page: parseAsInteger.withDefault(0),
     size: parseAsInteger.withDefault(20),
-    sort: parseAsString.withDefault("default"),
+    sort: parseAsString,
   });
 
   const {
