@@ -15,7 +15,7 @@ const SingleProduct = ({
   return (
     <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
       <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
-        <Link href={`/product/${id}`}>
+        <Link href={`/produkty/${id}`}>
           <Image
             src={mainImageUrl}
             width={200}
@@ -28,7 +28,7 @@ const SingleProduct = ({
 
       <div className="flex flex-grow flex-col justify-between">
         <div>
-          <Link href={`/product/${id}`}>
+          <Link href={`/produkty/${id}`}>
             <h1 className="mb-2 text-xl font-bold">{name}</h1>
           </Link>
           <p className="mb-4 text-sm text-gray-500">Kategoria: {category}</p>
