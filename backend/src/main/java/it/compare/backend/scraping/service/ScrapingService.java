@@ -50,11 +50,10 @@ public class ScrapingService {
                 productsToSave.add(scrapedProduct);
             }
         });
-    //TODO: Czemu nie zapisuje
-//        productsToSave.forEach(product -> {
-//            var savedProduct = productRepository.save(product);
-//            priceAlertService.checkPriceAlerts(savedProduct);
-//        });
-        productsToSave.forEach(productRepository::save);
+
+        productsToSave.forEach(product -> {
+            var savedProduct = productRepository.save(product);
+            priceAlertService.checkPriceAlerts(savedProduct);
+        });
     }
 }
