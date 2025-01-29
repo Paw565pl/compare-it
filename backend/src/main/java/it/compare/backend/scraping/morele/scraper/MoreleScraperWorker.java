@@ -97,6 +97,9 @@ public class MoreleScraperWorker {
         }
         var title = extractName(productDocument);
         var price = extractPrice(productDocument);
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
         var images = extractImages(productDocument);
         var condition = extractCondition(productDocument);
         var priceStamp = new PriceStamp(price, "PLN", true, condition);
@@ -162,6 +165,7 @@ public class MoreleScraperWorker {
                 .getFirst()
                 .text();
         price = price.replaceAll("[^0-9,]", "").replace(",", ".");
+        if (price.isEmpty()) return null;
         return new BigDecimal(price);
     }
 
