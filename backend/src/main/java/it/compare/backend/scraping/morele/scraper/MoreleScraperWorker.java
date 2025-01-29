@@ -160,13 +160,11 @@ public class MoreleScraperWorker {
     }
 
     private BigDecimal extractPrice(Document productDocument) {
-        var price = productDocument
-                .select("aside.product-sidebar div.product-box-main div.product-price")
-                .getFirst()
-                .text();
-        price = price.replaceAll("[^0-9,]", "").replace(",", ".");
+        var price = Optional.ofNullable(
+                productDocument.selectFirst("aside.product-sidebar div.product-box-main div.product-price"));
         if (price.isEmpty()) return null;
-        return new BigDecimal(price);
+        var priceString = price.get().text().replaceAll("[^0-9,]", "").replace(",", ".");
+        return new BigDecimal(priceString);
     }
 
     private Condition extractCondition(Document productDocument) {
