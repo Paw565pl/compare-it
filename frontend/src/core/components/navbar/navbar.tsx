@@ -1,14 +1,15 @@
 import { AuthSection } from "@/core/components/navbar/auth-section";
 import { Logo } from "@/core/components/navbar/logo";
 import { SearchBar } from "@/core/components/navbar/search-bar";
+import Link from "next/link";
 import { Suspense } from "react";
 
 export const Navbar = () => {
   return (
     <nav className="mb-8 flex flex-col items-center justify-between sm:flex-row">
-      <div className="hidden sm:flex">
+      <Link href="/" className="hidden sm:flex">
         <Logo />
-      </div>
+      </Link>
       <div className="flex w-full justify-between sm:hidden">
         <div className="flex items-center">
           <Logo />
