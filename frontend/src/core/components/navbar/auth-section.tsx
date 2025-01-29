@@ -6,8 +6,9 @@ import { SignOutButton } from "@/core/components/navbar/sign-out-button";
 import { useSession } from "next-auth/react";
 
 export const AuthSection = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
+  if (status === "loading") return null;
   if (!session) return <SignInButton />;
 
   return (
