@@ -67,7 +67,9 @@ export const PriceAlertFormDialog = ({
           </div>
 
           <DialogFooter>
-            <Button type="submit">Zapisz zmiany</Button>
+            <Button type="submit" variant={"secondary"}>
+              Zapisz zmiany
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
