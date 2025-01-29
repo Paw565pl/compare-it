@@ -49,8 +49,9 @@ public class ProductService {
         }
     }
 
-    public ProductDetailResponse findById(String id) {
-        return productMapper.toDetailResponse(findProductOrThrow(id));
+    public ProductDetailResponse findById(String id, Integer priceStampRangeDays) {
+        int days = priceStampRangeDays < 0 || priceStampRangeDays > 180 ? 90 : priceStampRangeDays;
+        return productMapper.toDetailResponse(findProductOrThrow(id), days);
     }
 
     public Product findProductOrThrow(String id) {

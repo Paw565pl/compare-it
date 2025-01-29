@@ -1,7 +1,7 @@
 export interface ProductFiltersDto {
-  name?: string;
-  category?: string;
-  shop?: string;
-  minPrice?: number;
-  maxPrice?: number;
+  name: string | null;
+  category: string | null;
+  shop: string | null;
+  minPrice: number | null;
+  maxPrice: number | null;
 }
