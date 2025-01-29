@@ -26,7 +26,11 @@ public class ShopCategoryMap {
                         Category.RAM_MEMORY,
                         "pamieci-ram",
                         Category.SSD_DRIVES,
-                        "dyski-wewnetrzne-ssd"));
+                        "dyski-wewnetrzne-ssd",
+                        Category.POWER_SUPPLY,
+                        "zasilacze-do-komputerow-pc",
+                        Category.PC_CASE,
+                        "obudowy-pc"));
 
         values.put(
                 Shop.MORELE_NET,
@@ -40,6 +44,10 @@ public class ShopCategoryMap {
                         Category.RAM_MEMORY,
                         "/kategoria/pamieci-ram-38",
                         Category.SSD_DRIVES,
-                        "/kategoria/dyski-ssd-518"));
+                        "/kategoria/dyski-ssd-518",
+                        Category.POWER_SUPPLY,
+                        "/kategoria/zasilacze-komputerowe-61",
+                        Category.PC_CASE,
+                        "/kategoria/obudowy-33"));
     }
 }
