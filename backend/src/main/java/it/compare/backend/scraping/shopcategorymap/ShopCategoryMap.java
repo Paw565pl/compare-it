@@ -24,7 +24,9 @@ public class ShopCategoryMap {
                         Category.MOTHERBOARDS,
                         "plyty-glowne",
                         Category.RAM_MEMORY,
-                        "pamieci-ram"));
+                        "pamieci-ram",
+                        Category.SSD_DRIVES,
+                        "dyski-wewnetrzne-ssd"));
 
         values.put(
                 Shop.MORELE_NET,
@@ -36,6 +38,8 @@ public class ShopCategoryMap {
                         Category.MOTHERBOARDS,
                         "/kategoria/plyty-glowne-42",
                         Category.RAM_MEMORY,
-                        "/kategoria/pamieci-ram-38"));
+                        "/kategoria/pamieci-ram-38",
+                        Category.SSD_DRIVES,
+                        "/kategoria/dyski-ssd-518"));
     }
 }

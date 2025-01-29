@@ -16,6 +16,7 @@ public class ScrapingService {
 
     private final ProductRepository productRepository;
     private final PriceAlertService priceAlertService;
+
     public ScrapingService(ProductRepository productRepository, PriceAlertService priceAlertService) {
         this.productRepository = productRepository;
         this.priceAlertService = priceAlertService;

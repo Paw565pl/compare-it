@@ -3,16 +3,16 @@ package it.compare.backend.pricealert.mapper;
 import it.compare.backend.pricealert.model.PriceAlert;
 import it.compare.backend.pricealert.response.PriceAlertResponse;
 import it.compare.backend.product.model.PriceStamp;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
-import java.math.BigDecimal;
-
 
 @Component
 @RequiredArgsConstructor
 public class PriceAlertMapper {
     private final ModelMapper modelMapper;
+
     public PriceAlertResponse toResponse(PriceAlert alert) {
         var lowestCurrentPrice = alert.getProduct().getOffers().stream()
                 .flatMap(offer -> offer.getPriceHistory().stream())
@@ -27,4 +27,3 @@ public class PriceAlertMapper {
         return response;
     }
 }
-

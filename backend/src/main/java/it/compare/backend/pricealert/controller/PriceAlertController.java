@@ -1,10 +1,12 @@
 package it.compare.backend.pricealert.controller;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
+import it.compare.backend.auth.annotation.IsAuthenticated;
+import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
 import it.compare.backend.pricealert.response.PriceAlertResponse;
 import it.compare.backend.pricealert.service.PriceAlertService;
-import it.compare.backend.auth.annotation.IsAuthenticated;
-import it.compare.backend.auth.details.OAuthUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,14 +17,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
 public class PriceAlertController {
 
     private final PriceAlertService priceAlertService;
+
     @IsAuthenticated
     @GetMapping("/price-alerts")
     public Page<PriceAlertResponse> findAllByUser(

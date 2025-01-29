@@ -1,15 +1,17 @@
 package it.compare.backend.pricealert.service;
 
+import it.compare.backend.auth.details.OAuthUserDetails;
+import it.compare.backend.auth.repository.UserRepository;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
 import it.compare.backend.pricealert.mapper.PriceAlertMapper;
 import it.compare.backend.pricealert.model.PriceAlert;
-import it.compare.backend.pricealert.respository.PriceAlertRepository;
 import it.compare.backend.pricealert.response.PriceAlertResponse;
-import it.compare.backend.auth.details.OAuthUserDetails;
-import it.compare.backend.auth.repository.UserRepository;
+import it.compare.backend.pricealert.respository.PriceAlertRepository;
 import it.compare.backend.product.model.PriceStamp;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.service.ProductService;
+import java.util.Comparator;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Comparator;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,29 +34,34 @@ public class PriceAlertService {
     private final PriceAlertMapper priceAlertMapper;
 
     public PriceAlert findAlertOrThrow(String id) {
-        return priceAlertRepository.findById(id)
+        return priceAlertRepository
+                .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Alert not found"));
     }
 
     public Page<PriceAlertResponse> findAllByUser(OAuthUserDetails userDetails, Pageable pageable) {
-        var user = userRepository.findById(userDetails.getId())
+        var user = userRepository
+                .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        return priceAlertRepository.findAllByUserId(user.getId(), pageable)
-                .map(priceAlertMapper::toResponse);
+        return priceAlertRepository.findAllByUserId(user.getId(), pageable).map(priceAlertMapper::toResponse);
     }
 
-    public Page<PriceAlertResponse> findAllByUserAndActive(OAuthUserDetails userDetails, boolean isActive, Pageable pageable) {
-        var user = userRepository.findById(userDetails.getId())
+    public Page<PriceAlertResponse> findAllByUserAndActive(
+            OAuthUserDetails userDetails, boolean isActive, Pageable pageable) {
+        var user = userRepository
+                .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        return priceAlertRepository.findAllByUserIdAndIsActive(user.getId(), isActive, pageable)
+        return priceAlertRepository
+                .findAllByUserIdAndIsActive(user.getId(), isActive, pageable)
                 .map(priceAlertMapper::toResponse);
     }
 
     @Transactional
     public PriceAlertResponse createPriceAlert(OAuthUserDetails userDetails, String productId, PriceAlertDto alertDto) {
-        var user = userRepository.findById(userDetails.getId())
+        var user = userRepository
+                .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         var product = productService.findProductOrThrow(productId);
 
@@ -74,7 +78,8 @@ public class PriceAlertService {
 
     @Transactional
     public void deletePriceAlert(OAuthUserDetails userDetails, String alertId) {
-        var user = userRepository.findById(userDetails.getId())
+        var user = userRepository
+                .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         var alert = findAlertOrThrow(alertId);
@@ -85,9 +90,11 @@ public class PriceAlertService {
 
         priceAlertRepository.deleteById(alertId);
     }
+
     @Transactional
     public PriceAlertResponse updateTargetPrice(OAuthUserDetails userDetails, String alertId, PriceAlertDto alertDto) {
-        var user = userRepository.findById(userDetails.getId())
+        var user = userRepository
+                .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         var alert = findAlertOrThrow(alertId);
@@ -103,12 +110,10 @@ public class PriceAlertService {
     }
 
     public void checkPriceAlerts(Product product) {
-        Query query = Query.query(
-                new Criteria().andOperator(
+        Query query = Query.query(new Criteria()
+                .andOperator(
                         Criteria.where("product.$id").is(product.getId()),
-                        Criteria.where("isActive").is(true)
-                )
-        );
+                        Criteria.where("isActive").is(true)));
 
         List<PriceAlert> alerts = mongoTemplate.find(query, PriceAlert.class);
 
@@ -118,11 +123,7 @@ public class PriceAlertService {
                     var latestPrice = offer.getPriceHistory().stream()
                             .max(Comparator.comparing(PriceStamp::getTimestamp))
                             .orElse(null);
-                    return new OfferPriceData(
-                            offer.getShop().getHumanReadableName(),
-                            latestPrice,
-                            offer.getUrl()
-                    );
+                    return new OfferPriceData(offer.getShop().getHumanReadableName(), latestPrice, offer.getUrl());
                 })
                 .filter(latest -> latest.priceStamp() != null)
                 .toList();
@@ -147,8 +148,7 @@ public class PriceAlertService {
                         lowestPrice,
                         alert.getTargetPrice(),
                         lowestPriceData.shop(),
-                        lowestPriceData.url()
-                );
+                        lowestPriceData.url());
 
                 alert.setLastNotificationSent(alert.getCreatedAt());
                 alert.setActive(false);
