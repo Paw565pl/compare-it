@@ -2,22 +2,29 @@ import { ProductListEntity } from "@/products/entities/product-list-entity";
 import Image from "next/image";
 import Link from "next/link";
 
+interface SingleProductProps {
+  readonly productListEntity: ProductListEntity;
+}
+
 const SingleProduct = ({
-  category,
-  id,
-  isAvailable,
-  lowestCurrentPrice,
-  lowestPriceShop,
-  mainImageUrl,
-  name,
-  offerCount,
-}: ProductListEntity) => {
+  productListEntity: {
+    category,
+    id,
+    isAvailable,
+    lowestCurrentPrice,
+    lowestPriceShop,
+    mainImageUrl,
+    name,
+    offerCount,
+  },
+}: SingleProductProps) => {
   return (
     <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
       <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
         <Link href={`/produkty/${id}`}>
           <Image
-            src={mainImageUrl}
+            src={mainImageUrl || "/no-image-placeholder.svg"}
+            onError={(e) => (e.currentTarget.src = "/no-image-placeholder.svg")}
             width={200}
             height={200}
             alt={name}

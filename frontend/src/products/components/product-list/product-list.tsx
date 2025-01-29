@@ -47,17 +47,7 @@ const ProductList = () => {
           <div key={pageIndex} className="space-y-1">
             {page.content.map((product) => (
               <li key={product.id}>
-                <SingleProduct
-                  category={product.category}
-                  ean={product.ean}
-                  id={product.id}
-                  isAvailable={product.isAvailable}
-                  lowestCurrentPrice={product.lowestCurrentPrice}
-                  lowestPriceShop={product.lowestPriceShop}
-                  mainImageUrl={product.mainImageUrl}
-                  name={product.name}
-                  offerCount={product.offerCount}
-                />
+                <SingleProduct productListEntity={product} />
               </li>
             ))}
           </div>
