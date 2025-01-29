@@ -1,10 +1,12 @@
-import { auth } from "@/auth/config/auth-config";
+"use client";
+
 import { ProfileLink } from "@/core/components/navbar/profile-link";
 import { SignInButton } from "@/core/components/navbar/sign-in-button";
 import { SignOutButton } from "@/core/components/navbar/sign-out-button";
+import { useSession } from "next-auth/react";
 
-export const AuthSection = async () => {
-  const session = await auth();
+export const AuthSection = () => {
+  const { data: session } = useSession();
 
   if (!session) return <SignInButton />;
 

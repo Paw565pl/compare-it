@@ -1,13 +1,15 @@
-import { auth } from "@/auth/config/auth-config";
+"use client";
+
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/core/components/ui/avatar";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-export const ProfileLink = async () => {
-  const session = await auth();
+export const ProfileLink = () => {
+  const { data: session } = useSession();
   if (!session?.user) return null;
 
   const user = session.user;
