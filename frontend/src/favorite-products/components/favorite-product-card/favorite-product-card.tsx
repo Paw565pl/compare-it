@@ -7,16 +7,35 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
+import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
 import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
 import { formatCurrency } from "@/products/utils/format-currency";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface FavoriteProductCardProps {
   readonly product: ProductListEntity;
 }
 
 export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
+  const { data: session } = useSession();
+  const accessToken = session?.tokens?.accessToken as string;
+
+  const { mutate: deleteFavoriteProduct } =
+    useDeleteFavoriteProduct(accessToken);
+
+  const handleDeleteFavoriteProduct = () => {
+    deleteFavoriteProduct(
+      { productId: product.id },
+      {
+        onSuccess: () => toast.success("Usunięto z ulubionych!"),
+        onError: () => toast.error("Coś poszło nie tak!"),
+      },
+    );
+  };
+
   const formattedPrice = formatCurrency(
     product.lowestCurrentPrice,
     product.lowestPriceCurrency,
@@ -63,7 +82,7 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
         <DeleteConfirmationAlertDialog
           alertDialogTriggerLabel="Usuń z ulubionych"
           alertDialogTriggerClassName="w-full"
-          handleDelete={() => console.log("delete price alert")}
+          handleDelete={handleDeleteFavoriteProduct}
         />
       </CardFooter>
     </Card>
