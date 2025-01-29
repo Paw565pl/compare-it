@@ -13,6 +13,21 @@ const CategoriesList = () => {
         Kategorie
       </h2>
       <ul className="mt-2 w-full bg-white">
+        <li
+          className={`cursor-pointer transition-colors duration-200 ${
+            filters.category === null
+              ? "bg-hover text-white"
+              : "hover:bg-hover hover:text-white"
+          }`}
+        >
+          <button
+            onClick={() => setFilters({ category: null })}
+            className="flex w-full justify-start px-4 py-2"
+          >
+            <span>Wszystkie</span>
+          </button>
+        </li>
+
         {categoriesList?.map((category, index) => {
           const isActive = filters.category === category;
           return (
@@ -28,7 +43,7 @@ const CategoriesList = () => {
                 onClick={() => setFilters({ category })}
                 className="flex w-full justify-start px-4 py-2"
               >
-                <div>{category}</div>
+                <span>{category}</span>
               </button>
             </li>
           );
