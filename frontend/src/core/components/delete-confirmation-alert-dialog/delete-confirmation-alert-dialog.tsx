@@ -16,17 +16,19 @@ import { Ban, Trash2 } from "lucide-react";
 
 interface DeleteConfirmationAlertDialogProps {
   alertDialogTriggerLabel?: string;
+  alertDialogTriggerClassName?: string;
   handleDelete: () => void;
 }
 
 export const DeleteConfirmationAlertDialog = ({
   alertDialogTriggerLabel,
+  alertDialogTriggerClassName,
   handleDelete,
 }: DeleteConfirmationAlertDialogProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">
+        <Button variant="destructive" className={alertDialogTriggerClassName}>
           <Trash2 /> {alertDialogTriggerLabel || "Usuń"}
         </Button>
       </AlertDialogTrigger>
