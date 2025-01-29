@@ -13,9 +13,11 @@ import { Suspense } from "react";
 const ProductListPage = async () => {
   const queryClient = getQueryClient();
 
-  await prefetchCategoriesList(queryClient);
-  await prefetchProductPage(queryClient);
-  await prefetchShopsList(queryClient);
+  await Promise.all([
+    prefetchCategoriesList(queryClient),
+    prefetchProductPage(queryClient),
+    prefetchShopsList(queryClient),
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
