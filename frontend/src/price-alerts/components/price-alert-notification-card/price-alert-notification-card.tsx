@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { MockAlertNotificationData } from "@/price-alerts/components/price-alerts-notifications-grid";
+import { MockAlertNotificationData } from "@/price-alerts/components/price-alerts-notifications-grid/price-alerts-notifications-grid";
 import { ProductImage } from "@/products/components";
 import { BadgeCheck, Clock, ShoppingCart, Trash2 } from "lucide-react";
 import Link from "next/link";

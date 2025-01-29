@@ -1,4 +1,4 @@
-import { DeleteConfirmationAlertDialog } from "@/core/components/delete-confirmation-alert-dialog";
+import { DeleteConfirmationAlertDialog } from "@/core/components";
 import { Button } from "@/core/components/ui/button";
 import {
   Card,
@@ -8,8 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { PriceAlertFormDialog } from "@/price-alerts/components/price-alert-form-dialog";
-import { MockAlertData } from "@/price-alerts/components/price-alerts-grid";
+import { PriceAlertFormDialog } from "@/price-alerts/components";
+import { MockAlertData } from "@/price-alerts/components/price-alerts-grid/price-alerts-grid";
 import { ProductImage } from "@/products/components";
 import { Pen } from "lucide-react";
 import Link from "next/link";

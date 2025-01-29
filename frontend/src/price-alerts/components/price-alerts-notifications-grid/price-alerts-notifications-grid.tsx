@@ -1,6 +1,6 @@
-import { DeleteConfirmationAlertDialog } from "@/core/components/delete-confirmation-alert-dialog";
+import { DeleteConfirmationAlertDialog } from "@/core/components";
 import { H1 } from "@/core/components/ui/h1";
-import { PriceAlertNotificationCard } from "@/price-alerts/components/price-alert-notification-card";
+import { PriceAlertNotificationCard } from "@/price-alerts/components";
 
 export interface MockAlertNotificationData {
   id: string;

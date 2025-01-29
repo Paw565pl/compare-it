@@ -1,5 +1,5 @@
 import "@/app/globals.css";
-import { Navbar } from "@/core/components/navbar";
+import { Navbar } from "@/core/components";
 import Providers from "@/core/providers/providers";
 import type { Metadata } from "next";
 import { ReactNode } from "react";

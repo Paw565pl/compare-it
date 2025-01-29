@@ -1,9 +1,11 @@
 "use client";
 
 import { Button } from "@/core/components/ui/button";
-import { PriceAlertsGrid } from "@/price-alerts/components/price-alerts-grid";
-import { PriceAlertsNotificationsGrid } from "@/price-alerts/components/price-alerts-notifications-grid";
-import { UserDetailsCard } from "@/profile/components/user-details-card";
+import {
+  PriceAlertsGrid,
+  PriceAlertsNotificationsGrid,
+} from "@/price-alerts/components";
+import { UserDetailsCard } from "@/profile/components";
 import { AlarmClock, Heart, NotebookPen, User } from "lucide-react";
 import { ReactNode, useState } from "react";
 
