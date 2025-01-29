@@ -7,15 +7,30 @@ import {
 import { prefetchCategoriesList } from "@/products/hooks/server/prefetch-categories-list";
 import { prefetchProductPage } from "@/products/hooks/server/prefetch-product-page";
 import { prefetchShopsList } from "@/products/hooks/server/prefetch-shops-list";
+import {
+  loadProductFiltersSearchParams,
+  loadProductPaginationSearchParams,
+} from "@/products/search-params/product-search-params";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { SearchParams } from "nuqs";
 import { Suspense } from "react";
 
-const ProductListPage = async () => {
+interface ProductListPageProps {
+  readonly searchParams: Promise<SearchParams>;
+}
+
+export const ProductListPage = async ({
+  searchParams,
+}: ProductListPageProps) => {
   const queryClient = getQueryClient();
 
+  const productFilters = await loadProductFiltersSearchParams(searchParams);
+  const productPagination =
+    await loadProductPaginationSearchParams(searchParams);
+
   await Promise.all([
+    prefetchProductPage(queryClient, productFilters, productPagination),
     prefetchCategoriesList(queryClient),
-    prefetchProductPage(queryClient),
     prefetchShopsList(queryClient),
   ]);
 
@@ -41,5 +56,3 @@ const ProductListPage = async () => {
     </HydrationBoundary>
   );
 };
-
-export default ProductListPage;
