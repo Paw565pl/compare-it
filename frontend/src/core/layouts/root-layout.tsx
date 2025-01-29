@@ -1,5 +1,6 @@
 import "@/app/globals.css";
 import { Navbar } from "@/core/components";
+import { Toaster } from "@/core/components/ui/sonner";
 import Providers from "@/core/providers/providers";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
@@ -21,6 +22,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
           <main className="container mx-auto bg-background px-2 py-4">
             {children}
           </main>
+          <Toaster />
         </Providers>
       </body>
     </html>
