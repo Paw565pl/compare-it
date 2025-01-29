@@ -22,6 +22,7 @@ export const Profile = () => {
   const [activeComponent, setActiveComponent] = useState<ReactNode>(
     <UserDetailsCard />,
   );
+  const [activeButtonIndex, setActiveButtonIndex] = useState(0);
 
   const asideButtons: AsideButton[] = [
     {
@@ -44,7 +45,7 @@ export const Profile = () => {
       component: <PriceAlertsNotificationsGrid />,
       icon: <AlarmClock className={asideButtonClassName} />,
     },
-  ];
+  ] as const;
 
   return (
     <div className="flex flex-col items-center sm:flex-row sm:items-start sm:gap-6">
@@ -52,11 +53,14 @@ export const Profile = () => {
         {asideButtons.map(({ title, component, icon }, index) => (
           <Button
             key={index}
-            onClick={() => setActiveComponent(component)}
-            variant="outline"
+            onClick={() => {
+              setActiveComponent(component);
+              setActiveButtonIndex(index);
+            }}
+            variant={activeButtonIndex === index ? "secondary" : "outline"}
             size="icon"
             title={title}
-            className="w-full bg-white p-6 sm:p-8"
+            className="w-full p-6 sm:p-8"
           >
             {icon}
           </Button>
