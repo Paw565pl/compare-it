@@ -1,17 +1,12 @@
 "use client";
+import { productFiltersSearchParams } from "@/products/search-params/product-search-params";
 import { Search } from "lucide-react";
-import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
+import { useQueryStates } from "nuqs";
 import { FormEvent, useRef } from "react";
 
 const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [, setProductFilters] = useQueryStates({
-    category: parseAsString,
-    minPrice: parseAsFloat,
-    maxPrice: parseAsFloat,
-    shop: parseAsString,
-    name: parseAsString,
-  });
+  const [, setProductFilters] = useQueryStates(productFiltersSearchParams);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();

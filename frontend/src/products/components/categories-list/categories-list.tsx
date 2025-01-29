@@ -1,17 +1,11 @@
 "use client";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
-import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
+import { productFiltersSearchParams } from "@/products/search-params/product-search-params";
+import { useQueryStates } from "nuqs";
 
 const CategoriesList = () => {
   const { data: categoriesList } = useFetchCategoriesList();
-
-  const [filters, setFilters] = useQueryStates({
-    category: parseAsString,
-    minPrice: parseAsFloat,
-    maxPrice: parseAsFloat,
-    shop: parseAsString,
-    name: parseAsString,
-  });
+  const [filters, setFilters] = useQueryStates(productFiltersSearchParams);
 
   return (
     <div className="flex flex-col items-start">
@@ -31,7 +25,7 @@ const CategoriesList = () => {
               }`}
             >
               <button
-                onClick={() => setFilters({ category: category })}
+                onClick={() => setFilters({ category })}
                 className="flex w-full justify-start px-4 py-2"
               >
                 <div>{category}</div>

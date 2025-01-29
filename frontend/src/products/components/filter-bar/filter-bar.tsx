@@ -1,17 +1,16 @@
 "use client";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
-import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
+import {
+  productFiltersSearchParams,
+  productPaginationSearchParams,
+} from "@/products/search-params/product-search-params";
+import { useQueryStates } from "nuqs";
 import { ChangeEvent, useState } from "react";
 
 const FilterBar = () => {
   const { data: shopList } = useFetchShopsList();
-  const [, setProductFilters] = useQueryStates({
-    category: parseAsString,
-    minPrice: parseAsFloat,
-    maxPrice: parseAsFloat,
-    shop: parseAsString,
-    name: parseAsString,
-  });
+  const [, setProductFilters] = useQueryStates(productFiltersSearchParams);
+  const [, setPagination] = useQueryStates(productPaginationSearchParams);
 
   const [tempProductFilters, setTempProductFilters] = useState({
     minPrice: null,
@@ -53,6 +52,8 @@ const FilterBar = () => {
       ...prevFilters,
       ...filtersWithShops,
     }));
+
+    setPagination((prev) => ({ ...prev, page: 0 }));
   };
 
   return (
