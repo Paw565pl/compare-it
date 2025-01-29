@@ -29,7 +29,11 @@ export const FavoriteProductsGrid = () => {
     <>
       <H1>Twoje ulubione produkty</H1>
 
-      {isEmpty && <span>Nie masz jeszcze żadnych ulubionych produktów.</span>}
+      {isEmpty && (
+        <div className="text-center sm:text-left">
+          Nie masz jeszcze żadnych ulubionych produktów.
+        </div>
+      )}
 
       <InfiniteScroll
         dataLength={fetchedFavoriteProductsCount || 0}
@@ -37,7 +41,7 @@ export const FavoriteProductsGrid = () => {
         next={fetchNextPage}
         loader={null}
       >
-        <section className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] justify-center justify-items-center gap-4 sm:justify-start sm:justify-items-start">
+        <section className="flex flex-wrap justify-center gap-2 sm:justify-start">
           {favoriteProductsPages?.pages.map(({ content }) =>
             content?.map((favoriteProduct) => (
               <FavoriteProductCard

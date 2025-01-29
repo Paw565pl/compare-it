@@ -92,10 +92,11 @@ export const PriceAlertsNotificationsGrid = () => {
 
       <DeleteConfirmationAlertDialog
         alertDialogTriggerLabel={"Wyczyść całą historię powiadomień"}
+        alertDialogTriggerClassName="mb-4"
         handleDelete={() => console.log("delete price all alert notifications")}
       />
 
-      <section className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] justify-center justify-items-center gap-4 sm:justify-start sm:justify-items-start">
+      <section className="flex flex-wrap justify-center gap-2 sm:justify-start">
         {mockData.map((alertNotificationData, i) => (
           <PriceAlertNotificationCard
             alertNotificationData={alertNotificationData}
