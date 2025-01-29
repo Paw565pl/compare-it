@@ -53,7 +53,7 @@ export const ProfilePage = () => {
             variant="outline"
             size="icon"
             title={title}
-            className="w-full p-6 sm:p-8"
+            className="w-full bg-white p-6 sm:p-8"
           >
             {icon}
           </Button>
