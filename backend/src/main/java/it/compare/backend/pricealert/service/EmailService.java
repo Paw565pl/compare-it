@@ -41,7 +41,7 @@ public class EmailService {
             String htmlContent = templateEngine.process("price-alert", context);
 
             helper.setTo(recipientEmail);
-            helper.setSubject("Price Alert: " + productName + " reached your target price!");
+            helper.setSubject("OKAZJA: " + productName + " osiągnął cenę docelową!");
             helper.setText(htmlContent, true);
             helper.setFrom("noreply@compare-it.com");
 

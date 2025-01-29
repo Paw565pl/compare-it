@@ -5,13 +5,14 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/api/v1/products/6762fa54e3469470ceceabdc/price-alerts
+  url: http://localhost:8080/api/v1/price-alerts
   body: json
   auth: inherit
 }
 
 body:json {
   {
+      "productId": "6762fa82e3469470cecead70",
       "targetPrice": 800.00
   }
 }

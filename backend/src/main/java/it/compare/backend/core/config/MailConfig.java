@@ -1,6 +1,5 @@
 package it.compare.backend.core.config;
 
-import java.util.Properties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,12 +33,6 @@ public class MailConfig {
         if (password != null && !password.isEmpty()) {
             mailSender.setPassword(password);
         }
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "false");
-        props.put("mail.smtp.starttls.enable", "false");
-        props.put("mail.debug", "true");
 
         return mailSender;
     }

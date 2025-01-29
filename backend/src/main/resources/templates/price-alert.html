@@ -112,24 +112,24 @@
 
 <div class="container">
     <div class="content">
-        <p>Good news! The price of <strong th:text="${productName}">Product</strong> has reached your target price!</p>
+        <p>Świetna wiadomość! Cena produktu <strong th:text="${productName}">Produkt</strong> osiągnęła Twoją cenę docelową!</p>
 
-        <p>Current price at <strong th:text="${shopName}">Shop</strong>:
+        <p>Aktualna cena w <strong th:text="${shopName}">Sklep</strong>:
             <span class="price" th:text="${#numbers.formatDecimal(currentPrice, 1, 2) + ' PLN'}">0.00 PLN</span>
         </p>
 
-        <p>Your target price was:
+        <p>Twoja cena docelowa wynosiła:
             <strong th:text="${#numbers.formatDecimal(targetPrice, 1, 2) + ' PLN'}">0.00 PLN</strong>
         </p>
 
-        <p>Don't miss out on this deal!</p>
+        <p>Nie przegap tej okazji!</p>
 
         <div class="buttons">
             <a th:href="@{'http://localhost:3000/produkty/' + ${productId}}" class="button">
-                View Product
+                Zobacz Produkt
             </a>
             <a th:href="${url}" class="button">
-                View Offer
+                Zobacz Ofertę
             </a>
         </div>
     </div>

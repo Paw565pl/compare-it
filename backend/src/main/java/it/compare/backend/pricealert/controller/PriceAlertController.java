@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class PriceAlertController {
 
     private final PriceAlertService priceAlertService;
-
     @IsAuthenticated
     @GetMapping("/price-alerts")
     public Page<PriceAlertResponse> findAllByUser(
@@ -37,24 +36,25 @@ public class PriceAlertController {
     }
 
     @IsAuthenticated
-    @PostMapping("/products/{productId}/price-alerts")
+    @PostMapping("/price-alerts")
     @ResponseStatus(HttpStatus.CREATED)
     public PriceAlertResponse createPriceAlert(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable String productId,
             @Valid @RequestBody PriceAlertDto alertDto) {
-        return priceAlertService.createPriceAlert(OAuthUserDetails.fromJwt(jwt), productId, alertDto);
+        return priceAlertService.createPriceAlert(OAuthUserDetails.fromJwt(jwt), alertDto.productId(), alertDto);
     }
 
     @IsAuthenticated
     @DeleteMapping("/price-alerts/{alertId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePriceAlert(@AuthenticationPrincipal Jwt jwt, @PathVariable String alertId) {
+    public void deletePriceAlert(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String alertId) {
         priceAlertService.deletePriceAlert(OAuthUserDetails.fromJwt(jwt), alertId);
     }
 
     @IsAuthenticated
-    @PutMapping("/price-alerts/{alertId}/target-price")
+    @PutMapping("/price-alerts/{alertId}")
     public PriceAlertResponse updateTargetPrice(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String alertId,
