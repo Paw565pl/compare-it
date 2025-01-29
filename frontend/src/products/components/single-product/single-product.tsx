@@ -1,5 +1,6 @@
 import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
+import { formatCurrency } from "@/products/utils/format-currency";
 import Link from "next/link";
 
 interface SingleProductProps {
@@ -19,6 +20,11 @@ const SingleProduct = ({
     offerCount,
   },
 }: SingleProductProps) => {
+  const formattedPrice = formatCurrency(
+    lowestCurrentPrice,
+    lowestPriceCurrency,
+  );
+
   return (
     <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
       <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
@@ -51,7 +57,7 @@ const SingleProduct = ({
             )}
           </div>
           <p className="mb-2 text-lg font-semibold text-secondary">
-            Najniższa cena: {lowestCurrentPrice} {lowestPriceCurrency}
+            Najniższa cena: {formattedPrice}
           </p>
           <Link
             href={`/produkty/${id}`}

@@ -11,6 +11,7 @@ import {
 import { PriceAlertFormDialog } from "@/price-alerts/components";
 import { MockAlertData } from "@/price-alerts/components/price-alerts-grid/price-alerts-grid";
 import { ProductImage } from "@/products/components";
+import { formatCurrency } from "@/products/utils/format-currency";
 import { Pen } from "lucide-react";
 import Link from "next/link";
 
@@ -19,6 +20,11 @@ interface PriceAlertCardProps {
 }
 
 export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
+  const formattedDesiredPrice = formatCurrency(
+    alertData.alert.desiredPrice,
+    alertData.alert.desiredCurrency,
+  );
+
   return (
     <Card className="w-[22rem]">
       <CardHeader>
@@ -41,10 +47,7 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
 
       <CardContent>
         <p>Oczekiwany stan: {alertData.alert.desiredCondition}</p>
-        <p>
-          Oczekiwana cena: {alertData.alert.desiredPrice}{" "}
-          {alertData.alert.desiredCurrency}
-        </p>
+        <p>Oczekiwana cena: {formattedDesiredPrice}</p>
       </CardContent>
 
       <CardFooter className="flex items-center justify-between">

@@ -9,6 +9,7 @@ import {
 } from "@/core/components/ui/card";
 import { MockAlertNotificationData } from "@/price-alerts/components/price-alerts-notifications-grid/price-alerts-notifications-grid";
 import { ProductImage } from "@/products/components";
+import { formatCurrency } from "@/products/utils/format-currency";
 import { BadgeCheck, Clock, ShoppingCart, Trash2 } from "lucide-react";
 import Link from "next/link";
 
@@ -19,10 +20,10 @@ interface PriceAlertNotificationCardProps {
 export const PriceAlertNotificationCard = ({
   alertNotificationData,
 }: PriceAlertNotificationCardProps) => {
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: alertNotificationData.notification.currency,
-  }).format(alertNotificationData.notification.price);
+  const formattedPrice = formatCurrency(
+    alertNotificationData.notification.price,
+    alertNotificationData.notification.currency,
+  );
 
   const notificationDate = new Date(alertNotificationData.notification.date);
   const formattedNotificationDate = new Intl.DateTimeFormat("en-US", {
