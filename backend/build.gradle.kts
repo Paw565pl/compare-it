@@ -78,6 +78,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.modelmapper:modelmapper:${modelMapperVersion}")
     implementation("org.modelmapper:modelmapper-module-record:${modelMapperRecordVersion}")
     implementation("org.apache.httpcomponents.client5:httpclient5:${httpclientVersion}")

@@ -130,7 +130,6 @@ public class ProductSearchCriteria {
     public Page<ProductListResponse> applyPagination(List<ProductListResponse> responses) {
         var start = (int) pageable.getOffset();
         var end = Math.min((start + pageable.getPageSize()), responses.size());
-
         return new PageImpl<>(responses.subList(start, end), pageable, responses.size());
     }
 }

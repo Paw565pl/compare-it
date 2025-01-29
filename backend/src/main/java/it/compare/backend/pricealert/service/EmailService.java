@@ -1,0 +1,53 @@
+package it.compare.backend.pricealert.service;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+import java.math.BigDecimal;
+
+@Service
+@RequiredArgsConstructor
+public class EmailService {
+    private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
+
+    public void sendPriceAlert(
+            String recipientEmail,
+            String productName,
+            String productId,
+            BigDecimal currentPrice,
+            BigDecimal targetPrice,
+            String shopName,
+            String offerUrl
+    ) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            Context context = new Context();
+            context.setVariable("productName", productName);
+            context.setVariable("productId", productId);
+            context.setVariable("currentPrice", currentPrice);
+            context.setVariable("targetPrice", targetPrice);
+            context.setVariable("shopName", shopName);
+            context.setVariable("url", offerUrl);
+
+            String htmlContent = templateEngine.process("price-alert", context);
+
+            helper.setTo(recipientEmail);
+            helper.setSubject("Price Alert: " + productName + " reached your target price!");
+            helper.setText(htmlContent, true);
+            helper.setFrom("noreply@compare-it.com");
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send price alert email", e);
+        }
+    }
+}
