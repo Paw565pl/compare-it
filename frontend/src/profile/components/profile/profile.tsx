@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/core/components/ui/button";
+import { FavoriteProductsGrid } from "@/favorite-products/components/favorite-products-grid/favorite-products-grid";
 import {
   PriceAlertsGrid,
   PriceAlertsNotificationsGrid,
@@ -30,7 +31,7 @@ export const Profile = () => {
     },
     {
       title: "Ulubione produkty",
-      component: <div>Ulubione produkty</div>,
+      component: <FavoriteProductsGrid />,
       icon: <Heart className={asideButtonClassName} />,
     },
     {
