@@ -1,5 +1,9 @@
 "use client";
-import { productFiltersSearchParams } from "@/products/search-params/product-search-params";
+
+import {
+  productFiltersSearchParams,
+  productPaginationSearchParams,
+} from "@/products/search-params/product-search-params";
 import { Search } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { FormEvent, useRef } from "react";
@@ -7,6 +11,7 @@ import { FormEvent, useRef } from "react";
 const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [, setProductFilters] = useQueryStates(productFiltersSearchParams);
+  const [, setPagination] = useQueryStates(productPaginationSearchParams);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -19,6 +24,8 @@ const SearchBar = () => {
         maxPrice: null,
         shop: null,
       });
+
+      setPagination((prev) => ({ ...prev, page: 0 }));
     }
   };
 
