@@ -46,8 +46,14 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
       </CardHeader>
 
       <CardContent>
-        <p>Oczekiwany stan: {alertData.alert.desiredCondition}</p>
-        <p>Oczekiwana cena: {formattedDesiredPrice}</p>
+        <p>
+          Oczekiwany stan:{" "}
+          <span className="font-bold">{alertData.alert.desiredCondition}</span>
+        </p>
+        <p>
+          Oczekiwana cena:{" "}
+          <span className="font-bold">{formattedDesiredPrice}</span>
+        </p>
       </CardContent>
 
       <CardFooter className="flex items-center justify-between">
