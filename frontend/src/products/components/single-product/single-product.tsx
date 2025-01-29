@@ -1,5 +1,5 @@
+import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
-import Image from "next/image";
 import Link from "next/link";
 
 interface SingleProductProps {
@@ -22,14 +22,7 @@ const SingleProduct = ({
     <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
       <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
         <Link href={`/produkty/${id}`}>
-          <Image
-            src={mainImageUrl || "/no-image-placeholder.svg"}
-            onError={(e) => (e.currentTarget.src = "/no-image-placeholder.svg")}
-            width={200}
-            height={200}
-            alt={name}
-            className="rounded-md"
-          />
+          <ProductImage name={name} imageUrl={mainImageUrl} />
         </Link>
       </div>
 

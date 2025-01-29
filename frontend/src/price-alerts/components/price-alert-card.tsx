@@ -10,6 +10,7 @@ import {
 } from "@/core/components/ui/card";
 import { PriceAlertFormDialog } from "@/price-alerts/components/price-alert-form-dialog";
 import { MockAlertData } from "@/price-alerts/components/price-alerts-grid";
+import { ProductImage } from "@/products/components";
 import { Pen } from "lucide-react";
 import Link from "next/link";
 
@@ -21,8 +22,7 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
   return (
     <Card className="w-[22rem]">
       <CardHeader>
-        {/* FIXME: add image host to config and use Image component */}
-        <img src={alertData.mainImageUrl} alt={alertData.name} />
+        <ProductImage name={alertData.name} imageUrl={alertData.mainImageUrl} />
 
         <CardTitle className="text-2xl">
           <Link href={`/produkty/${alertData.id}`}>{alertData.name}</Link>
