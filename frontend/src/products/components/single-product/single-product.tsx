@@ -4,11 +4,11 @@ import { formatCurrency } from "@/products/utils/format-currency";
 import Link from "next/link";
 
 interface SingleProductProps {
-  readonly productListEntity: ProductListEntity;
+  readonly product: ProductListEntity;
 }
 
 const SingleProduct = ({
-  productListEntity: {
+  product: {
     category,
     id,
     isAvailable,
