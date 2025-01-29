@@ -64,20 +64,6 @@ export const PriceAlertFormDialog = ({
                 className="col-span-3"
               />
             </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="desiredCurrency" className="text-right">
-                Waluta
-              </Label>
-              <Select defaultValue="PLN">
-                <SelectTrigger id="desiredCurrency" className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PLN">PLN</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
           <DialogFooter>
