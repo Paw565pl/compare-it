@@ -22,7 +22,12 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
   return (
     <Card className="w-[22rem]">
       <CardHeader>
-        <ProductImage name={alertData.name} imageUrl={alertData.mainImageUrl} />
+        <div className="flex justify-center">
+          <ProductImage
+            name={alertData.name}
+            imageUrl={alertData.mainImageUrl}
+          />
+        </div>
 
         <CardTitle className="text-2xl">
           <Link href={`/produkty/${alertData.id}`}>{alertData.name}</Link>
@@ -48,7 +53,7 @@ export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
         />
         <PriceAlertFormDialog
           dialogTrigger={
-            <Button>
+            <Button variant={"secondary"}>
               <Pen /> Edytuj
             </Button>
           }

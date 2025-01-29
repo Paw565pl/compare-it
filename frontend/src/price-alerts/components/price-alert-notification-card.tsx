@@ -33,10 +33,12 @@ export const PriceAlertNotificationCard = ({
   return (
     <Card className="w-[22rem]">
       <CardHeader>
-        <ProductImage
-          name={alertNotificationData.name}
-          imageUrl={alertNotificationData.mainImageUrl}
-        />
+        <div className="flex justify-center">
+          <ProductImage
+            name={alertNotificationData.name}
+            imageUrl={alertNotificationData.mainImageUrl}
+          />
+        </div>
 
         <CardTitle className="text-2xl">
           <Link href={`/produkty/${alertNotificationData.id}`}>
