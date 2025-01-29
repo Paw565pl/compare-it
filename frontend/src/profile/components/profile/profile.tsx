@@ -47,7 +47,7 @@ export const Profile = () => {
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:gap-8">
-      <aside className="mb-6 flex gap-2 sm:mb-0 sm:w-1/6 sm:flex-col sm:gap-4">
+      <aside className="mb-6 flex gap-2 sm:mb-0 sm:w-1/12 sm:flex-col sm:gap-4 xl:w-1/6">
         {asideButtons.map(({ title, component, icon }, index) => (
           <Button
             key={index}
