@@ -1,0 +1,90 @@
+import { DeleteConfirmationAlertDialog } from "@/core/components";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
+import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
+import { ProductImage } from "@/products/components";
+import { ProductListEntity } from "@/products/entities/product-list-entity";
+import { formatCurrency } from "@/products/utils/format-currency";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { toast } from "sonner";
+
+interface FavoriteProductCardProps {
+  readonly product: ProductListEntity;
+}
+
+export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
+  const { data: session } = useSession();
+  const accessToken = session?.tokens?.accessToken as string;
+
+  const { mutate: deleteFavoriteProduct } =
+    useDeleteFavoriteProduct(accessToken);
+
+  const handleDeleteFavoriteProduct = () => {
+    deleteFavoriteProduct(
+      { productId: product.id },
+      {
+        onSuccess: () => toast.success("Usunięto z ulubionych!"),
+        onError: () => toast.error("Coś poszło nie tak!"),
+      },
+    );
+  };
+
+  const formattedPrice = formatCurrency(
+    product.lowestCurrentPrice,
+    product.lowestPriceCurrency,
+  );
+
+  return (
+    <Card className="w-[22rem]">
+      <CardHeader>
+        <div className="flex justify-center">
+          <ProductImage name={product.name} imageUrl={product.mainImageUrl} />
+        </div>
+
+        <CardTitle className="text-2xl">
+          <Link href={`/produkty/${product.id}`}>{product.name}</Link>
+        </CardTitle>
+
+        <CardDescription className="flex items-center justify-between">
+          <span>{product.category}</span>
+          <span>EAN: {product.ean}</span>
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {product.isAvailable ? (
+            <>
+              <span className="h-2 w-2 rounded-full bg-green-500" />
+              <span className="text-sm text-green-500">Dostępny</span>
+            </>
+          ) : (
+            <>
+              <span className="h-2 w-2 rounded-full bg-red-500" />
+              <span className="text-sm text-red-500">Niedostępny</span>
+            </>
+          )}
+        </div>
+
+        <span className="text-2xl font-bold text-primary">
+          {formattedPrice}
+        </span>
+      </CardContent>
+
+      <CardFooter>
+        <DeleteConfirmationAlertDialog
+          alertDialogTriggerLabel="Usuń z ulubionych"
+          alertDialogTriggerClassName="w-full"
+          handleDelete={handleDeleteFavoriteProduct}
+        />
+      </CardFooter>
+    </Card>
+  );
+};

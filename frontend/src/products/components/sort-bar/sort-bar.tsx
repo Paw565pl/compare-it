@@ -1,7 +1,8 @@
 "use client";
 
+import { productPaginationSearchParams } from "@/products/search-params/product-search-params";
 import { ChevronDown } from "lucide-react";
-import { parseAsString, useQueryStates } from "nuqs";
+import { useQueryStates } from "nuqs";
 import { useState } from "react";
 
 const sortOptions = {
@@ -17,7 +18,7 @@ const sortOptions = {
 const SortBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [, setSelectedSort] = useState("Domyślne");
-  const [, setSort] = useQueryStates({ sort: parseAsString });
+  const [, setSort] = useQueryStates(productPaginationSearchParams);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -25,7 +26,7 @@ const SortBar = () => {
 
   const handleSortChange = (option: string, param: string) => {
     setSelectedSort(option);
-    setSort({ sort: param });
+    setSort((prev) => ({ ...prev, page: 0, sort: param }));
     setIsDropdownOpen(false);
   };
 
