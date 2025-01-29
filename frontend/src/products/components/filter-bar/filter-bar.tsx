@@ -1,7 +1,7 @@
 "use client";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
 import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 const FilterBar = () => {
   const { data: shopList } = useFetchShopsList();
@@ -19,7 +19,7 @@ const FilterBar = () => {
     shop: ["Morele.net", "RTV Euro AGD"],
   });
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     setTempProductFilters((prev) => ({
@@ -28,7 +28,7 @@ const FilterBar = () => {
     }));
   };
 
-  const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleShopChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
 
     setTempProductFilters((prev) => {

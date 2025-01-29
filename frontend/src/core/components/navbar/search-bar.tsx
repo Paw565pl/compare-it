@@ -1,7 +1,7 @@
 "use client";
 import { Search } from "lucide-react";
 import { parseAsFloat, parseAsString, useQueryStates } from "nuqs";
-import { useRef } from "react";
+import { FormEvent, useRef } from "react";
 
 const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -13,7 +13,7 @@ const SearchBar = () => {
     name: parseAsString,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const name = inputRef.current?.value.trim();
     if (name) {
