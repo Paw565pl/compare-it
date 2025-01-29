@@ -171,14 +171,14 @@ public class MoreleScraperWorker {
 
     private List<String> extractImages(Document productDocument) {
         var imagesList = new ArrayList<String>();
-        var mainImage = productDocument
-                .select("div.swiper-container.swiper-gallery-window div.swiper-wrapper div.swiper-slide")
-                .attr("data-src");
-        imagesList.add(mainImage);
-        var sideImages = productDocument.select("div.swiper-container.swiper-gallery-thumbs img");
+        var images = productDocument.select(
+                "div.swiper-container.swiper-gallery-window div.swiper-wrapper.gallery-holder div.swiper-slide.mobx");
 
-        for (var image : sideImages) {
-            imagesList.add(image.attr("data-src"));
+        for (var image : images) {
+            var imageUrl = image.attr("data-src");
+            if (!imageUrl.startsWith("https://www.youtube.com")) {
+                imagesList.add(imageUrl);
+            }
         }
 
         imagesList.removeIf(String::isEmpty);
