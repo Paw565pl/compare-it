@@ -28,24 +28,12 @@ public class PriceAlertController {
     @GetMapping("/price-alerts")
     public Page<PriceAlertResponse> findAllByUser(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(required = false) Boolean active,
             @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
+        if (active != null) {
+            return priceAlertService.findAllByUserAndActive(OAuthUserDetails.fromJwt(jwt), active, pageable);
+        }
         return priceAlertService.findAllByUser(OAuthUserDetails.fromJwt(jwt), pageable);
-    }
-
-    @IsAuthenticated
-    @GetMapping("/price-alerts/active")
-    public Page<PriceAlertResponse> getActiveUserAlerts(
-            @AuthenticationPrincipal Jwt jwt,
-            @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
-        return priceAlertService.findAllByUserAndActive(OAuthUserDetails.fromJwt(jwt), true, pageable);
-    }
-
-    @IsAuthenticated
-    @GetMapping("/price-alerts/inactive")
-    public Page<PriceAlertResponse> getInactiveUserAlerts(
-            @AuthenticationPrincipal Jwt jwt,
-            @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
-        return priceAlertService.findAllByUserAndActive(OAuthUserDetails.fromJwt(jwt), false, pageable);
     }
 
     @IsAuthenticated
