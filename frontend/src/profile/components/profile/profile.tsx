@@ -15,7 +15,7 @@ interface AsideButton {
   readonly icon: ReactNode;
 }
 
-const asideButtonClassName = "!w-8 !h-8 !sm:w-10 !sm:h-10" as const;
+const asideButtonClassName = "!w-7 !h-7 !sm:w-10 !sm:h-10" as const;
 
 export const Profile = () => {
   const [activeComponent, setActiveComponent] = useState<ReactNode>(

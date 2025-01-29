@@ -12,7 +12,7 @@ export const AuthSection = () => {
   if (!session) return <SignInButton />;
 
   return (
-    <div className="flex items-center gap-2 sm:gap-4">
+    <div className="flex items-center sm:gap-4">
       <ProfileLink />
       <SignOutButton />
     </div>

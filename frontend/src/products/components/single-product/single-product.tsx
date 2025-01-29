@@ -27,7 +27,7 @@ const SingleProduct = ({
 
   return (
     <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
-      <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
+      <div className="mb-4 flex-shrink-0 self-center md:mb-0 md:mr-6">
         <Link href={`/produkty/${id}`}>
           <ProductImage name={name} imageUrl={mainImageUrl} />
         </Link>
