@@ -12,6 +12,7 @@ const SingleProduct = ({
     id,
     isAvailable,
     lowestCurrentPrice,
+    lowestPriceCurrency,
     lowestPriceShop,
     mainImageUrl,
     name,
@@ -50,7 +51,7 @@ const SingleProduct = ({
             )}
           </div>
           <p className="mb-2 text-lg font-semibold text-secondary">
-            Najniższa cena: {lowestCurrentPrice} zł
+            Najniższa cena: {lowestCurrentPrice} {lowestPriceCurrency}
           </p>
           <Link
             href={`/produkty/${id}`}
