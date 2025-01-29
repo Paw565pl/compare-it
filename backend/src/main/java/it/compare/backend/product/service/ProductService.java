@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,8 +43,12 @@ public class ProductService {
             return criteria.applyPagination(responses);
         } else {
             var query = criteria.toQuery();
-            var total = mongoTemplate.count(query, Product.class);
+            var totalQuery = Query.of(query).limit(0).skip(0);
+            var total = mongoTemplate.count(totalQuery, Product.class);
+
+            query.with(pageable);
             var products = mongoTemplate.find(query, Product.class);
+
             var responses = products.stream().map(productMapper::toListResponse).toList();
             return new PageImpl<>(responses, pageable, total);
         }
