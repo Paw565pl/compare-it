@@ -1,3 +1,4 @@
+import { Profile } from "@/profile/components/profile/profile";
 import { UserDetailsCard } from "@/profile/components/user-details-card/user-details-card";
 
-export { UserDetailsCard };
+export { Profile, UserDetailsCard };
