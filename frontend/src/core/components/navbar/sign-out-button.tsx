@@ -23,7 +23,7 @@ export const SignOutButton = () => {
       <Button
         variant="secondary"
         onClick={() => handleSignOut()}
-        className="text-sm sm:text-lg"
+        className="text-md"
       >
         WYLOGUJ SIĘ
       </Button>

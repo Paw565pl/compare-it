@@ -8,7 +8,7 @@ export const SignInButton = () => {
     <div className="border-b-2 border-secondary px-2 py-4 sm:p-4">
       <Button
         variant="secondary"
-        className="text-md sm:text-lg"
+        className="text-md"
         onClick={() => signIn("auth0")}
       >
         ZALOGUJ SIĘ
