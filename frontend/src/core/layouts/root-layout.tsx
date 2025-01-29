@@ -22,7 +22,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
           <main className="container mx-auto bg-background px-2 py-4">
             {children}
           </main>
-          <Toaster />
+          <Toaster closeButton />
         </Providers>
       </body>
     </html>
