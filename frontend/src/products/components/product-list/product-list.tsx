@@ -37,7 +37,7 @@ const ProductList = () => {
           <div key={pageIndex} className="space-y-1">
             {page.content.map((product) => (
               <li key={product.id}>
-                <SingleProduct productListEntity={product} />
+                <SingleProduct product={product} />
               </li>
             ))}
           </div>
