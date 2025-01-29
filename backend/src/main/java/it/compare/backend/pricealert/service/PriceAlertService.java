@@ -7,6 +7,7 @@ import it.compare.backend.pricealert.mapper.PriceAlertMapper;
 import it.compare.backend.pricealert.model.PriceAlert;
 import it.compare.backend.pricealert.response.PriceAlertResponse;
 import it.compare.backend.pricealert.respository.PriceAlertRepository;
+import it.compare.backend.product.model.Condition;
 import it.compare.backend.product.model.PriceStamp;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.service.ProductService;
@@ -71,6 +72,7 @@ public class PriceAlertService {
 
         var alert = new PriceAlert(product, alertDto.targetPrice());
         alert.setUser(user);
+        alert.setOutletAllowed(alertDto.isOutletAllowed());
 
         var savedAlert = priceAlertRepository.save(alert);
         return priceAlertMapper.toResponse(savedAlert);
@@ -92,7 +94,7 @@ public class PriceAlertService {
     }
 
     @Transactional
-    public PriceAlertResponse updateTargetPrice(OAuthUserDetails userDetails, String alertId, PriceAlertDto alertDto) {
+    public PriceAlertResponse updatePriceAlert(OAuthUserDetails userDetails, String alertId, PriceAlertDto alertDto) {
         var user = userRepository
                 .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -104,6 +106,7 @@ public class PriceAlertService {
         }
 
         alert.setTargetPrice(alertDto.targetPrice());
+        alert.setOutletAllowed(alertDto.isOutletAllowed());
         var savedAlert = priceAlertRepository.save(alert);
 
         return priceAlertMapper.toResponse(savedAlert);
@@ -117,35 +120,32 @@ public class PriceAlertService {
 
         List<PriceAlert> alerts = mongoTemplate.find(query, PriceAlert.class);
 
-        var latestPrices = product.getOffers().stream()
-                .filter(offer -> !offer.getPriceHistory().isEmpty())
-                .map(offer -> {
-                    var latestPrice = offer.getPriceHistory().stream()
-                            .max(Comparator.comparing(PriceStamp::getTimestamp))
-                            .orElse(null);
-                    return new OfferPriceData(offer.getShop().getHumanReadableName(), latestPrice, offer.getUrl());
-                })
-                .filter(latest -> latest.priceStamp() != null)
-                .toList();
-
-        var lowestPriceData = latestPrices.stream()
-                .filter(latest -> latest.priceStamp().getIsAvailable())
-                .min(Comparator.comparing(latest -> latest.priceStamp().getPrice()))
-                .orElse(null);
-
-        if (lowestPriceData == null) {
-            return;
-        }
-
-        var lowestPrice = lowestPriceData.priceStamp().getPrice();
-
         alerts.forEach(alert -> {
-            if (lowestPrice.compareTo(alert.getTargetPrice()) <= 0) {
+            var latestPrices = product.getOffers().stream()
+                    .filter(offer -> !offer.getPriceHistory().isEmpty())
+                    .map(offer -> {
+                        var latestPrice = offer.getPriceHistory().stream()
+                                .max(Comparator.comparing(PriceStamp::getTimestamp))
+                                .orElse(null);
+                        return new OfferPriceData(offer.getShop().getHumanReadableName(), latestPrice, offer.getUrl());
+                    })
+                    .filter(latest -> latest.priceStamp() != null)
+                    .filter(latest -> latest.priceStamp().getIsAvailable())
+                    .filter(latest ->
+                            alert.isOutletAllowed() || latest.priceStamp().getCondition() != Condition.OUTLET)
+                    .toList();
+
+            var lowestPriceData = latestPrices.stream()
+                    .min(Comparator.comparing(latest -> latest.priceStamp().getPrice()))
+                    .orElse(null);
+
+            if (lowestPriceData != null
+                    && lowestPriceData.priceStamp().getPrice().compareTo(alert.getTargetPrice()) <= 0) {
                 emailService.sendPriceAlert(
                         alert.getUser().getEmail(),
                         product.getName(),
                         product.getId(),
-                        lowestPrice,
+                        lowestPriceData.priceStamp().getPrice(),
                         alert.getTargetPrice(),
                         lowestPriceData.shop(),
                         lowestPriceData.url());

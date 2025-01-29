@@ -34,6 +34,9 @@ public class PriceAlert {
     @Field("target_price")
     @NonNull private BigDecimal targetPrice;
 
+    @Field("is_outlet_allowed")
+    private boolean isOutletAllowed = false;
+
     @Field("is_active")
     private boolean isActive = true;
 
