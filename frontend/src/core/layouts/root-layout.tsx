@@ -18,7 +18,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
       <body className="antialiased">
         <Providers>
           <Navbar />
-          <main className="container mx-auto bg-background p-2">
+          <main className="container mx-auto bg-background px-2 py-4">
             {children}
           </main>
         </Providers>
