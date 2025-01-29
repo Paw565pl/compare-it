@@ -97,6 +97,9 @@ public class MoreleScraperWorker {
         }
         var title = extractName(productDocument);
         var price = extractPrice(productDocument);
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
         var images = extractImages(productDocument);
         var condition = extractCondition(productDocument);
         var priceStamp = new PriceStamp(price, "PLN", true, condition);
@@ -157,12 +160,11 @@ public class MoreleScraperWorker {
     }
 
     private BigDecimal extractPrice(Document productDocument) {
-        var price = productDocument
-                .select("aside.product-sidebar div.product-box-main div.product-price")
-                .getFirst()
-                .text();
-        price = price.replaceAll("[^0-9,]", "").replace(",", ".");
-        return new BigDecimal(price);
+        var price = Optional.ofNullable(
+                productDocument.selectFirst("aside.product-sidebar div.product-box-main div.product-price"));
+        if (price.isEmpty()) return null;
+        var priceString = price.get().text().replaceAll("[^0-9,]", "").replace(",", ".");
+        return new BigDecimal(priceString);
     }
 
     private Condition extractCondition(Document productDocument) {
@@ -171,14 +173,14 @@ public class MoreleScraperWorker {
 
     private List<String> extractImages(Document productDocument) {
         var imagesList = new ArrayList<String>();
-        var images = productDocument.select("div.swiper-container.swiper-gallery-thumbs img");
+        var images = productDocument.select(
+                "div.swiper-container.swiper-gallery-window div.swiper-wrapper.gallery-holder div.swiper-slide.mobx");
+
         for (var image : images) {
-            imagesList.add(image.attr("data-src"));
-        }
-        if (imagesList.isEmpty()) {
-            var image =
-                    productDocument.select("div.card-desktop prod-top-info img").attr("src");
-            imagesList.add(image);
+            var imageUrl = image.attr("data-src");
+            if (!imageUrl.startsWith("https://www.youtube.com")) {
+                imagesList.add(imageUrl);
+            }
         }
 
         imagesList.removeIf(String::isEmpty);
