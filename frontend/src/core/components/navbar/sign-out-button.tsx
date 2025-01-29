@@ -22,7 +22,7 @@ export const SignOutButton = () => {
     <div className="border-b-2 border-secondary px-2 py-4 sm:p-4">
       <Button
         onClick={() => handleSignOut()}
-        className="cursor-pointer rounded-none bg-secondary text-sm hover:bg-hover sm:text-lg"
+        className="cursor-pointer bg-secondary text-sm hover:bg-hover sm:text-lg"
       >
         WYLOGUJ SIĘ
       </Button>

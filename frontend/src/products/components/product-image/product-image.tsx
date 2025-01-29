@@ -15,7 +15,6 @@ export const ProductImage = ({ name, imageUrl }: ProductImageProps) => {
       width={200}
       height={200}
       alt={name}
-      className="rounded-md"
     />
   );
 };
