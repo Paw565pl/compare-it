@@ -1,0 +1,19 @@
+meta {
+  name: Update price alert
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://localhost:8080/api/v1/price-alerts/679a7914619f7f17a4ccfa88
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "productId": "6762fa57e3469470cecead5e",
+      "targetPrice": 3000.00,
+      "isOutletAllowed": false
+  }
+}

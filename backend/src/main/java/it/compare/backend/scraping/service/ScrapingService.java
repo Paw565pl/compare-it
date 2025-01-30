@@ -1,5 +1,6 @@
 package it.compare.backend.scraping.service;
 
+import it.compare.backend.pricealert.service.PriceAlertService;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import java.util.ArrayList;
@@ -14,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ScrapingService {
 
     private final ProductRepository productRepository;
+    private final PriceAlertService priceAlertService;
 
-    public ScrapingService(ProductRepository productRepository) {
+    public ScrapingService(ProductRepository productRepository, PriceAlertService priceAlertService) {
         this.productRepository = productRepository;
+        this.priceAlertService = priceAlertService;
     }
 
     @Transactional
@@ -49,6 +52,9 @@ public class ScrapingService {
             }
         });
 
-        productsToSave.forEach(productRepository::save);
+        productsToSave.forEach(product -> {
+            var savedProduct = productRepository.save(product);
+            priceAlertService.checkPriceAlerts(savedProduct);
+        });
     }
 }

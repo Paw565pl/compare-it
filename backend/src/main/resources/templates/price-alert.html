@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Alert</title>
+    <style>
+        :root {
+            --background: hsl(0, 0%, 95%);
+            --foreground: hsl(0, 0%, 3.9%);
+            --secondary: hsl(267, 84%, 43%);
+            --hover: hsl(267, 84%, 53%);
+            --border: hsl(0, 0%, 89.8%);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--foreground);
+            background-color: var(--background);
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            padding: 1.5rem 1rem;
+            margin-bottom: 2rem;
+            background-color: white;
+        }
+
+        .logo {
+            font-size: 1.875rem;
+            font-weight: bold;
+            border-bottom: 2px solid var(--secondary);
+            padding: 1rem;
+        }
+
+        .logo span {
+            color: var(--secondary);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+            margin-right: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: var(--hover);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .logo {
+                font-size: 1.5rem;
+                padding: 0.5rem;
+            }
+
+            .navbar {
+                padding: 1rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .button {
+                margin-top: 0.5rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">
+            Compare<span>.it</span>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="content">
+        <p>Świetna wiadomość! Cena produktu <strong th:text="${productName}">Produkt</strong> osiągnęła Twoją cenę docelową!</p>
+
+        <p>Aktualna cena w <strong th:text="${shopName}">Sklep</strong>:
+            <span class="price" th:text="${#numbers.formatDecimal(currentPrice, 1, 2) + ' PLN'}">0.00 PLN</span>
+        </p>
+
+        <p>Twoja cena docelowa wynosiła:
+            <strong th:text="${#numbers.formatDecimal(targetPrice, 1, 2) + ' PLN'}">0.00 PLN</strong>
+        </p>
+
+        <p>Nie przegap tej okazji!</p>
+
+        <div class="buttons">
+            <a th:href="@{'http://localhost:3000/produkty/' + ${productId}}" class="button">
+                Zobacz Produkt
+            </a>
+            <a th:href="${url}" class="button">
+                Zobacz Ofertę
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
