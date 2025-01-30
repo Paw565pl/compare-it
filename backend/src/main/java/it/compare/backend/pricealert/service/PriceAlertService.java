@@ -49,13 +49,13 @@ public class PriceAlertService {
     }
 
     public Page<PriceAlertResponse> findAllByUserAndActive(
-            OAuthUserDetails userDetails, boolean isActive, Pageable pageable) {
+            OAuthUserDetails userDetails, boolean active, Pageable pageable) {
         var user = userRepository
                 .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         return priceAlertRepository
-                .findAllByUserIdAndActive(user.getId(), isActive, pageable)
+                .findAllByUserIdAndActive(user.getId(), active, pageable)
                 .map(priceAlertMapper::toResponse);
     }
 
@@ -116,7 +116,7 @@ public class PriceAlertService {
         Query query = Query.query(new Criteria()
                 .andOperator(
                         Criteria.where("product.$id").is(product.getId()),
-                        Criteria.where("isActive").is(true)));
+                        Criteria.where("active").is(true)));
 
         List<PriceAlert> alerts = mongoTemplate.find(query, PriceAlert.class);
 

@@ -33,23 +33,28 @@ public class ScrapingService {
         scrapedProducts.forEach(scrapedProduct -> {
             var existingProduct = existingProductsMap.get(scrapedProduct.getEan());
 
-            if (existingProduct != null) {
-                var newOffer = scrapedProduct.getOffers().getFirst();
-                var newPriceStamp = newOffer.getPriceHistory().getFirst();
-
-                var offers = existingProduct.getOffers();
-
-                // Check if there is an existing offer from the same shop or add a new one
-                var offerFromGivenShop = offers.stream()
-                        .filter(o -> o.getShop().equals(newOffer.getShop()))
-                        .findFirst()
-                        .orElse(newOffer);
-
-                offerFromGivenShop.getPriceHistory().add(newPriceStamp);
-                productsToSave.add(existingProduct);
-            } else {
+            // new product - immediately save it
+            if (existingProduct == null) {
                 productsToSave.add(scrapedProduct);
+                return;
             }
+
+            if (scrapedProduct.getOffers().isEmpty()) return;
+            var newOffer = scrapedProduct.getOffers().getFirst();
+
+            if (newOffer.getPriceHistory().isEmpty()) return;
+            var newPriceStamp = newOffer.getPriceHistory().getFirst();
+
+            var offers = existingProduct.getOffers();
+
+            // check if there is an existing offer from the scraped shop
+            var offerFromExistingShop = offers.stream()
+                    .filter(o -> o.getShop().equals(newOffer.getShop()))
+                    .findFirst();
+
+            offerFromExistingShop.ifPresentOrElse(
+                    offer -> offer.getPriceHistory().add(newPriceStamp), () -> offers.add(newOffer));
+            productsToSave.add(existingProduct);
         });
 
         productsToSave.forEach(product -> {

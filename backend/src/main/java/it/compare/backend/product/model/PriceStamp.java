@@ -3,14 +3,12 @@ package it.compare.backend.product.model;
 import com.mongodb.lang.NonNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class PriceStamp {
