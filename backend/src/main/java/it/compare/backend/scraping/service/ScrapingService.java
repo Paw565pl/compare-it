@@ -39,7 +39,10 @@ public class ScrapingService {
                 return;
             }
 
+            if (scrapedProduct.getOffers().isEmpty()) return;
             var newOffer = scrapedProduct.getOffers().getFirst();
+
+            if (newOffer.getPriceHistory().isEmpty()) return;
             var newPriceStamp = newOffer.getPriceHistory().getFirst();
 
             var offers = existingProduct.getOffers();
