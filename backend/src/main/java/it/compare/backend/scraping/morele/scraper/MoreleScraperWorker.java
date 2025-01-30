@@ -81,7 +81,7 @@ public class MoreleScraperWorker {
                     log.info("Product created: {}", product);
                     products.add(product);
                 }
-                Thread.sleep(secureRandom.nextInt(1000, 3000));
+                Thread.sleep(secureRandom.nextInt(500, 2000));
             } catch (HttpStatusException e) {
                 handleHttpStatusException(e, href);
             } catch (NoSuchElementException | IOException e) {
