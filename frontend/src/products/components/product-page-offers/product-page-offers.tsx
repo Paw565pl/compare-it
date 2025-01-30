@@ -12,12 +12,7 @@ const ProductPageOffers = ({ id }: ProductPageProps) => {
     <div className="mt-4">
       {productData?.offers.map((offer, offerIndex) => (
         <div key={offerIndex}>
-          <SingleOffer
-            shop={offer.shop}
-            shopLogoUrl={offer.shopLogoUrl}
-            url={offer.url}
-            priceHistory={offer.priceHistory}
-          />
+          <SingleOffer offer={offer} />
         </div>
       ))}
     </div>

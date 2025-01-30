@@ -1,44 +1,28 @@
 import { Button } from "@/core/components/ui/button";
 import { ShopImage } from "@/products/components/index";
+import { OfferEntity } from "@/products/entities/product-detail-entity";
 import { formatCurrency } from "@/products/utils/format-currency";
 import Link from "next/link";
 
 interface SingleOfferProps {
-  readonly shop: string;
-  readonly shopLogoUrl: string;
-  readonly url: string;
-  readonly priceHistory: PriceHistoryProps[];
+  offer: OfferEntity;
 }
 
-interface PriceHistoryProps {
-  readonly timestamp: string;
-  readonly price: number;
-  readonly currency: string;
-  readonly promoCode: boolean;
-  readonly isAvailable: boolean;
-  readonly condition: string;
-}
-
-const SingleOffer = ({
-  shop,
-  shopLogoUrl,
-  url,
-  priceHistory,
-}: SingleOfferProps) => {
+const SingleOffer = ({ offer }: SingleOfferProps) => {
   const formattedPrice = formatCurrency(
-    priceHistory[priceHistory.length - 1].price,
-    priceHistory[priceHistory.length - 1].currency,
+    offer.priceHistory[offer.priceHistory.length - 1].price,
+    offer.priceHistory[offer.priceHistory.length - 1].currency,
   );
 
   return (
     <div className="flex flex-col items-center justify-between bg-white p-4 sm:flex-row">
-      <Link href={url} target="_blank" rel="nofollow noopener">
-        <ShopImage name={shop} imageUrl={shopLogoUrl} />
+      <Link href={offer.url} target="_blank" rel="nofollow noopener">
+        <ShopImage name={offer.shop} imageUrl={offer.shopLogoUrl} />
       </Link>
       <div className="flex items-center">
         <div className="mr-4 flex flex-col items-center">
           <Link
-            href={url}
+            href={offer.url}
             target="_blank"
             rel="nofollow noopener"
             className="justify-center text-lg font-semibold text-secondary"
@@ -46,7 +30,7 @@ const SingleOffer = ({
             {formattedPrice}
           </Link>
           <div className="text-sm">
-            {priceHistory[priceHistory.length - 1].isAvailable ? (
+            {offer.priceHistory[offer.priceHistory.length - 1].isAvailable ? (
               <span className="font-semibold text-green-600">
                 Produkt dostępny
               </span>
@@ -61,7 +45,7 @@ const SingleOffer = ({
           asChild
           className="bg-secondary font-semibold shadow-none hover:bg-hover"
         >
-          <Link href={url} target="_blank" rel="nofollow noopener">
+          <Link href={offer.url} target="_blank" rel="nofollow noopener">
             PRZEJDŹ DO OFERTY
           </Link>
         </Button>

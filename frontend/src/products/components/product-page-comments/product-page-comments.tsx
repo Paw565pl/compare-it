@@ -18,7 +18,6 @@ const ProductPageComments = ({ id }: ProductPageProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { mutate: createComment } = useCreateComment(accessToken, id);
-  const commentsMock = ["Komentarz 1", "Komentarz 2", "Komentarz 3"];
 
   const handleCreateComment = (e: FormEvent) => {
     e.preventDefault();
@@ -53,7 +52,7 @@ const ProductPageComments = ({ id }: ProductPageProps) => {
           DODAJ KOMENTARZ
         </Button>
       </form>
-      {commentsPages?.pages.map((page, pageIndex) =>
+      {commentsPages?.pages.map((page) =>
         page.content.map((comment, commentIndex) => (
           <SingleComment comment={comment} productId={id} key={commentIndex} />
         )),

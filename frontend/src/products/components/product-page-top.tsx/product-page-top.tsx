@@ -75,8 +75,8 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
       <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
         <div className="mb-4 flex-shrink-0 self-center md:mb-0 md:mr-6">
           <ProductPageImage
-            name={productData?.name}
-            imageUrl={productData?.images[0]}
+            name={productData?.name || ""}
+            imageUrl={productData?.images[0] || ""}
           />
         </div>
 
@@ -142,8 +142,8 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
       {category === "oferty" && <ProductPageOffers id={id as string} />}
       {category === "obrazy" && (
         <ProductPageImages
-          name={productData?.name}
-          images={productData?.images}
+          name={productData?.name || ""}
+          images={productData?.images || []}
         />
       )}
       {category === "opinie" && <ProductPageComments id={id as string} />}

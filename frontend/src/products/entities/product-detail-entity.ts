@@ -1,4 +1,4 @@
-interface PriceStampEntity {
+export interface PriceStampEntity {
   readonly timestamp: string;
   readonly price: number;
   readonly currency: string;
@@ -7,7 +7,7 @@ interface PriceStampEntity {
   readonly condition: string;
 }
 
-interface OfferEntity {
+export interface OfferEntity {
   readonly shop: string;
   readonly shopLogoUrl: string;
   readonly url: string;
