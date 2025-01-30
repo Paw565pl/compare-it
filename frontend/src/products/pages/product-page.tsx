@@ -4,16 +4,16 @@ import {
   ProductPageTop,
 } from "@/products/components/index";
 
-interface ProductPageProps {
+export interface ProductPageProps {
   readonly id: string;
 }
 
 export const ProductPage = ({ id }: ProductPageProps) => {
   return (
-    <>
-      <ProductPageTop />
-      <ProductPageOffers />
+    <div className="flex flex-col">
+      <ProductPageTop id={id as string} />
+      <ProductPageOffers id={id as string} />
       <ProductPageComments />
-    </>
+    </div>
   );
 };
