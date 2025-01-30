@@ -8,11 +8,14 @@ import {
   CardTitle,
 } from "@/core/components/ui/card";
 import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
+import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
 import { ProductImage } from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { formatCurrency } from "@/products/utils/format-currency";
 import { Clock, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface PriceAlertNotificationCardProps {
   priceAlert: PriceAlertEntity;
@@ -21,7 +24,22 @@ interface PriceAlertNotificationCardProps {
 export const PriceAlertNotificationCard = ({
   priceAlert,
 }: PriceAlertNotificationCardProps) => {
+  const { data: session } = useSession();
+  const accessToken = session?.tokens?.accessToken as string;
+
   const { data: product } = useFetchProduct(priceAlert.productId);
+
+  const { mutate: deletePriceAlert } = useDeletePriceAlert(
+    accessToken,
+    priceAlert.id,
+  );
+
+  const handleDeletePriceAlert = () => {
+    deletePriceAlert(undefined, {
+      onSuccess: () => toast.success("Alert cenowy został usunięty."),
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
+  };
 
   const formattedPrice = formatCurrency(priceAlert.currentLowestPrice, "PLN");
 
@@ -95,7 +113,7 @@ export const PriceAlertNotificationCard = ({
           )}
         </div> */}
 
-        <Button variant="destructive">
+        <Button variant="destructive" onClick={handleDeletePriceAlert}>
           <Trash2 /> Usuń z historii
         </Button>
       </CardFooter>
