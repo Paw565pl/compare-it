@@ -53,6 +53,13 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
     });
   };
 
+  const handleDeletePriceAlert = () => {
+    deletePriceAlert(undefined, {
+      onSuccess: () => toast.success("Alert cenowy został usunięty."),
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
+  };
+
   const formattedDesiredPrice = formatCurrency(priceAlert.targetPrice, "PLN");
 
   return (
@@ -91,9 +98,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
       </CardContent>
 
       <CardFooter className="flex items-center justify-between">
-        <DeleteConfirmationAlertDialog
-          handleDelete={() => console.log("delete price alert")}
-        />
+        <DeleteConfirmationAlertDialog handleDelete={handleDeletePriceAlert} />
         <PriceAlertFormDialog
           dialogTrigger={
             <Button variant={"secondary"}>
@@ -103,7 +108,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
           dialogHeader="Edytuj alert cenowy"
           handleSubmit={handleUpdatePriceAlert}
           defaultValues={{
-            targetPrice: priceAlert.targetPrice,
+            targetPrice: priceAlert.targetPrice.toString(),
             isOutletAllowed: priceAlert.outletAllowed,
           }}
         />
