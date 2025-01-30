@@ -55,7 +55,7 @@ public class PriceAlertService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         return priceAlertRepository
-                .findAllByUserIdAndIsActive(user.getId(), isActive, pageable)
+                .findAllByUserIdAndActive(user.getId(), isActive, pageable)
                 .map(priceAlertMapper::toResponse);
     }
 
@@ -66,7 +66,7 @@ public class PriceAlertService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         var product = productService.findProductOrThrow(productId);
 
-        if (priceAlertRepository.existsByUserIdAndProductIdAndIsActiveTrue(user.getId(), productId)) {
+        if (priceAlertRepository.existsByUserIdAndProductIdAndActiveTrue(user.getId(), productId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Active alert already exists for this product");
         }
 

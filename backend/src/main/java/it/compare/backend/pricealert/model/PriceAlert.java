@@ -38,7 +38,7 @@ public class PriceAlert {
     private boolean isOutletAllowed = false;
 
     @Field("is_active")
-    private boolean isActive = true;
+    private boolean active = true;
 
     @Indexed
     @CreatedDate
