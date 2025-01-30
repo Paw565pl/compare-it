@@ -92,7 +92,7 @@ public class MoreleScraperWorker {
 
     private Product createProductFromDocument(Document productDocument, Category category, String href) {
         var ean = extractEan(productDocument);
-        if (ean.isEmpty() || !ean.matches("\\d{13}")) {
+        if (ean.isEmpty() || !ean.matches("\\d+")) {
             return null;
         }
         var title = extractName(productDocument);
@@ -130,7 +130,7 @@ public class MoreleScraperWorker {
 
     private int getPagesCount(Document document) {
         return Integer.parseInt(
-                document.select("div.pagination-btn-nolink-anchor").text());
+                document.select("div.pagination-btn-nolink-anchor").text().trim());
     }
 
     private Document fetchDocument(String uri) throws IOException {
@@ -152,7 +152,8 @@ public class MoreleScraperWorker {
         return productDocument
                 .select("div.product-specification__wrapper span.specification__value")
                 .get(2)
-                .text();
+                .text()
+                .trim();
     }
 
     private String extractName(Document productDocument) {
@@ -183,7 +184,7 @@ public class MoreleScraperWorker {
             }
         }
 
-        imagesList.removeIf(String::isEmpty);
+        imagesList.removeIf(String::isBlank);
         return imagesList;
     }
 
