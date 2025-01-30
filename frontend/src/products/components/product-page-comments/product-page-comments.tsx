@@ -3,10 +3,13 @@ import { useCreateComment } from "@/comments/hooks/client/use-create-comment";
 import { useFetchCommentPage } from "@/comments/hooks/client/use-fetch-comment-page";
 import { Button } from "@/core/components/ui/button";
 import { ProductPageProps } from "@/products/pages/product-page";
+import { Smile } from 'lucide-react';
+import { Frown } from 'lucide-react';
+
+
 
 const ProductPageComments = ({ id }: ProductPageProps) => {
   const { data: commentsData } = useFetchCommentPage(id);
-  const cdata = useCreateComment();
 
   const commentsMock = ["Komentarz 1", "Komentarz 2", "Komentarz 3"];
 
@@ -29,7 +32,15 @@ const ProductPageComments = ({ id }: ProductPageProps) => {
       ))}
       {commentsMock.map((comment, commentIndex) => (
         <div className="bg-white p-4" key={commentIndex}>
-          {comment}
+          <div>{comment}</div>
+          <div className="flex gap-1">
+            <Button className="text-secondary bg-white shadow-none hover:bg-white p-1">
+              <Smile />
+            </Button>
+            <Button className="text-gray-500 bg-white shadow-none hover:bg-white p-1">
+              <Frown />
+            </Button>
+          </div>          
         </div>
       ))}
     </div>
