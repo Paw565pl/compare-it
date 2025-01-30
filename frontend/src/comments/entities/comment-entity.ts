@@ -1,5 +1,5 @@
 export interface CommentEntity {
-  readonly id: number;
+  readonly id: string;
   readonly author: string | null;
   readonly text: string;
   readonly createdAt: string;
