@@ -1,6 +1,10 @@
 "use client";
 import { Button } from "@/core/components/ui/button";
-import { ProductImage, ProductPageOffers } from "@/products/components/index";
+import {
+  ProductImage,
+  ProductPageImages,
+  ProductPageOffers,
+} from "@/products/components/index";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { ProductPageProps } from "@/products/pages/product-page";
 import { useState } from "react";
@@ -11,6 +15,7 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
 
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
+
   return (
     <div className="flex flex-col">
       <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
@@ -32,32 +37,32 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
               Liczba ofert: {productData?.offers.length}
             </p>
           </div>
-
-          <div className="mt-1"></div>
         </div>
       </div>
+
       <div className="mt-4 flex w-full bg-white">
-        <Button
-          onClick={() => setCategory("oferty")}
-          className="w-full bg-white font-semibold text-black shadow-none hover:bg-hover hover:text-white"
-        >
-          OFERTY
-        </Button>
-        <Button
-          onClick={() => setCategory("obrazy")}
-          className="w-full bg-white font-semibold text-black shadow-none hover:bg-hover hover:text-white"
-        >
-          OBRAZY PRODUKTU
-        </Button>
-        <Button
-          onClick={() => setCategory("opinie")}
-          className="w-full bg-white font-semibold text-black shadow-none hover:bg-hover hover:text-white"
-        >
-          OPINIE
-        </Button>
+        {["oferty", "obrazy", "opinie"].map((cat) => (
+          <Button
+            key={cat}
+            onClick={() => setCategory(cat)}
+            className={`w-full border-b-2 border-secondary font-semibold shadow-none transition-colors duration-200 ${
+              category === cat
+                ? "bg-secondary text-white hover:bg-secondary"
+                : "bg-background text-black hover:bg-hover hover:text-white"
+            }`}
+          >
+            {cat.toUpperCase()}
+          </Button>
+        ))}
       </div>
 
       {category === "oferty" && <ProductPageOffers id={id as string} />}
+      {category === "obrazy" && (
+        <ProductPageImages
+          name={productData?.name}
+          images={productData?.images}
+        />
+      )}
     </div>
   );
 };
