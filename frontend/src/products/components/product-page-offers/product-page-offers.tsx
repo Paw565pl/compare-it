@@ -16,7 +16,7 @@ const ProductPageOffers = ({ id }: ProductPageProps) => {
             shop={offer.shop}
             shopLogoUrl={offer.shopLogoUrl}
             url={offer.url}
-            priceHistory={offer.priceHistory[offer.priceHistory.length - 1]}
+            priceHistory={offer.priceHistory}
           />
         </div>
       ))}

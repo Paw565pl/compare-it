@@ -1,10 +1,11 @@
 import { ShopImage } from "@/products/components/index";
+import { formatCurrency } from "@/products/utils/format-currency";
 
 interface SingleOfferProps {
   readonly shop: string;
   readonly shopLogoUrl: string;
   readonly url: string;
-  readonly priceHistory: PriceHistoryProps;
+  readonly priceHistory: PriceHistoryProps[];
 }
 
 interface PriceHistoryProps {
@@ -22,10 +23,17 @@ const SingleOffer = ({
   url,
   priceHistory,
 }: SingleOfferProps) => {
+  const formattedPrice = formatCurrency(
+    priceHistory[priceHistory.length - 1].price,
+    priceHistory[priceHistory.length - 1].currency,
+  );
+
   return (
-    <div className="bg-white p-4">
+    <div className="flex items-center justify-between bg-white p-4">
       <ShopImage name={shop} imageUrl={shopLogoUrl} />
-      Product
+      <div className="text-lg font-semibold text-secondary">
+        {formattedPrice}
+      </div>
     </div>
   );
 };
