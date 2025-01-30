@@ -3,9 +3,9 @@ import { ProductPage } from "@/products/pages/product-page";
 import { useParams } from "next/navigation";
 
 const ProductPageDefault = () => {
-    const { id } = useParams();
+  const { id } = useParams();
 
-    return <ProductPage />
-}
+  return <ProductPage id={id as string} />;
+};
 
 export default ProductPageDefault;

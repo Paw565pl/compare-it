@@ -1,9 +1,7 @@
-
-
-export const ProductPage = () => {
-    return (
-        <>
-            Product Page
-        </>
-    )
+interface ProductPageProps {
+  readonly id: string;
 }
+
+export const ProductPage = ({ id }: ProductPageProps) => {
+  return <>{id}</>;
+};
