@@ -12,3 +12,5 @@ export const priceAlertSchema = z.object({
     .transform((value) => Number(value)),
   isOutletAllowed: z.boolean(),
 });
+
+export type PriceAlertFormValues = z.infer<typeof priceAlertSchema>;

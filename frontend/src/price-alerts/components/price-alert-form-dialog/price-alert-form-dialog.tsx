@@ -19,13 +19,13 @@ import {
   FormMessage,
 } from "@/core/components/ui/form";
 import { Input } from "@/core/components/ui/input";
-import { priceAlertSchema } from "@/price-alerts/schemas/price-alert-schema";
+import {
+  PriceAlertFormValues,
+  priceAlertSchema,
+} from "@/price-alerts/schemas/price-alert-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ReactNode } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-type PriceAlertFormValues = z.infer<typeof priceAlertSchema>;
 
 interface PriceAlertFormDialogProps {
   dialogTrigger: ReactNode;
