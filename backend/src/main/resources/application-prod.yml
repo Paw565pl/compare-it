@@ -1,0 +1,21 @@
+spring:
+  mail:
+    host: smtp4dev
+    port: 25
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls.enable: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://compare-it.eu.auth0.com/
+
+logging:
+  level:
+    root: error
