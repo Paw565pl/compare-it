@@ -3,15 +3,13 @@ package it.compare.backend.product.model;
 import com.mongodb.lang.NonNull;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class Offer {
