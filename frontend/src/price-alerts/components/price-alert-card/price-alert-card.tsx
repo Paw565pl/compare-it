@@ -49,14 +49,14 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
 
       <CardContent>
         <p>
+          Oczekiwana cena:{" "}
+          <span className="font-bold">{formattedDesiredPrice}</span>
+        </p>
+        <p>
           Czy outlet jest dozwolony:{" "}
           <span className="font-bold">
             {priceAlert.outletAllowed ? "TAK" : "NIE"}
           </span>
-        </p>
-        <p>
-          Oczekiwana cena:{" "}
-          <span className="font-bold">{formattedDesiredPrice}</span>
         </p>
       </CardContent>
 
