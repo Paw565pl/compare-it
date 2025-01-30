@@ -67,7 +67,7 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
           images={productData?.images}
         />
       )}
-      {category === "opinie" && <ProductPageComments />}
+      {category === "opinie" && <ProductPageComments id={id as string} />}
     </div>
   );
 };
