@@ -57,7 +57,9 @@ public class ScrapingService {
             productsToSave.add(existingProduct);
         });
 
-        productRepository.saveAll(productsToSave);
-        productsToSave.forEach(priceAlertService::checkPriceAlerts);
+        productsToSave.forEach(product -> {
+            var savedProduct = productRepository.save(product);
+            priceAlertService.checkPriceAlerts(savedProduct);
+        });
     }
 }
