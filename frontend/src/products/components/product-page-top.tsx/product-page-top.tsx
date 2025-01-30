@@ -2,6 +2,7 @@
 import { Button } from "@/core/components/ui/button";
 import { FavoriteProductDto } from "@/favorite-products/dto/favorite-product-dto";
 import { useAddFavoriteProduct } from "@/favorite-products/hooks/client/use-add-favorite-product";
+import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
 import { PriceAlertFormDialog } from "@/price-alerts/components/index";
 import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
 import { useCreatePriceAlert } from "@/price-alerts/hooks/client/use-create-price-alert";
@@ -27,6 +28,8 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
 
   const { mutate: createPriceAlert } = useCreatePriceAlert(accessToken);
   const { mutate: addFavoriteProduct } = useAddFavoriteProduct(accessToken);
+  const { mutate: deleteFavoriteProduct } =
+    useDeleteFavoriteProduct(accessToken);
 
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
@@ -49,7 +52,21 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
       productId: id,
     };
 
-    addFavoriteProduct(accessToken, favoriteProductDto);
+    addFavoriteProduct(favoriteProductDto, {
+      onSuccess: () => toast.success("Polubiono produkt."),
+      onError: () => toast.error("Ten produkt jest już polubiony!"),
+    });
+  };
+
+  const handleDeleteFavoriteProduct = () => {
+    const favoriteProductDto: FavoriteProductDto = {
+      productId: id,
+    };
+
+    deleteFavoriteProduct(favoriteProductDto, {
+      onSuccess: () => toast.success("Usunięto produkt z polubionych."),
+      onError: () => toast.error("Ten produkt nie jest polubiony!"),
+    });
   };
 
   return (
@@ -75,22 +92,31 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
             <p className="text-sm text-gray-600">
               Liczba ofert: {productData?.offers.length}
             </p>
-
-            <PriceAlertFormDialog
-              dialogTrigger={
-                <Button className="m-4 ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover">
-                  DODAJ ALERT CENOWY
-                </Button>
-              }
-              dialogHeader={"Dodaj alert"}
-              handleSubmit={handleCreatePriceAlert}
-            />
+            <div className="mt-4 flex w-min flex-col gap-4">
+              <PriceAlertFormDialog
+                dialogTrigger={
+                  <Button className="cursor-pointer bg-secondary shadow-none hover:bg-hover">
+                    DODAJ ALERT CENOWY
+                  </Button>
+                }
+                dialogHeader={"Dodaj alert"}
+                handleSubmit={handleCreatePriceAlert}
+              />
+              <Button
+                onClick={() => handleAddFavoriteProduct()}
+                className="ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover"
+              >
+                POLUB
+              </Button>
+              <Button
+                onClick={() => handleDeleteFavoriteProduct()}
+                className="ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover"
+              >
+                USUŃ Z ULUBIONYCH
+              </Button>
+            </div>
           </div>
         </div>
-
-        <form onSubmit={handleAddFavoriteProduct}>
-          <Button>Favorite</Button>
-        </form>
       </div>
 
       <div className="mt-4 flex w-full bg-white">

@@ -8,6 +8,7 @@ import { ProductPageImages } from "@/products/components/product-page-images/pro
 import { ProductPageOffers } from "@/products/components/product-page-offers/product-page-offers";
 import { ProductPageTop } from "@/products/components/product-page-top.tsx/product-page-top";
 import { ShopImage } from "@/products/components/shop-image/shop-image";
+import { SingleComment } from "@/products/components/single-comment/single-comment";
 import { SingleOffer } from "@/products/components/single-offer/single-offer";
 import { SingleProduct } from "@/products/components/single-product/single-product";
 import { SortBar } from "@/products/components/sort-bar/sort-bar";
@@ -23,6 +24,7 @@ export {
   ProductPageOffers,
   ProductPageTop,
   ShopImage,
+  SingleComment,
   SingleOffer,
   SingleProduct,
   SortBar,
