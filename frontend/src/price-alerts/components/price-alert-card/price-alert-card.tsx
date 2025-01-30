@@ -9,46 +9,50 @@ import {
   CardTitle,
 } from "@/core/components/ui/card";
 import { PriceAlertFormDialog } from "@/price-alerts/components";
-import { MockAlertData } from "@/price-alerts/components/price-alerts-grid/price-alerts-grid";
+import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { ProductImage } from "@/products/components";
+import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { formatCurrency } from "@/products/utils/format-currency";
 import { Pen } from "lucide-react";
 import Link from "next/link";
 
 interface PriceAlertCardProps {
-  alertData: MockAlertData;
+  priceAlert: PriceAlertEntity;
 }
 
-export const PriceAlertCard = ({ alertData }: PriceAlertCardProps) => {
-  const formattedDesiredPrice = formatCurrency(
-    alertData.alert.desiredPrice,
-    alertData.alert.desiredCurrency,
-  );
+export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
+  const { data: product } = useFetchProduct(priceAlert.productId);
+
+  const formattedDesiredPrice = formatCurrency(priceAlert.targetPrice, "PLN");
 
   return (
     <Card className="w-[22rem]">
       <CardHeader>
         <div className="flex justify-center">
           <ProductImage
-            name={alertData.name}
-            imageUrl={alertData.mainImageUrl}
+            name={priceAlert.productName}
+            imageUrl={product?.images.at(0) || ""}
           />
         </div>
 
         <CardTitle className="text-2xl">
-          <Link href={`/produkty/${alertData.id}`}>{alertData.name}</Link>
+          <Link href={`/produkty/${priceAlert.productId}`}>
+            {priceAlert.productName}
+          </Link>
         </CardTitle>
 
         <CardDescription className="flex items-center justify-between">
-          <span>{alertData.category}</span>
-          <span>EAN: {alertData.ean}</span>
+          <span>{product?.category}</span>
+          <span>EAN: {product?.ean}</span>
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         <p>
-          Oczekiwany stan:{" "}
-          <span className="font-bold">{alertData.alert.desiredCondition}</span>
+          Czy outlet jest dozwolony:{" "}
+          <span className="font-bold">
+            {priceAlert.outletAllowed ? "TAK" : "NIE"}
+          </span>
         </p>
         <p>
           Oczekiwana cena:{" "}
