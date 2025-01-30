@@ -24,31 +24,42 @@ import {
   priceAlertSchema,
 } from "@/price-alerts/schemas/price-alert-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 interface PriceAlertFormDialogProps {
   dialogTrigger: ReactNode;
   dialogHeader: string;
   handleSubmit: (formValues: PriceAlertFormValues) => void;
+  defaultValues?: PriceAlertFormValues;
 }
 
 export const PriceAlertFormDialog = ({
   dialogTrigger,
   dialogHeader,
   handleSubmit,
+  defaultValues,
 }: PriceAlertFormDialogProps) => {
+  const dialogTriggerRef = useRef<HTMLButtonElement>(null);
+
   const form = useForm<PriceAlertFormValues>({
     resolver: zodResolver(priceAlertSchema),
     defaultValues: {
-      targetPrice: 0,
-      isOutletAllowed: false,
+      targetPrice: defaultValues?.targetPrice.toString() ?? "",
+      isOutletAllowed: defaultValues?.isOutletAllowed ?? false,
     },
   });
 
+  const handleFormSubmit = (formValues: PriceAlertFormValues) => {
+    handleSubmit(formValues);
+    dialogTriggerRef.current?.click();
+  };
+
   return (
     <Dialog>
-      <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
+      <DialogTrigger asChild ref={dialogTriggerRef}>
+        {dialogTrigger}
+      </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -57,7 +68,8 @@ export const PriceAlertFormDialog = ({
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            // eslint-disable-next-line react-compiler/react-compiler
+            onSubmit={form.handleSubmit(handleFormSubmit)}
             className="flex flex-col justify-end gap-4 py-4"
           >
             <FormField
