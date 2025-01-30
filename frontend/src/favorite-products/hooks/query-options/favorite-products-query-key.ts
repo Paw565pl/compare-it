@@ -1,1 +1,1 @@
-export const favoriteProductsQueryKey = ["favorite-products"] as const;
+export const favoriteProductsQueryKey = ["favoriteProducts"] as const;
