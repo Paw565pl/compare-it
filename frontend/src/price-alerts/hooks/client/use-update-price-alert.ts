@@ -12,7 +12,7 @@ const updatePriceAlert = async (
   priceAlertId: string,
   priceAlertDto: PriceAlertDto,
 ) => {
-  const { data } = await apiService.post<PriceAlertEntity>(
+  const { data } = await apiService.put<PriceAlertEntity>(
     `/v1/price-alerts/${priceAlertId}`,
     priceAlertDto,
     {
