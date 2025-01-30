@@ -15,6 +15,7 @@ import {
 } from "@/products/components/index";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { ProductPageProps } from "@/products/pages/product-page";
+import { Heart, HeartOff, Notebook } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -96,6 +97,7 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
               <PriceAlertFormDialog
                 dialogTrigger={
                   <Button className="cursor-pointer bg-secondary shadow-none hover:bg-hover">
+                    <Notebook />
                     DODAJ ALERT CENOWY
                   </Button>
                 }
@@ -106,12 +108,14 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
                 onClick={() => handleAddFavoriteProduct()}
                 className="ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover"
               >
+                <Heart />
                 POLUB
               </Button>
               <Button
                 onClick={() => handleDeleteFavoriteProduct()}
                 className="ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover"
               >
+                <HeartOff />
                 USUŃ Z ULUBIONYCH
               </Button>
             </div>
