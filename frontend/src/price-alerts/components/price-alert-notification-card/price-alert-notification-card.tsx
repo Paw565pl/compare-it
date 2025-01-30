@@ -7,26 +7,44 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { MockAlertNotificationData } from "@/price-alerts/components/price-alerts-notifications-grid/price-alerts-notifications-grid";
+import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
+import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
 import { ProductImage } from "@/products/components";
+import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { formatCurrency } from "@/products/utils/format-currency";
-import { BadgeCheck, Clock, ShoppingCart, Trash2 } from "lucide-react";
+import { Clock, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface PriceAlertNotificationCardProps {
-  alertNotificationData: MockAlertNotificationData;
+  priceAlert: PriceAlertEntity;
 }
 
 export const PriceAlertNotificationCard = ({
-  alertNotificationData,
+  priceAlert,
 }: PriceAlertNotificationCardProps) => {
-  const formattedPrice = formatCurrency(
-    alertNotificationData.notification.price,
-    alertNotificationData.notification.currency,
+  const { data: session } = useSession();
+  const accessToken = session?.tokens?.accessToken as string;
+
+  const { data: product } = useFetchProduct(priceAlert.productId);
+
+  const { mutate: deletePriceAlert } = useDeletePriceAlert(
+    accessToken,
+    priceAlert.id,
   );
 
-  const notificationDate = new Date(alertNotificationData.notification.date);
-  const formattedNotificationDate = new Intl.DateTimeFormat("en-US", {
+  const handleDeletePriceAlert = () => {
+    deletePriceAlert(undefined, {
+      onSuccess: () => toast.success("Alert cenowy został usunięty."),
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
+  };
+
+  const formattedPrice = formatCurrency(priceAlert.currentLowestPrice, "PLN");
+
+  const notificationDate = new Date(priceAlert.lastNotificationSent);
+  const formattedNotificationDate = new Intl.DateTimeFormat("pl-PL", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(notificationDate);
@@ -36,30 +54,28 @@ export const PriceAlertNotificationCard = ({
       <CardHeader>
         <div className="flex justify-center">
           <ProductImage
-            name={alertNotificationData.name}
-            imageUrl={alertNotificationData.mainImageUrl}
+            name={priceAlert.productName}
+            imageUrl={product?.images.at(0) || ""}
           />
         </div>
 
         <CardTitle className="text-2xl">
-          <Link href={`/produkty/${alertNotificationData.id}`}>
-            {alertNotificationData.name}
+          <Link href={`/produkty/${priceAlert.productId}`}>
+            {priceAlert.productName}
           </Link>
         </CardTitle>
 
         <CardDescription className="flex items-center justify-between">
-          <span>{alertNotificationData.category}</span>
-          <span>EAN: {alertNotificationData.ean}</span>
+          <span>{product?.category}</span>
+          <span>EAN: {product?.ean}</span>
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-1">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="font-medium">
-              {alertNotificationData.notification.shop}
-            </span>
+          <div className="flex items-center gap-2 text-sm">
+            <Clock className="h-5 w-5" />
+            <span>{formattedNotificationDate}</span>
           </div>
 
           <div className="text-2xl font-bold text-primary">
@@ -67,24 +83,24 @@ export const PriceAlertNotificationCard = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5" />
+            <span className="font-medium">{priceAlert.notification.shop}</span>
+          </div>
+
           <div className="flex items-center gap-2">
             <BadgeCheck className="h-5 w-5" />
             <span className="capitalize">
-              {alertNotificationData.notification.condition}
+              {priceAlert.notification.condition}
             </span>
           </div>
-
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-5 w-5" />
-            <span>{formattedNotificationDate}</span>
-          </div>
-        </div>
+        </div> */}
       </CardContent>
 
       <CardFooter className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {alertNotificationData.isAvailable ? (
+        {/* <div className="flex items-center gap-2">
+          {priceAlert.isAvailable ? (
             <>
               <span className="h-2 w-2 rounded-full bg-green-500" />
               <span className="text-sm text-green-500">Dostępny</span>
@@ -95,9 +111,9 @@ export const PriceAlertNotificationCard = ({
               <span className="text-sm text-red-500">Niedostępny</span>
             </>
           )}
-        </div>
+        </div> */}
 
-        <Button variant="destructive">
+        <Button variant="destructive" onClick={handleDeletePriceAlert}>
           <Trash2 /> Usuń z historii
         </Button>
       </CardFooter>
