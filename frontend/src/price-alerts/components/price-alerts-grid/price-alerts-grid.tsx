@@ -31,7 +31,7 @@ export const PriceAlertsGrid = () => {
 
       {isEmpty && (
         <div className="text-center sm:text-left">
-          Nie masz jeszcze żadnych ulubionych produktów.
+          Nie masz jeszcze żadnych alertów cenowych.
         </div>
       )}
 

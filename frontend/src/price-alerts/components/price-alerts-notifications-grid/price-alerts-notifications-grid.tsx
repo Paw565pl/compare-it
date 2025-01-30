@@ -41,7 +41,7 @@ export const PriceAlertsNotificationsGrid = () => {
 
       {isEmpty && (
         <div className="text-center sm:text-left">
-          Lista powiadomień jest pusta.
+          Lista powiadomień cenowych jest pusta.
         </div>
       )}
 
