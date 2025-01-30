@@ -9,7 +9,7 @@ const ProductPageOffers = ({ id }: ProductPageProps) => {
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   return (
-    <div>
+    <div className="mt-4">
       {productData?.offers.map((offer, offerIndex) => (
         <div key={offerIndex}>
           <SingleOffer

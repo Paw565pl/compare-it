@@ -1,3 +1,5 @@
+import { ShopImage } from "@/products/components/index";
+
 interface SingleOfferProps {
   readonly shop: string;
   readonly shopLogoUrl: string;
@@ -20,7 +22,12 @@ const SingleOffer = ({
   url,
   priceHistory,
 }: SingleOfferProps) => {
-  return <div>Testy</div>;
+  return (
+    <div className="bg-white p-4">
+      <ShopImage name={shop} imageUrl={shopLogoUrl} />
+      Product
+    </div>
+  );
 };
 
 export { SingleOffer };
