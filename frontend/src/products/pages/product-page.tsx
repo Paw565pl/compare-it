@@ -1,7 +1,17 @@
+import {
+  ProductPageComments,
+  ProductPageOffers,
+} from "@/products/components/index";
+
 interface ProductPageProps {
   readonly id: string;
 }
 
 export const ProductPage = ({ id }: ProductPageProps) => {
-  return <>{id}</>;
+  return (
+    <>
+      <ProductPageOffers />
+      <ProductPageComments />
+    </>
+  );
 };
