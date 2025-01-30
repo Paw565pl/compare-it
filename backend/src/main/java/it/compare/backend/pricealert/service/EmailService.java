@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ import org.thymeleaf.context.Context;
 public class EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+
+    @Value("${ALLOWED_ORIGIN}")
+    private String frontendUrl;
 
     public void sendPriceAlert(
             String recipientEmail,
@@ -37,6 +41,7 @@ public class EmailService {
             context.setVariable("targetPrice", targetPrice);
             context.setVariable("shopName", shopName);
             context.setVariable("url", offerUrl);
+            context.setVariable("frontendUrl", frontendUrl);
 
             String htmlContent = templateEngine.process("price-alert", context);
 
