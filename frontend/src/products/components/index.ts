@@ -3,6 +3,7 @@ import { FilterBar } from "@/products/components/filter-bar/filter-bar";
 import { ProductImage } from "@/products/components/product-image/product-image";
 import { ProductList } from "@/products/components/product-list/product-list";
 import { ProductPageComments } from "@/products/components/product-page-comments/product-page-comments";
+import { ProductPageImage } from "@/products/components/product-page-image/product-page-image";
 import { ProductPageImages } from "@/products/components/product-page-images/product-page-images";
 import { ProductPageOffers } from "@/products/components/product-page-offers/product-page-offers";
 import { ProductPageTop } from "@/products/components/product-page-top.tsx/product-page-top";
@@ -17,6 +18,7 @@ export {
   ProductImage,
   ProductList,
   ProductPageComments,
+  ProductPageImage,
   ProductPageImages,
   ProductPageOffers,
   ProductPageTop,

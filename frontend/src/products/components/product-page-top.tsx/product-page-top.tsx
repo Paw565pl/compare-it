@@ -1,7 +1,8 @@
 "use client";
 import { Button } from "@/core/components/ui/button";
 import {
-  ProductImage,
+  ProductPageComments,
+  ProductPageImage,
   ProductPageImages,
   ProductPageOffers,
 } from "@/products/components/index";
@@ -20,7 +21,7 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
     <div className="flex flex-col">
       <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
         <div className="mb-4 flex-shrink-0 self-center md:mb-0 md:mr-6">
-          <ProductImage
+          <ProductPageImage
             name={productData?.name}
             imageUrl={productData?.images[0]}
           />
@@ -29,7 +30,10 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
         <div className="flex flex-grow flex-col justify-between">
           <div>
             <h1 className="mb-2 text-3xl font-bold">{productData?.name}</h1>
-            <p className="mb-4 text-sm text-gray-500">
+            <p className="text-md mb-4 text-gray-500">
+              Kod EAN: {productData?.ean}
+            </p>
+            <p className="text-md mb-4 text-gray-500">
               Kategoria: {productData?.category}
             </p>
 
@@ -48,7 +52,7 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
             className={`w-full border-b-2 border-secondary font-semibold shadow-none transition-colors duration-200 ${
               category === cat
                 ? "bg-secondary text-white hover:bg-secondary"
-                : "bg-background text-black hover:bg-hover hover:text-white"
+                : "bg-background text-gray-600 hover:bg-hover hover:text-white"
             }`}
           >
             {cat.toUpperCase()}
@@ -63,6 +67,7 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
           images={productData?.images}
         />
       )}
+      {category === "opinie" && <ProductPageComments />}
     </div>
   );
 };
