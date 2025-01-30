@@ -13,7 +13,7 @@ public class RtvEuroAgdWatcher {
         this.rtvEuroAgdScraper = rtvEuroAgdScraper;
     }
 
-    @Scheduled(cron = "0 0 */2 * * *")
+    @Scheduled(cron = "0 0 */6 * * *")
     public void startTask() {
         rtvEuroAgdScraper.scrape();
     }

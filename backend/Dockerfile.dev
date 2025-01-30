@@ -10,4 +10,4 @@ EXPOSE 8080
 
 ENTRYPOINT [ "./gradlew" ]
 
-CMD ["bootRun"]
+CMD ["bootRun", "--no-daemon"]
