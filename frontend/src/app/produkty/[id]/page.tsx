@@ -1,11 +1,11 @@
 "use client";
-
+import { ProductPage } from "@/products/pages/product-page";
 import { useParams } from "next/navigation";
 
-const ProductPage = () => {
+const ProductPageDefault = () => {
     const { id } = useParams();
 
-    return <>{id}</>
+    return <ProductPage />
 }
 
-export default ProductPage;
+export default ProductPageDefault;
