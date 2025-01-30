@@ -1,28 +1,18 @@
 "use client";
 import { SingleProduct, SortBar } from "@/products/components/index";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  parseAsFloat,
-  parseAsInteger,
-  parseAsString,
-  useQueryStates,
-} from "nuqs";
+  productFiltersSearchParams,
+  productPaginationSearchParams,
+} from "@/products/search-params/product-search-params";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useQueryStates } from "nuqs";
 
 const ProductList = () => {
-  const [filters] = useQueryStates({
-    category: parseAsString,
-    minPrice: parseAsFloat,
-    maxPrice: parseAsFloat,
-    shop: parseAsString.withDefault("Morele.net,RTV Euro AGD"),
-    name: parseAsString,
-  });
-
-  const [pagination, setPagination] = useQueryStates({
-    page: parseAsInteger.withDefault(0),
-    size: parseAsInteger.withDefault(20),
-    sort: parseAsString,
-  });
+  const [filters] = useQueryStates(productFiltersSearchParams);
+  const [pagination, setPagination] = useQueryStates(
+    productPaginationSearchParams,
+  );
 
   const {
     data: productsList,
@@ -47,17 +37,7 @@ const ProductList = () => {
           <div key={pageIndex} className="space-y-1">
             {page.content.map((product) => (
               <li key={product.id}>
-                <SingleProduct
-                  category={product.category}
-                  ean={product.ean}
-                  id={product.id}
-                  isAvailable={product.isAvailable}
-                  lowestCurrentPrice={product.lowestCurrentPrice}
-                  lowestPriceShop={product.lowestPriceShop}
-                  mainImageUrl={product.mainImageUrl}
-                  name={product.name}
-                  offerCount={product.offerCount}
-                />
+                <SingleProduct product={product} />
               </li>
             ))}
           </div>

@@ -54,7 +54,7 @@ services:
           ignore:
             - node_modules/
         - action: rebuild
-          path: package.json
+          path: ./frontend/package.json
 
 volumes:
   mongodb-data:

@@ -1,28 +1,35 @@
+import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
-import Image from "next/image";
+import { formatCurrency } from "@/products/utils/format-currency";
 import Link from "next/link";
 
+interface SingleProductProps {
+  readonly product: ProductListEntity;
+}
+
 const SingleProduct = ({
-  category,
-  id,
-  isAvailable,
-  lowestCurrentPrice,
-  lowestPriceShop,
-  mainImageUrl,
-  name,
-  offerCount,
-}: ProductListEntity) => {
+  product: {
+    category,
+    id,
+    isAvailable,
+    lowestCurrentPrice,
+    lowestPriceCurrency,
+    lowestPriceShop,
+    mainImageUrl,
+    name,
+    offerCount,
+  },
+}: SingleProductProps) => {
+  const formattedPrice = formatCurrency(
+    lowestCurrentPrice,
+    lowestPriceCurrency,
+  );
+
   return (
     <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
-      <div className="mb-4 flex-shrink-0 md:mb-0 md:mr-6">
+      <div className="mb-4 flex-shrink-0 self-center md:mb-0 md:mr-6">
         <Link href={`/produkty/${id}`}>
-          <Image
-            src={mainImageUrl}
-            width={200}
-            height={200}
-            alt={name}
-            className="rounded-md"
-          />
+          <ProductImage name={name} imageUrl={mainImageUrl} />
         </Link>
       </div>
 
@@ -50,7 +57,7 @@ const SingleProduct = ({
             )}
           </div>
           <p className="mb-2 text-lg font-semibold text-secondary">
-            Najniższa cena: {lowestCurrentPrice} zł
+            Najniższa cena: {formattedPrice}
           </p>
           <Link
             href={`/produkty/${id}`}
