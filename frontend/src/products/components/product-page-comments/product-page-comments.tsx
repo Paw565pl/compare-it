@@ -1,12 +1,8 @@
 "use client";
-import { useCreateComment } from "@/comments/hooks/client/use-create-comment";
 import { useFetchCommentPage } from "@/comments/hooks/client/use-fetch-comment-page";
 import { Button } from "@/core/components/ui/button";
 import { ProductPageProps } from "@/products/pages/product-page";
-import { Smile } from 'lucide-react';
-import { Frown } from 'lucide-react';
-
-
+import { Frown, Smile } from "lucide-react";
 
 const ProductPageComments = ({ id }: ProductPageProps) => {
   const { data: commentsData } = useFetchCommentPage(id);
@@ -34,13 +30,13 @@ const ProductPageComments = ({ id }: ProductPageProps) => {
         <div className="bg-white p-4" key={commentIndex}>
           <div>{comment}</div>
           <div className="flex gap-1">
-            <Button className="text-secondary bg-white shadow-none hover:bg-white p-1">
+            <Button className="bg-white p-1 text-secondary shadow-none hover:bg-white">
               <Smile />
             </Button>
-            <Button className="text-gray-500 bg-white shadow-none hover:bg-white p-1">
+            <Button className="bg-white p-1 text-gray-500 shadow-none hover:bg-white">
               <Frown />
             </Button>
-          </div>          
+          </div>
         </div>
       ))}
     </div>

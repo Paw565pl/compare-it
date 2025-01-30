@@ -1,5 +1,9 @@
 "use client";
 import { Button } from "@/core/components/ui/button";
+import { PriceAlertFormDialog } from "@/price-alerts/components/index";
+import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
+import { useCreatePriceAlert } from "@/price-alerts/hooks/client/use-create-price-alert";
+import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
 import {
   ProductPageComments,
   ProductPageImage,
@@ -8,14 +12,34 @@ import {
 } from "@/products/components/index";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { ProductPageProps } from "@/products/pages/product-page";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const ProductPageTop = ({ id }: ProductPageProps) => {
   const { data: productData, isLoading, error } = useFetchProduct(id);
   const [category, setCategory] = useState("oferty");
+  const { data: session } = useSession();
 
+  const accessToken = session?.tokens?.accessToken as string;
+  const userId = session?.user?.id as string;
+
+  const { mutate: createPriceAlert } = useCreatePriceAlert(accessToken);
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
+
+  const handleCreatePriceAlert = (formValues: PriceAlertFormValues) => {
+    const priceAlertDto: PriceAlertDto = {
+      productId: id,
+      targetPrice: Number(formValues.targetPrice),
+      isOutletAllowed: formValues.isOutletAllowed,
+    };
+
+    createPriceAlert(priceAlertDto, {
+      onSuccess: () => toast.success("Alert cenowy został utworzony."),
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
+  };
 
   return (
     <div className="flex flex-col">
@@ -42,6 +66,15 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
             </p>
           </div>
         </div>
+        <PriceAlertFormDialog
+          dialogTrigger={
+            <Button className="cursor-pointer bg-secondary shadow-none hover:bg-hover">
+              ALERT CENOWY
+            </Button>
+          }
+          dialogHeader={"Dodaj alert"}
+          handleSubmit={handleCreatePriceAlert}
+        />
       </div>
 
       <div className="mt-4 flex w-full bg-white">
