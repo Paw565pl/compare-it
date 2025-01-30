@@ -125,7 +125,7 @@
         <p>Nie przegap tej okazji!</p>
 
         <div class="buttons">
-            <a th:href="@{'http://localhost:3000/produkty/' + ${productId}}" class="button">
+            <a th:href="@{${frontendUrl + '/produkty/' + productId}}" class="button">
                 Zobacz Produkt
             </a>
             <a th:href="${url}" class="button">
