@@ -31,7 +31,7 @@ const SingleOffer = ({
   );
 
   return (
-    <div className="flex items-center justify-between bg-white p-4">
+    <div className="flex flex-col items-center justify-between bg-white p-4 sm:flex-row">
       <Link href={url} target="_blank" rel="nofollow noopener">
         <ShopImage name={shop} imageUrl={shopLogoUrl} />
       </Link>

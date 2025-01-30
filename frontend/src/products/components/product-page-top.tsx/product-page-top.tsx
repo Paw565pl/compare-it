@@ -1,5 +1,7 @@
 "use client";
 import { Button } from "@/core/components/ui/button";
+import { FavoriteProductDto } from "@/favorite-products/dto/favorite-product-dto";
+import { useAddFavoriteProduct } from "@/favorite-products/hooks/client/use-add-favorite-product";
 import { PriceAlertFormDialog } from "@/price-alerts/components/index";
 import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
 import { useCreatePriceAlert } from "@/price-alerts/hooks/client/use-create-price-alert";
@@ -22,9 +24,10 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
   const { data: session } = useSession();
 
   const accessToken = session?.tokens?.accessToken as string;
-  const userId = session?.user?.id as string;
 
   const { mutate: createPriceAlert } = useCreatePriceAlert(accessToken);
+  const { mutate: addFavoriteProduct } = useAddFavoriteProduct(accessToken);
+
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
@@ -39,6 +42,14 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
       onSuccess: () => toast.success("Alert cenowy został utworzony."),
       onError: () => toast.error("Coś poszło nie tak!"),
     });
+  };
+
+  const handleAddFavoriteProduct = () => {
+    const favoriteProductDto: FavoriteProductDto = {
+      productId: id,
+    };
+
+    addFavoriteProduct(accessToken, favoriteProductDto);
   };
 
   return (
@@ -64,17 +75,22 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
             <p className="text-sm text-gray-600">
               Liczba ofert: {productData?.offers.length}
             </p>
+
+            <PriceAlertFormDialog
+              dialogTrigger={
+                <Button className="m-4 ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover">
+                  DODAJ ALERT CENOWY
+                </Button>
+              }
+              dialogHeader={"Dodaj alert"}
+              handleSubmit={handleCreatePriceAlert}
+            />
           </div>
         </div>
-        <PriceAlertFormDialog
-          dialogTrigger={
-            <Button className="cursor-pointer bg-secondary shadow-none hover:bg-hover">
-              ALERT CENOWY
-            </Button>
-          }
-          dialogHeader={"Dodaj alert"}
-          handleSubmit={handleCreatePriceAlert}
-        />
+
+        <form onSubmit={handleAddFavoriteProduct}>
+          <Button>Favorite</Button>
+        </form>
       </div>
 
       <div className="mt-4 flex w-full bg-white">
