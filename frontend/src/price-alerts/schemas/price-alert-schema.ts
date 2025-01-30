@@ -8,8 +8,7 @@ export const priceAlertSchema = z.object({
     })
     .refine((value) => Number(value) > 0, {
       message: "Cena docelowa musi być liczbą dodatnią.",
-    })
-    .transform((value) => Number(value)),
+    }),
   isOutletAllowed: z.boolean(),
 });
 
