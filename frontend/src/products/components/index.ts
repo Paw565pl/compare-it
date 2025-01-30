@@ -4,6 +4,7 @@ import { ProductImage } from "@/products/components/product-image/product-image"
 import { ProductList } from "@/products/components/product-list/product-list";
 import { ProductPageComments } from "@/products/components/product-page-comments/product-page-comments";
 import { ProductPageOffers } from "@/products/components/product-page-offers/product-page-offers";
+import { ProductPageTop } from "@/products/components/product-page-top.tsx/product-page-top";
 import { SingleProduct } from "@/products/components/single-product/single-product";
 import { SortBar } from "@/products/components/sort-bar/sort-bar";
 
@@ -14,6 +15,7 @@ export {
   ProductList,
   ProductPageComments,
   ProductPageOffers,
+  ProductPageTop,
   SingleProduct,
   SortBar,
 };

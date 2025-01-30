@@ -1,6 +1,7 @@
 import {
   ProductPageComments,
   ProductPageOffers,
+  ProductPageTop,
 } from "@/products/components/index";
 
 interface ProductPageProps {
@@ -10,6 +11,7 @@ interface ProductPageProps {
 export const ProductPage = ({ id }: ProductPageProps) => {
   return (
     <>
+      <ProductPageTop />
       <ProductPageOffers />
       <ProductPageComments />
     </>
