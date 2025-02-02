@@ -72,7 +72,7 @@ public class PriceAlertService {
 
         var alert = new PriceAlert(product, alertDto.targetPrice());
         alert.setUser(user);
-        alert.setOutletAllowed(alertDto.isOutletAllowed());
+        alert.setIsOutletAllowed(alertDto.isOutletAllowed());
 
         var savedAlert = priceAlertRepository.save(alert);
         return priceAlertMapper.toResponse(savedAlert);
@@ -106,7 +106,7 @@ public class PriceAlertService {
         }
 
         alert.setTargetPrice(alertDto.targetPrice());
-        alert.setOutletAllowed(alertDto.isOutletAllowed());
+        alert.setIsOutletAllowed(alertDto.isOutletAllowed());
         var savedAlert = priceAlertRepository.save(alert);
 
         return priceAlertMapper.toResponse(savedAlert);
@@ -132,7 +132,7 @@ public class PriceAlertService {
                     .filter(latest -> latest.priceStamp() != null)
                     .filter(latest -> latest.priceStamp().getIsAvailable())
                     .filter(latest ->
-                            alert.isOutletAllowed() || latest.priceStamp().getCondition() != Condition.OUTLET)
+                            alert.getIsOutletAllowed() || latest.priceStamp().getCondition() != Condition.OUTLET)
                     .toList();
 
             var lowestPriceData = latestPrices.stream()

@@ -31,20 +31,20 @@ public class PriceAlert {
     @Field("product")
     @NonNull private Product product;
 
-    @Field("target_price")
+    @Field("targetPrice")
     @NonNull private BigDecimal targetPrice;
 
-    @Field("is_outlet_allowed")
-    private boolean isOutletAllowed = false;
+    @Field("isOutletAllowed")
+    private Boolean isOutletAllowed = false;
 
-    @Field("is_active")
-    private boolean active = true;
+    @Field("isActive")
+    private Boolean active = true;
 
     @Indexed
     @CreatedDate
-    @Field("created_at")
+    @Field("createdAt")
     private LocalDateTime createdAt;
 
-    @Field("last_notification_sent")
+    @Field("lastNotificationSent")
     private LocalDateTime lastNotificationSent;
 }
