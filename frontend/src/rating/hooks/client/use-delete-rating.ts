@@ -44,8 +44,6 @@ export const useDeleteRating = (
         ...productsQueryKey,
         productId,
         ...commentsQueryKey,
-        commentId,
-        "rating",
       ] as const;
 
       queryClient.invalidateQueries({ queryKey });
