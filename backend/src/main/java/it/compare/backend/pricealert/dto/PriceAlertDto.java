@@ -6,6 +6,6 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public record PriceAlertDto(
-        @NotBlank(message = "Product ID cannot be empty") String productId,
-        @NotNull(message = "Target price cannot be null") @Positive(message = "Target price must be greater than zero") BigDecimal targetPrice,
-        @NotNull(message = "Outlet preference cannot be null") Boolean isOutletAllowed) {}
+        @NotBlank(message = "productId cannot be empty.") String productId,
+        @NotNull(message = "targetPrice cannot be null.") @Positive(message = "targetPrice must be greater than zero.") BigDecimal targetPrice,
+        @NotNull(message = "isOutletAllowed cannot be null.") Boolean isOutletAllowed) {}
