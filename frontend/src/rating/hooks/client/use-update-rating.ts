@@ -48,8 +48,6 @@ export const useUpdateRating = (
         ...productsQueryKey,
         productId,
         ...commentsQueryKey,
-        commentId,
-        "rating",
       ] as const;
 
       queryClient.invalidateQueries({ queryKey });

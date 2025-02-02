@@ -1,3 +1,5 @@
+"use client";
+
 import { H1 } from "@/core/components/ui/h1";
 import { PriceAlertNotificationCard } from "@/price-alerts/components";
 import { useFetchPriceAlertsPage } from "@/price-alerts/hooks/client/use-fetch-price-alerts-page";

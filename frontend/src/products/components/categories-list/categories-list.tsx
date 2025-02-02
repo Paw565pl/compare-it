@@ -1,11 +1,21 @@
 "use client";
+
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
-import { productFiltersSearchParams } from "@/products/search-params/product-search-params";
+import {
+  productFiltersSearchParams,
+  productPaginationSearchParams,
+} from "@/products/search-params/product-search-params";
 import { useQueryStates } from "nuqs";
 
 const CategoriesList = () => {
   const { data: categoriesList } = useFetchCategoriesList();
   const [filters, setFilters] = useQueryStates(productFiltersSearchParams);
+  const [, setPagination] = useQueryStates(productPaginationSearchParams);
+
+  const handleCategoryChange = (category: string | null) => {
+    setFilters({ category });
+    setPagination((prev) => ({ ...prev, page: 0 }));
+  };
 
   return (
     <div className="flex flex-col items-start">
@@ -21,7 +31,7 @@ const CategoriesList = () => {
           }`}
         >
           <button
-            onClick={() => setFilters({ category: null })}
+            onClick={() => handleCategoryChange(null)}
             className="flex w-full justify-start px-4 py-2"
           >
             <span>Wszystkie</span>
@@ -30,6 +40,7 @@ const CategoriesList = () => {
 
         {categoriesList?.map((category, index) => {
           const isActive = filters.category === category;
+
           return (
             <li
               key={index}
@@ -40,7 +51,7 @@ const CategoriesList = () => {
               }`}
             >
               <button
-                onClick={() => setFilters({ category })}
+                onClick={() => handleCategoryChange(category)}
                 className="flex w-full justify-start px-4 py-2"
               >
                 <span>{category}</span>

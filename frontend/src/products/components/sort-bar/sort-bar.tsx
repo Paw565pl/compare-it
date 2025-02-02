@@ -17,16 +17,14 @@ const sortOptions = {
 
 const SortBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [, setSelectedSort] = useState("Domyślne");
-  const [, setSort] = useQueryStates(productPaginationSearchParams);
+  const [, setPagination] = useQueryStates(productPaginationSearchParams);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
 
-  const handleSortChange = (option: string, param: string) => {
-    setSelectedSort(option);
-    setSort((prev) => ({ ...prev, page: 0, sort: param }));
+  const handleSortChange = (sortValue: string) => {
+    setPagination((prev) => ({ ...prev, page: 0, sort: sortValue }));
     setIsDropdownOpen(false);
   };
 
@@ -42,13 +40,13 @@ const SortBar = () => {
 
       {isDropdownOpen && (
         <ul className="absolute left-0 mt-2 border bg-white shadow-lg">
-          {Object.entries(sortOptions).map(([key, value]) => (
-            <li key={value}>
+          {Object.entries(sortOptions).map(([sortLabel, sortValue], index) => (
+            <li key={index}>
               <button
-                onClick={() => handleSortChange(key, value)}
+                onClick={() => handleSortChange(sortValue)}
                 className="w-full cursor-pointer px-4 py-2 text-left hover:bg-hover hover:text-white"
               >
-                {key}
+                {sortLabel}
               </button>
             </li>
           ))}
