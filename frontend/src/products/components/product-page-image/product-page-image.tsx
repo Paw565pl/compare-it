@@ -15,7 +15,7 @@ export const ProductPageImage = ({ name, imageUrl }: ProductPageImage) => {
       width={400}
       height={400}
       alt={name}
-      className="w-auto h-auto"
+      className="h-auto w-auto"
     />
   );
 };

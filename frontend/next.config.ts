@@ -5,20 +5,20 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'f00.esfr.pl',
+        protocol: "https",
+        hostname: "f00.esfr.pl",
       },
       {
-        protocol: 'https',
-        hostname: 'images.morele.net',
+        protocol: "https",
+        hostname: "images.morele.net",
       },
       {
-        protocol: 'https',
-        hostname: 'galeriachelm.com',
+        protocol: "https",
+        hostname: "galeriachelm.com",
       },
       {
-        protocol: 'https',
-        hostname: 'www.morele.net',
+        protocol: "https",
+        hostname: "www.morele.net",
       },
     ],
   },
