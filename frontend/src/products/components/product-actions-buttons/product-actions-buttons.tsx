@@ -1,0 +1,93 @@
+import { Button } from "@/core/components/ui/button";
+import { FavoriteProductDto } from "@/favorite-products/dto/favorite-product-dto";
+import { useAddFavoriteProduct } from "@/favorite-products/hooks/client/use-add-favorite-product";
+import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
+import { PriceAlertFormDialog } from "@/price-alerts/components";
+import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
+import { useCreatePriceAlert } from "@/price-alerts/hooks/client/use-create-price-alert";
+import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
+import { Heart, HeartOff, Notebook } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+
+interface ProductActionsButtonsProps {
+  readonly productId: string;
+}
+
+export const ProductActionsButtons = ({
+  productId,
+}: ProductActionsButtonsProps) => {
+  const { data: session } = useSession();
+  const accessToken = session?.tokens?.accessToken as string;
+
+  const { mutate: createPriceAlert } = useCreatePriceAlert(accessToken);
+  const { mutate: addFavoriteProduct } = useAddFavoriteProduct(accessToken);
+  const { mutate: deleteFavoriteProduct } =
+    useDeleteFavoriteProduct(accessToken);
+
+  if (!session) return null;
+
+  const handleCreatePriceAlert = (formValues: PriceAlertFormValues) => {
+    const priceAlertDto: PriceAlertDto = {
+      productId,
+      targetPrice: Number(formValues.targetPrice),
+      isOutletAllowed: formValues.isOutletAllowed,
+    };
+
+    createPriceAlert(priceAlertDto, {
+      onSuccess: () => toast.success("Alert cenowy został utworzony."),
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
+  };
+
+  const handleAddFavoriteProduct = () => {
+    const favoriteProductDto: FavoriteProductDto = {
+      productId,
+    };
+
+    addFavoriteProduct(favoriteProductDto, {
+      onSuccess: () => toast.success("Polubiono produkt."),
+      onError: () => toast.error("Ten produkt jest już polubiony!"),
+    });
+  };
+
+  const handleDeleteFavoriteProduct = () => {
+    const favoriteProductDto: FavoriteProductDto = {
+      productId,
+    };
+
+    deleteFavoriteProduct(favoriteProductDto, {
+      onSuccess: () => toast.success("Usunięto produkt z polubionych."),
+      onError: () => toast.error("Ten produkt nie jest polubiony!"),
+    });
+  };
+
+  return (
+    <div className="mt-4 flex w-min flex-col gap-4">
+      <PriceAlertFormDialog
+        dialogTrigger={
+          <Button className="cursor-pointer bg-secondary shadow-none hover:bg-hover">
+            <Notebook />
+            DODAJ ALERT CENOWY
+          </Button>
+        }
+        dialogHeader={"Dodaj alert"}
+        handleSubmit={handleCreatePriceAlert}
+      />
+      <Button
+        onClick={handleAddFavoriteProduct}
+        className="ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover"
+      >
+        <Heart />
+        POLUB
+      </Button>
+      <Button
+        onClick={handleDeleteFavoriteProduct}
+        className="ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover"
+      >
+        <HeartOff />
+        USUŃ Z ULUBIONYCH
+      </Button>
+    </div>
+  );
+};
