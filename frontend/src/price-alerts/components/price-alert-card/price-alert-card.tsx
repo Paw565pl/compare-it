@@ -98,7 +98,10 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
       </CardContent>
 
       <CardFooter className="flex items-center justify-between">
-        <DeleteConfirmationAlertDialog handleDelete={handleDeletePriceAlert} />
+        <DeleteConfirmationAlertDialog
+          alertDialogTriggerLabel="Usuń"
+          handleDelete={handleDeletePriceAlert}
+        />
         <PriceAlertFormDialog
           dialogTrigger={
             <Button variant={"secondary"}>
