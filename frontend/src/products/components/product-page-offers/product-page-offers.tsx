@@ -1,9 +1,12 @@
 import { SingleOffer } from "@/products/components/index";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
-import { ProductPageProps } from "@/products/pages/product-page";
 
-const ProductPageOffers = ({ id }: ProductPageProps) => {
-  const { data: productData, isLoading, error } = useFetchProduct(id);
+interface ProductPageOffersProps {
+  readonly productId: string;
+}
+
+const ProductPageOffers = ({ productId }: ProductPageOffersProps) => {
+  const { data: productData, isLoading, error } = useFetchProduct(productId);
 
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;

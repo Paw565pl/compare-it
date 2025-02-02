@@ -1,13 +1,15 @@
 import { ProductPageTop } from "@/products/components/index";
 
 export interface ProductPageProps {
-  readonly id: string;
+  readonly params: Promise<{ id: string }>;
 }
 
-export const ProductPage = ({ id }: ProductPageProps) => {
+export const ProductPage = async ({ params }: ProductPageProps) => {
+  const productId = (await params).id;
+
   return (
     <div className="flex flex-col">
-      <ProductPageTop id={id as string} />
+      <ProductPageTop productId={productId} />
     </div>
   );
 };

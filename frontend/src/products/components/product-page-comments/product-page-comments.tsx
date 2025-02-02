@@ -1,23 +1,27 @@
 "use client";
+
 import { CommentDto } from "@/comments/dtos/comment-dto";
 import { useCreateComment } from "@/comments/hooks/client/use-create-comment";
 import { useFetchCommentPage } from "@/comments/hooks/client/use-fetch-comment-page";
 import { Button } from "@/core/components/ui/button";
 import { SingleComment } from "@/products/components/index";
-import { ProductPageProps } from "@/products/pages/product-page";
 import { useSession } from "next-auth/react";
 import { FormEvent, useRef } from "react";
 import { toast } from "sonner";
 
-const ProductPageComments = ({ id }: ProductPageProps) => {
-  const { data: commentsPages } = useFetchCommentPage(id);
+interface ProductPageCommentsProps {
+  readonly productId: string;
+}
+
+const ProductPageComments = ({ productId }: ProductPageCommentsProps) => {
+  const { data: commentsPages } = useFetchCommentPage(productId);
   const { data: session } = useSession();
 
   const accessToken = session?.tokens?.accessToken as string;
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { mutate: createComment } = useCreateComment(accessToken, id);
+  const { mutate: createComment } = useCreateComment(accessToken, productId);
 
   const handleCreateComment = (e: FormEvent) => {
     e.preventDefault();
@@ -54,7 +58,11 @@ const ProductPageComments = ({ id }: ProductPageProps) => {
       </form>
       {commentsPages?.pages.map((page) =>
         page.content.map((comment, commentIndex) => (
-          <SingleComment comment={comment} productId={id} key={commentIndex} />
+          <SingleComment
+            comment={comment}
+            productId={productId}
+            key={commentIndex}
+          />
         )),
       )}
     </div>
