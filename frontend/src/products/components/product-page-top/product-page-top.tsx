@@ -15,7 +15,7 @@ interface ProductPageTopProps {
   readonly productId: string;
 }
 
-const sections = ["oferty", "obrazy", "opinie"] as const;
+const sections = ["oferty", "zdjęcia", "opinie"] as const;
 type Section = (typeof sections)[number];
 
 const ProductPageTop = ({ productId }: ProductPageTopProps) => {
@@ -71,7 +71,7 @@ const ProductPageTop = ({ productId }: ProductPageTopProps) => {
       </div>
 
       {category === "oferty" && <ProductPageOffers productId={productId} />}
-      {category === "obrazy" && (
+      {category === "zdjęcia" && (
         <ProductPageImages
           name={productData?.name || ""}
           images={productData?.images || []}

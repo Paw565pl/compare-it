@@ -1,9 +1,10 @@
 import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
+import { DeleteConfirmationAlertDialog } from "@/core/components/index";
 import { Button } from "@/core/components/ui/button";
 import { RatingDto } from "@/rating/dto/rating-dto";
 import { useCreateRating } from "@/rating/hooks/client/use-create-rating";
-import { Frown, Smile, Trash2 } from "lucide-react";
+import { Frown, Smile } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -72,12 +73,10 @@ export const SingleComment = ({ comment, productId }: SingleCommentProps) => {
         </div>
         <div className="text-sm text-muted">{formattedCreatedAtDate}</div>
         {isAuthor && (
-          <Button
-            onClick={handleDeleteComment}
-            className="bg-white p-1 text-red-500 shadow-none hover:bg-background"
-          >
-            <Trash2 />
-          </Button>
+          <DeleteConfirmationAlertDialog
+            alertDialogTriggerClassName="bg-white p-1 text-red-500 shadow-none hover:bg-background"
+            handleDelete={handleDeleteComment}
+          />
         )}
       </div>
       <div>{comment.text}</div>
