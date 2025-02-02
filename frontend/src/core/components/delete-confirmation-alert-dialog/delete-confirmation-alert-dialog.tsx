@@ -29,7 +29,7 @@ export const DeleteConfirmationAlertDialog = ({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="destructive" className={alertDialogTriggerClassName}>
-          <Trash2 /> {alertDialogTriggerLabel || ""}
+          <Trash2 /> {alertDialogTriggerLabel}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
