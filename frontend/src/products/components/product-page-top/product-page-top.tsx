@@ -1,74 +1,29 @@
 "use client";
+
 import { Button } from "@/core/components/ui/button";
-import { FavoriteProductDto } from "@/favorite-products/dto/favorite-product-dto";
-import { useAddFavoriteProduct } from "@/favorite-products/hooks/client/use-add-favorite-product";
-import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
-import { PriceAlertFormDialog } from "@/price-alerts/components/index";
-import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
-import { useCreatePriceAlert } from "@/price-alerts/hooks/client/use-create-price-alert";
-import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
 import {
+  ProductActionsButtons,
   ProductPageComments,
   ProductPageImage,
   ProductPageImages,
   ProductPageOffers,
 } from "@/products/components/index";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
-import { ProductPageProps } from "@/products/pages/product-page";
-import { Heart, HeartOff, Notebook } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { toast } from "sonner";
 
-const ProductPageTop = ({ id }: ProductPageProps) => {
-  const { data: productData, isLoading, error } = useFetchProduct(id);
-  const [category, setCategory] = useState("oferty");
-  const { data: session } = useSession();
+interface ProductPageTopProps {
+  readonly productId: string;
+}
 
-  const accessToken = session?.tokens?.accessToken as string;
+const sections = ["oferty", "obrazy", "opinie"] as const;
+type Section = (typeof sections)[number];
 
-  const { mutate: createPriceAlert } = useCreatePriceAlert(accessToken);
-  const { mutate: addFavoriteProduct } = useAddFavoriteProduct(accessToken);
-  const { mutate: deleteFavoriteProduct } =
-    useDeleteFavoriteProduct(accessToken);
+const ProductPageTop = ({ productId }: ProductPageTopProps) => {
+  const { data: productData, isLoading, error } = useFetchProduct(productId);
+  const [category, setCategory] = useState<Section>("oferty");
 
   if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
-
-  const handleCreatePriceAlert = (formValues: PriceAlertFormValues) => {
-    const priceAlertDto: PriceAlertDto = {
-      productId: id,
-      targetPrice: Number(formValues.targetPrice),
-      isOutletAllowed: formValues.isOutletAllowed,
-    };
-
-    createPriceAlert(priceAlertDto, {
-      onSuccess: () => toast.success("Alert cenowy został utworzony."),
-      onError: () => toast.error("Coś poszło nie tak!"),
-    });
-  };
-
-  const handleAddFavoriteProduct = () => {
-    const favoriteProductDto: FavoriteProductDto = {
-      productId: id,
-    };
-
-    addFavoriteProduct(favoriteProductDto, {
-      onSuccess: () => toast.success("Polubiono produkt."),
-      onError: () => toast.error("Ten produkt jest już polubiony!"),
-    });
-  };
-
-  const handleDeleteFavoriteProduct = () => {
-    const favoriteProductDto: FavoriteProductDto = {
-      productId: id,
-    };
-
-    deleteFavoriteProduct(favoriteProductDto, {
-      onSuccess: () => toast.success("Usunięto produkt z polubionych."),
-      onError: () => toast.error("Ten produkt nie jest polubiony!"),
-    });
-  };
 
   return (
     <div className="flex flex-col">
@@ -93,38 +48,14 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
             <p className="text-sm text-gray-600">
               Liczba ofert: {productData?.offers.length}
             </p>
-            <div className="mt-4 flex w-min flex-col gap-4">
-              <PriceAlertFormDialog
-                dialogTrigger={
-                  <Button className="cursor-pointer bg-secondary shadow-none hover:bg-hover">
-                    <Notebook />
-                    DODAJ ALERT CENOWY
-                  </Button>
-                }
-                dialogHeader={"Dodaj alert"}
-                handleSubmit={handleCreatePriceAlert}
-              />
-              <Button
-                onClick={() => handleAddFavoriteProduct()}
-                className="ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover"
-              >
-                <Heart />
-                POLUB
-              </Button>
-              <Button
-                onClick={() => handleDeleteFavoriteProduct()}
-                className="ml-0 cursor-pointer bg-secondary shadow-none hover:bg-hover"
-              >
-                <HeartOff />
-                USUŃ Z ULUBIONYCH
-              </Button>
-            </div>
+
+            <ProductActionsButtons productId={productId} />
           </div>
         </div>
       </div>
 
       <div className="mt-4 flex w-full bg-white">
-        {["oferty", "obrazy", "opinie"].map((cat) => (
+        {sections.map((cat) => (
           <Button
             key={cat}
             onClick={() => setCategory(cat)}
@@ -139,14 +70,14 @@ const ProductPageTop = ({ id }: ProductPageProps) => {
         ))}
       </div>
 
-      {category === "oferty" && <ProductPageOffers id={id as string} />}
+      {category === "oferty" && <ProductPageOffers productId={productId} />}
       {category === "obrazy" && (
         <ProductPageImages
           name={productData?.name || ""}
           images={productData?.images || []}
         />
       )}
-      {category === "opinie" && <ProductPageComments id={id as string} />}
+      {category === "opinie" && <ProductPageComments productId={productId} />}
     </div>
   );
 };
