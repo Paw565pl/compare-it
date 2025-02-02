@@ -3,11 +3,23 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   images: {
-    domains: [
-      "f00.esfr.pl",
-      "images.morele.net",
-      "galeriachelm.com",
-      "morele.net",
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'f00.esfr.pl',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.morele.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'galeriachelm.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.morele.net',
+      },
     ],
   },
   async redirects() {
