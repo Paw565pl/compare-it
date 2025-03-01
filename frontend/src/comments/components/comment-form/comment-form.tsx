@@ -1,10 +1,23 @@
 "use client";
 
-import { CommentDto } from "@/comments/dtos/comment-dto";
 import { useCreateComment } from "@/comments/hooks/client/use-create-comment";
+import {
+  CommentFormValues,
+  commentSchema,
+} from "@/comments/schemas/comment-schema";
 import { Button } from "@/core/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/core/components/ui/form";
+import { Textarea } from "@/core/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-import { FormEvent, useRef } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 interface CommentFormProps {
@@ -15,64 +28,65 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
-  const inputRef = useRef<HTMLInputElement>(null);
   const { mutate: createComment } = useCreateComment(accessToken, productId);
+  const form = useForm<CommentFormValues>({
+    resolver: zodResolver(commentSchema),
+    defaultValues: {
+      text: "",
+    },
+  });
 
-  const handleCreateComment = (e: FormEvent) => {
-    e.preventDefault();
-    const text = inputRef.current?.value.trim() || "";
-    const commentDto: CommentDto = {
-      text,
-    };
-
-    createComment(commentDto, {
-      onSuccess: () => toast.success("Komentarz został dodany."),
-      onError: () => toast.error("Coś poszło nie tak!"),
-    });
+  const handleCreateComment = ({ text }: CommentFormValues) => {
+    createComment(
+      { text },
+      {
+        onSuccess: () => {
+          toast.success("Komentarz został dodany.");
+          form.reset();
+        },
+        onError: () => toast.error("Coś poszło nie tak!"),
+      },
+    );
   };
 
-  if (session === null)
-    return (
-      <form className="flex flex-col bg-white">
-        <div className="text-secondary m-4 font-semibold">Dodaj Komentarz</div>
-        <input
-          ref={inputRef}
-          min={10}
-          disabled
-          type="text"
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={session ? form.handleSubmit(handleCreateComment) : undefined}
+        className="bg-white"
+      >
+        <FormField
           name="text"
-          className="bg-background m-4 mt-0 p-2 text-sm"
-          placeholder="Zaloguj się aby dodać komentarz"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem className="bg-white p-4">
+              <FormLabel className="text-secondary text-xl font-semibold">
+                Dodaj Komentarz
+              </FormLabel>
+              <FormControl>
+                <Textarea
+                  disabled={!session}
+                  placeholder={
+                    session
+                      ? "Podziel się swoją opinią..."
+                      : "Zaloguj się aby dodać komentarz"
+                  }
+                  className="bg-background min-h-40 resize-none p-2 text-sm"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-
         <Button
-          disabled
+          disabled={!session}
           type="submit"
           className="bg-secondary hover:bg-hover mt-2 w-full font-semibold shadow-none transition-colors duration-200"
         >
           DODAJ KOMENTARZ
         </Button>
       </form>
-    );
-
-  return (
-    <form onSubmit={handleCreateComment} className="flex flex-col bg-white">
-      <div className="text-secondary m-4 font-semibold">Dodaj Komentarz</div>
-      <input
-        ref={inputRef}
-        min={10}
-        type="text"
-        name="text"
-        className="bg-background m-4 mt-0 cursor-pointer p-2 text-sm"
-        placeholder="Podziel się swoją opinią..."
-      />
-
-      <Button
-        type="submit"
-        className="bg-secondary hover:bg-hover mt-2 w-full font-semibold shadow-none transition-colors duration-200"
-      >
-        DODAJ KOMENTARZ
-      </Button>
-    </form>
+    </Form>
   );
 };
