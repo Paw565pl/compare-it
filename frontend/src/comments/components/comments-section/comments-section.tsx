@@ -14,7 +14,6 @@ export const CommentsSection = ({ productId }: CommentsSectionProps) => {
     hasNextPage,
     fetchNextPage,
   } = useFetchCommentPage(productId);
-  console.log(commentPages);
 
   const fetchedCommentsCount = commentPages?.pages.reduce(
     (acc, page) => acc + page.content.length,
