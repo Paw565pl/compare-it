@@ -37,7 +37,7 @@ const SearchBar = () => {
       <input
         ref={inputRef}
         type="text"
-        className="w-full p-2 focus:outline-none md:w-1/3"
+        className="w-full p-2 focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
       <button

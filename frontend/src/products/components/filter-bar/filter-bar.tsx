@@ -96,7 +96,7 @@ const FilterBar = () => {
               onChange={handlePriceChange}
               id="minPrice"
               placeholder="od"
-              className="w-full bg-background p-2 text-sm focus:outline-none"
+              className="w-full bg-background p-2 text-sm focus:outline-hidden"
             />
             <input
               type="text"
@@ -104,7 +104,7 @@ const FilterBar = () => {
               onChange={handlePriceChange}
               id="maxPrice"
               placeholder="do"
-              className="w-full bg-background p-2 text-sm focus:outline-none"
+              className="w-full bg-background p-2 text-sm focus:outline-hidden"
             />
           </div>
 
