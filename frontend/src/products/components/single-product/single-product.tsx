@@ -1,6 +1,6 @@
+import { formatCurrency } from "@/core/utils/format-currency";
 import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
-import { formatCurrency } from "@/products/utils/format-currency";
 import Link from "next/link";
 
 interface SingleProductProps {

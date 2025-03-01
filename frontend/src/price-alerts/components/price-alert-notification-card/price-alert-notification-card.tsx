@@ -7,11 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
+import { formatCurrency } from "@/core/utils/format-currency";
 import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
 import { ProductImage } from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
-import { formatCurrency } from "@/products/utils/format-currency";
 import { Clock, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";

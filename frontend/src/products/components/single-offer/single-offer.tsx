@@ -1,7 +1,7 @@
 import { Button } from "@/core/components/ui/button";
+import { formatCurrency } from "@/core/utils/format-currency";
 import { ShopImage } from "@/products/components/index";
 import { OfferEntity } from "@/products/entities/product-detail-entity";
-import { formatCurrency } from "@/products/utils/format-currency";
 import Link from "next/link";
 
 interface SingleOfferProps {
