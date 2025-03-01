@@ -73,7 +73,7 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
           )}
         </div>
 
-        <span className="text-2xl font-bold text-primary">
+        <span className="text-primary text-2xl font-bold">
           {formattedPrice}
         </span>
       </CardContent>

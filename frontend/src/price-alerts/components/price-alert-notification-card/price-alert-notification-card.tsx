@@ -78,7 +78,7 @@ export const PriceAlertNotificationCard = ({
             <span>{formattedNotificationDate}</span>
           </div>
 
-          <div className="text-2xl font-bold text-primary">
+          <div className="text-primary text-2xl font-bold">
             {formattedPrice}
           </div>
         </div>

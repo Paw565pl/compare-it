@@ -58,11 +58,11 @@ const FilterBar = () => {
 
   return (
     <>
-      <h2 className="mb-1 ml-4 mt-6 text-2xl font-bold text-secondary sm:ml-0">
+      <h2 className="text-secondary mt-6 mb-1 ml-4 text-2xl font-bold sm:ml-0">
         Filtry
       </h2>
-      <div className="mb-4 mt-2 flex flex-col items-start border border-background bg-white">
-        <h3 className="mb-2 pl-4 pt-2 text-xl font-bold text-secondary">
+      <div className="border-background mt-2 mb-4 flex flex-col items-start border bg-white">
+        <h3 className="text-secondary mb-2 pt-2 pl-4 text-xl font-bold">
           Sklepy
         </h3>
         <ul className="w-full">
@@ -71,7 +71,7 @@ const FilterBar = () => {
             .map((shop, index) => (
               <li
                 key={index}
-                className="cursor-pointer px-4 py-2 transition-colors duration-200 hover:bg-hover hover:text-white sm:text-lg"
+                className="hover:bg-hover cursor-pointer px-4 py-2 transition-colors duration-200 hover:text-white sm:text-lg"
               >
                 <label className="flex items-center space-x-2 hover:cursor-pointer">
                   <input
@@ -87,7 +87,7 @@ const FilterBar = () => {
               </li>
             ))}
         </ul>
-        <h3 className="pl-4 pt-2 text-xl font-bold text-secondary">Cena</h3>
+        <h3 className="text-secondary pt-2 pl-4 text-xl font-bold">Cena</h3>
         <div className="flex w-full flex-col justify-start">
           <div className="mb-4 w-full space-y-1 p-4">
             <input
@@ -96,7 +96,7 @@ const FilterBar = () => {
               onChange={handlePriceChange}
               id="minPrice"
               placeholder="od"
-              className="w-full bg-background p-2 text-sm focus:outline-hidden"
+              className="bg-background w-full p-2 text-sm focus:outline-hidden"
             />
             <input
               type="text"
@@ -104,13 +104,13 @@ const FilterBar = () => {
               onChange={handlePriceChange}
               id="maxPrice"
               placeholder="do"
-              className="w-full bg-background p-2 text-sm focus:outline-hidden"
+              className="bg-background w-full p-2 text-sm focus:outline-hidden"
             />
           </div>
 
           <button
             onClick={applyFilters}
-            className="bg-secondary px-4 py-2 text-white hover:bg-hover"
+            className="bg-secondary hover:bg-hover px-4 py-2 text-white"
           >
             FILTRUJ
           </button>

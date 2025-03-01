@@ -25,7 +25,7 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
             href={offer.url}
             target="_blank"
             rel="nofollow noopener"
-            className="justify-center text-lg font-semibold text-secondary"
+            className="text-secondary justify-center text-lg font-semibold"
           >
             {formattedPrice}
           </Link>
@@ -43,7 +43,7 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
         </div>
         <Button
           asChild
-          className="bg-secondary font-semibold shadow-none hover:bg-hover"
+          className="bg-secondary hover:bg-hover font-semibold shadow-none"
         >
           <Link href={offer.url} target="_blank" rel="nofollow noopener">
             PRZEJDŹ DO OFERTY
