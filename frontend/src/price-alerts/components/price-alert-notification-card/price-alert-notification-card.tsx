@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/core/components/ui/card";
 import { formatCurrency } from "@/core/utils/format-currency";
+import { formatDate } from "@/core/utils/format-date";
 import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
 import { ProductImage } from "@/products/components";
@@ -42,12 +43,7 @@ export const PriceAlertNotificationCard = ({
   };
 
   const formattedPrice = formatCurrency(priceAlert.currentLowestPrice, "PLN");
-
-  const notificationDate = new Date(priceAlert.lastNotificationSent);
-  const formattedNotificationDate = new Intl.DateTimeFormat("pl-PL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(notificationDate);
+  const formattedNotificationDate = formatDate(priceAlert.lastNotificationSent);
 
   return (
     <Card className="w-[22rem]">

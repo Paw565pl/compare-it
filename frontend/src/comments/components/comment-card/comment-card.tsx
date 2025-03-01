@@ -4,6 +4,7 @@ import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
 import { DeleteConfirmationAlertDialog } from "@/core/components/index";
 import { Button } from "@/core/components/ui/button";
+import { formatDate } from "@/core/utils/format-date";
 import { RatingDto } from "@/rating/dto/rating-dto";
 import { useCreateRating } from "@/rating/hooks/client/use-create-rating";
 import { Frown, Smile } from "lucide-react";
@@ -60,11 +61,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
     });
   };
 
-  const createdAtDate = new Date(comment.createdAt);
-  const formattedCreatedAtDate = new Intl.DateTimeFormat("pl-PL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(createdAtDate);
+  const formattedCreatedAtDate = formatDate(comment.createdAt);
 
   return (
     <div className="bg-white p-4">
