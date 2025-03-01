@@ -34,21 +34,21 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
   if (session === null)
     return (
       <form className="flex flex-col bg-white">
-        <div className="m-4 font-semibold text-secondary">Dodaj Komentarz</div>
+        <div className="text-secondary m-4 font-semibold">Dodaj Komentarz</div>
         <input
           ref={inputRef}
           min={10}
           disabled
           type="text"
           name="text"
-          className="m-4 mt-0 bg-background p-2 text-sm"
+          className="bg-background m-4 mt-0 p-2 text-sm"
           placeholder="Zaloguj się aby dodać komentarz"
         />
 
         <Button
           disabled
           type="submit"
-          className="mt-2 w-full bg-secondary font-semibold shadow-none transition-colors duration-200 hover:bg-hover"
+          className="bg-secondary hover:bg-hover mt-2 w-full font-semibold shadow-none transition-colors duration-200"
         >
           DODAJ KOMENTARZ
         </Button>
@@ -57,19 +57,19 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
 
   return (
     <form onSubmit={handleCreateComment} className="flex flex-col bg-white">
-      <div className="m-4 font-semibold text-secondary">Dodaj Komentarz</div>
+      <div className="text-secondary m-4 font-semibold">Dodaj Komentarz</div>
       <input
         ref={inputRef}
         min={10}
         type="text"
         name="text"
-        className="m-4 mt-0 cursor-pointer bg-background p-2 text-sm"
+        className="bg-background m-4 mt-0 cursor-pointer p-2 text-sm"
         placeholder="Podziel się swoją opinią..."
       />
 
       <Button
         type="submit"
-        className="mt-2 w-full bg-secondary font-semibold shadow-none transition-colors duration-200 hover:bg-hover"
+        className="bg-secondary hover:bg-hover mt-2 w-full font-semibold shadow-none transition-colors duration-200"
       >
         DODAJ KOMENTARZ
       </Button>

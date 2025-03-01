@@ -1,9 +1,9 @@
 "use client";
 
+import { CommentsSection } from "@/comments/components";
 import { Button } from "@/core/components/ui/button";
 import {
   ProductActionsButtons,
-  ProductPageComments,
   ProductPageImage,
   ProductPageImages,
   ProductPageOffers,
@@ -27,8 +27,8 @@ const ProductPageTop = ({ productId }: ProductPageTopProps) => {
 
   return (
     <div className="flex flex-col">
-      <div className="border-grey-100 flex flex-col bg-white p-6 text-secondary md:flex-row">
-        <div className="mb-4 shrink-0 self-center md:mb-0 md:mr-6">
+      <div className="border-grey-100 text-secondary flex flex-col bg-white p-6 md:flex-row">
+        <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
           <ProductPageImage
             name={productData?.name || ""}
             imageUrl={productData?.images[0] || ""}
@@ -59,10 +59,10 @@ const ProductPageTop = ({ productId }: ProductPageTopProps) => {
           <Button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`w-full border-b-2 border-secondary font-semibold shadow-none transition-colors duration-200 ${
+            className={`border-secondary w-full border-b-2 font-semibold shadow-none transition-colors duration-200 ${
               category === cat
-                ? "bg-secondary text-white hover:bg-secondary"
-                : "bg-background text-gray-600 hover:bg-hover hover:text-white"
+                ? "bg-secondary hover:bg-secondary text-white"
+                : "bg-background hover:bg-hover text-gray-600 hover:text-white"
             }`}
           >
             {cat.toUpperCase()}
@@ -77,7 +77,7 @@ const ProductPageTop = ({ productId }: ProductPageTopProps) => {
           images={productData?.images || []}
         />
       )}
-      {category === "opinie" && <ProductPageComments productId={productId} />}
+      {category === "opinie" && <CommentsSection productId={productId} />}
     </div>
   );
 };

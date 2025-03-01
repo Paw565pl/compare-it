@@ -1,3 +1,5 @@
+"use client";
+
 import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
 import { DeleteConfirmationAlertDialog } from "@/core/components/index";
@@ -8,14 +10,13 @@ import { Frown, Smile } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
-interface SingleCommentProps {
+interface CommentCardProps {
   comment: CommentEntity;
   productId: string;
 }
 
-export const SingleComment = ({ comment, productId }: SingleCommentProps) => {
+export const CommentCard = ({ comment, productId }: CommentCardProps) => {
   const { data: session } = useSession();
-
   const accessToken = session?.tokens?.accessToken as string;
 
   const { mutate: deleteComment } = useDeleteComment(
@@ -68,10 +69,10 @@ export const SingleComment = ({ comment, productId }: SingleCommentProps) => {
   return (
     <div className="bg-white p-4">
       <div className="flex items-center gap-4">
-        <div className="text-xl font-semibold text-secondary">
+        <div className="text-secondary text-xl font-semibold">
           {comment.author}
         </div>
-        <div className="text-sm text-muted">{formattedCreatedAtDate}</div>
+        <div className="text-muted text-sm">{formattedCreatedAtDate}</div>
         {isAuthor && (
           <DeleteConfirmationAlertDialog
             alertDialogTriggerClassName="bg-white p-1 text-red-500 shadow-none hover:bg-background"
@@ -84,7 +85,7 @@ export const SingleComment = ({ comment, productId }: SingleCommentProps) => {
         <div className="flex items-center">
           <Button
             onClick={handleCreatePositiveRating}
-            className="bg-white p-1 text-secondary shadow-none hover:bg-white"
+            className="text-secondary bg-white p-1 shadow-none hover:bg-white"
           >
             <Smile />
           </Button>
