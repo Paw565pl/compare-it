@@ -1,6 +1,6 @@
 name: Frontend CI
 run-name: ${{ github.actor }} is building frontend project
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build-and-test:
