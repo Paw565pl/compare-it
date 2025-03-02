@@ -32,7 +32,7 @@ const SortBar = () => {
     <div className="text-md relative items-center">
       <button
         onClick={toggleDropdown}
-        className="flex bg-secondary px-4 py-2 text-white transition-colors hover:bg-hover"
+        className="bg-secondary hover:bg-hover flex px-4 py-2 text-white transition-colors"
       >
         SORTUJ
         <ChevronDown className="w-6" />
@@ -44,7 +44,7 @@ const SortBar = () => {
             <li key={index}>
               <button
                 onClick={() => handleSortChange(sortValue)}
-                className="w-full cursor-pointer px-4 py-2 text-left hover:bg-hover hover:text-white"
+                className="hover:bg-hover w-full cursor-pointer px-4 py-2 text-left hover:text-white"
               >
                 {sortLabel}
               </button>

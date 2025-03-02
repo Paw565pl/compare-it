@@ -1,7 +1,7 @@
 import { Button } from "@/core/components/ui/button";
+import { formatCurrency } from "@/core/utils/format-currency";
 import { ShopImage } from "@/products/components/index";
 import { OfferEntity } from "@/products/entities/product-detail-entity";
-import { formatCurrency } from "@/products/utils/format-currency";
 import Link from "next/link";
 
 interface SingleOfferProps {
@@ -25,7 +25,7 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
             href={offer.url}
             target="_blank"
             rel="nofollow noopener"
-            className="justify-center text-lg font-semibold text-secondary"
+            className="text-secondary justify-center text-lg font-semibold"
           >
             {formattedPrice}
           </Link>
@@ -43,7 +43,7 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
         </div>
         <Button
           asChild
-          className="bg-secondary font-semibold shadow-none hover:bg-hover"
+          className="bg-secondary hover:bg-hover font-semibold shadow-none"
         >
           <Link href={offer.url} target="_blank" rel="nofollow noopener">
             PRZEJDŹ DO OFERTY

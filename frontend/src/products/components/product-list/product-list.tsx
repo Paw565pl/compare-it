@@ -27,7 +27,7 @@ const ProductList = () => {
   return (
     <>
       <div className="mb-1 flex justify-between">
-        <h1 className="mb-2 ml-4 text-2xl font-bold text-secondary sm:ml-0">
+        <h1 className="text-secondary mb-2 ml-4 text-2xl font-bold sm:ml-0">
           Produkty
         </h1>
         <SortBar />
@@ -45,7 +45,7 @@ const ProductList = () => {
       </ul>
       <div className="mt-6 flex items-center justify-between">
         <button
-          className="m-4 mt-0 bg-secondary px-4 py-2 text-white hover:bg-secondary disabled:bg-gray-500 sm:m-0"
+          className="bg-secondary hover:bg-secondary m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0"
           onClick={() =>
             setPagination((prev) => ({
               ...prev,
@@ -58,7 +58,7 @@ const ProductList = () => {
         </button>
         <span className="text-gray-700">Strona {pagination.page + 1}</span>
         <button
-          className="m-4 mt-0 bg-secondary px-4 py-2 text-white hover:bg-hover disabled:bg-gray-500 sm:m-0"
+          className="bg-secondary hover:bg-hover m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0"
           onClick={() =>
             setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
           }

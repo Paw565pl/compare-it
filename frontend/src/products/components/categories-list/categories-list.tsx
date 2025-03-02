@@ -19,7 +19,7 @@ const CategoriesList = () => {
 
   return (
     <div className="flex flex-col items-start">
-      <h2 className="mb-1 ml-4 text-2xl font-bold text-secondary sm:ml-0">
+      <h2 className="text-secondary mb-1 ml-4 text-2xl font-bold sm:ml-0">
         Kategorie
       </h2>
       <ul className="mt-2 w-full bg-white">
