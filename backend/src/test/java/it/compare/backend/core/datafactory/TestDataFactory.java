@@ -6,7 +6,7 @@ public interface TestDataFactory<T> {
 
     T createOne();
 
-    Iterable<T> createMany(int count);
     Collection<T> createMany(int count);
 
+    void clear();
 }
