@@ -23,7 +23,8 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         this.productRepository = productRepository;
     }
 
-    private Product generate() {
+    @Override
+    public Product generate() {
         var priceStamp = new PriceStamp(
                 BigDecimal.valueOf(faker.number().positive()),
                 faker.currency().toString(),
