@@ -1,0 +1,13 @@
+spring:
+  mail:
+    host: smtp4dev
+    port: 25
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls.enable: false
+
+allowed-origin: ""
