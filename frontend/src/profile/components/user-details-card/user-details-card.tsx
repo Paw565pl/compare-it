@@ -41,7 +41,7 @@ export const UserDetailsCard = () => {
           <div className="space-y-1.5">
             <div>
               <h3 className="text-lg font-medium">{user.username}</h3>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-muted-foreground text-sm">{user.email}</p>
             </div>
           </div>
         </CardContent>

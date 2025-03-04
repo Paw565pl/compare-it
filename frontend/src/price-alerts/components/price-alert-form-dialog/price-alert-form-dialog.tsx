@@ -100,7 +100,7 @@ export const PriceAlertFormDialog = ({
                         className="border-secondary data-[state=checked]:bg-secondary data-[state=checked]:text-secondary-foreground"
                       />
                     </FormControl>
-                    <FormLabel className="!mt-0">
+                    <FormLabel className="mt-0!">
                       Uwzględnić produkty z outletu
                     </FormLabel>
                   </div>
