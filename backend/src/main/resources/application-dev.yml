@@ -32,3 +32,5 @@ logging:
               MongoTemplate: debug
             repository:
               query: debug
+
+allowed-origin: "http://localhost:3000"
