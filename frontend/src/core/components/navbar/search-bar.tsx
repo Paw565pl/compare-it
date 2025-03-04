@@ -37,12 +37,12 @@ const SearchBar = () => {
       <input
         ref={inputRef}
         type="text"
-        className="w-full p-2 focus:outline-none md:w-1/3"
+        className="w-full bg-white p-2 focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
       <button
         type="submit"
-        className="flex items-center bg-secondary p-2 font-medium text-white transition-colors duration-300 hover:bg-hover"
+        className="bg-secondary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors duration-300"
       >
         <Search className="text-lg" />
         <div className="ml-2 hidden md:block">WYSZUKAJ</div>

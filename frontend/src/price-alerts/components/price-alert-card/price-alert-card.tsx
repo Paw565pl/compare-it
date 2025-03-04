@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
+import { formatCurrency } from "@/core/utils/format-currency";
 import { PriceAlertFormDialog } from "@/price-alerts/components";
 import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
 import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
@@ -16,7 +17,6 @@ import { useUpdatePriceAlert } from "@/price-alerts/hooks/client/use-update-pric
 import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
 import { ProductImage } from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
-import { formatCurrency } from "@/products/utils/format-currency";
 import { Pen } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";

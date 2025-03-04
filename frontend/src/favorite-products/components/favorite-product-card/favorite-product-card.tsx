@@ -7,10 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
+import { formatCurrency } from "@/core/utils/format-currency";
 import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
 import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
-import { formatCurrency } from "@/products/utils/format-currency";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -73,7 +73,7 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
           )}
         </div>
 
-        <span className="text-2xl font-bold text-primary">
+        <span className="text-primary text-2xl font-bold">
           {formattedPrice}
         </span>
       </CardContent>

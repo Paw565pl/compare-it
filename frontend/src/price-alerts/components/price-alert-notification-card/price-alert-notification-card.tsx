@@ -7,11 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
+import { formatCurrency } from "@/core/utils/format-currency";
+import { formatDate } from "@/core/utils/format-date";
 import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
 import { ProductImage } from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
-import { formatCurrency } from "@/products/utils/format-currency";
 import { Clock, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -42,12 +43,7 @@ export const PriceAlertNotificationCard = ({
   };
 
   const formattedPrice = formatCurrency(priceAlert.currentLowestPrice, "PLN");
-
-  const notificationDate = new Date(priceAlert.lastNotificationSent);
-  const formattedNotificationDate = new Intl.DateTimeFormat("pl-PL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(notificationDate);
+  const formattedNotificationDate = formatDate(priceAlert.lastNotificationSent);
 
   return (
     <Card className="w-[22rem]">
@@ -78,7 +74,7 @@ export const PriceAlertNotificationCard = ({
             <span>{formattedNotificationDate}</span>
           </div>
 
-          <div className="text-2xl font-bold text-primary">
+          <div className="text-primary text-2xl font-bold">
             {formattedPrice}
           </div>
         </div>
