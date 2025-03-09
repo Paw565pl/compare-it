@@ -2,9 +2,12 @@ FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
-COPY . .
+COPY gradle gradle
+COPY gradlew build.gradle.kts settings.gradle.kts .
 
-RUN chmod +x ./gradlew
+RUN chmod +x ./gradlew && ./gradlew dependencies --no-daemon
+
+COPY . .
 
 EXPOSE 8080
 

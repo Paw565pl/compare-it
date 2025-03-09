@@ -2,9 +2,14 @@ FROM eclipse-temurin:21-jdk-alpine AS builder
 
 WORKDIR /app
 
+COPY gradle gradle
+COPY gradlew build.gradle.kts settings.gradle.kts .
+
+RUN chmod +x ./gradlew && ./gradlew dependencies --no-daemon
+
 COPY . .
 
-RUN chmod +x ./gradlew && ./gradlew --no-daemon clean bootJar
+RUN ./gradlew --no-daemon clean bootJar
 
 FROM eclipse-temurin:21-jre-alpine
 
