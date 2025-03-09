@@ -14,7 +14,7 @@ const fetchCommentPage = async (
   paginationOptions?: PaginationOptions,
 ) => {
   const { data } = await apiService.get<PaginatedData<CommentEntity>>(
-    `/v1/products/${productId}/comments`,
+    `/api/v1/products/${productId}/comments`,
     {
       params: {
         page: pageParam,
