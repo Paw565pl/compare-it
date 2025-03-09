@@ -13,7 +13,7 @@ const deleteComment = async (
   commentId: string,
 ) => {
   const { data } = await apiService.delete<void>(
-    `/v1/products/${productId}/comments/${commentId}`,
+    `/api/v1/products/${productId}/comments/${commentId}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

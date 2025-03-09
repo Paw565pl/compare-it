@@ -7,7 +7,7 @@ import { AxiosError } from "axios";
 
 const fetchProduct = async (id: string) => {
   const { data } = await apiService.get<ProductDetailEntity>(
-    `/v1/products/${id}`,
+    `/api/v1/products/${id}`,
   );
   return data;
 };

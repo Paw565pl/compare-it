@@ -4,7 +4,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 const fetchShopsList = async () => {
-  const { data } = await apiService.get<string[]>("/v1/shops");
+  const { data } = await apiService.get<string[]>("/api/v1/shops");
   return data;
 };
 

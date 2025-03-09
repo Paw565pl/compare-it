@@ -8,7 +8,7 @@ import { AxiosError } from "axios";
 
 const deletePriceAlert = async (accessToken: string, priceAlertId: string) => {
   const { data } = await apiService.delete<void>(
-    `/v1/price-alerts/${priceAlertId}`,
+    `/api/v1/price-alerts/${priceAlertId}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

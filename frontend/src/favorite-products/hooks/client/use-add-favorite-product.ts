@@ -12,7 +12,7 @@ const addFavoriteProduct = async (
   favoriteProductDto: FavoriteProductDto,
 ) => {
   const { data } = await apiService.put<void>(
-    "/v1/favorite-products",
+    "/api/v1/favorite-products",
     favoriteProductDto,
     {
       headers: {

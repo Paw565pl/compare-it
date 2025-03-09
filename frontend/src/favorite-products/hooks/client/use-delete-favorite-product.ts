@@ -11,7 +11,7 @@ const deleteFavoriteProduct = async (
   accessToken: string,
   favoriteProductDto: FavoriteProductDto,
 ) => {
-  const { data } = await apiService.delete<void>("/v1/favorite-products", {
+  const { data } = await apiService.delete<void>("/api/v1/favorite-products", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

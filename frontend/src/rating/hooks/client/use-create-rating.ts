@@ -15,7 +15,7 @@ const createRating = async (
   ratingDto: RatingDto,
 ) => {
   const { data } = await apiService.post<RatingEntity>(
-    `/v1/products/${productId}/comments/${commentId}/rate`,
+    `/api/v1/products/${productId}/comments/${commentId}/rate`,
     ratingDto,
     {
       headers: {

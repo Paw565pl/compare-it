@@ -13,7 +13,7 @@ const fetchFavoriteProductsPage = async (
   paginationOptions?: PaginationOptions,
 ) => {
   const { data } = await apiService.get<PaginatedData<ProductListEntity>>(
-    "/v1/favorite-products",
+    "/api/v1/favorite-products",
     {
       params: {
         page: pageParam,

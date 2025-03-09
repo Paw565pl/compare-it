@@ -12,7 +12,7 @@ const fetchRating = async (
   commentId: string,
 ) => {
   const { data } = await apiService.get<RatingEntity>(
-    `/v1/products/${productId}/comments/${commentId}/rate`,
+    `/api/v1/products/${productId}/comments/${commentId}/rate`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
