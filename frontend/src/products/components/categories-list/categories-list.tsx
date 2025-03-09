@@ -13,7 +13,13 @@ const CategoriesList = () => {
   const [, setPagination] = useQueryStates(productPaginationSearchParams);
 
   const handleCategoryChange = (category: string | null) => {
-    setFilters({ category });
+    setFilters({
+      name: null,
+      category,
+      minPrice: null,
+      maxPrice: null,
+      shop: null,
+    });
     setPagination((prev) => ({ ...prev, page: 0 }));
   };
 
