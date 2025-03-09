@@ -43,16 +43,19 @@ const FilterBar = () => {
   };
 
   const applyFilters = () => {
-    const filtersWithShops = {
+    const shop =
+      tempProductFilters.shop.length > 0
+        ? tempProductFilters.shop.join(",")
+        : null;
+    const filters = {
       ...tempProductFilters,
-      shop: tempProductFilters.shop.join(","),
+      shop,
     };
 
     setProductFilters((prevFilters) => ({
       ...prevFilters,
-      ...filtersWithShops,
+      ...filters,
     }));
-
     setPagination((prev) => ({ ...prev, page: 0 }));
   };
 
