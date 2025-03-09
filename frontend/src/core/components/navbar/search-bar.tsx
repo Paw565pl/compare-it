@@ -16,7 +16,10 @@ const SearchBar = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const name = inputRef.current?.value.trim();
-    if (name) {
+
+    if (!name) {
+      setProductFilters({ name: null });
+    } else {
       setProductFilters({
         name,
         category: null,
