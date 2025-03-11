@@ -8,7 +8,7 @@ import { AxiosError } from "axios";
 
 const fetchComment = async (productId: string, commentId: string) => {
   const { data } = await apiService.get<CommentEntity>(
-    `/v1/products/${productId}/comments/${commentId}`,
+    `/api/v1/products/${productId}/comments/${commentId}`,
   );
   return data;
 };
