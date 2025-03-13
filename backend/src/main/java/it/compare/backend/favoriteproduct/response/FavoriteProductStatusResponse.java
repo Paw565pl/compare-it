@@ -9,6 +9,6 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class FavoriteProductCheckResponse {
+public class FavoriteProductStatusResponse {
     Boolean isFavorite;
 }
