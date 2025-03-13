@@ -5,7 +5,7 @@ import { favoriteProductsQueryKey } from "@/favorite-products/hooks/query-option
 import { queryOptions } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
-const fetchIsProductFavorite = async (
+const fetchFavoriteProductStatus = async (
   accessToken: string,
   productId: string,
 ) => {
@@ -20,7 +20,7 @@ const fetchIsProductFavorite = async (
   return data;
 };
 
-export const getIsProductFavoriteQueryOptions = (
+export const getFavoriteProductStatusQueryOptions = (
   accessToken: string,
   productId: string,
   userId: string,
@@ -33,6 +33,6 @@ export const getIsProductFavoriteQueryOptions = (
       productId,
       userId,
     ] as const,
-    queryFn: () => fetchIsProductFavorite(accessToken, productId),
+    queryFn: () => fetchFavoriteProductStatus(accessToken, productId),
     staleTime: 60 * 60 * 1000, // 60 minutes
   });
