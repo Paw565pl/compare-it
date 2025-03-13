@@ -5,6 +5,7 @@ import it.compare.backend.auth.repository.UserRepository;
 import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
 import it.compare.backend.favoriteproduct.model.FavoriteProduct;
 import it.compare.backend.favoriteproduct.repository.FavoriteProductRepository;
+import it.compare.backend.favoriteproduct.response.FavoriteProductCheckResponse;
 import it.compare.backend.product.mapper.ProductMapper;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.response.ProductListResponse;
@@ -66,6 +67,15 @@ public class FavoriteProductService {
                 products.stream().map(productMapper::toListResponse).toList();
 
         return new PageImpl<>(productsResponse, pageable, total);
+    }
+
+    public FavoriteProductCheckResponse findIsProductFavorite(OAuthUserDetails oAuthUserDetails, String productId) {
+        var favoriteProductCheckResponse = new FavoriteProductCheckResponse();
+
+        var isFavorite = favoriteProductRepository.existsByUserIdAndProductId(oAuthUserDetails.getId(), productId);
+        favoriteProductCheckResponse.setIsFavorite(isFavorite);
+
+        return favoriteProductCheckResponse;
     }
 
     @Transactional

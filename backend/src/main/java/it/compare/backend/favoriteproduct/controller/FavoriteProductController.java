@@ -3,6 +3,7 @@ package it.compare.backend.favoriteproduct.controller;
 import it.compare.backend.auth.annotation.IsAuthenticated;
 import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
+import it.compare.backend.favoriteproduct.response.FavoriteProductCheckResponse;
 import it.compare.backend.favoriteproduct.service.FavoriteProductService;
 import it.compare.backend.product.response.ProductListResponse;
 import jakarta.validation.Valid;
@@ -25,6 +26,12 @@ public class FavoriteProductController {
     @GetMapping
     public Page<ProductListResponse> findAllByUser(@AuthenticationPrincipal Jwt jwt, Pageable pageable) {
         return favoriteProductService.findAllByUser(OAuthUserDetails.fromJwt(jwt), pageable);
+    }
+
+    @GetMapping("/check/{productId}")
+    public FavoriteProductCheckResponse findIsProductFavorite(
+            @AuthenticationPrincipal Jwt jwt, @PathVariable String productId) {
+        return favoriteProductService.findIsProductFavorite(OAuthUserDetails.fromJwt(jwt), productId);
     }
 
     @PutMapping
