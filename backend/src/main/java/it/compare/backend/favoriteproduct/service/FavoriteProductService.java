@@ -71,6 +71,7 @@ public class FavoriteProductService {
 
     public FavoriteProductStatusResponse findFavoriteProductStatus(
             OAuthUserDetails oAuthUserDetails, String productId) {
+        productService.findProductOrThrow(productId);
         var favoriteProductStatusResponse = new FavoriteProductStatusResponse();
 
         var isFavorite = favoriteProductRepository.existsByUserIdAndProductId(oAuthUserDetails.getId(), productId);
