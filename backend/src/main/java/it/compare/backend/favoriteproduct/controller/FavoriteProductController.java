@@ -34,7 +34,8 @@ public class FavoriteProductController {
         return favoriteProductService.findIsProductFavorite(OAuthUserDetails.fromJwt(jwt), productId);
     }
 
-    @PutMapping
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public void addFavoriteProduct(
             @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody FavoriteProductDto favoriteProductDto) {
         favoriteProductService.addFavoriteProduct(OAuthUserDetails.fromJwt(jwt), favoriteProductDto);
