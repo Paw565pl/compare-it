@@ -49,64 +49,55 @@ public class ProductSearchCriteria {
     private Pageable pageable;
 
     public Aggregation toAggregation() {
-        // Build the aggregation pipeline
-        List<AggregationOperation> operations = buildAggregationPipeline();
+        List<AggregationOperation> operations = new ArrayList<>();
+
+        // Add all aggregation operations
+        operations.addAll(getBaseAggregationOperations());
+        operations.addAll(getPriceFilterOperations());
+        operations.addAll(getGroupingOperations());
+        operations.addAll(getSortingAndPaginationOperations());
+        operations.add(getProjectionOperation());
+
         return Aggregation.newAggregation(operations);
     }
 
-    private List<AggregationOperation> buildAggregationPipeline() {
+    public List<AggregationOperation> getBaseAggregationOperations() {
         List<AggregationOperation> operations = new ArrayList<>();
 
-        // Add initial operations
-        addInitialOperations(operations);
+        // Extract ID as string
+        operations.add(
+                context -> new Document(ADD_FIELDS, new Document(STRING_ID, new Document("$toString", "$" + ID))));
 
-        // Add price filtering operations
-        addPriceFilterOperations(operations);
+        // Basic filtering (category, name, etc.)
+        operations.add(Aggregation.match(createBaseCriteria()));
 
-        // Add grouping and lowest price operations
-        addGroupingAndLowestPriceOperations(operations);
+        // Unwinding offers
+        operations.add(Aggregation.unwind(OFFERS, true));
 
-        // Add sorting and pagination
-        addSortingAndPaginationOperations(operations);
+        // Create temporary fields for shop and its name
+        operations.add(context ->
+                new Document(ADD_FIELDS, new Document(SHOP_OBJECT, OFFERS_SHOP).append("shopHumanName", OFFERS_SHOP)));
 
-        // Add final projection
-        addFinalProjection(operations);
+        // Sort offers by time to find the latest prices
+        operations.add(context -> new Document(
+                "$sort", new Document(ID, 1).append(OFFERS_SHOP_FIELD, 1).append("offers.priceHistory.timestamp", -1)));
+
+        // Unwinding price history
+        operations.add(Aggregation.unwind("offers.priceHistory", true));
 
         return operations;
     }
 
-    private void addInitialOperations(List<AggregationOperation> operations) {
-        // 1. Extract ID as string
-        operations.add(
-                context -> new Document(ADD_FIELDS, new Document(STRING_ID, new Document("$toString", "$" + ID))));
+    public List<AggregationOperation> getPriceFilterOperations() {
+        List<AggregationOperation> operations = new ArrayList<>();
 
-        // 2. Basic filtering (category, name, etc.)
-        operations.add(Aggregation.match(createBaseCriteria()));
+        // Group by product and shop to find the latest prices for each offer
+        operations.add(context -> createGroupByProductAndShopStage());
 
-        // 3. Unwinding offers
-        operations.add(Aggregation.unwind(OFFERS, true));
-
-        // 4. Create temporary fields for shop and its name
-        operations.add(context ->
-                new Document(ADD_FIELDS, new Document(SHOP_OBJECT, OFFERS_SHOP).append("shopHumanName", OFFERS_SHOP)));
-
-        // 5. Sort offers by time to find the latest prices
-        operations.add(context -> new Document(
-                "$sort", new Document(ID, 1).append(OFFERS_SHOP_FIELD, 1).append("offers.priceHistory.timestamp", -1)));
-
-        // 6. Unwinding price history
-        operations.add(Aggregation.unwind("offers.priceHistory", true));
-    }
-
-    private void addPriceFilterOperations(List<AggregationOperation> operations) {
-        // 7. Group by product and shop to find the latest prices for each offer
-        Document groupByProductAndShop = createGroupByProductAndShopStage();
-        operations.add(context -> groupByProductAndShop);
-
-        // 8. Filter unavailable offers
+        // Filter unavailable offers
         operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(true)));
 
-        // 9. Convert price to number
+        // Convert price to number
         operations.add(context -> new Document(
                 ADD_FIELDS,
                 new Document(
@@ -118,36 +109,45 @@ public class ProductSearchCriteria {
                                         .append("onError", 0.0)
                                         .append("onNull", 0.0)))));
 
-        // 10. Filter by price
-        addPriceRangeFilter(operations);
+        // Add price range filter if applicable
+        if (minPrice != null || maxPrice != null) {
+            operations.add(createPriceRangeFilterOperation());
+        }
+
+        return operations;
     }
 
-    private void addGroupingAndLowestPriceOperations(List<AggregationOperation> operations) {
-        // 11. Group by product to find the lowest price
-        Document groupByProduct = createGroupByProductStage();
-        operations.add(context -> groupByProduct);
+    public List<AggregationOperation> getGroupingOperations() {
+        List<AggregationOperation> operations = new ArrayList<>();
 
-        // 12. Find the offer with the lowest price
-        Document lowestPriceFields = createLowestPriceFieldsStage();
-        operations.add(context -> lowestPriceFields);
+        // Group by product to find the lowest price
+        operations.add(context -> createGroupByProductStage());
+
+        // Find the offer with the lowest price
+        operations.add(context -> createLowestPriceFieldsStage());
+
+        return operations;
     }
 
-    private void addSortingAndPaginationOperations(List<AggregationOperation> operations) {
-        // 14. Sorting
+    public List<AggregationOperation> getSortingAndPaginationOperations() {
+        List<AggregationOperation> operations = new ArrayList<>();
+
+        // Add sorting if applicable
         if (pageable != null && pageable.getSort().isSorted()) {
             operations.add(createSortOperation());
         }
 
-        // 15. Pagination
+        // Add pagination if applicable
         if (pageable != null) {
             operations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
             operations.add(Aggregation.limit(pageable.getPageSize()));
         }
+
+        return operations;
     }
 
-    private void addFinalProjection(List<AggregationOperation> operations) {
-        // 16. Final projection with precise field mapping and null protection
-        operations.add(context -> new Document(
+    public AggregationOperation getProjectionOperation() {
+        return context -> new Document(
                 "$project",
                 new Document()
                         .append("id", "$" + STRING_ID)
@@ -159,7 +159,7 @@ public class ProductSearchCriteria {
                         .append("lowestPriceCurrency", "$" + LOWEST_OFFER + "." + CURRENCY)
                         .append("lowestPriceShop", "$" + LOWEST_OFFER + "." + SHOP_NAME)
                         .append("offerCount", 1)
-                        .append(IS_AVAILABLE, "$" + LOWEST_OFFER + "." + IS_AVAILABLE)));
+                        .append(IS_AVAILABLE, "$" + LOWEST_OFFER + "." + IS_AVAILABLE));
     }
 
     private Document createGroupByProductAndShopStage() {
@@ -233,30 +233,26 @@ public class ProductSearchCriteria {
                         .append("mainImageUrl", new Document("$arrayElemAt", Arrays.asList("$" + IMAGES_FIELD, 0))));
     }
 
-    private void addPriceRangeFilter(List<AggregationOperation> operations) {
-        if (minPrice != null || maxPrice != null) {
-            operations.add(context -> {
-                Document matchDoc = new Document(MATCH, new Document());
+    private AggregationOperation createPriceRangeFilterOperation() {
+        return context -> {
+            Document matchDoc = new Document(MATCH, new Document());
 
-                if (minPrice != null) {
+            if (minPrice != null) {
+                matchDoc.get(MATCH, Document.class).append(NUMERIC_PRICE, new Document("$gte", minPrice.doubleValue()));
+            }
+
+            if (maxPrice != null) {
+                Document numericPriceDoc = matchDoc.get(MATCH, Document.class).get(NUMERIC_PRICE, Document.class);
+                if (numericPriceDoc == null) {
                     matchDoc.get(MATCH, Document.class)
-                            .append(NUMERIC_PRICE, new Document("$gte", minPrice.doubleValue()));
+                            .append(NUMERIC_PRICE, new Document("$lte", maxPrice.doubleValue()));
+                } else {
+                    numericPriceDoc.append("$lte", maxPrice.doubleValue());
                 }
+            }
 
-                if (maxPrice != null) {
-                    Document numericPriceDoc =
-                            matchDoc.get(MATCH, Document.class).get(NUMERIC_PRICE, Document.class);
-                    if (numericPriceDoc == null) {
-                        matchDoc.get(MATCH, Document.class)
-                                .append(NUMERIC_PRICE, new Document("$lte", maxPrice.doubleValue()));
-                    } else {
-                        numericPriceDoc.append("$lte", maxPrice.doubleValue());
-                    }
-                }
-
-                return matchDoc;
-            });
-        }
+            return matchDoc;
+        };
     }
 
     private AggregationOperation createSortOperation() {

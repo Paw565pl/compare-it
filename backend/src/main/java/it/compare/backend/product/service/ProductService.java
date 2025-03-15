@@ -5,8 +5,10 @@ import it.compare.backend.product.dto.ProductFiltersDto;
 import it.compare.backend.product.mapper.ProductMapper;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
+import it.compare.backend.product.response.PriceStampResponse;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bson.Document;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -38,13 +41,42 @@ public class ProductService {
     private static final String ID = "_id";
     private static final String PRICE = "price";
     private static final String IS_AVAILABLE = "isAvailable";
+    private static final String PRODUCTS_COLLECTION = "products";
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final MongoTemplate mongoTemplate;
 
     public Page<ProductListResponse> findAll(ProductFiltersDto filters, Pageable pageable) {
-        var criteria = ProductSearchCriteria.builder()
+        // Create search criteria from filters
+        var criteria = createSearchCriteria(filters, pageable);
+
+        // Execute main aggregation
+        AggregationResults<ProductListResponse> results = executeMainAggregation(criteria);
+        List<ProductListResponse> productResponses = results.getMappedResults();
+
+        // Execute count aggregation
+        long total = executeCountAggregation(criteria);
+
+        // Map shop names
+        productResponses.forEach(this::mapShopName);
+
+        // Return paginated result
+        return new PageImpl<>(productResponses, pageable, total);
+    }
+
+    /**
+     * Maps shop name in product response to human-readable format
+     */
+    private void mapShopName(ProductListResponse response) {
+        if (response.getLowestPriceShop() != null) {
+            String humanReadableName = productMapper.mapShopNameToHumanReadable(response.getLowestPriceShop());
+            response.setLowestPriceShop(humanReadableName);
+        }
+    }
+
+    private ProductSearchCriteria createSearchCriteria(ProductFiltersDto filters, Pageable pageable) {
+        return ProductSearchCriteria.builder()
                 .searchName(filters.name())
                 .searchCategory(filters.category())
                 .shop(filters.shop())
@@ -52,35 +84,38 @@ public class ProductService {
                 .maxPrice(filters.maxPrice())
                 .pageable(pageable)
                 .build();
+    }
 
-        // Create MongoDB aggregation
+    private AggregationResults<ProductListResponse> executeMainAggregation(ProductSearchCriteria criteria) {
         Aggregation aggregation = criteria.toAggregation();
+        return mongoTemplate.aggregate(aggregation, PRODUCTS_COLLECTION, ProductListResponse.class);
+    }
 
-        // Execute aggregation and get results
-        AggregationResults<ProductListResponse> results = mongoTemplate.aggregate(
-                aggregation,
-                "products", // Collection name
-                ProductListResponse.class);
-
-        List<ProductListResponse> productResponses = results.getMappedResults();
-
-        // To get the total count of results, we need to execute an additional counting query
+    private long executeCountAggregation(ProductSearchCriteria criteria) {
         Aggregation countAggregation = createCountAggregation(criteria);
         AggregationResults<CountResult> countResults =
-                mongoTemplate.aggregate(countAggregation, "products", CountResult.class);
+                mongoTemplate.aggregate(countAggregation, PRODUCTS_COLLECTION, CountResult.class);
 
-        long total = countResults.getMappedResults().isEmpty()
+        return countResults.getMappedResults().isEmpty()
                 ? 0
                 : countResults.getMappedResults().getFirst().getCount();
-
-        // Use mapper to map shop names
-        return productMapper.mapShopNames(productResponses, pageable, total);
     }
 
     /**
      * Creates an aggregation for counting results
      */
     private Aggregation createCountAggregation(ProductSearchCriteria criteria) {
+        List<AggregationOperation> operations = new ArrayList<>();
+
+        // Add counting operations
+        operations.addAll(getCountBaseOperations(criteria));
+        operations.addAll(getCountFilterOperations(criteria));
+        operations.add(getCountFinalOperation());
+
+        return Aggregation.newAggregation(operations);
+    }
+
+    private List<AggregationOperation> getCountBaseOperations(ProductSearchCriteria criteria) {
         List<AggregationOperation> operations = new ArrayList<>();
 
         // 1. Basic filtering (category, name, etc.)
@@ -99,6 +134,12 @@ public class ProductService {
 
         // 5. Unwinding price history
         operations.add(Aggregation.unwind("offers.priceHistory", true));
+
+        return operations;
+    }
+
+    private List<AggregationOperation> getCountFilterOperations(ProductSearchCriteria criteria) {
+        List<AggregationOperation> operations = new ArrayList<>();
 
         // 6. Group by product and shop to find the latest prices for each offer
         operations.add(context -> new Document(
@@ -123,50 +164,47 @@ public class ProductService {
                                         .append("onNull", 0.0)))));
 
         // 9. Filter by price
-        addPriceRangeFilter(operations, criteria);
+        if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
+            operations.add(createPriceRangeFilterOperation(criteria));
+        }
 
         // 10. Group by product
         operations.add(context ->
                 new Document(GROUP, new Document(ID, "$_id.productId").append("count", new Document("$sum", 1))));
 
-        // 11. Count unique products
-        operations.add(context -> new Document(GROUP, new Document(ID, null).append("count", new Document("$sum", 1))));
-
-        return Aggregation.newAggregation(operations);
+        return operations;
     }
 
-    /**
-     * Adds price range filtering to the aggregation pipeline
-     */
-    private void addPriceRangeFilter(List<AggregationOperation> operations, ProductSearchCriteria criteria) {
-        if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
-            operations.add(context -> {
-                Document matchDoc = new Document(MATCH, new Document());
+    private AggregationOperation getCountFinalOperation() {
+        // 11. Count unique products
+        return context -> new Document(GROUP, new Document(ID, null).append("count", new Document("$sum", 1)));
+    }
 
-                if (criteria.getMinPrice() != null) {
+    private AggregationOperation createPriceRangeFilterOperation(ProductSearchCriteria criteria) {
+        return context -> {
+            Document matchDoc = new Document(MATCH, new Document());
+
+            if (criteria.getMinPrice() != null) {
+                matchDoc.get(MATCH, Document.class)
+                        .append(
+                                NUMERIC_PRICE,
+                                new Document("$gte", criteria.getMinPrice().doubleValue()));
+            }
+
+            if (criteria.getMaxPrice() != null) {
+                Document numericPriceDoc = matchDoc.get(MATCH, Document.class).get(NUMERIC_PRICE, Document.class);
+                if (numericPriceDoc == null) {
                     matchDoc.get(MATCH, Document.class)
                             .append(
                                     NUMERIC_PRICE,
-                                    new Document("$gte", criteria.getMinPrice().doubleValue()));
+                                    new Document("$lte", criteria.getMaxPrice().doubleValue()));
+                } else {
+                    numericPriceDoc.append("$lte", criteria.getMaxPrice().doubleValue());
                 }
+            }
 
-                if (criteria.getMaxPrice() != null) {
-                    Document numericPriceDoc =
-                            matchDoc.get(MATCH, Document.class).get(NUMERIC_PRICE, Document.class);
-                    if (numericPriceDoc == null) {
-                        matchDoc.get(MATCH, Document.class)
-                                .append(
-                                        NUMERIC_PRICE,
-                                        new Document(
-                                                "$lte", criteria.getMaxPrice().doubleValue()));
-                    } else {
-                        numericPriceDoc.append("$lte", criteria.getMaxPrice().doubleValue());
-                    }
-                }
-
-                return matchDoc;
-            });
-        }
+            return matchDoc;
+        };
     }
 
     @Getter
@@ -176,8 +214,40 @@ public class ProductService {
     }
 
     public ProductDetailResponse findById(String id, Integer priceStampRangeDays) {
-        int days = priceStampRangeDays < 0 || priceStampRangeDays > 180 ? 90 : priceStampRangeDays;
-        return productMapper.toDetailResponse(findProductOrThrow(id), days);
+        // Find product
+        Product product = findProductOrThrow(id);
+
+        // Map to response
+        ProductDetailResponse response = productMapper.toDetailResponse(product);
+
+        // Filter price history based on range
+        if (priceStampRangeDays != null) {
+            filterPriceHistoryByRange(response, validatePriceStampRange(priceStampRangeDays));
+        }
+
+        return response;
+    }
+
+    /**
+     * Filters price history in product offers based on date range
+     */
+    private void filterPriceHistoryByRange(ProductDetailResponse response, int priceStampRangeDays) {
+        LocalDateTime startDate = LocalDateTime.now().minusDays(priceStampRangeDays);
+
+        if (response.getOffers() != null) {
+            response.getOffers().forEach(offer -> {
+                if (offer.getPriceHistory() != null) {
+                    List<PriceStampResponse> filteredHistory = offer.getPriceHistory().stream()
+                            .filter(price -> price.getTimestamp().isAfter(startDate))
+                            .toList();
+                    offer.setPriceHistory(filteredHistory);
+                }
+            });
+        }
+    }
+
+    private int validatePriceStampRange(Integer priceStampRangeDays) {
+        return priceStampRangeDays < 0 || priceStampRangeDays > 180 ? 90 : priceStampRangeDays;
     }
 
     public Product findProductOrThrow(String id) {
