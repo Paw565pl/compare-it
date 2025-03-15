@@ -24,7 +24,6 @@ class RtvEuroAgdScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.RTV_EURO_AGD;
     private static final String BASE_URL = "https://www.euro.com.pl/rest/api/products/search";
-    private static final String LOGO_URL = "https://galeriachelm.com/wp-content/uploads/2020/05/logo-web-euro.png";
 
     private final SecureRandom secureRandom;
     private final RestClient restClient;
@@ -80,7 +79,7 @@ class RtvEuroAgdScraperWorker {
                     var priceStamp = new PriceStamp(price, "PLN", true, condition);
                     priceStamp.setPromoCode(promoCode);
 
-                    var offer = new Offer(CURRENT_SHOP, LOGO_URL, getProductUrl(productResponse.identifiers()));
+                    var offer = new Offer(CURRENT_SHOP, getProductUrl(productResponse.identifiers()));
                     offer.getPriceHistory().add(priceStamp);
 
                     var ean = productResponse.eanCodes().getFirst();

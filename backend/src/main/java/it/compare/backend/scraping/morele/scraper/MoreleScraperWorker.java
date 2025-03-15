@@ -26,7 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class MoreleScraperWorker {
     private static final Shop CURRENT_SHOP = Shop.MORELE_NET;
     private static final String BASE_URL = "https://www.morele.net";
-    private static final String LOGO_URL = "https://www.morele.net/assets/src/images/socials/morele_logo_fb.png";
     private final SecureRandom secureRandom;
     private final RestClient restClient;
 
@@ -107,7 +106,7 @@ public class MoreleScraperWorker {
         var promoCodeElement = extractPromoCode(productDocument);
         promoCodeElement.ifPresent(priceStamp::setPromoCode);
 
-        var offer = new Offer(CURRENT_SHOP, LOGO_URL, href);
+        var offer = new Offer(CURRENT_SHOP, href);
         offer.getPriceHistory().add(priceStamp);
 
         var productEntity = new Product(ean, title, category);
