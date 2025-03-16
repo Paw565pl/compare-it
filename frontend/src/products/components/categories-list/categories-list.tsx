@@ -15,7 +15,6 @@ const CategoriesList = () => {
 
   const handleCategoryChange = (category: string | null) => {
     setFilters({
-      name: null,
       category,
       minPrice: null,
       maxPrice: null,
