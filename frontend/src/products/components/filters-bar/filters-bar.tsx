@@ -25,7 +25,7 @@ interface ProductFiltersFields {
   shop: string[];
 }
 
-export const FilterBar = () => {
+export const FiltersBar = () => {
   const { data: shopList } = useFetchShopsList();
 
   const [productFilters, setProductFilters] = useQueryStates(
