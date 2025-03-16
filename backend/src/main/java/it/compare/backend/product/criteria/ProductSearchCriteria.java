@@ -32,14 +32,13 @@ public class ProductSearchCriteria {
     private static final String ADD_FIELDS = "$addFields";
     private static final String IMAGES_FIELD = "images";
     private static final String MATCH = "$match";
-    private static final String NUMERIC_PRICE = "numericPrice";
     private static final String ID = "_id";
     private static final String NAME = "name";
     private static final String SHOP_NAME = "shopName";
     private static final String PRICE = "price";
     private static final String CURRENCY = "currency";
     private static final String LOWEST_OFFER = "lowestOffer";
-    private static final String LOWEST_NUMERIC_PRICE = "lowestNumericPrice";
+    private static final String LOWEST_PRICE = "lowestPrice";
 
     private String searchName;
     private String searchCategory;
@@ -97,18 +96,6 @@ public class ProductSearchCriteria {
         // Filter unavailable offers
         operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(true)));
 
-        // Convert price to number
-        operations.add(context -> new Document(
-                ADD_FIELDS,
-                new Document(
-                        NUMERIC_PRICE,
-                        new Document(
-                                "$convert",
-                                new Document("input", "$" + PRICE)
-                                        .append("to", "double")
-                                        .append("onError", 0.0)
-                                        .append("onNull", 0.0)))));
-
         // Add price range filter if applicable
         if (minPrice != null || maxPrice != null) {
             operations.add(createPriceRangeFilterOperation());
@@ -155,7 +142,7 @@ public class ProductSearchCriteria {
                         .append("ean", 1)
                         .append(CATEGORY, 1)
                         .append("mainImageUrl", 1)
-                        .append(PRICE_FIELD, "$" + LOWEST_OFFER + ".originalPrice")
+                        .append(PRICE_FIELD, "$" + LOWEST_OFFER + "." + PRICE)
                         .append("lowestPriceCurrency", "$" + LOWEST_OFFER + "." + CURRENCY)
                         .append("lowestPriceShop", "$" + LOWEST_OFFER + "." + SHOP_NAME)
                         .append("offerCount", 1)
@@ -187,7 +174,7 @@ public class ProductSearchCriteria {
                         .append("ean", new Document(FIRST, "$ean"))
                         .append(CATEGORY, new Document(FIRST, "$" + CATEGORY))
                         .append(IMAGES_FIELD, new Document(FIRST, "$" + IMAGES_FIELD))
-                        .append(LOWEST_NUMERIC_PRICE, new Document("$min", "$" + NUMERIC_PRICE))
+                        .append(LOWEST_PRICE, new Document("$min", "$" + PRICE))
                         .append("offerCount", new Document("$sum", 1))
                         .append(
                                 OFFERS,
@@ -195,8 +182,7 @@ public class ProductSearchCriteria {
                                         "$push",
                                         new Document(SHOP_OBJECT, "$" + SHOP_OBJECT)
                                                 .append(SHOP_NAME, "$" + SHOP_NAME)
-                                                .append(PRICE, "$" + NUMERIC_PRICE)
-                                                .append("originalPrice", "$" + PRICE)
+                                                .append(PRICE, "$" + PRICE)
                                                 .append(CURRENCY, "$" + CURRENCY)
                                                 .append(IS_AVAILABLE, "$" + IS_AVAILABLE))));
     }
@@ -205,31 +191,31 @@ public class ProductSearchCriteria {
         return new Document(
                 ADD_FIELDS,
                 new Document(
-                                LOWEST_OFFER,
-                                new Document(
-                                        "$reduce",
-                                        new Document("input", "$" + OFFERS)
-                                                .append("initialValue", null)
-                                                .append(
-                                                        "in",
-                                                        new Document(
-                                                                "$cond",
-                                                                Arrays.asList(
-                                                                        new Document(
-                                                                                "$or",
-                                                                                Arrays.asList(
-                                                                                        new Document(
-                                                                                                "$eq",
-                                                                                                Arrays.asList(
-                                                                                                        "$$value",
-                                                                                                        null)),
-                                                                                        new Document(
-                                                                                                "$lt",
-                                                                                                Arrays.asList(
-                                                                                                        "$$this.price",
-                                                                                                        "$$value.price")))),
-                                                                        "$$this",
-                                                                        "$$value")))))
+                        LOWEST_OFFER,
+                        new Document(
+                                "$reduce",
+                                new Document("input", "$" + OFFERS)
+                                        .append("initialValue", null)
+                                        .append(
+                                                "in",
+                                                new Document(
+                                                        "$cond",
+                                                        Arrays.asList(
+                                                                new Document(
+                                                                        "$or",
+                                                                        Arrays.asList(
+                                                                                new Document(
+                                                                                        "$eq",
+                                                                                        Arrays.asList(
+                                                                                                "$$value",
+                                                                                                null)),
+                                                                                new Document(
+                                                                                        "$lt",
+                                                                                        Arrays.asList(
+                                                                                                "$$this.price",
+                                                                                                "$$value.price")))),
+                                                                "$$this",
+                                                                "$$value")))))
                         .append("mainImageUrl", new Document("$arrayElemAt", Arrays.asList("$" + IMAGES_FIELD, 0))));
     }
 
@@ -238,16 +224,16 @@ public class ProductSearchCriteria {
             Document matchDoc = new Document(MATCH, new Document());
 
             if (minPrice != null) {
-                matchDoc.get(MATCH, Document.class).append(NUMERIC_PRICE, new Document("$gte", minPrice.doubleValue()));
+                matchDoc.get(MATCH, Document.class).append(PRICE, new Document("$gte", minPrice));
             }
 
             if (maxPrice != null) {
-                Document numericPriceDoc = matchDoc.get(MATCH, Document.class).get(NUMERIC_PRICE, Document.class);
-                if (numericPriceDoc == null) {
+                Document priceDoc = matchDoc.get(MATCH, Document.class).get(PRICE, Document.class);
+                if (priceDoc == null) {
                     matchDoc.get(MATCH, Document.class)
-                            .append(NUMERIC_PRICE, new Document("$lte", maxPrice.doubleValue()));
+                            .append(PRICE, new Document("$lte", maxPrice));
                 } else {
-                    numericPriceDoc.append("$lte", maxPrice.doubleValue());
+                    priceDoc.append("$lte", maxPrice);
                 }
             }
 
@@ -264,7 +250,7 @@ public class ProductSearchCriteria {
                 String field = order.getProperty();
 
                 if (field.equals(PRICE_FIELD)) {
-                    sortDoc.append(LOWEST_NUMERIC_PRICE, direction);
+                    sortDoc.append(LOWEST_PRICE, direction);
                 } else {
                     sortDoc.append(field, direction);
                 }

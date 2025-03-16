@@ -35,7 +35,6 @@ public class ProductService {
     private static final String OFFERS_SHOP = "$offers.shop";
     private static final String GROUP = "$group";
     private static final String MATCH = "$match";
-    private static final String NUMERIC_PRICE = "numericPrice";
     private static final String ADD_FIELDS = "$addFields";
     private static final String FIRST = "$first";
     private static final String ID = "_id";
@@ -151,24 +150,12 @@ public class ProductService {
         // 7. Filter unavailable offers
         operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(true)));
 
-        // 8. Convert price to number
-        operations.add(context -> new Document(
-                ADD_FIELDS,
-                new Document(
-                        NUMERIC_PRICE,
-                        new Document(
-                                "$convert",
-                                new Document("input", "$" + PRICE)
-                                        .append("to", "double")
-                                        .append("onError", 0.0)
-                                        .append("onNull", 0.0)))));
-
-        // 9. Filter by price
+        // 8. Filter by price
         if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
             operations.add(createPriceRangeFilterOperation(criteria));
         }
 
-        // 10. Group by product
+        // 9. Group by product
         operations.add(context ->
                 new Document(GROUP, new Document(ID, "$_id.productId").append("count", new Document("$sum", 1))));
 
@@ -176,7 +163,7 @@ public class ProductService {
     }
 
     private AggregationOperation getCountFinalOperation() {
-        // 11. Count unique products
+        // 10. Count unique products
         return context -> new Document(GROUP, new Document(ID, null).append("count", new Document("$sum", 1)));
     }
 
@@ -186,20 +173,16 @@ public class ProductService {
 
             if (criteria.getMinPrice() != null) {
                 matchDoc.get(MATCH, Document.class)
-                        .append(
-                                NUMERIC_PRICE,
-                                new Document("$gte", criteria.getMinPrice().doubleValue()));
+                        .append(PRICE, new Document("$gte", criteria.getMinPrice()));
             }
 
             if (criteria.getMaxPrice() != null) {
-                Document numericPriceDoc = matchDoc.get(MATCH, Document.class).get(NUMERIC_PRICE, Document.class);
-                if (numericPriceDoc == null) {
+                Document priceDoc = matchDoc.get(MATCH, Document.class).get(PRICE, Document.class);
+                if (priceDoc == null) {
                     matchDoc.get(MATCH, Document.class)
-                            .append(
-                                    NUMERIC_PRICE,
-                                    new Document("$lte", criteria.getMaxPrice().doubleValue()));
+                            .append(PRICE, new Document("$lte", criteria.getMaxPrice()));
                 } else {
-                    numericPriceDoc.append("$lte", criteria.getMaxPrice().doubleValue());
+                    priceDoc.append("$lte", criteria.getMaxPrice());
                 }
             }
 
