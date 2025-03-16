@@ -22,8 +22,8 @@ const SearchBar = () => {
 
     const name = productFilters.name?.trim();
 
-    if (name) searchElement.value = name;
-    else searchElement.value = "";
+    if (!name) searchElement.value = "";
+    else searchElement.value = name;
   }, [productFilters.name]);
 
   const handleSubmit = (e: FormEvent) => {
