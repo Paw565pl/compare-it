@@ -12,7 +12,7 @@ const createPriceAlert = async (
   priceAlertDto: PriceAlertDto,
 ) => {
   const { data } = await apiService.post<PriceAlertEntity>(
-    "/v1/price-alerts",
+    "/api/v1/price-alerts",
     priceAlertDto,
     {
       headers: {

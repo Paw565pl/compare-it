@@ -15,7 +15,7 @@ const fetchPriceAlertsPage = async (
   paginationOptions?: PaginationOptions,
 ) => {
   const { data } = await apiService.get<PaginatedData<PriceAlertEntity>>(
-    "/v1/price-alerts",
+    "/api/v1/price-alerts",
     {
       params: {
         page: pageParam,

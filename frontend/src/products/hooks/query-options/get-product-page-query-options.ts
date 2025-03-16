@@ -14,7 +14,7 @@ const fetchProductPage = async (
   paginationOptions?: PaginationOptions,
 ) => {
   const { data } = await apiService.get<PaginatedData<ProductListEntity>>(
-    "/v1/products",
+    "/api/v1/products",
     {
       params: {
         page: pageParam,

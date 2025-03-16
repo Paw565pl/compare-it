@@ -14,7 +14,7 @@ const createComment = async (
   commentDto: CommentDto,
 ) => {
   const { data } = await apiService.post<CommentEntity>(
-    `/v1/products/${productId}/comments`,
+    `/api/v1/products/${productId}/comments`,
     commentDto,
     {
       headers: {

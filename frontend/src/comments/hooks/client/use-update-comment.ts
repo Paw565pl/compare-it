@@ -15,7 +15,7 @@ const updateComment = async (
   commentDto: CommentDto,
 ) => {
   const { data } = await apiService.put<CommentEntity>(
-    `/v1/products/${productId}/comments/${commentId}`,
+    `/api/v1/products/${productId}/comments/${commentId}`,
     commentDto,
     {
       headers: {
