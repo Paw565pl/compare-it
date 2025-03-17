@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +49,6 @@ public class ProductService {
     private static final String START_DATE = "startDate";
     private static final String AMOUNT = "amount";
     private static final String DAY = "day";
-    private static final int DEFAULT_PRICE_RANGE_DAYS = 90;
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -222,24 +220,18 @@ public class ProductService {
                     mongoTemplate.aggregate(aggregation, PRODUCTS_COLLECTION, Product.class);
 
             if (results.getMappedResults().isEmpty()) {
-                log.debug("No results found using string ID aggregation, checking if product exists in other forms");
+                log.debug("No results found for product with ID: {}", id);
 
-                // Check if the product exists as a string ID
+                // Check if the product exists with the given ID
                 boolean productExists =
                         mongoTemplate.exists(Query.query(Criteria.where("_id").is(id)), Product.class);
 
                 if (!productExists) {
-                    // Try alternative ID formats
-                    Product productWithAlternativeId = findProductWithAlternativeId(id);
-                    if (productWithAlternativeId != null) {
-                        return productWithAlternativeId;
-                    }
-
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
                 }
 
                 // If the product exists but has no data in the specified range,
-                // we should return the product structure with empty price history
+                // return the product structure with empty price history
                 log.debug("Product exists but no data in specified range, returning basic product structure");
                 return mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Product.class);
             }
@@ -255,48 +247,14 @@ public class ProductService {
         }
     }
 
-    /**
-     * Tries to find a product using alternative ID formats
-     */
-    private Product findProductWithAlternativeId(String id) {
-        // Try with ObjectId if string format is valid ObjectId
-        try {
-            ObjectId objectId = new ObjectId(id);
-            boolean productExistsWithObjectId =
-                    mongoTemplate.exists(Query.query(Criteria.where("_id").is(objectId)), Product.class);
-
-            if (productExistsWithObjectId) {
-                log.debug("Found product using ObjectId: {}", id);
-                return mongoTemplate.findOne(Query.query(Criteria.where("_id").is(objectId)), Product.class);
-            }
-        } catch (IllegalArgumentException e) {
-            // Not a valid ObjectId, ignore and continue with other checks
-            log.debug("ID is not a valid ObjectId: {}", id);
-        }
-
-        // Check if the product exists with id field instead of _id
-        boolean productWithIdFieldExists =
-                mongoTemplate.exists(Query.query(Criteria.where("id").is(id)), Product.class);
-
-        if (productWithIdFieldExists) {
-            log.debug("Found product using 'id' field: {}", id);
-            return mongoTemplate.findOne(Query.query(Criteria.where("id").is(id)), Product.class);
-        }
-
-        return null;
-    }
-
     private Aggregation createProductDetailAggregation(String id, Integer priceStampRangeDays) {
         List<AggregationOperation> operations = new ArrayList<>();
 
         // 1. Match product by ID - używamy bezpośrednio stringa bez konwersji na ObjectId
         operations.add(context -> new Document(MATCH, new Document("_id", id)));
 
-        // 2. Process date range
-        int rangeDays = calculateEffectiveRangeDays(priceStampRangeDays);
-
-        // Add date filtering fields
-        operations.add(context -> createDateFilteringFieldsOperation(rangeDays));
+        // 2. Process date range and create filtering fields
+        operations.add(context -> createDateFilteringFieldsOperation(priceStampRangeDays));
 
         // 3. Filter price history based on date range
         operations.add(context -> {
@@ -311,13 +269,12 @@ public class ProductService {
         return Aggregation.newAggregation(operations);
     }
 
-    private Document createDateFilteringFieldsOperation(int rangeDays) {
+    private Document createDateFilteringFieldsOperation(Integer priceStampRangeDays) {
         Document addFieldsDoc = new Document();
 
-        // Add range days info
+        // Get days range value and determine if it's today-only filter
+        int rangeDays = priceStampRangeDays != null ? Math.max(0, priceStampRangeDays) : 0;
         addFieldsDoc.append("rangeDays", rangeDays);
-
-        // Add flag indicating this is a query for today only (0 days)
         addFieldsDoc.append("isZeroDayFilter", rangeDays == 0);
 
         // Create date parts for today
@@ -327,13 +284,13 @@ public class ProductService {
         addFieldsDoc.append("startOfToday", new Document(DATE_FROM_PARTS, todayDatePartsDoc));
 
         // Add end of today (start of tomorrow) for filtering
-        Document tomorrowDateDoc = createDateAddDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), "day", 1);
+        Document tomorrowDateDoc = createDateAddDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), DAY, 1);
         addFieldsDoc.append("endOfToday", tomorrowDateDoc);
 
         // Add date range start for standard filtering (non-zero days)
         if (rangeDays > 0) {
             Document dateRangeStartDoc =
-                    createDateSubtractDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), "day", rangeDays);
+                    createDateSubtractDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), DAY, rangeDays);
             addFieldsDoc.append("dateRangeStart", dateRangeStartDoc);
         }
 
@@ -360,20 +317,6 @@ public class ProductService {
         return new Document(
                 "$dateSubtract",
                 new Document(START_DATE, startDate).append(UNIT, unit).append(AMOUNT, amount));
-    }
-
-    private int calculateEffectiveRangeDays(Integer priceStampRangeDays) {
-        int rangeDays = DEFAULT_PRICE_RANGE_DAYS;
-
-        if (priceStampRangeDays != null) {
-            if (priceStampRangeDays >= 0) {
-                rangeDays = priceStampRangeDays;
-            } else {
-                rangeDays = 0;
-            }
-        }
-
-        return rangeDays;
     }
 
     private Document createPriceHistoryFilterMapDoc() {
