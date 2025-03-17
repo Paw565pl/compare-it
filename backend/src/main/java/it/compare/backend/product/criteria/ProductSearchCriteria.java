@@ -39,6 +39,7 @@ public class ProductSearchCriteria {
     private static final String CURRENCY = "currency";
     private static final String LOWEST_OFFER = "lowestOffer";
     private static final String LOWEST_PRICE = "lowestPrice";
+    private static final String OFFER_COUNT = "offerCount";
 
     private String searchName;
     private String searchCategory;
@@ -145,7 +146,7 @@ public class ProductSearchCriteria {
                         .append(PRICE_FIELD, "$" + LOWEST_OFFER + "." + PRICE)
                         .append("lowestPriceCurrency", "$" + LOWEST_OFFER + "." + CURRENCY)
                         .append("lowestPriceShop", "$" + LOWEST_OFFER + "." + SHOP_NAME)
-                        .append("offerCount", 1)
+                        .append(OFFER_COUNT, 1)
                         .append(IS_AVAILABLE, "$" + LOWEST_OFFER + "." + IS_AVAILABLE));
     }
 
@@ -175,7 +176,7 @@ public class ProductSearchCriteria {
                         .append(CATEGORY, new Document(FIRST, "$" + CATEGORY))
                         .append(IMAGES_FIELD, new Document(FIRST, "$" + IMAGES_FIELD))
                         .append(LOWEST_PRICE, new Document("$min", "$" + PRICE))
-                        .append("offerCount", new Document("$sum", 1))
+                        .append(OFFER_COUNT, new Document("$sum", 1))
                         .append(
                                 OFFERS,
                                 new Document(
@@ -191,31 +192,31 @@ public class ProductSearchCriteria {
         return new Document(
                 ADD_FIELDS,
                 new Document(
-                                LOWEST_OFFER,
-                                new Document(
-                                        "$reduce",
-                                        new Document("input", "$" + OFFERS)
-                                                .append("initialValue", null)
-                                                .append(
-                                                        "in",
-                                                        new Document(
-                                                                "$cond",
-                                                                Arrays.asList(
-                                                                        new Document(
-                                                                                "$or",
-                                                                                Arrays.asList(
-                                                                                        new Document(
-                                                                                                "$eq",
-                                                                                                Arrays.asList(
-                                                                                                        "$$value",
-                                                                                                        null)),
-                                                                                        new Document(
-                                                                                                "$lt",
-                                                                                                Arrays.asList(
-                                                                                                        "$$this.price",
-                                                                                                        "$$value.price")))),
-                                                                        "$$this",
-                                                                        "$$value")))))
+                        LOWEST_OFFER,
+                        new Document(
+                                "$reduce",
+                                new Document("input", "$" + OFFERS)
+                                        .append("initialValue", null)
+                                        .append(
+                                                "in",
+                                                new Document(
+                                                        "$cond",
+                                                        Arrays.asList(
+                                                                new Document(
+                                                                        "$or",
+                                                                        Arrays.asList(
+                                                                                new Document(
+                                                                                        "$eq",
+                                                                                        Arrays.asList(
+                                                                                                "$$value",
+                                                                                                null)),
+                                                                                new Document(
+                                                                                        "$lt",
+                                                                                        Arrays.asList(
+                                                                                                "$$this.price",
+                                                                                                "$$value.price")))),
+                                                                "$$this",
+                                                                "$$value")))))
                         .append("mainImageUrl", new Document("$arrayElemAt", Arrays.asList("$" + IMAGES_FIELD, 0))));
     }
 
@@ -248,10 +249,17 @@ public class ProductSearchCriteria {
                 int direction = order.getDirection() == Sort.Direction.ASC ? 1 : -1;
                 String field = order.getProperty();
 
-                if (field.equals(PRICE_FIELD)) {
-                    sortDoc.append(LOWEST_PRICE, direction);
-                } else {
-                    sortDoc.append(field, direction);
+                // Map field names to their internal representation
+                switch (field) {
+                    case PRICE_FIELD:
+                        sortDoc.append(LOWEST_PRICE, direction);
+                        break;
+                    case OFFER_COUNT:
+                        sortDoc.append(OFFER_COUNT, direction);
+                        break;
+                    default:
+                        sortDoc.append(field, direction);
+                        break;
                 }
             }
 
