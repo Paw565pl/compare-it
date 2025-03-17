@@ -5,16 +5,16 @@ import it.compare.backend.product.dto.ProductFiltersDto;
 import it.compare.backend.product.mapper.ProductMapper;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
-import it.compare.backend.product.response.PriceStampResponse;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -23,12 +23,14 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
     // Constants to avoid duplication
@@ -41,6 +43,14 @@ public class ProductService {
     private static final String PRICE = "price";
     private static final String IS_AVAILABLE = "isAvailable";
     private static final String PRODUCTS_COLLECTION = "products";
+    private static final String DATE_FROM_PARTS = "$dateFromParts";
+    private static final String PRICE_TIMESTAMP = "$$price.timestamp";
+    private static final String NOW = "$$NOW";
+    private static final String UNIT = "unit";
+    private static final String START_DATE = "startDate";
+    private static final String AMOUNT = "amount";
+    private static final String DAY = "day";
+    private static final int DEFAULT_PRICE_RANGE_DAYS = 90;
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -172,15 +182,13 @@ public class ProductService {
             Document matchDoc = new Document(MATCH, new Document());
 
             if (criteria.getMinPrice() != null) {
-                matchDoc.get(MATCH, Document.class)
-                        .append(PRICE, new Document("$gte", criteria.getMinPrice()));
+                matchDoc.get(MATCH, Document.class).append(PRICE, new Document("$gte", criteria.getMinPrice()));
             }
 
             if (criteria.getMaxPrice() != null) {
                 Document priceDoc = matchDoc.get(MATCH, Document.class).get(PRICE, Document.class);
                 if (priceDoc == null) {
-                    matchDoc.get(MATCH, Document.class)
-                            .append(PRICE, new Document("$lte", criteria.getMaxPrice()));
+                    matchDoc.get(MATCH, Document.class).append(PRICE, new Document("$lte", criteria.getMaxPrice()));
                 } else {
                     priceDoc.append("$lte", criteria.getMaxPrice());
                 }
@@ -197,40 +205,223 @@ public class ProductService {
     }
 
     public ProductDetailResponse findById(String id, Integer priceStampRangeDays) {
-        // Find product
-        Product product = findProductOrThrow(id);
-
-        // Map to response
-        ProductDetailResponse response = productMapper.toDetailResponse(product);
-
-        // Filter price history based on range
-        if (priceStampRangeDays != null) {
-            filterPriceHistoryByRange(response, validatePriceStampRange(priceStampRangeDays));
+        try {
+            // Use product id and filter data on database side
+            Product product = fetchProductWithAggregation(id, priceStampRangeDays);
+            return productMapper.toDetailResponse(product);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID format");
         }
+    }
 
-        return response;
+    private Product fetchProductWithAggregation(String id, Integer priceStampRangeDays) {
+        try {
+            // Filter using database aggregation
+            Aggregation aggregation = createProductDetailAggregation(id, priceStampRangeDays);
+            AggregationResults<Product> results =
+                    mongoTemplate.aggregate(aggregation, PRODUCTS_COLLECTION, Product.class);
+
+            if (results.getMappedResults().isEmpty()) {
+                log.debug("No results found using string ID aggregation, checking if product exists in other forms");
+
+                // Check if the product exists as a string ID
+                boolean productExists =
+                        mongoTemplate.exists(Query.query(Criteria.where("_id").is(id)), Product.class);
+
+                if (!productExists) {
+                    // Try alternative ID formats
+                    Product productWithAlternativeId = findProductWithAlternativeId(id);
+                    if (productWithAlternativeId != null) {
+                        return productWithAlternativeId;
+                    }
+
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+                }
+
+                // If the product exists but has no data in the specified range,
+                // we should return the product structure with empty price history
+                log.debug("Product exists but no data in specified range, returning basic product structure");
+                return mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Product.class);
+            }
+
+            return results.getMappedResults().getFirst();
+        } catch (ResponseStatusException e) {
+            throw e; // Re-throw response status exceptions
+        } catch (Exception e) {
+            log.error("Error processing product data", e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to process product data from database: " + e.getMessage());
+        }
     }
 
     /**
-     * Filters price history in product offers based on date range
+     * Tries to find a product using alternative ID formats
      */
-    private void filterPriceHistoryByRange(ProductDetailResponse response, int priceStampRangeDays) {
-        LocalDateTime startDate = LocalDateTime.now().minusDays(priceStampRangeDays);
+    private Product findProductWithAlternativeId(String id) {
+        // Try with ObjectId if string format is valid ObjectId
+        try {
+            ObjectId objectId = new ObjectId(id);
+            boolean productExistsWithObjectId =
+                    mongoTemplate.exists(Query.query(Criteria.where("_id").is(objectId)), Product.class);
 
-        if (response.getOffers() != null) {
-            response.getOffers().forEach(offer -> {
-                if (offer.getPriceHistory() != null) {
-                    List<PriceStampResponse> filteredHistory = offer.getPriceHistory().stream()
-                            .filter(price -> price.getTimestamp().isAfter(startDate))
-                            .toList();
-                    offer.setPriceHistory(filteredHistory);
-                }
-            });
+            if (productExistsWithObjectId) {
+                log.debug("Found product using ObjectId: {}", id);
+                return mongoTemplate.findOne(Query.query(Criteria.where("_id").is(objectId)), Product.class);
+            }
+        } catch (IllegalArgumentException e) {
+            // Not a valid ObjectId, ignore and continue with other checks
+            log.debug("ID is not a valid ObjectId: {}", id);
         }
+
+        // Check if the product exists with id field instead of _id
+        boolean productWithIdFieldExists =
+                mongoTemplate.exists(Query.query(Criteria.where("id").is(id)), Product.class);
+
+        if (productWithIdFieldExists) {
+            log.debug("Found product using 'id' field: {}", id);
+            return mongoTemplate.findOne(Query.query(Criteria.where("id").is(id)), Product.class);
+        }
+
+        return null;
     }
 
-    private int validatePriceStampRange(Integer priceStampRangeDays) {
-        return priceStampRangeDays < 0 || priceStampRangeDays > 180 ? 90 : priceStampRangeDays;
+    private Aggregation createProductDetailAggregation(String id, Integer priceStampRangeDays) {
+        List<AggregationOperation> operations = new ArrayList<>();
+
+        // 1. Match product by ID - używamy bezpośrednio stringa bez konwersji na ObjectId
+        operations.add(context -> new Document(MATCH, new Document("_id", id)));
+
+        // 2. Process date range
+        int rangeDays = calculateEffectiveRangeDays(priceStampRangeDays);
+
+        // Add date filtering fields
+        operations.add(context -> createDateFilteringFieldsOperation(rangeDays));
+
+        // 3. Filter price history based on date range
+        operations.add(context -> {
+            Document offerMapDoc = createPriceHistoryFilterMapDoc();
+            return new Document(ADD_FIELDS, new Document("offers", offerMapDoc));
+        });
+
+        // 4. Remove temporary fields
+        operations.add(Aggregation.project()
+                .andExclude("dateRangeStart", "rangeDays", "isZeroDayFilter", "startOfToday", "endOfToday"));
+
+        return Aggregation.newAggregation(operations);
+    }
+
+    private Document createDateFilteringFieldsOperation(int rangeDays) {
+        Document addFieldsDoc = new Document();
+
+        // Add range days info
+        addFieldsDoc.append("rangeDays", rangeDays);
+
+        // Add flag indicating this is a query for today only (0 days)
+        addFieldsDoc.append("isZeroDayFilter", rangeDays == 0);
+
+        // Create date parts for today
+        Document todayDatePartsDoc = createTodayDatePartsDoc();
+
+        // Add start of today for filtering
+        addFieldsDoc.append("startOfToday", new Document(DATE_FROM_PARTS, todayDatePartsDoc));
+
+        // Add end of today (start of tomorrow) for filtering
+        Document tomorrowDateDoc = createDateAddDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), "day", 1);
+        addFieldsDoc.append("endOfToday", tomorrowDateDoc);
+
+        // Add date range start for standard filtering (non-zero days)
+        if (rangeDays > 0) {
+            Document dateRangeStartDoc =
+                    createDateSubtractDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), "day", rangeDays);
+            addFieldsDoc.append("dateRangeStart", dateRangeStartDoc);
+        }
+
+        return new Document(ADD_FIELDS, addFieldsDoc);
+    }
+
+    private Document createTodayDatePartsDoc() {
+        return new Document()
+                .append("year", new Document("$year", NOW))
+                .append("month", new Document("$month", NOW))
+                .append(DAY, new Document("$dayOfMonth", NOW))
+                .append("hour", 0)
+                .append("minute", 0)
+                .append("second", 0);
+    }
+
+    private Document createDateAddDocument(Document startDate, String unit, int amount) {
+        return new Document(
+                "$dateAdd",
+                new Document(START_DATE, startDate).append(UNIT, unit).append(AMOUNT, amount));
+    }
+
+    private Document createDateSubtractDocument(Document startDate, String unit, int amount) {
+        return new Document(
+                "$dateSubtract",
+                new Document(START_DATE, startDate).append(UNIT, unit).append(AMOUNT, amount));
+    }
+
+    private int calculateEffectiveRangeDays(Integer priceStampRangeDays) {
+        int rangeDays = DEFAULT_PRICE_RANGE_DAYS;
+
+        if (priceStampRangeDays != null) {
+            if (priceStampRangeDays >= 0) {
+                rangeDays = priceStampRangeDays;
+            } else {
+                rangeDays = 0;
+            }
+        }
+
+        return rangeDays;
+    }
+
+    private Document createPriceHistoryFilterMapDoc() {
+        // Create condition for date filtering
+        Document dateConditionDoc = createDateFilterConditionDoc();
+
+        // Create filter document
+        Document filterDoc = new Document()
+                .append("input", "$$offer.priceHistory")
+                .append("as", PRICE)
+                .append("cond", dateConditionDoc);
+
+        // Create map for price history filtering
+        Document inDoc = new Document()
+                .append(
+                        "$mergeObjects",
+                        List.of("$$offer", new Document("priceHistory", new Document("$filter", filterDoc))));
+
+        // Create final map document
+        return new Document(
+                "$map",
+                new Document().append("input", "$offers").append("as", "offer").append("in", inDoc));
+    }
+
+    private Document createDateFilterConditionDoc() {
+        // Create conditional expression to choose appropriate filter
+        return new Document(
+                "$cond",
+                new Document()
+                        .append("if", "$isZeroDayFilter")
+                        .append("then", createTodayOnlyFilterCondition())
+                        .append("else", createStandardDateRangeCondition()));
+    }
+
+    private Document createTodayOnlyFilterCondition() {
+        // First condition: timestamp >= startOfToday
+        Document gteStartOfToday = new Document("$gte", List.of(PRICE_TIMESTAMP, "$startOfToday"));
+
+        // Second condition: timestamp < endOfToday (start of tomorrow)
+        Document ltEndOfToday = new Document("$lt", List.of(PRICE_TIMESTAMP, "$endOfToday"));
+
+        // Combine conditions with $and
+        return new Document("$and", List.of(gteStartOfToday, ltEndOfToday));
+    }
+
+    private Document createStandardDateRangeCondition() {
+        // Standard filtering: timestamp >= dateRangeStart
+        return new Document("$gte", List.of(PRICE_TIMESTAMP, "$dateRangeStart"));
     }
 
     public Product findProductOrThrow(String id) {
