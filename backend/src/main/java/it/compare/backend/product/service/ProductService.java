@@ -8,6 +8,7 @@ import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,13 @@ public class ProductService {
     private static final String START_DATE = "startDate";
     private static final String AMOUNT = "amount";
     private static final String DAY = "day";
+    private static final String TIMESTAMP = "timestamp";
+    private static final String OFFERS = "offers";
+    private static final String COND = "$cond";
+    private static final String INPUT = "input";
+    private static final String DATE_SUBTRACT = "$dateSubtract";
+    private static final String OFFERS_PRICE_HISTORY_TIMESTAMP = "offers.priceHistory.timestamp";
+    private static final int AVAILABILITY_DAYS_THRESHOLD = 3; // Number of days to consider price as still valid
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -89,6 +97,7 @@ public class ProductService {
                 .shop(filters.shop())
                 .minPrice(filters.minPrice())
                 .maxPrice(filters.maxPrice())
+                .isAvailable(filters.isAvailable())
                 .pageable(pageable)
                 .build();
     }
@@ -129,7 +138,7 @@ public class ProductService {
         operations.add(Aggregation.match(criteria.createBaseCriteria()));
 
         // 2. Unwinding offers
-        operations.add(Aggregation.unwind("offers", true));
+        operations.add(Aggregation.unwind(OFFERS, true));
 
         // 3. Create temporary fields for shop and its name
         operations.add(context ->
@@ -137,7 +146,7 @@ public class ProductService {
 
         // 4. Sort offers by time to find the latest prices
         operations.add(context -> new Document(
-                "$sort", new Document(ID, 1).append("offers.shop", 1).append("offers.priceHistory.timestamp", -1)));
+                "$sort", new Document(ID, 1).append("offers.shop", 1).append(OFFERS_PRICE_HISTORY_TIMESTAMP, -1)));
 
         // 5. Unwinding price history
         operations.add(Aggregation.unwind("offers.priceHistory", true));
@@ -153,17 +162,35 @@ public class ProductService {
                 GROUP,
                 new Document(ID, new Document("productId", "$_id").append("shop", OFFERS_SHOP))
                         .append(PRICE, new Document(FIRST, "$offers.priceHistory.price"))
-                        .append(IS_AVAILABLE, new Document(FIRST, "$offers.priceHistory.isAvailable"))));
+                        .append(TIMESTAMP, new Document(FIRST, "$offers.priceHistory.timestamp"))));
 
-        // 7. Filter unavailable offers
-        operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(true)));
+        // 7. Calculate availability status based on timestamp
+        operations.add(context -> {
+            Document thresholdDateDoc = new Document(
+                    DATE_SUBTRACT,
+                    new Document(START_DATE, NOW).append(UNIT, DAY).append(AMOUNT, AVAILABILITY_DAYS_THRESHOLD));
 
-        // 8. Filter by price
+            Document isAvailableDoc = new Document(
+                    COND,
+                    new Document()
+                            .append("if", new Document("$gte", List.of("$" + TIMESTAMP, thresholdDateDoc)))
+                            .append("then", true)
+                            .append("else", false));
+
+            return new Document(ADD_FIELDS, new Document(IS_AVAILABLE, isAvailableDoc));
+        });
+
+        // 8. Filter by availability if requested
+        if (criteria.getIsAvailable() != null) {
+            operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(criteria.getIsAvailable())));
+        }
+
+        // 9. Filter by price
         if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
             operations.add(createPriceRangeFilterOperation(criteria));
         }
 
-        // 9. Group by product
+        // 10. Group by product
         operations.add(context ->
                 new Document(GROUP, new Document(ID, "$_id.productId").append("count", new Document("$sum", 1))));
 
@@ -171,7 +198,7 @@ public class ProductService {
     }
 
     private AggregationOperation getCountFinalOperation() {
-        // 10. Count unique products
+        // 11. Count unique products
         return context -> new Document(GROUP, new Document(ID, null).append("count", new Document("$sum", 1)));
     }
 
@@ -202,22 +229,28 @@ public class ProductService {
         private long count;
     }
 
+    /**
+     * Finds a product by ID and returns it as a ProductDetailResponse
+     */
     public ProductDetailResponse findById(String id, Integer priceStampRangeDays) {
         try {
-            // Use product id and filter data on database side
-            Product product = fetchProductWithAggregation(id, priceStampRangeDays);
-            return productMapper.toDetailResponse(product);
+            // Bezpośrednio pobieramy i zwracamy ProductDetailResponse
+            return fetchProductWithAggregation(id, priceStampRangeDays);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID format");
         }
     }
 
-    private Product fetchProductWithAggregation(String id, Integer priceStampRangeDays) {
+    /**
+     * Fetches a product with aggregation and returns it as ProductDetailResponse
+     */
+    private ProductDetailResponse fetchProductWithAggregation(String id, Integer priceStampRangeDays) {
         try {
             // Filter using database aggregation
             Aggregation aggregation = createProductDetailAggregation(id, priceStampRangeDays);
-            AggregationResults<Product> results =
-                    mongoTemplate.aggregate(aggregation, PRODUCTS_COLLECTION, Product.class);
+
+            AggregationResults<ProductDetailResponse> results =
+                    mongoTemplate.aggregate(aggregation, PRODUCTS_COLLECTION, ProductDetailResponse.class);
 
             if (results.getMappedResults().isEmpty()) {
                 log.debug("No results found for product with ID: {}", id);
@@ -233,7 +266,10 @@ public class ProductService {
                 // If the product exists but has no data in the specified range,
                 // return the product structure with empty price history
                 log.debug("Product exists but no data in specified range, returning basic product structure");
-                return mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Product.class);
+                Product product =
+                        mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Product.class);
+
+                return productMapper.toDetailResponse(product);
             }
 
             return results.getMappedResults().getFirst();
@@ -247,28 +283,62 @@ public class ProductService {
         }
     }
 
+    /**
+     * Creates an aggregation to fetch product details
+     */
     private Aggregation createProductDetailAggregation(String id, Integer priceStampRangeDays) {
         List<AggregationOperation> operations = new ArrayList<>();
 
-        // 1. Match product by ID - używamy bezpośrednio stringa bez konwersji na ObjectId
+        // 1. Match product by ID
         operations.add(context -> new Document(MATCH, new Document("_id", id)));
 
         // 2. Process date range and create filtering fields
         operations.add(context -> createDateFilteringFieldsOperation(priceStampRangeDays));
 
-        // 3. Filter price history based on date range
+        // 3. Add threshold date for availability calculation
+        operations.add(context -> new Document(
+                ADD_FIELDS,
+                new Document(
+                        "availabilityThresholdDate",
+                        new Document(
+                                DATE_SUBTRACT,
+                                new Document(START_DATE, NOW)
+                                        .append(UNIT, DAY)
+                                        .append(AMOUNT, AVAILABILITY_DAYS_THRESHOLD)))));
+
+        // 4. Filter price history based on date range and calculate availability
         operations.add(context -> {
-            Document offerMapDoc = createPriceHistoryFilterMapDoc();
-            return new Document(ADD_FIELDS, new Document("offers", offerMapDoc));
+            Document offerMapDoc = createPriceHistoryFilterMapDocWithAvailability();
+            return new Document(ADD_FIELDS, new Document(OFFERS, offerMapDoc));
         });
 
-        // 4. Remove temporary fields
+        // 5. Final projection - map fields to match ProductDetailResponse structure
+        operations.add(context -> new Document(
+                "$project",
+                new Document("id", "$_id")
+                        .append("ean", 1)
+                        .append("name", 1)
+                        .append("category", 1)
+                        .append("images", 1)
+                        .append(OFFERS, 1)));
+
+        // 6. Remove temporary fields
         operations.add(Aggregation.project()
-                .andExclude("dateRangeStart", "rangeDays", "isZeroDayFilter", "startOfToday", "endOfToday"));
+                .andExclude(
+                        "dateRangeStart",
+                        "rangeDays",
+                        "isZeroDayFilter",
+                        "startOfToday",
+                        "endOfToday",
+                        "availabilityThresholdDate",
+                        "_id"));
 
         return Aggregation.newAggregation(operations);
     }
 
+    /**
+     * Creates date filtering fields for aggregation
+     */
     private Document createDateFilteringFieldsOperation(Integer priceStampRangeDays) {
         Document addFieldsDoc = new Document();
 
@@ -297,6 +367,9 @@ public class ProductService {
         return new Document(ADD_FIELDS, addFieldsDoc);
     }
 
+    /**
+     * Creates date parts document for today
+     */
     private Document createTodayDatePartsDoc() {
         return new Document()
                 .append("year", new Document("$year", NOW))
@@ -307,50 +380,106 @@ public class ProductService {
                 .append("second", 0);
     }
 
+    /**
+     * Creates date add document
+     */
     private Document createDateAddDocument(Document startDate, String unit, int amount) {
         return new Document(
                 "$dateAdd",
                 new Document(START_DATE, startDate).append(UNIT, unit).append(AMOUNT, amount));
     }
 
+    /**
+     * Creates date subtract document
+     */
     private Document createDateSubtractDocument(Document startDate, String unit, int amount) {
         return new Document(
-                "$dateSubtract",
+                DATE_SUBTRACT,
                 new Document(START_DATE, startDate).append(UNIT, unit).append(AMOUNT, amount));
     }
 
-    private Document createPriceHistoryFilterMapDoc() {
+    /**
+     * Creates a map document that filters price history and calculates isAvailable
+     */
+    private Document createPriceHistoryFilterMapDocWithAvailability() {
         // Create condition for date filtering
         Document dateConditionDoc = createDateFilterConditionDoc();
 
-        // Create filter document
+        // Create filter document for date filtering
         Document filterDoc = new Document()
-                .append("input", "$$offer.priceHistory")
+                .append(INPUT, "$$offer.priceHistory")
                 .append("as", PRICE)
                 .append("cond", dateConditionDoc);
 
-        // Create map for price history filtering
+        Document filteredPriceHistory = new Document("$filter", filterDoc);
+
+        Document isOfferAvailableDoc = new Document(
+                COND,
+                new Document()
+                        .append(
+                                "if",
+                                new Document("$eq", Arrays.asList(new Document("$size", filteredPriceHistory), 0)))
+                        .append("then", false)
+                        .append(
+                                "else",
+                                new Document(
+                                        "$let",
+                                        new Document()
+                                                .append(
+                                                        "vars",
+                                                        new Document(
+                                                                "latestPrice",
+                                                                new Document(
+                                                                        "$arrayElemAt",
+                                                                        Arrays.asList(
+                                                                                new Document(
+                                                                                        "$sortArray",
+                                                                                        new Document(
+                                                                                                        INPUT,
+                                                                                                        filteredPriceHistory)
+                                                                                                .append(
+                                                                                                        "sortBy",
+                                                                                                        new Document(
+                                                                                                                TIMESTAMP,
+                                                                                                                -1))),
+                                                                                0))))
+                                                .append(
+                                                        "in",
+                                                        new Document(
+                                                                "$gte",
+                                                                Arrays.asList(
+                                                                        "$$latestPrice.timestamp",
+                                                                        "$availabilityThresholdDate"))))));
+
         Document inDoc = new Document()
                 .append(
                         "$mergeObjects",
-                        List.of("$$offer", new Document("priceHistory", new Document("$filter", filterDoc))));
+                        Arrays.asList(new Document("shop", "$$offer.shop")
+                                .append("url", "$$offer.url")
+                                .append("priceHistory", filteredPriceHistory)
+                                .append(IS_AVAILABLE, isOfferAvailableDoc)));
 
-        // Create final map document
         return new Document(
                 "$map",
-                new Document().append("input", "$offers").append("as", "offer").append("in", inDoc));
+                new Document().append(INPUT, "$offers").append("as", "offer").append("in", inDoc));
     }
 
+    /**
+     * Creates date filter condition document
+     */
     private Document createDateFilterConditionDoc() {
         // Create conditional expression to choose appropriate filter
         return new Document(
-                "$cond",
+                COND,
                 new Document()
                         .append("if", "$isZeroDayFilter")
                         .append("then", createTodayOnlyFilterCondition())
                         .append("else", createStandardDateRangeCondition()));
     }
 
+    /**
+     * Creates filter condition for today only
+     */
     private Document createTodayOnlyFilterCondition() {
         // First condition: timestamp >= startOfToday
         Document gteStartOfToday = new Document("$gte", List.of(PRICE_TIMESTAMP, "$startOfToday"));
@@ -362,11 +491,17 @@ public class ProductService {
         return new Document("$and", List.of(gteStartOfToday, ltEndOfToday));
     }
 
+    /**
+     * Creates standard date range condition
+     */
     private Document createStandardDateRangeCondition() {
         // Standard filtering: timestamp >= dateRangeStart
         return new Document("$gte", List.of(PRICE_TIMESTAMP, "$dateRangeStart"));
     }
 
+    /**
+     * Finds a product by ID or throws an exception
+     */
     public Product findProductOrThrow(String id) {
         return productRepository
                 .findById(id)

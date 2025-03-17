@@ -37,15 +37,18 @@ public class ProductSearchCriteria {
     private static final String SHOP_NAME = "shopName";
     private static final String PRICE = "price";
     private static final String CURRENCY = "currency";
+    private static final String TIMESTAMP = "timestamp"; // Added constant for timestamp
     private static final String LOWEST_OFFER = "lowestOffer";
     private static final String LOWEST_PRICE = "lowestPrice";
     private static final String OFFER_COUNT = "offerCount";
+    private static final int AVAILABILITY_DAYS_THRESHOLD = 3; // Added constant for availability threshold
 
     private String searchName;
     private String searchCategory;
     private List<String> shop;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
+    private Boolean isAvailable; // Added field for availability filtering
     private Pageable pageable;
 
     public Aggregation toAggregation() {
@@ -94,8 +97,30 @@ public class ProductSearchCriteria {
         // Group by product and shop to find the latest prices for each offer
         operations.add(context -> createGroupByProductAndShopStage());
 
-        // Filter unavailable offers
-        operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(true)));
+        // Calculate availability based on timestamp directly in the database
+        operations.add(context -> {
+            // Create a threshold date (now - 3 days) for availability check
+            Document thresholdDateDoc = new Document(
+                    "$dateSubtract",
+                    new Document("startDate", "$$NOW")
+                            .append("unit", "day")
+                            .append("amount", AVAILABILITY_DAYS_THRESHOLD));
+
+            // Używamy $cond aby wyraźnie zwrócić wartość true/false
+            Document isAvailableDoc = new Document(
+                    "$cond",
+                    new Document()
+                            .append("if", new Document("$gte", Arrays.asList("$" + TIMESTAMP, thresholdDateDoc)))
+                            .append("then", true)
+                            .append("else", false));
+
+            return new Document(ADD_FIELDS, new Document(IS_AVAILABLE, isAvailableDoc));
+        });
+
+        // Filter by availability if requested
+        if (isAvailable != null) {
+            operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(isAvailable)));
+        }
 
         // Add price range filter if applicable
         if (minPrice != null || maxPrice != null) {
@@ -147,7 +172,10 @@ public class ProductSearchCriteria {
                         .append("lowestPriceCurrency", "$" + LOWEST_OFFER + "." + CURRENCY)
                         .append("lowestPriceShop", "$" + LOWEST_OFFER + "." + SHOP_NAME)
                         .append(OFFER_COUNT, 1)
-                        .append(IS_AVAILABLE, "$" + LOWEST_OFFER + "." + IS_AVAILABLE));
+                        .append(
+                                IS_AVAILABLE,
+                                "$" + LOWEST_OFFER + "."
+                                        + IS_AVAILABLE)); // Project the database-calculated availability
     }
 
     private Document createGroupByProductAndShopStage() {
@@ -163,7 +191,9 @@ public class ProductSearchCriteria {
                         .append(SHOP_NAME, new Document(FIRST, "$shopHumanName"))
                         .append(PRICE, new Document(FIRST, "$offers.priceHistory.price"))
                         .append(CURRENCY, new Document(FIRST, "$offers.priceHistory.currency"))
-                        .append(IS_AVAILABLE, new Document(FIRST, "$offers.priceHistory.isAvailable")));
+                        .append(
+                                TIMESTAMP,
+                                new Document(FIRST, "$offers.priceHistory.timestamp"))); // Added timestamp field
     }
 
     private Document createGroupByProductStage() {
@@ -185,38 +215,41 @@ public class ProductSearchCriteria {
                                                 .append(SHOP_NAME, "$" + SHOP_NAME)
                                                 .append(PRICE, "$" + PRICE)
                                                 .append(CURRENCY, "$" + CURRENCY)
-                                                .append(IS_AVAILABLE, "$" + IS_AVAILABLE))));
+                                                .append(TIMESTAMP, "$" + TIMESTAMP)
+                                                .append(
+                                                        IS_AVAILABLE,
+                                                        "$" + IS_AVAILABLE)))); // Include the calculated availability
     }
 
     private Document createLowestPriceFieldsStage() {
         return new Document(
                 ADD_FIELDS,
                 new Document(
-                        LOWEST_OFFER,
-                        new Document(
-                                "$reduce",
-                                new Document("input", "$" + OFFERS)
-                                        .append("initialValue", null)
-                                        .append(
-                                                "in",
-                                                new Document(
-                                                        "$cond",
-                                                        Arrays.asList(
-                                                                new Document(
-                                                                        "$or",
-                                                                        Arrays.asList(
-                                                                                new Document(
-                                                                                        "$eq",
-                                                                                        Arrays.asList(
-                                                                                                "$$value",
-                                                                                                null)),
-                                                                                new Document(
-                                                                                        "$lt",
-                                                                                        Arrays.asList(
-                                                                                                "$$this.price",
-                                                                                                "$$value.price")))),
-                                                                "$$this",
-                                                                "$$value")))))
+                                LOWEST_OFFER,
+                                new Document(
+                                        "$reduce",
+                                        new Document("input", "$" + OFFERS)
+                                                .append("initialValue", null)
+                                                .append(
+                                                        "in",
+                                                        new Document(
+                                                                "$cond",
+                                                                Arrays.asList(
+                                                                        new Document(
+                                                                                "$or",
+                                                                                Arrays.asList(
+                                                                                        new Document(
+                                                                                                "$eq",
+                                                                                                Arrays.asList(
+                                                                                                        "$$value",
+                                                                                                        null)),
+                                                                                        new Document(
+                                                                                                "$lt",
+                                                                                                Arrays.asList(
+                                                                                                        "$$this.price",
+                                                                                                        "$$value.price")))),
+                                                                        "$$this",
+                                                                        "$$value")))))
                         .append("mainImageUrl", new Document("$arrayElemAt", Arrays.asList("$" + IMAGES_FIELD, 0))));
     }
 

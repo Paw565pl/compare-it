@@ -76,7 +76,7 @@ class RtvEuroAgdScraperWorker {
                             .orElse(null);
                     var condition = productResponse.outletDetails().isPresent() ? Condition.OUTLET : Condition.NEW;
 
-                    var priceStamp = new PriceStamp(price, "PLN", true, condition);
+                    var priceStamp = new PriceStamp(price, "PLN", condition);
                     priceStamp.setPromoCode(promoCode);
 
                     var offer = new Offer(CURRENT_SHOP, getProductUrl(productResponse.identifiers()));

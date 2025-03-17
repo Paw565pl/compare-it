@@ -25,9 +25,6 @@ public class PriceStamp {
     @Field("promoCode")
     private String promoCode;
 
-    @NonNull @Field("isAvailable")
-    private Boolean isAvailable;
-
     @NonNull @Field("condition")
     private Condition condition;
 }

@@ -12,4 +12,5 @@ public class OfferResponse {
     private Shop shop;
     private String url;
     private List<PriceStampResponse> priceHistory;
+    private Boolean isAvailable;
 }
