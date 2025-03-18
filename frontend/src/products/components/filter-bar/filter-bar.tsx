@@ -6,6 +6,11 @@ import {
 } from "@/products/search-params/product-search-params";
 import { useQueryStates } from "nuqs";
 import { ChangeEvent, useState } from "react";
+import { Input } from "@/core/components/ui/input";
+import { H2 } from "@/core/components/ui/h2";
+import { H3 } from "@/core/components/ui/h3";
+import { Button } from "@/core/components/ui/button";
+import { Label } from "@/core/components/ui/label";
 
 const FilterBar = () => {
   const { data: shopList } = useFetchShopsList();
@@ -58,13 +63,13 @@ const FilterBar = () => {
 
   return (
     <>
-      <h2 className="text-secondary mt-6 mb-1 ml-4 text-2xl font-bold sm:ml-0">
+      <H2 className="mt-6 mb-1 ml-4 sm:ml-0">
         Filtry
-      </h2>
+      </H2>
       <div className="border-background mt-2 mb-4 flex flex-col items-start border bg-white">
-        <h3 className="text-secondary mb-2 pt-2 pl-4 text-xl font-bold">
+        <H3 className="text-secondary mb-2 pt-2 pl-4 text-xl font-bold">
           Sklepy
-        </h3>
+        </H3>
         <ul className="w-full">
           {shopList
             ?.filter((shop) => shop !== "Media Expert")
@@ -73,8 +78,8 @@ const FilterBar = () => {
                 key={index}
                 className="hover:bg-hover cursor-pointer px-4 py-2 transition-colors duration-200 hover:text-white sm:text-lg"
               >
-                <label className="flex items-center space-x-2 hover:cursor-pointer">
-                  <input
+                <Label className="flex items-center space-x-2 hover:cursor-pointer">
+                  <Input
                     type="checkbox"
                     name="shop"
                     value={shop}
@@ -83,14 +88,14 @@ const FilterBar = () => {
                     className="cursor-pointer"
                   />
                   <span>{shop}</span>
-                </label>
+                </Label>
               </li>
             ))}
         </ul>
-        <h3 className="text-secondary pt-2 pl-4 text-xl font-bold">Cena</h3>
+        <H3 className="text-secondary pt-2 pl-4 text-xl font-bold">Cena</H3>
         <div className="flex w-full flex-col justify-start">
           <div className="mb-4 w-full space-y-1 p-4">
-            <input
+            <Input
               type="text"
               name="minPrice"
               onChange={handlePriceChange}
@@ -98,7 +103,7 @@ const FilterBar = () => {
               placeholder="od"
               className="bg-background w-full p-2 text-sm focus:outline-hidden"
             />
-            <input
+            <Input
               type="text"
               name="maxPrice"
               onChange={handlePriceChange}
@@ -108,12 +113,12 @@ const FilterBar = () => {
             />
           </div>
 
-          <button
+          <Button
             onClick={applyFilters}
             className="bg-secondary hover:bg-hover px-4 py-2 text-white"
           >
             FILTRUJ
-          </button>
+          </Button>
         </div>
       </div>
     </>

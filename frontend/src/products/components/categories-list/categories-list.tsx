@@ -6,6 +6,8 @@ import {
   productPaginationSearchParams,
 } from "@/products/search-params/product-search-params";
 import { useQueryStates } from "nuqs";
+import { Button } from "@/core/components/ui/button";
+import { H2 } from "@/core/components/ui/h2";
 
 const CategoriesList = () => {
   const { data: categoriesList } = useFetchCategoriesList();
@@ -19,9 +21,9 @@ const CategoriesList = () => {
 
   return (
     <div className="flex flex-col items-start">
-      <h2 className="text-secondary mb-1 ml-4 text-2xl font-bold sm:ml-0">
+      <H2>
         Kategorie
-      </h2>
+      </H2>
       <ul className="mt-2 w-full bg-white">
         <li
           className={`cursor-pointer transition-colors duration-200 ${
@@ -30,12 +32,12 @@ const CategoriesList = () => {
               : "hover:bg-hover hover:text-white"
           }`}
         >
-          <button
+          <Button
             onClick={() => handleCategoryChange(null)}
             className="flex w-full justify-start px-4 py-2"
           >
             <span>Wszystkie</span>
-          </button>
+          </Button>
         </li>
 
         {categoriesList?.map((category, index) => {
@@ -50,12 +52,12 @@ const CategoriesList = () => {
                   : "hover:bg-hover hover:text-white"
               }`}
             >
-              <button
+              <Button
                 onClick={() => handleCategoryChange(category)}
                 className="flex w-full justify-start px-4 py-2"
               >
                 <span>{category}</span>
-              </button>
+              </Button>
             </li>
           );
         })}
