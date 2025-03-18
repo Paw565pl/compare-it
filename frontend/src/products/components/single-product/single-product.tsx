@@ -1,3 +1,4 @@
+import { H1 } from "@/core/components/ui/h1";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
@@ -36,7 +37,7 @@ const SingleProduct = ({
       <div className="flex grow flex-col justify-between">
         <div>
           <Link href={`/produkty/${id}`}>
-            <h1 className="mb-2 text-xl font-bold">{name}</h1>
+            <H1 className="mb-2 text-xl font-bold">{name}</H1>
           </Link>
           <p className="mb-4 text-sm text-gray-500">Kategoria: {category}</p>
 

@@ -2,6 +2,7 @@
 
 import { CommentsSection } from "@/comments/components";
 import { Button } from "@/core/components/ui/button";
+import { H1 } from "@/core/components/ui/h1";
 import {
   ProductActionsButtons,
   ProductPageImage,
@@ -37,7 +38,7 @@ const ProductPageTop = ({ productId }: ProductPageTopProps) => {
 
         <div className="flex grow flex-col justify-between">
           <div>
-            <h1 className="mb-2 text-3xl font-bold">{productData?.name}</h1>
+            <H1 className="mb-2 text-3xl font-bold">{productData?.name}</H1>
             <p className="text-md mb-4 text-gray-500">
               Kod EAN: {productData?.ean}
             </p>
