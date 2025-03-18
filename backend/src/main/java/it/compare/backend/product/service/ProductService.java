@@ -15,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
@@ -36,9 +36,7 @@ public class ProductService {
     // Constants to avoid duplication
     private static final String OFFERS_SHOP = "$offers.shop";
     private static final String GROUP = "$group";
-    private static final String MATCH = "$match";
     private static final String ADD_FIELDS = "$addFields";
-    private static final String FIRST = "$first";
     private static final String ID = "_id";
     private static final String PRICE = "price";
     private static final String IS_AVAILABLE = "isAvailable";
@@ -103,12 +101,12 @@ public class ProductService {
     }
 
     private AggregationResults<ProductListResponse> executeMainAggregation(ProductSearchCriteria criteria) {
-        Aggregation aggregation = criteria.toAggregation();
+        var aggregation = criteria.toAggregation();
         return mongoTemplate.aggregate(aggregation, PRODUCTS_COLLECTION, ProductListResponse.class);
     }
 
     private long executeCountAggregation(ProductSearchCriteria criteria) {
-        Aggregation countAggregation = createCountAggregation(criteria);
+        var countAggregation = createCountAggregation(criteria);
         AggregationResults<CountResult> countResults =
                 mongoTemplate.aggregate(countAggregation, PRODUCTS_COLLECTION, CountResult.class);
 
@@ -141,12 +139,17 @@ public class ProductService {
         operations.add(Aggregation.unwind(OFFERS, true));
 
         // 3. Create temporary fields for shop and its name
-        operations.add(context ->
-                new Document(ADD_FIELDS, new Document("shopObject", OFFERS_SHOP).append("shopHumanName", OFFERS_SHOP)));
+        operations.add(Aggregation.addFields()
+                .addField("shopObject")
+                .withValue(OFFERS_SHOP)
+                .addField("shopHumanName")
+                .withValue(OFFERS_SHOP)
+                .build());
 
         // 4. Sort offers by time to find the latest prices
-        operations.add(context -> new Document(
-                "$sort", new Document(ID, 1).append("offers.shop", 1).append(OFFERS_PRICE_HISTORY_TIMESTAMP, -1)));
+        operations.add(Aggregation.sort(Sort.by(Sort.Direction.ASC, ID)
+                .and(Sort.by(Sort.Direction.ASC, "offers.shop"))
+                .and(Sort.by(Sort.Direction.DESC, OFFERS_PRICE_HISTORY_TIMESTAMP))));
 
         // 5. Unwinding price history
         operations.add(Aggregation.unwind("offers.priceHistory", true));
@@ -158,22 +161,29 @@ public class ProductService {
         List<AggregationOperation> operations = new ArrayList<>();
 
         // 6. Group by product and shop to find the latest prices for each offer
-        operations.add(context -> new Document(
-                GROUP,
-                new Document(ID, new Document("productId", "$_id").append("shop", OFFERS_SHOP))
-                        .append(PRICE, new Document(FIRST, "$offers.priceHistory.price"))
-                        .append(TIMESTAMP, new Document(FIRST, "$offers.priceHistory.timestamp"))));
+        operations.add(
+                Aggregation.group(Fields.fields().and("productId", "$_id").and("shop", OFFERS_SHOP))
+                        .first("offers.priceHistory.price")
+                        .as(PRICE)
+                        .first(OFFERS_PRICE_HISTORY_TIMESTAMP)
+                        .as(TIMESTAMP));
 
         // 7. Calculate availability status based on timestamp
         operations.add(context -> {
-            Document thresholdDateDoc = new Document(
-                    DATE_SUBTRACT,
-                    new Document(START_DATE, NOW).append(UNIT, DAY).append(AMOUNT, AVAILABILITY_DAYS_THRESHOLD));
-
             Document isAvailableDoc = new Document(
                     COND,
                     new Document()
-                            .append("if", new Document("$gte", List.of("$" + TIMESTAMP, thresholdDateDoc)))
+                            .append(
+                                    "if",
+                                    new Document(
+                                            "$gte",
+                                            List.of(
+                                                    "$" + TIMESTAMP,
+                                                    new Document(
+                                                            DATE_SUBTRACT,
+                                                            new Document(START_DATE, NOW)
+                                                                    .append(UNIT, DAY)
+                                                                    .append(AMOUNT, AVAILABILITY_DAYS_THRESHOLD)))))
                             .append("then", true)
                             .append("else", false));
 
@@ -191,8 +201,7 @@ public class ProductService {
         }
 
         // 10. Group by product
-        operations.add(context ->
-                new Document(GROUP, new Document(ID, "$_id.productId").append("count", new Document("$sum", 1))));
+        operations.add(Aggregation.group("_id.productId").count().as("count"));
 
         return operations;
     }
@@ -203,24 +212,17 @@ public class ProductService {
     }
 
     private AggregationOperation createPriceRangeFilterOperation(ProductSearchCriteria criteria) {
-        return context -> {
-            Document matchDoc = new Document(MATCH, new Document());
+        var priceCriteria = Criteria.where(PRICE);
 
-            if (criteria.getMinPrice() != null) {
-                matchDoc.get(MATCH, Document.class).append(PRICE, new Document("$gte", criteria.getMinPrice()));
-            }
+        if (criteria.getMinPrice() != null) {
+            priceCriteria = priceCriteria.gte(criteria.getMinPrice());
+        }
 
-            if (criteria.getMaxPrice() != null) {
-                Document priceDoc = matchDoc.get(MATCH, Document.class).get(PRICE, Document.class);
-                if (priceDoc == null) {
-                    matchDoc.get(MATCH, Document.class).append(PRICE, new Document("$lte", criteria.getMaxPrice()));
-                } else {
-                    priceDoc.append("$lte", criteria.getMaxPrice());
-                }
-            }
+        if (criteria.getMaxPrice() != null) {
+            priceCriteria = priceCriteria.lte(criteria.getMaxPrice());
+        }
 
-            return matchDoc;
-        };
+        return Aggregation.match(priceCriteria);
     }
 
     @Getter
@@ -234,8 +236,8 @@ public class ProductService {
      */
     public ProductDetailResponse findById(String id, Integer priceStampRangeDays) {
         try {
-            // Bezpośrednio pobieramy i zwracamy ProductDetailResponse
-            return fetchProductWithAggregation(id, priceStampRangeDays);
+            ObjectId objectId = new ObjectId(id);
+            return fetchProductWithAggregation(objectId, priceStampRangeDays);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID format");
         }
@@ -244,7 +246,7 @@ public class ProductService {
     /**
      * Fetches a product with aggregation and returns it as ProductDetailResponse
      */
-    private ProductDetailResponse fetchProductWithAggregation(String id, Integer priceStampRangeDays) {
+    private ProductDetailResponse fetchProductWithAggregation(ObjectId id, Integer priceStampRangeDays) {
         try {
             // Filter using database aggregation
             Aggregation aggregation = createProductDetailAggregation(id, priceStampRangeDays);
@@ -265,7 +267,6 @@ public class ProductService {
 
                 // If the product exists but has no data in the specified range,
                 // return the product structure with empty price history
-                log.debug("Product exists but no data in specified range, returning basic product structure");
                 Product product =
                         mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Product.class);
 
@@ -286,25 +287,22 @@ public class ProductService {
     /**
      * Creates an aggregation to fetch product details
      */
-    private Aggregation createProductDetailAggregation(String id, Integer priceStampRangeDays) {
+    private Aggregation createProductDetailAggregation(ObjectId id, Integer priceStampRangeDays) {
         List<AggregationOperation> operations = new ArrayList<>();
 
         // 1. Match product by ID
-        operations.add(context -> new Document(MATCH, new Document("_id", id)));
+        operations.add(Aggregation.match(Criteria.where("_id").is(id)));
 
         // 2. Process date range and create filtering fields
         operations.add(context -> createDateFilteringFieldsOperation(priceStampRangeDays));
 
         // 3. Add threshold date for availability calculation
-        operations.add(context -> new Document(
-                ADD_FIELDS,
-                new Document(
-                        "availabilityThresholdDate",
-                        new Document(
-                                DATE_SUBTRACT,
-                                new Document(START_DATE, NOW)
-                                        .append(UNIT, DAY)
-                                        .append(AMOUNT, AVAILABILITY_DAYS_THRESHOLD)))));
+        operations.add(Aggregation.addFields()
+                .addField("availabilityThresholdDate")
+                .withValueOf((AggregationExpression) context -> new Document(
+                        DATE_SUBTRACT,
+                        new Document(START_DATE, NOW).append(UNIT, DAY).append(AMOUNT, AVAILABILITY_DAYS_THRESHOLD)))
+                .build());
 
         // 4. Filter price history based on date range and calculate availability
         operations.add(context -> {
@@ -313,14 +311,19 @@ public class ProductService {
         });
 
         // 5. Final projection - map fields to match ProductDetailResponse structure
-        operations.add(context -> new Document(
-                "$project",
-                new Document("id", "$_id")
-                        .append("ean", 1)
-                        .append("name", 1)
-                        .append("category", 1)
-                        .append("images", 1)
-                        .append(OFFERS, 1)));
+        operations.add(Aggregation.project()
+                .and("_id")
+                .as("id")
+                .and("ean")
+                .as("ean")
+                .and("name")
+                .as("name")
+                .and("category")
+                .as("category")
+                .and("images")
+                .as("images")
+                .and(OFFERS)
+                .as(OFFERS));
 
         // 6. Remove temporary fields
         operations.add(Aggregation.project()
@@ -330,8 +333,7 @@ public class ProductService {
                         "isZeroDayFilter",
                         "startOfToday",
                         "endOfToday",
-                        "availabilityThresholdDate",
-                        "_id"));
+                        "availabilityThresholdDate"));
 
         return Aggregation.newAggregation(operations);
     }
@@ -340,7 +342,7 @@ public class ProductService {
      * Creates date filtering fields for aggregation
      */
     private Document createDateFilteringFieldsOperation(Integer priceStampRangeDays) {
-        Document addFieldsDoc = new Document();
+        var addFieldsDoc = new Document();
 
         // Get days range value and determine if it's today-only filter
         int rangeDays = priceStampRangeDays != null ? Math.max(0, priceStampRangeDays) : 0;
@@ -348,19 +350,19 @@ public class ProductService {
         addFieldsDoc.append("isZeroDayFilter", rangeDays == 0);
 
         // Create date parts for today
-        Document todayDatePartsDoc = createTodayDatePartsDoc();
+        var todayDatePartsDoc = createTodayDatePartsDoc();
 
         // Add start of today for filtering
         addFieldsDoc.append("startOfToday", new Document(DATE_FROM_PARTS, todayDatePartsDoc));
 
         // Add end of today (start of tomorrow) for filtering
-        Document tomorrowDateDoc = createDateAddDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), DAY, 1);
+        var tomorrowDateDoc = createDateAddDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc));
         addFieldsDoc.append("endOfToday", tomorrowDateDoc);
 
         // Add date range start for standard filtering (non-zero days)
         if (rangeDays > 0) {
-            Document dateRangeStartDoc =
-                    createDateSubtractDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), DAY, rangeDays);
+            var dateRangeStartDoc =
+                    createDateSubtractDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), rangeDays);
             addFieldsDoc.append("dateRangeStart", dateRangeStartDoc);
         }
 
@@ -383,19 +385,23 @@ public class ProductService {
     /**
      * Creates date add document
      */
-    private Document createDateAddDocument(Document startDate, String unit, int amount) {
+    private Document createDateAddDocument(Document startDate) {
         return new Document(
                 "$dateAdd",
-                new Document(START_DATE, startDate).append(UNIT, unit).append(AMOUNT, amount));
+                new Document(START_DATE, startDate)
+                        .append(UNIT, ProductService.DAY)
+                        .append(AMOUNT, 1));
     }
 
     /**
      * Creates date subtract document
      */
-    private Document createDateSubtractDocument(Document startDate, String unit, int amount) {
+    private Document createDateSubtractDocument(Document startDate, int amount) {
         return new Document(
                 DATE_SUBTRACT,
-                new Document(START_DATE, startDate).append(UNIT, unit).append(AMOUNT, amount));
+                new Document(START_DATE, startDate)
+                        .append(UNIT, ProductService.DAY)
+                        .append(AMOUNT, amount));
     }
 
     /**
@@ -403,17 +409,17 @@ public class ProductService {
      */
     private Document createPriceHistoryFilterMapDocWithAvailability() {
         // Create condition for date filtering
-        Document dateConditionDoc = createDateFilterConditionDoc();
+        var dateConditionDoc = createDateFilterConditionDoc();
 
         // Create filter document for date filtering
-        Document filterDoc = new Document()
+        var filterDoc = new Document()
                 .append(INPUT, "$$offer.priceHistory")
                 .append("as", PRICE)
                 .append("cond", dateConditionDoc);
 
-        Document filteredPriceHistory = new Document("$filter", filterDoc);
+        var filteredPriceHistory = new Document("$filter", filterDoc);
 
-        Document isOfferAvailableDoc = new Document(
+        var isOfferAvailableDoc = new Document(
                 COND,
                 new Document()
                         .append(
@@ -451,13 +457,13 @@ public class ProductService {
                                                                         "$$latestPrice.timestamp",
                                                                         "$availabilityThresholdDate"))))));
 
-        Document inDoc = new Document()
+        var inDoc = new Document()
                 .append(
                         "$mergeObjects",
-                        Arrays.asList(new Document("shop", "$$offer.shop")
+                        new Document("shop", "$$offer.shop")
                                 .append("url", "$$offer.url")
                                 .append("priceHistory", filteredPriceHistory)
-                                .append(IS_AVAILABLE, isOfferAvailableDoc)));
+                                .append(IS_AVAILABLE, isOfferAvailableDoc));
 
         return new Document(
                 "$map",
@@ -481,14 +487,11 @@ public class ProductService {
      * Creates filter condition for today only
      */
     private Document createTodayOnlyFilterCondition() {
-        // First condition: timestamp >= startOfToday
-        Document gteStartOfToday = new Document("$gte", List.of(PRICE_TIMESTAMP, "$startOfToday"));
-
-        // Second condition: timestamp < endOfToday (start of tomorrow)
-        Document ltEndOfToday = new Document("$lt", List.of(PRICE_TIMESTAMP, "$endOfToday"));
-
-        // Combine conditions with $and
-        return new Document("$and", List.of(gteStartOfToday, ltEndOfToday));
+        return new Document(
+                "$and",
+                List.of(
+                        new Document("$gte", List.of(PRICE_TIMESTAMP, "$startOfToday")),
+                        new Document("$lt", List.of(PRICE_TIMESTAMP, "$endOfToday"))));
     }
 
     /**

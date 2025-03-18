@@ -7,10 +7,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.data.mongodb.core.mapping.*;
 
 @Getter
 @Setter
@@ -25,7 +22,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 public class FavoriteProduct {
 
     @MongoId
-    @Field("_id")
+    @Field(value = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
     @DBRef(lazy = true)

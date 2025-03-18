@@ -36,8 +36,9 @@ public class ProductSearchCriteria {
     private static final String NAME = "name";
     private static final String SHOP_NAME = "shopName";
     private static final String PRICE = "price";
+    private static final String COND = "$cond";
     private static final String CURRENCY = "currency";
-    private static final String TIMESTAMP = "timestamp"; // Added constant for timestamp
+    private static final String TIMESTAMP = "timestamp";
     private static final String LOWEST_OFFER = "lowestOffer";
     private static final String LOWEST_PRICE = "lowestPrice";
     private static final String OFFER_COUNT = "offerCount";
@@ -48,7 +49,7 @@ public class ProductSearchCriteria {
     private List<String> shop;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
-    private Boolean isAvailable; // Added field for availability filtering
+    private Boolean isAvailable;
     private Pageable pageable;
 
     public Aggregation toAggregation() {
@@ -106,9 +107,8 @@ public class ProductSearchCriteria {
                             .append("unit", "day")
                             .append("amount", AVAILABILITY_DAYS_THRESHOLD));
 
-            // Używamy $cond aby wyraźnie zwrócić wartość true/false
             Document isAvailableDoc = new Document(
-                    "$cond",
+                    COND,
                     new Document()
                             .append("if", new Document("$gte", Arrays.asList("$" + TIMESTAMP, thresholdDateDoc)))
                             .append("then", true)
@@ -172,10 +172,7 @@ public class ProductSearchCriteria {
                         .append("lowestPriceCurrency", "$" + LOWEST_OFFER + "." + CURRENCY)
                         .append("lowestPriceShop", "$" + LOWEST_OFFER + "." + SHOP_NAME)
                         .append(OFFER_COUNT, 1)
-                        .append(
-                                IS_AVAILABLE,
-                                "$" + LOWEST_OFFER + "."
-                                        + IS_AVAILABLE)); // Project the database-calculated availability
+                        .append(IS_AVAILABLE, "$hasAvailableOffers"));
     }
 
     private Document createGroupByProductAndShopStage() {
@@ -191,9 +188,7 @@ public class ProductSearchCriteria {
                         .append(SHOP_NAME, new Document(FIRST, "$shopHumanName"))
                         .append(PRICE, new Document(FIRST, "$offers.priceHistory.price"))
                         .append(CURRENCY, new Document(FIRST, "$offers.priceHistory.currency"))
-                        .append(
-                                TIMESTAMP,
-                                new Document(FIRST, "$offers.priceHistory.timestamp"))); // Added timestamp field
+                        .append(TIMESTAMP, new Document(FIRST, "$offers.priceHistory.timestamp")));
     }
 
     private Document createGroupByProductStage() {
@@ -206,7 +201,17 @@ public class ProductSearchCriteria {
                         .append(CATEGORY, new Document(FIRST, "$" + CATEGORY))
                         .append(IMAGES_FIELD, new Document(FIRST, "$" + IMAGES_FIELD))
                         .append(LOWEST_PRICE, new Document("$min", "$" + PRICE))
-                        .append(OFFER_COUNT, new Document("$sum", 1))
+                        // Count only available offers
+                        .append(
+                                OFFER_COUNT,
+                                new Document(
+                                        "$sum",
+                                        new Document(
+                                                COND,
+                                                Arrays.asList(
+                                                        new Document("$eq", Arrays.asList("$" + IS_AVAILABLE, true)),
+                                                        1,
+                                                        0))))
                         .append(
                                 OFFERS,
                                 new Document(
@@ -216,9 +221,7 @@ public class ProductSearchCriteria {
                                                 .append(PRICE, "$" + PRICE)
                                                 .append(CURRENCY, "$" + CURRENCY)
                                                 .append(TIMESTAMP, "$" + TIMESTAMP)
-                                                .append(
-                                                        IS_AVAILABLE,
-                                                        "$" + IS_AVAILABLE)))); // Include the calculated availability
+                                                .append(IS_AVAILABLE, "$" + IS_AVAILABLE))));
     }
 
     private Document createLowestPriceFieldsStage() {
@@ -233,23 +236,78 @@ public class ProductSearchCriteria {
                                                 .append(
                                                         "in",
                                                         new Document(
-                                                                "$cond",
+                                                                COND,
                                                                 Arrays.asList(
                                                                         new Document(
                                                                                 "$or",
                                                                                 Arrays.asList(
+                                                                                        // If no value yet, use this
+                                                                                        // offer
                                                                                         new Document(
                                                                                                 "$eq",
                                                                                                 Arrays.asList(
                                                                                                         "$$value",
                                                                                                         null)),
+                                                                                        // Or if current offer is
+                                                                                        // available and value is not
                                                                                         new Document(
-                                                                                                "$lt",
+                                                                                                "$and",
                                                                                                 Arrays.asList(
-                                                                                                        "$$this.price",
-                                                                                                        "$$value.price")))),
+                                                                                                        // Current offer
+                                                                                                        // is available
+                                                                                                        new Document(
+                                                                                                                "$eq",
+                                                                                                                Arrays
+                                                                                                                        .asList(
+                                                                                                                                "$$this.isAvailable",
+                                                                                                                                true)),
+                                                                                                        // AND either
+                                                                                                        // value is not
+                                                                                                        // available OR
+                                                                                                        // (value is
+                                                                                                        // available AND
+                                                                                                        // this price is
+                                                                                                        // lower)
+                                                                                                        new Document(
+                                                                                                                "$or",
+                                                                                                                Arrays
+                                                                                                                        .asList(
+                                                                                                                                // Value is not available
+                                                                                                                                new Document(
+                                                                                                                                        "$ne",
+                                                                                                                                        Arrays
+                                                                                                                                                .asList(
+                                                                                                                                                        "$$value.isAvailable",
+                                                                                                                                                        true)),
+                                                                                                                                // Or this price is lower than value price
+                                                                                                                                new Document(
+                                                                                                                                        "$lt",
+                                                                                                                                        Arrays
+                                                                                                                                                .asList(
+                                                                                                                                                        "$$this.price",
+                                                                                                                                                        "$$value.price")))))))),
                                                                         "$$this",
                                                                         "$$value")))))
+                        // Add hasAvailableOffers field that is true if any offer is available
+                        .append(
+                                "hasAvailableOffers",
+                                new Document(
+                                        "$gt",
+                                        Arrays.asList(
+                                                new Document(
+                                                        "$size",
+                                                        new Document(
+                                                                "$filter",
+                                                                new Document("input", "$offers")
+                                                                        .append("as", "offer")
+                                                                        .append(
+                                                                                "cond",
+                                                                                new Document(
+                                                                                        "$eq",
+                                                                                        Arrays.asList(
+                                                                                                "$$offer.isAvailable",
+                                                                                                true))))),
+                                                0)))
                         .append("mainImageUrl", new Document("$arrayElemAt", Arrays.asList("$" + IMAGES_FIELD, 0))));
     }
 
