@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 public class OfferResponse {
     private Shop shop;
-    private String shopLogoUrl;
     private String url;
     private List<PriceStampResponse> priceHistory;
+    private Boolean isAvailable;
 }

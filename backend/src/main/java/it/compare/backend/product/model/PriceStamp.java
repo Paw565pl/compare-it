@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class PriceStamp {
     @NonNull @Field("timestamp")
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    @NonNull @Field("price")
+    @NonNull @Field(value = "price", targetType = FieldType.DECIMAL128)
     private BigDecimal price;
 
     @NonNull @Field("currency")
@@ -23,9 +24,6 @@ public class PriceStamp {
 
     @Field("promoCode")
     private String promoCode;
-
-    @NonNull @Field("isAvailable")
-    private Boolean isAvailable;
 
     @NonNull @Field("condition")
     private Condition condition;

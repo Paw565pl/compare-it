@@ -14,6 +14,5 @@ public class PriceStampResponse {
     private BigDecimal price;
     private String currency;
     private String promoCode;
-    private Boolean isAvailable;
     private Condition condition;
 }

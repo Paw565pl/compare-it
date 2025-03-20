@@ -16,9 +16,6 @@ public class Offer {
     @Field("shop")
     @NonNull private Shop shop;
 
-    @Field("shopLogoUrl")
-    @NonNull private String shopLogoUrl;
-
     @Indexed(unique = true)
     @Field("url")
     @NonNull private String url;
