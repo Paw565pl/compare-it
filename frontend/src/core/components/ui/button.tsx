@@ -23,6 +23,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         category:
           "flex w-full justify-start px-4 py-2",
+        filter:
+          "bg-primary hover:bg-hover px-4 py-2 text-white",
       },
       size: {
         default: "h-9 px-4 py-2",

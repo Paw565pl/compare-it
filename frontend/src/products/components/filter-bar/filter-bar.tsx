@@ -114,8 +114,8 @@ const FilterBar = () => {
           </div>
 
           <Button
+            variant="primary"
             onClick={applyFilters}
-            className="bg-primary hover:bg-hover px-4 py-2 text-white"
           >
             FILTRUJ
           </Button>
