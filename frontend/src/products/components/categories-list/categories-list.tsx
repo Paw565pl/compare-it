@@ -33,8 +33,8 @@ const CategoriesList = () => {
           }`}
         >
           <Button
+            variant="category"
             onClick={() => handleCategoryChange(null)}
-            className="flex w-full justify-start px-4 py-2"
           >
             <span>Wszystkie</span>
           </Button>
@@ -53,8 +53,8 @@ const CategoriesList = () => {
               }`}
             >
               <Button
+                variant="category"
                 onClick={() => handleCategoryChange(category)}
-                className="flex w-full justify-start px-4 py-2"
               >
                 <span>{category}</span>
               </Button>

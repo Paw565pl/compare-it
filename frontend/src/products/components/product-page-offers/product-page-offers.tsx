@@ -8,7 +8,7 @@ interface ProductPageOffersProps {
 const ProductPageOffers = ({ productId }: ProductPageOffersProps) => {
   const { data: productData, isLoading, error } = useFetchProduct(productId);
 
-  if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
+  if (isLoading) return <div className="text-primary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   return (

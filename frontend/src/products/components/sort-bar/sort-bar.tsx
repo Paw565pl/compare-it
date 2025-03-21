@@ -33,7 +33,7 @@ const SortBar = () => {
     <div className="text-md relative items-center">
       <Button
         onClick={toggleDropdown}
-        className="bg-secondary hover:bg-hover flex px-4 py-2 text-white transition-colors"
+        className="bg-primary hover:bg-hover flex px-4 py-2 text-white transition-colors"
       >
         SORTUJ
         <ChevronDown className="w-6" />

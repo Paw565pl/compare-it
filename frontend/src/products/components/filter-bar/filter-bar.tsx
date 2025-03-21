@@ -67,7 +67,7 @@ const FilterBar = () => {
         Filtry
       </H2>
       <div className="border-background mt-2 mb-4 flex flex-col items-start border bg-white">
-        <H3 className="text-secondary mb-2 pt-2 pl-4 text-xl font-bold">
+        <H3 className="text-primary mb-2 pt-2 pl-4 text-xl font-bold">
           Sklepy
         </H3>
         <ul className="w-full">
@@ -92,7 +92,7 @@ const FilterBar = () => {
               </li>
             ))}
         </ul>
-        <H3 className="text-secondary pt-2 pl-4 text-xl font-bold">Cena</H3>
+        <H3 className="text-primary pt-2 pl-4 text-xl font-bold">Cena</H3>
         <div className="flex w-full flex-col justify-start">
           <div className="mb-4 w-full space-y-1 p-4">
             <Input
@@ -115,7 +115,7 @@ const FilterBar = () => {
 
           <Button
             onClick={applyFilters}
-            className="bg-secondary hover:bg-hover px-4 py-2 text-white"
+            className="bg-primary hover:bg-hover px-4 py-2 text-white"
           >
             FILTRUJ
           </Button>

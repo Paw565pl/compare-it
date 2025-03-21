@@ -23,12 +23,12 @@ const ProductPageTop = ({ productId }: ProductPageTopProps) => {
   const { data: productData, isLoading, error } = useFetchProduct(productId);
   const [category, setCategory] = useState<Section>("oferty");
 
-  if (isLoading) return <div className="text-secondary">Ładowanie...</div>;
+  if (isLoading) return <div className="text-primary">Ładowanie...</div>;
   if (error) return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   return (
     <div className="flex flex-col">
-      <div className="border-grey-100 text-secondary flex flex-col bg-white p-6 md:flex-row">
+      <div className="border-grey-100 text-primary flex flex-col bg-white p-6 md:flex-row">
         <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
           <ProductPageImage
             name={productData?.name || ""}
@@ -60,9 +60,9 @@ const ProductPageTop = ({ productId }: ProductPageTopProps) => {
           <Button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`border-secondary w-full border-b-2 font-semibold shadow-none transition-colors duration-200 ${
+            className={`border-primary w-full border-b-2 font-semibold shadow-none transition-colors duration-200 ${
               category === cat
-                ? "bg-secondary hover:bg-secondary text-white"
+                ? "bg-primary hover:bg-primary text-white"
                 : "bg-background hover:bg-hover text-gray-600 hover:text-white"
             }`}
           >

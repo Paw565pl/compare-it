@@ -27,7 +27,7 @@ const SingleProduct = ({
   );
 
   return (
-    <div className="border-grey-100 text-secondary flex flex-col bg-white p-6 md:flex-row">
+    <div className="border-grey-100 text-primary flex flex-col bg-white p-6 md:flex-row">
       <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
         <Link href={`/produkty/${id}`}>
           <ProductImage name={name} imageUrl={mainImageUrl} />
@@ -57,12 +57,12 @@ const SingleProduct = ({
               </span>
             )}
           </div>
-          <p className="text-secondary mb-2 text-lg font-semibold">
+          <p className="text-primary mb-2 text-lg font-semibold">
             Najniższa cena: {formattedPrice}
           </p>
           <Link
             href={`/produkty/${id}`}
-            className="bg-secondary hover:bg-hover block px-4 py-2 text-center font-semibold text-white transition"
+            className="bg-primary hover:bg-hover block px-4 py-2 text-center font-semibold text-white transition"
           >
             Porównaj oferty
           </Link>

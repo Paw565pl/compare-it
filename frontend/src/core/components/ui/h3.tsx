@@ -8,7 +8,7 @@ interface H3Props {
 
 export const H3 = ({ children, className }: H3Props) => {
   return (
-    <h3 className={cn("text-secondary pt-2 pl-4 text-xl font-bold", className)}>
+    <h3 className={cn("text-primary pt-2 pl-4 text-xl font-bold", className)}>
       {children}
     </h3>
   );
