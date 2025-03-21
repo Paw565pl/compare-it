@@ -32,8 +32,8 @@ const SortBar = () => {
   return (
     <div className="text-md relative items-center">
       <Button
+        variant="sort"
         onClick={toggleDropdown}
-        className="bg-primary hover:bg-hover flex px-4 py-2 text-white transition-colors"
       >
         SORTUJ
         <ChevronDown className="w-6" />
@@ -44,9 +44,8 @@ const SortBar = () => {
           {Object.entries(sortOptions).map(([sortLabel, sortValue], index) => (
             <li key={index}>
               <Button
-                onClick={() => handleSortChange(sortValue)}
-                className="hover:bg-hover w-full cursor-pointer px-4 py-2 text-left hover:text-white"
-              >
+                variant="sortCategory"
+                onClick={() => handleSortChange(sortValue)}              >
                 {sortLabel}
               </Button>
             </li>

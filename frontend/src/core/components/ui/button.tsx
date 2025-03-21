@@ -25,6 +25,11 @@ const buttonVariants = cva(
           "flex w-full justify-start px-4 py-2",
         filter:
           "bg-primary hover:bg-hover px-4 py-2 text-white",
+        sort:
+          "bg-primary hover:bg-hover px-4 py-2 text-white",
+        sortCategory:
+          "flex w-full justify-start px-4 py-2 hover:bg-hover hover:text-white"
+        
       },
       size: {
         default: "h-9 px-4 py-2",
