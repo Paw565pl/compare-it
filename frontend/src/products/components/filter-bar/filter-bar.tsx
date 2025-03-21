@@ -6,7 +6,7 @@ import {
 } from "@/products/search-params/product-search-params";
 import { useQueryStates } from "nuqs";
 import { ChangeEvent, useState } from "react";
-import { Input } from "@/core/components/ui/input";
+import { FilterInput, Input } from "@/core/components/ui/input";
 import { H2 } from "@/core/components/ui/h2";
 import { H3 } from "@/core/components/ui/h3";
 import { Button } from "@/core/components/ui/button";
@@ -63,11 +63,11 @@ const FilterBar = () => {
 
   return (
     <>
-      <H2 className="mt-6 mb-1 ml-4 sm:ml-0">
+      <H2>
         Filtry
       </H2>
       <div className="border-background mt-2 mb-4 flex flex-col items-start border bg-white">
-        <H3 className="text-primary mb-2 pt-2 pl-4 text-xl font-bold">
+        <H3>
           Sklepy
         </H3>
         <ul className="w-full">
@@ -78,8 +78,8 @@ const FilterBar = () => {
                 key={index}
                 className="hover:bg-hover cursor-pointer px-4 py-2 transition-colors duration-200 hover:text-white sm:text-lg"
               >
-                <Label className="flex items-center space-x-2 hover:cursor-pointer">
-                  <Input
+                <label className="flex items-center space-x-2 hover:cursor-pointer">
+                  <FilterInput
                     type="checkbox"
                     name="shop"
                     value={shop}
@@ -88,7 +88,7 @@ const FilterBar = () => {
                     className="cursor-pointer"
                   />
                   <span>{shop}</span>
-                </Label>
+                </label>
               </li>
             ))}
         </ul>
