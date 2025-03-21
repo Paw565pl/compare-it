@@ -11,6 +11,7 @@ import { H2 } from "@/core/components/ui/h2";
 import { H3 } from "@/core/components/ui/h3";
 import { Button } from "@/core/components/ui/button";
 import { Label } from "@/core/components/ui/label";
+import { Ul } from "@/core/components/ui/ul";
 
 const FilterBar = () => {
   const { data: shopList } = useFetchShopsList();
@@ -63,14 +64,14 @@ const FilterBar = () => {
 
   return (
     <>
-      <H2>
+      <H2 className="mt-2">
         Filtry
       </H2>
       <div className="border-background mt-2 mb-4 flex flex-col items-start border bg-white">
         <H3>
           Sklepy
         </H3>
-        <ul className="w-full">
+        <Ul>
           {shopList
             ?.filter((shop) => shop !== "Media Expert")
             .map((shop, index) => (
@@ -85,13 +86,12 @@ const FilterBar = () => {
                     value={shop}
                     checked={tempProductFilters.shop.includes(shop)}
                     onChange={handleShopChange}
-                    className="cursor-pointer"
                   />
                   <span>{shop}</span>
                 </label>
               </li>
             ))}
-        </ul>
+        </Ul>
         <H3 className="text-primary pt-2 pl-4 text-xl font-bold">Cena</H3>
         <div className="flex w-full flex-col justify-start">
           <div className="mb-4 w-full space-y-1 p-4">

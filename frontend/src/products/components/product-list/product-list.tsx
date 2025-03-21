@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/core/components/ui/button";
 import { H1 } from "@/core/components/ui/h1";
+import { H2 } from "@/core/components/ui/h2";
 import { SingleProduct, SortBar } from "@/products/components/index";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import {
@@ -29,9 +30,9 @@ const ProductList = () => {
   return (
     <>
       <div className="mb-1 flex justify-between">
-        <H1 className="text-primary mb-2 ml-4 text-2xl font-bold sm:ml-0">
+        <H2>
           Produkty
-        </H1>
+        </H2>
         <SortBar />
       </div>
       <ul className="space-y-2">

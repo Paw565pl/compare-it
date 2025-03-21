@@ -8,6 +8,7 @@ import {
 import { useQueryStates } from "nuqs";
 import { Button } from "@/core/components/ui/button";
 import { H2 } from "@/core/components/ui/h2";
+import { Ul } from "@/core/components/ui/ul";
 
 const CategoriesList = () => {
   const { data: categoriesList } = useFetchCategoriesList();
@@ -24,7 +25,7 @@ const CategoriesList = () => {
       <H2>
         Kategorie
       </H2>
-      <ul className="mt-2 w-full bg-white">
+      <Ul>
         <li
           className={`cursor-pointer transition-colors duration-200 ${
             filters.category === null
@@ -61,7 +62,7 @@ const CategoriesList = () => {
             </li>
           );
         })}
-      </ul>
+      </Ul>
     </div>
   );
 };
