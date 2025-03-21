@@ -48,7 +48,7 @@ const ProductList = () => {
       </ul>
       <div className="mt-6 flex items-center justify-between">
         <Button
-          className="bg-primary hover:bg-primary m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0"
+          variant="pagination"
           onClick={() =>
             setPagination((prev) => ({
               ...prev,
@@ -61,7 +61,7 @@ const ProductList = () => {
         </Button>
         <span className="text-gray-700">Strona {pagination.page + 1}</span>
         <Button
-          className="bg-primary hover:bg-hover m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0"
+          variant="pagination"
           onClick={() =>
             setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
           }
