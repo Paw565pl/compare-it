@@ -42,7 +42,7 @@ const SearchBar = () => {
       />
       <button
         type="submit"
-        className="bg-secondary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors duration-300"
+        className="bg-primary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors duration-300"
       >
         <Search className="text-lg" />
         <div className="ml-2 hidden md:block">WYSZUKAJ</div>
