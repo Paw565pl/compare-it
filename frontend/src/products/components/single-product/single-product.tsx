@@ -27,7 +27,7 @@ const SingleProduct = ({
   );
 
   return (
-    <div className="border-grey-100 text-primary flex flex-col bg-white p-6 md:flex-row">
+    <div className="border-grey-100 text-primary flex flex-col bg-white p-6 md:flex-row mt-1">
       <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
         <Link href={`/produkty/${id}`}>
           <ProductImage name={name} imageUrl={mainImageUrl} />
@@ -39,20 +39,20 @@ const SingleProduct = ({
           <Link href={`/produkty/${id}`}>
             <H1 className="mb-2 text-xl font-bold">{name}</H1>
           </Link>
-          <p className="mb-4 text-sm text-gray-500">Kategoria: {category}</p>
+          <p className="mb-4 text-sm text-secondary">Kategoria: {category}</p>
 
-          <p className="text-sm text-gray-600">Liczba ofert: {offerCount}</p>
+          <p className="text-sm text-secondary">Liczba ofert: {offerCount}</p>
         </div>
 
         <div className="mt-1">
-          <p className="mb-1 text-sm text-gray-600">Sklep: {lowestPriceShop}</p>
+          <p className="mb-1 text-sm text-secondary">Sklep: {lowestPriceShop}</p>
           <div className="mb-4 text-sm">
             {isAvailable ? (
-              <span className="font-semibold text-green-600">
+              <span className="font-semibold text-green-500">
                 Produkt dostępny
               </span>
             ) : (
-              <span className="font-semibold text-red-600">
+              <span className="font-semibold text-red-500">
                 Produkt niedostępny
               </span>
             )}

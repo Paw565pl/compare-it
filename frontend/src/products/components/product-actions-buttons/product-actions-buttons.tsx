@@ -66,7 +66,7 @@ export const ProductActionsButtons = ({
     <div className="mt-4 flex w-min flex-col gap-4">
       <PriceAlertFormDialog
         dialogTrigger={
-          <Button className="bg-primary hover:bg-hover cursor-pointer shadow-none">
+          <Button variant="priceAlert">
             <Notebook />
             DODAJ ALERT CENOWY
           </Button>
@@ -76,14 +76,14 @@ export const ProductActionsButtons = ({
       />
       <Button
         onClick={handleAddFavoriteProduct}
-        className="bg-primary hover:bg-hover ml-0 cursor-pointer shadow-none"
+        variant="priceAlert"
       >
         <Heart />
         POLUB
       </Button>
       <Button
         onClick={handleDeleteFavoriteProduct}
-        className="bg-primary hover:bg-hover ml-0 cursor-pointer shadow-none"
+        variant="priceAlert"
       >
         <HeartOff />
         USUŃ Z ULUBIONYCH

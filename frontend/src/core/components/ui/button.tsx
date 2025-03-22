@@ -30,7 +30,9 @@ const buttonVariants = cva(
         sortCategory:
           "flex w-full justify-start px-4 py-2 hover:bg-hover hover:text-white",
         pagination:
-          "bg-primary hover:bg-hover m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0"
+          "bg-primary hover:bg-hover m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0",
+        priceAlert:
+          "bg-primary hover:bg-hover cursor-pointer shadow-none",
         
       },
       size: {
