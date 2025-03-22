@@ -1,6 +1,6 @@
 package it.compare.backend.product.service;
 
-import it.compare.backend.product.criteria.ProductSearchCriteria;
+import it.compare.backend.product.aggregation.ProductAggregationBuilder;
 import it.compare.backend.product.dto.ProductFiltersDto;
 import it.compare.backend.product.mapper.ProductMapper;
 import it.compare.backend.product.model.Product;
@@ -32,43 +32,35 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 public class ProductService {
 
-    // Constants to avoid duplication
-    private static final String OFFERS_SHOP = "$offers.shop";
-    private static final String ADD_FIELDS = "$addFields";
-    private static final String PRICE = "price";
-    private static final String IS_AVAILABLE = "isAvailable";
-    private static final String PRODUCTS_COLLECTION = "products";
+    // Constants
     private static final String DATE_FROM_PARTS = "$dateFromParts";
+    private static final String OFFERS = "offers";
+    private static final String INPUT = "input";
     private static final String PRICE_TIMESTAMP = "$$price.timestamp";
     private static final String NOW = "$$NOW";
     private static final String DAY = "day";
-    private static final String TIMESTAMP = "timestamp";
-    private static final String OFFERS = "offers";
-    private static final String COND = "$cond";
-    private static final String INPUT = "input";
-    private static final String OFFERS_PRICE_HISTORY_TIMESTAMP = "offers.priceHistory.timestamp";
-    private static final String MAP = "$map";
-    private static final String FILTER = "$filter";
-    private static final String SORT_ARRAY = "$sortArray";
-    private static final String MERGE_OBJECTS = "$mergeObjects";
-    private static final int AVAILABILITY_DAYS_THRESHOLD = 3;
     private static final int MAX_PRICE_STAMP_RANGE_DAYS = 180;
     private static final int MIN_PRICE_STAMP_RANGE_DAYS = 1;
+    private static final int AVAILABILITY_DAYS_THRESHOLD = 3;
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final MongoTemplate mongoTemplate;
 
+    /**
+     * Finds all products matching given filters with pagination
+     */
     public Page<ProductListResponse> findAll(ProductFiltersDto filters, Pageable pageable) {
-        // Create search criteria from filters
-        var criteria = createSearchCriteria(filters, pageable);
+        // Create aggregation builder from filters
+        var aggregationBuilder = createAggregationBuilder(filters, pageable);
 
         // Execute main aggregation
-        AggregationResults<ProductListResponse> results = executeMainAggregation(criteria);
+        AggregationResults<ProductListResponse> results =
+                executeAggregation(aggregationBuilder.buildSearchAggregation(), ProductListResponse.class);
         List<ProductListResponse> productResponses = results.getMappedResults();
 
         // Execute count aggregation
-        long total = executeCountAggregation(criteria);
+        long total = executeCountAggregation(aggregationBuilder);
 
         // Map shop names
         productResponses.forEach(this::mapShopName);
@@ -87,8 +79,11 @@ public class ProductService {
         }
     }
 
-    private ProductSearchCriteria createSearchCriteria(ProductFiltersDto filters, Pageable pageable) {
-        return ProductSearchCriteria.builder()
+    /**
+     * Creates an aggregation builder from filters
+     */
+    private ProductAggregationBuilder createAggregationBuilder(ProductFiltersDto filters, Pageable pageable) {
+        return ProductAggregationBuilder.builder()
                 .searchName(filters.name())
                 .searchCategory(filters.category())
                 .shop(filters.shop())
@@ -99,140 +94,22 @@ public class ProductService {
                 .build();
     }
 
-    private AggregationResults<ProductListResponse> executeMainAggregation(ProductSearchCriteria criteria) {
-        var aggregation = criteria.toAggregation();
-        return mongoTemplate.aggregate(aggregation, PRODUCTS_COLLECTION, ProductListResponse.class);
-    }
-
-    private long executeCountAggregation(ProductSearchCriteria criteria) {
-        var countAggregation = createCountAggregation(criteria);
-        AggregationResults<CountResult> countResults =
-                mongoTemplate.aggregate(countAggregation, PRODUCTS_COLLECTION, CountResult.class);
-
-        return countResults.getMappedResults().isEmpty()
-                ? 0
-                : countResults.getMappedResults().getFirst().getCount();
+    /**
+     * Executes the aggregation pipeline
+     */
+    private <T> AggregationResults<T> executeAggregation(Aggregation aggregation, Class<T> outputClass) {
+        return mongoTemplate.aggregate(aggregation, "products", outputClass);
     }
 
     /**
-     * Creates an aggregation for counting results
+     * Executes count aggregation and returns the count
      */
-    private Aggregation createCountAggregation(ProductSearchCriteria criteria) {
-        List<AggregationOperation> operations = new ArrayList<>();
+    private long executeCountAggregation(ProductAggregationBuilder builder) {
+        var countAggregation = builder.buildCountAggregation();
+        AggregationResults<CountResult> countResults = executeAggregation(countAggregation, CountResult.class);
 
-        // Add counting operations
-        operations.addAll(getCountBaseOperations(criteria));
-        operations.addAll(getCountFilterOperations(criteria));
-        operations.add(getCountFinalOperation());
-
-        return Aggregation.newAggregation(operations);
-    }
-
-    private List<AggregationOperation> getCountBaseOperations(ProductSearchCriteria criteria) {
-        List<AggregationOperation> operations = new ArrayList<>();
-
-        // 1. Basic filtering (category, name, etc.)
-        operations.add(Aggregation.match(criteria.createBaseCriteria()));
-
-        // 2. Sort the priceHistory by timestamp descending inside each offer to ensure most recent prices are first
-        operations.add(context -> new Document(
-                ADD_FIELDS,
-                new Document(
-                        OFFERS,
-                        new Document(
-                                MAP,
-                                new Document(INPUT, "$" + OFFERS)
-                                        .append("as", "offer")
-                                        .append(
-                                                "in",
-                                                new Document(
-                                                        MERGE_OBJECTS,
-                                                        Arrays.asList(
-                                                                "$$offer",
-                                                                new Document(
-                                                                        "priceHistory",
-                                                                        new Document(
-                                                                                SORT_ARRAY,
-                                                                                new Document(
-                                                                                        INPUT,
-                                                                                        "$$offer.priceHistory")
-                                                                                        .append(
-                                                                                                "sortBy",
-                                                                                                new Document(
-                                                                                                        TIMESTAMP,
-                                                                                                        -1)))))))))));
-
-        // 3. Unwinding offers
-        operations.add(Aggregation.unwind(OFFERS, true));
-
-        // 4. Create temporary fields for shop and its name
-        operations.add(Aggregation.addFields()
-                .addField("shopObject")
-                .withValue(OFFERS_SHOP)
-                .addField("shopHumanName")
-                .withValue(OFFERS_SHOP)
-                .build());
-
-        // 5. Unwinding price history - now we'll get the most recent price for each shop
-        operations.add(Aggregation.unwind("offers.priceHistory", true));
-
-        return operations;
-    }
-
-    private List<AggregationOperation> getCountFilterOperations(ProductSearchCriteria criteria) {
-        List<AggregationOperation> operations = new ArrayList<>();
-
-        // 6. Group by product and shop to find the latest prices for each offer
-        operations.add(
-                Aggregation.group(Fields.fields().and("productId", "$_id").and("shop", OFFERS_SHOP))
-                        .first("offers.priceHistory.price")
-                        .as(PRICE)
-                        .first(OFFERS_PRICE_HISTORY_TIMESTAMP)
-                        .as(TIMESTAMP));
-
-        // 7. Calculate availability status based on timestamp
-        operations.add(Aggregation.addFields()
-                .addField(IS_AVAILABLE)
-                .withValue(ConditionalOperators.when(ComparisonOperators.Gte.valueOf("$" + TIMESTAMP)
-                                .greaterThanEqualTo(
-                                        DateOperators.DateSubtract.subtractValue(AVAILABILITY_DAYS_THRESHOLD, "day")
-                                                .fromDate(NOW)))
-                        .then(true)
-                        .otherwise(false))
-                .build());
-
-        // 8. Filter by availability if requested
-        if (criteria.getIsAvailable() != null) {
-            operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(criteria.getIsAvailable())));
-        }
-
-        // 9. Filter by price
-        if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
-            operations.add(createPriceRangeFilterOperation(criteria));
-        }
-
-        // 10. Group by product
-        operations.add(Aggregation.group("_id.productId").count().as("count"));
-
-        return operations;
-    }
-
-    private AggregationOperation getCountFinalOperation() {
-        return Aggregation.group().count().as("count");
-    }
-
-    private AggregationOperation createPriceRangeFilterOperation(ProductSearchCriteria criteria) {
-        var priceCriteria = Criteria.where(PRICE);
-
-        if (criteria.getMinPrice() != null) {
-            priceCriteria = priceCriteria.gte(criteria.getMinPrice());
-        }
-
-        if (criteria.getMaxPrice() != null) {
-            priceCriteria = priceCriteria.lte(criteria.getMaxPrice());
-        }
-
-        return Aggregation.match(priceCriteria);
+        CountResult countResult = countResults.getUniqueMappedResult();
+        return countResult != null ? countResult.getCount() : 0;
     }
 
     @Getter
@@ -257,41 +134,33 @@ public class ProductService {
      * Fetches a product with aggregation and returns it as ProductDetailResponse
      */
     private ProductDetailResponse fetchProductWithAggregation(ObjectId id, Integer priceStampRangeDays) {
-        try {
-            // Filter using database aggregation
-            var aggregation = createProductDetailAggregation(id, priceStampRangeDays);
+        // Create and execute aggregation
+        var aggregation = createProductDetailAggregation(id, priceStampRangeDays);
+        AggregationResults<ProductDetailResponse> results =
+                executeAggregation(aggregation, ProductDetailResponse.class);
 
-            AggregationResults<ProductDetailResponse> results =
-                    mongoTemplate.aggregate(aggregation, PRODUCTS_COLLECTION, ProductDetailResponse.class);
+        ProductDetailResponse detailResponse = results.getUniqueMappedResult();
 
-            if (results.getMappedResults().isEmpty()) {
-                log.debug("No results found for product with ID: {}", id);
+        if (detailResponse == null) {
+            log.debug("No results found for product with ID: {}", id);
 
-                // Check if the product exists with the given ID
-                boolean productExists =
-                        mongoTemplate.exists(Query.query(Criteria.where("_id").is(id)), Product.class);
+            // Check if the product exists with the given ID
+            boolean productExists =
+                    mongoTemplate.exists(Query.query(Criteria.where("_id").is(id)), Product.class);
 
-                if (!productExists) {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
-                }
-
-                // If the product exists but has no data in the specified range,
-                // return the product structure with empty price history
-                var product =
-                        mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Product.class);
-
-                return productMapper.toDetailResponse(product);
+            if (!productExists) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
             }
 
-            return results.getMappedResults().getFirst();
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Error processing product data", e);
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Failed to process product data from database: " + e.getMessage());
+            // If the product exists but has no data in the specified range,
+            // return the product structure with empty price history
+            var product =
+                    mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Product.class);
+
+            return productMapper.toDetailResponse(product);
         }
+
+        return detailResponse;
     }
 
     /**
@@ -319,7 +188,7 @@ public class ProductService {
         // 4. Filter price history based on date range and calculate availability
         operations.add(context -> {
             var offerMapDoc = createPriceHistoryFilterMapDocWithAvailability();
-            return new Document(ADD_FIELDS, new Document(OFFERS, offerMapDoc)); // Using constant
+            return new Document("$addFields", new Document(OFFERS, offerMapDoc));
         });
 
         // 5. Final projection - map fields to match ProductDetailResponse structure
@@ -357,9 +226,9 @@ public class ProductService {
         var addFieldsDoc = new Document();
 
         // Get days range value, ensure it's within bounds (1-180 days)
-        var rangeDays = priceStampRangeDays != null ?
-                Math.clamp(priceStampRangeDays, MIN_PRICE_STAMP_RANGE_DAYS, MAX_PRICE_STAMP_RANGE_DAYS) :
-                MIN_PRICE_STAMP_RANGE_DAYS;
+        var rangeDays = priceStampRangeDays != null
+                ? Math.clamp(priceStampRangeDays, MIN_PRICE_STAMP_RANGE_DAYS, MAX_PRICE_STAMP_RANGE_DAYS)
+                : MIN_PRICE_STAMP_RANGE_DAYS;
 
         // Add fields with range days value for reference
         addFieldsDoc.append("rangeDays", rangeDays);
@@ -378,14 +247,10 @@ public class ProductService {
         addFieldsDoc.append("endOfToday", tomorrowDateDoc);
 
         // Calculate date range start for filtering
-        // Adjust the calculation to properly include today's data even for rangeDays = 1
-        // We need to subtract (rangeDays) days to get the correct range
-        var dateRangeStartDoc = createDateSubtractDocument(
-                new Document(DATE_FROM_PARTS, todayDatePartsDoc),
-                rangeDays);
+        var dateRangeStartDoc = createDateSubtractDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), rangeDays);
         addFieldsDoc.append("dateRangeStart", dateRangeStartDoc);
 
-        return new Document(ADD_FIELDS, addFieldsDoc);
+        return new Document("$addFields", addFieldsDoc);
     }
 
     /**
@@ -405,16 +270,14 @@ public class ProductService {
      * Creates date add document
      */
     private Document createDateAddDocument(Document startDate) {
-        return DateOperators.DateAdd.addValue(1, ProductService.DAY)
-                .toDate(startDate)
-                .toDocument(Aggregation.DEFAULT_CONTEXT);
+        return DateOperators.DateAdd.addValue(1, DAY).toDate(startDate).toDocument(Aggregation.DEFAULT_CONTEXT);
     }
 
     /**
      * Creates date subtract document
      */
     private Document createDateSubtractDocument(Document startDate, int amount) {
-        return DateOperators.DateSubtract.subtractValue(amount, ProductService.DAY)
+        return DateOperators.DateSubtract.subtractValue(amount, DAY)
                 .fromDate(startDate)
                 .toDocument(Aggregation.DEFAULT_CONTEXT);
     }
@@ -428,15 +291,14 @@ public class ProductService {
 
         // Create filter document for price history filtering
         Document filterOperation = new Document(
-                FILTER,
+                "$filter",
                 new Document(INPUT, "$$offer.priceHistory")
-                        .append("as", PRICE)
-                        .append("cond", dateConditionDoc)); // Using constant
+                        .append("as", "price")
+                        .append("cond", dateConditionDoc));
 
         // Create sortArray operation
         Document sortArrayDoc = new Document(
-                SORT_ARRAY,
-                new Document(INPUT, filterOperation).append("sortBy", new Document(TIMESTAMP, -1))); // Using constants
+                "$sortArray", new Document(INPUT, filterOperation).append("sortBy", new Document("timestamp", -1)));
 
         // Create arrayElemAt operation
         Document arrayElemAtDoc = new Document("$arrayElemAt", Arrays.asList(sortArrayDoc, 0));
@@ -454,7 +316,7 @@ public class ProductService {
 
         // Create isOfferAvailable condition
         Document isOfferAvailableDoc = new Document(
-                COND,
+                "$cond",
                 new Document()
                         .append("if", new Document("$eq", Arrays.asList(new Document("$size", filterOperation), 0)))
                         .append("then", false)
@@ -462,19 +324,16 @@ public class ProductService {
 
         // Create mergeObjects for the map operation
         Document mergeObjectsDoc = new Document(
-                MERGE_OBJECTS,
+                "$mergeObjects",
                 new Document("shop", "$$offer.shop")
                         .append("url", "$$offer.url")
                         .append("priceHistory", filterOperation)
-                        .append(IS_AVAILABLE, isOfferAvailableDoc));
+                        .append("isAvailable", isOfferAvailableDoc));
 
         // Create the final map operation
         return new Document(
-                MAP, 
-                new Document()
-                        .append(INPUT, "$offers")
-                        .append("as", "offer")
-                        .append("in", mergeObjectsDoc)); // Using constant
+                "$map",
+                new Document().append(INPUT, "$offers").append("as", "offer").append("in", mergeObjectsDoc));
     }
 
     /**
@@ -483,7 +342,7 @@ public class ProductService {
     private Document createDateFilterConditionDoc() {
         // Create conditional expression to choose appropriate filter
         return new Document(
-                COND, // Using constant
+                "$cond",
                 new Document()
                         .append("if", "$isZeroDayFilter")
                         .append("then", createTodayOnlyFilterCondition())

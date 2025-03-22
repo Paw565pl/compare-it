@@ -14,7 +14,8 @@ import org.springframework.data.mongodb.core.mapping.FieldType;
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class PriceStamp {
-    @Field("timestamp") @CreatedDate
+    @Field("timestamp")
+    @CreatedDate
     private LocalDateTime timestamp;
 
     @NonNull @Field(value = "price", targetType = FieldType.DECIMAL128)
