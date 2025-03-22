@@ -44,6 +44,10 @@ public class ProductSearchCriteria {
     private static final String LOWEST_PRICE = "lowestPrice";
     private static final String LOWEST_AVAILABLE_PRICE = "lowestAvailablePrice";
     private static final String OFFER_COUNT = "offerCount";
+    private static final String INPUT = "input";
+    private static final String OFFER = "offer";
+    private static final String COND = "$cond";
+    private static final String HAS_AVAILABLE_OFFERS = "hasAvailableOffers";
     private static final int AVAILABILITY_DAYS_THRESHOLD = 3;
 
     private String searchName;
@@ -70,6 +74,7 @@ public class ProductSearchCriteria {
     public List<AggregationOperation> getBaseAggregationOperations() {
         List<AggregationOperation> operations = new ArrayList<>();
 
+        // Convert ObjectId to string for easier handling
         operations.add(Aggregation.addFields()
                 .addField(STRING_ID)
                 .withValue(ConvertOperators.ToString.toString("$" + ID))
@@ -77,6 +82,35 @@ public class ProductSearchCriteria {
 
         // Basic filtering (category, name, etc.)
         operations.add(Aggregation.match(createBaseCriteria()));
+
+        // Sort priceHistory inside each offer by timestamp desc BEFORE unwinding
+        // ensures the most recent price will be first after unwinding
+        operations.add(context -> new Document(
+                "$addFields",
+                new Document(
+                        OFFERS,
+                        new Document(
+                                "$map",
+                                new Document(INPUT, "$" + OFFERS)
+                                        .append("as", OFFER)
+                                        .append(
+                                                "in",
+                                                new Document(
+                                                        "$mergeObjects",
+                                                        Arrays.asList(
+                                                                "$$offer",
+                                                                new Document(
+                                                                        "priceHistory",
+                                                                        new Document(
+                                                                                "$sortArray",
+                                                                                new Document(
+                                                                                                INPUT,
+                                                                                                "$$offer.priceHistory")
+                                                                                        .append(
+                                                                                                "sortBy",
+                                                                                                new Document(
+                                                                                                        TIMESTAMP,
+                                                                                                        -1)))))))))));
 
         // Unwinding offers
         operations.add(Aggregation.unwind(OFFERS, true));
@@ -89,23 +123,29 @@ public class ProductSearchCriteria {
                 .withValue(OFFERS_SHOP)
                 .build());
 
-        // Sort offers by time to find the latest prices
-        operations.add(Aggregation.sort(Sort.by(ID)
-                .ascending()
-                .and(Sort.by(OFFERS_SHOP_FIELD).ascending())
-                .and(Sort.by("offers.priceHistory.timestamp").descending())));
-
-        // Unwinding price history
+        // Unwinding price history - Now we'll get the FIRST item which is guaranteed to be the most recent
         operations.add(Aggregation.unwind("offers.priceHistory", true));
+
+        // Group to ensure we only keep one price history item per shop (the most recent one)
+        operations.add(context -> new Document(
+                "$group",
+                new Document(ID, new Document("productId", "$" + ID).append("shop", OFFERS_SHOP))
+                        .append(STRING_ID, new Document(FIRST, "$" + STRING_ID))
+                        .append(NAME, new Document(FIRST, "$" + NAME))
+                        .append("ean", new Document(FIRST, "$ean"))
+                        .append(CATEGORY, new Document(FIRST, "$" + CATEGORY))
+                        .append(IMAGES_FIELD, new Document(FIRST, "$" + IMAGES_FIELD))
+                        .append(SHOP_OBJECT, new Document(FIRST, "$" + SHOP_OBJECT))
+                        .append(SHOP_NAME, new Document(FIRST, "$shopHumanName"))
+                        .append(PRICE, new Document(FIRST, "$offers.priceHistory.price"))
+                        .append(CURRENCY, new Document(FIRST, "$offers.priceHistory.currency"))
+                        .append(TIMESTAMP, new Document(FIRST, "$offers.priceHistory.timestamp"))));
 
         return operations;
     }
 
     public List<AggregationOperation> getPriceFilterOperations() {
         List<AggregationOperation> operations = new ArrayList<>();
-
-        // Group by product and shop to find the latest prices for each offer
-        operations.add(context -> createGroupByProductAndShopStage());
 
         // Calculate availability based on timestamp directly in the database
         operations.add(Aggregation.addFields()
@@ -144,10 +184,86 @@ public class ProductSearchCriteria {
         List<AggregationOperation> operations = new ArrayList<>();
 
         // Group by product to find the lowest price
-        operations.add(context -> createGroupByProductStage());
+        var groupOperation = Aggregation.group("$_id.productId")
+                .first(STRING_ID)
+                .as(STRING_ID)
+                .first(NAME)
+                .as(NAME)
+                .first("ean")
+                .as("ean")
+                .first(CATEGORY)
+                .as(CATEGORY)
+                .first(IMAGES_FIELD)
+                .as(IMAGES_FIELD)
+                .push(new Document(SHOP_OBJECT, "$" + SHOP_OBJECT)
+                        .append(SHOP_NAME, "$" + SHOP_NAME)
+                        .append(PRICE, "$" + PRICE)
+                        .append(AVAILABLE_PRICE, "$" + AVAILABLE_PRICE)
+                        .append(CURRENCY, "$" + CURRENCY)
+                        .append(TIMESTAMP, "$" + TIMESTAMP)
+                        .append(IS_AVAILABLE, "$" + IS_AVAILABLE))
+                .as(OFFERS);
 
-        // Find the offer with the lowest price
-        operations.add(context -> createLowestPriceFieldsStage());
+        operations.add(groupOperation);
+
+        // Count available offers and calculate lowest prices
+        operations.add(Aggregation.addFields()
+                .addField(OFFER_COUNT)
+                .withValue(ArrayOperators.Size.lengthOfArray(ArrayOperators.Filter.filter("$" + OFFERS)
+                        .as(OFFER)
+                        .by(ComparisonOperators.Eq.valueOf("$$offer." + IS_AVAILABLE)
+                                .equalToValue(true))))
+                .build());
+
+        // Add fields for lowest offer and availability
+        operations.add(Aggregation.addFields()
+                .addField(HAS_AVAILABLE_OFFERS)
+                .withValue(ComparisonOperators.Gt.valueOf("$" + OFFER_COUNT).greaterThanValue(0))
+                .build());
+
+        // Use a direct MongoDB document approach for the lowest offer logic to avoid null issues
+        operations.add(context -> new Document(
+                "$addFields",
+                new Document(
+                                LOWEST_OFFER,
+                                new Document(
+                                        COND,
+                                        new Document("if", new Document("$gt", Arrays.asList("$" + OFFER_COUNT, 0)))
+                                                .append(
+                                                        "then",
+                                                        new Document(
+                                                                "$arrayElemAt",
+                                                                Arrays.asList(
+                                                                        new Document(
+                                                                                "$sortArray",
+                                                                                new Document(
+                                                                                                INPUT,
+                                                                                                new Document(
+                                                                                                        "$filter",
+                                                                                                        new Document(
+                                                                                                                        INPUT,
+                                                                                                                        "$"
+                                                                                                                                + OFFERS)
+                                                                                                                .append(
+                                                                                                                        "as",
+                                                                                                                        OFFER)
+                                                                                                                .append(
+                                                                                                                        "cond",
+                                                                                                                        new Document(
+                                                                                                                                "$eq",
+                                                                                                                                Arrays
+                                                                                                                                        .asList(
+                                                                                                                                                "$$offer."
+                                                                                                                                                        + IS_AVAILABLE,
+                                                                                                                                                true)))))
+                                                                                        .append(
+                                                                                                "sortBy",
+                                                                                                new Document(
+                                                                                                        PRICE, 1))),
+                                                                        0)))
+                                                .append("else", new Document()) // Empty document instead of null
+                                        ))
+                        .append("mainImageUrl", new Document("$arrayElemAt", Arrays.asList("$" + IMAGES_FIELD, 0)))));
 
         return operations;
     }
@@ -170,101 +286,36 @@ public class ProductSearchCriteria {
     }
 
     public AggregationOperation getProjectionOperation() {
-        return Aggregation.project()
-                .andExpression("$" + STRING_ID)
-                .as("id")
-                .andInclude(NAME, "ean", CATEGORY, "mainImageUrl", OFFER_COUNT)
-                .andExpression("$" + LOWEST_OFFER + "." + PRICE)
-                .as(PRICE_FIELD)
-                .andExpression("$" + LOWEST_OFFER + "." + CURRENCY)
-                .as("lowestPriceCurrency")
-                .andExpression("$" + LOWEST_OFFER + "." + SHOP_NAME)
-                .as("lowestPriceShop")
-                .andExpression("$hasAvailableOffers")
-                .as(IS_AVAILABLE);
-    }
-
-    private Document createGroupByProductAndShopStage() {
-        return new Document(
-                "$group",
-                new Document(ID, new Document("productId", "$" + ID).append("shop", OFFERS_SHOP))
-                        .append(STRING_ID, new Document(FIRST, "$" + STRING_ID))
-                        .append(NAME, new Document(FIRST, "$" + NAME))
-                        .append("ean", new Document(FIRST, "$ean"))
-                        .append(CATEGORY, new Document(FIRST, "$" + CATEGORY))
-                        .append(IMAGES_FIELD, new Document(FIRST, "$" + IMAGES_FIELD))
-                        .append(SHOP_OBJECT, new Document(FIRST, "$" + SHOP_OBJECT))
-                        .append(SHOP_NAME, new Document(FIRST, "$shopHumanName"))
-                        .append(PRICE, new Document(FIRST, "$offers.priceHistory.price"))
-                        .append(CURRENCY, new Document(FIRST, "$offers.priceHistory.currency"))
-                        .append(TIMESTAMP, new Document(FIRST, "$offers.priceHistory.timestamp")));
-    }
-
-    private Document createGroupByProductStage() {
-
-        var groupOperation = Aggregation.group("$_id.productId")
-                .first(STRING_ID)
-                .as(STRING_ID)
-                .first(NAME)
-                .as(NAME)
-                .first("ean")
-                .as("ean")
-                .first(CATEGORY)
-                .as(CATEGORY)
-                .first(IMAGES_FIELD)
-                .as(IMAGES_FIELD)
-                .min(PRICE)
-                .as(LOWEST_PRICE)
-                .min(AVAILABLE_PRICE)
-                .as(LOWEST_AVAILABLE_PRICE)
-                .sum(ConditionalOperators.Cond.when(ComparisonOperators.Eq.valueOf("$" + IS_AVAILABLE)
-                                .equalToValue(true))
-                        .then(1)
-                        .otherwise(0))
-                .as(OFFER_COUNT)
-                .push(new Document(SHOP_OBJECT, "$" + SHOP_OBJECT)
-                        .append(SHOP_NAME, "$" + SHOP_NAME)
-                        .append(PRICE, "$" + PRICE)
-                        .append(AVAILABLE_PRICE, "$" + AVAILABLE_PRICE)
-                        .append(CURRENCY, "$" + CURRENCY)
-                        .append(TIMESTAMP, "$" + TIMESTAMP)
-                        .append(IS_AVAILABLE, "$" + IS_AVAILABLE))
-                .as(OFFERS);
-
-        return groupOperation.toDocument(Aggregation.DEFAULT_CONTEXT);
-    }
-
-    private Document createLowestPriceFieldsStage() {
-        AddFieldsOperation addFieldsOperation = Aggregation.addFields()
-                .addField(LOWEST_OFFER)
-                .withValue(ArrayOperators.Reduce.arrayOf("$" + OFFERS)
-                        .withInitialValue(new Document())
-                        .reduce(ConditionalOperators.when(BooleanOperators.Or.or(
-                                        ComparisonOperators.Eq.valueOf("$$value")
-                                                .equalToValue(new Document()),
-                                        BooleanOperators.And.and(
-                                                ComparisonOperators.Eq.valueOf("$$this.isAvailable")
-                                                        .equalToValue(true),
-                                                BooleanOperators.Or.or(
-                                                        ComparisonOperators.Ne.valueOf("$$value.isAvailable")
-                                                                .notEqualToValue(true),
-                                                        ComparisonOperators.Lt.valueOf("$$this.price")
-                                                                .lessThan("$$value.price")))))
-                                .then("$$this")
-                                .otherwise("$$value")))
-                .addField("hasAvailableOffers")
-                .withValue(ComparisonOperators.Gt.valueOf(
-                                ArrayOperators.Size.lengthOfArray(ArrayOperators.Filter.filter("$offers")
-                                        .as("offer")
-                                        .by(ComparisonOperators.Eq.valueOf("$$offer.isAvailable")
-                                                .equalToValue(true))))
-                        .greaterThanValue(0))
-                .addField("mainImageUrl")
-                .withValue(
-                        ArrayOperators.ArrayElemAt.arrayOf("$" + IMAGES_FIELD).elementAt(0))
-                .build();
-
-        return addFieldsOperation.toDocument(Aggregation.DEFAULT_CONTEXT);
+        return context -> new Document(
+                "$project",
+                new Document("id", "$" + STRING_ID)
+                        .append(NAME, 1)
+                        .append("ean", 1)
+                        .append(CATEGORY, 1)
+                        .append("mainImageUrl", 1)
+                        .append(OFFER_COUNT, 1)
+                        .append(
+                                PRICE_FIELD,
+                                new Document(
+                                        COND,
+                                        new Document("if", "$" + HAS_AVAILABLE_OFFERS)
+                                                .append("then", "$" + LOWEST_OFFER + "." + PRICE)
+                                                .append("else", null)))
+                        .append(
+                                "lowestPriceCurrency",
+                                new Document(
+                                        COND,
+                                        new Document("if", "$" + HAS_AVAILABLE_OFFERS)
+                                                .append("then", "$" + LOWEST_OFFER + "." + CURRENCY)
+                                                .append("else", null)))
+                        .append(
+                                "lowestPriceShop",
+                                new Document(
+                                        COND,
+                                        new Document("if", "$" + HAS_AVAILABLE_OFFERS)
+                                                .append("then", "$" + LOWEST_OFFER + "." + SHOP_NAME)
+                                                .append("else", null)))
+                        .append(IS_AVAILABLE, "$" + HAS_AVAILABLE_OFFERS));
     }
 
     private AggregationOperation createPriceRangeFilterOperation() {
@@ -299,7 +350,7 @@ public class ProductSearchCriteria {
                 // Map field names to their internal representation
                 switch (field) {
                     case PRICE_FIELD:
-                        sortDoc.append(LOWEST_AVAILABLE_PRICE, direction);
+                        sortDoc.append("lowestOffer.price", direction);
                         break;
                     case OFFER_COUNT:
                         sortDoc.append(OFFER_COUNT, direction);

@@ -19,7 +19,6 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -48,7 +47,13 @@ public class ProductService {
     private static final String COND = "$cond";
     private static final String INPUT = "input";
     private static final String OFFERS_PRICE_HISTORY_TIMESTAMP = "offers.priceHistory.timestamp";
+    private static final String MAP = "$map";
+    private static final String FILTER = "$filter";
+    private static final String SORT_ARRAY = "$sortArray";
+    private static final String MERGE_OBJECTS = "$mergeObjects";
     private static final int AVAILABILITY_DAYS_THRESHOLD = 3;
+    private static final int MAX_PRICE_STAMP_RANGE_DAYS = 180;
+    private static final int MIN_PRICE_STAMP_RANGE_DAYS = 1;
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -129,10 +134,38 @@ public class ProductService {
         // 1. Basic filtering (category, name, etc.)
         operations.add(Aggregation.match(criteria.createBaseCriteria()));
 
-        // 2. Unwinding offers
+        // 2. Sort the priceHistory by timestamp descending inside each offer to ensure most recent prices are first
+        operations.add(context -> new Document(
+                ADD_FIELDS,
+                new Document(
+                        OFFERS,
+                        new Document(
+                                MAP,
+                                new Document(INPUT, "$" + OFFERS)
+                                        .append("as", "offer")
+                                        .append(
+                                                "in",
+                                                new Document(
+                                                        MERGE_OBJECTS,
+                                                        Arrays.asList(
+                                                                "$$offer",
+                                                                new Document(
+                                                                        "priceHistory",
+                                                                        new Document(
+                                                                                SORT_ARRAY,
+                                                                                new Document(
+                                                                                        INPUT,
+                                                                                        "$$offer.priceHistory")
+                                                                                        .append(
+                                                                                                "sortBy",
+                                                                                                new Document(
+                                                                                                        TIMESTAMP,
+                                                                                                        -1)))))))))));
+
+        // 3. Unwinding offers
         operations.add(Aggregation.unwind(OFFERS, true));
 
-        // 3. Create temporary fields for shop and its name
+        // 4. Create temporary fields for shop and its name
         operations.add(Aggregation.addFields()
                 .addField("shopObject")
                 .withValue(OFFERS_SHOP)
@@ -140,12 +173,7 @@ public class ProductService {
                 .withValue(OFFERS_SHOP)
                 .build());
 
-        // 4. Sort offers by time to find the latest prices
-        operations.add(Aggregation.sort(Sort.by(Sort.Direction.ASC, "_id")
-                .and(Sort.by(Sort.Direction.ASC, "offers.shop"))
-                .and(Sort.by(Sort.Direction.DESC, OFFERS_PRICE_HISTORY_TIMESTAMP))));
-
-        // 5. Unwinding price history
+        // 5. Unwinding price history - now we'll get the most recent price for each shop
         operations.add(Aggregation.unwind("offers.priceHistory", true));
 
         return operations;
@@ -291,7 +319,7 @@ public class ProductService {
         // 4. Filter price history based on date range and calculate availability
         operations.add(context -> {
             var offerMapDoc = createPriceHistoryFilterMapDocWithAvailability();
-            return new Document(ADD_FIELDS, new Document(OFFERS, offerMapDoc));
+            return new Document(ADD_FIELDS, new Document(OFFERS, offerMapDoc)); // Using constant
         });
 
         // 5. Final projection - map fields to match ProductDetailResponse structure
@@ -328,10 +356,16 @@ public class ProductService {
     private Document createDateFilteringFieldsOperation(Integer priceStampRangeDays) {
         var addFieldsDoc = new Document();
 
-        // Get days range value and determine if it's today-only filter
-        var rangeDays = priceStampRangeDays != null ? Math.max(0, priceStampRangeDays) : 0;
+        // Get days range value, ensure it's within bounds (1-180 days)
+        var rangeDays = priceStampRangeDays != null ?
+                Math.clamp(priceStampRangeDays, MIN_PRICE_STAMP_RANGE_DAYS, MAX_PRICE_STAMP_RANGE_DAYS) :
+                MIN_PRICE_STAMP_RANGE_DAYS;
+
+        // Add fields with range days value for reference
         addFieldsDoc.append("rangeDays", rangeDays);
-        addFieldsDoc.append("isZeroDayFilter", rangeDays == 0);
+
+        // Add isZeroDayFilter field (always false now as we use minimum of 1 day)
+        addFieldsDoc.append("isZeroDayFilter", false);
 
         // Create date parts for today
         var todayDatePartsDoc = createTodayDatePartsDoc();
@@ -343,12 +377,13 @@ public class ProductService {
         var tomorrowDateDoc = createDateAddDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc));
         addFieldsDoc.append("endOfToday", tomorrowDateDoc);
 
-        // Add date range start for standard filtering (non-zero days)
-        if (rangeDays > 0) {
-            var dateRangeStartDoc =
-                    createDateSubtractDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), rangeDays);
-            addFieldsDoc.append("dateRangeStart", dateRangeStartDoc);
-        }
+        // Calculate date range start for filtering
+        // Adjust the calculation to properly include today's data even for rangeDays = 1
+        // We need to subtract (rangeDays) days to get the correct range
+        var dateRangeStartDoc = createDateSubtractDocument(
+                new Document(DATE_FROM_PARTS, todayDatePartsDoc),
+                rangeDays);
+        addFieldsDoc.append("dateRangeStart", dateRangeStartDoc);
 
         return new Document(ADD_FIELDS, addFieldsDoc);
     }
@@ -393,12 +428,15 @@ public class ProductService {
 
         // Create filter document for price history filtering
         Document filterOperation = new Document(
-                "$filter",
-                new Document(INPUT, "$$offer.priceHistory").append("as", PRICE).append("cond", dateConditionDoc));
+                FILTER,
+                new Document(INPUT, "$$offer.priceHistory")
+                        .append("as", PRICE)
+                        .append("cond", dateConditionDoc)); // Using constant
 
         // Create sortArray operation
         Document sortArrayDoc = new Document(
-                "$sortArray", new Document(INPUT, filterOperation).append("sortBy", new Document(TIMESTAMP, -1)));
+                SORT_ARRAY,
+                new Document(INPUT, filterOperation).append("sortBy", new Document(TIMESTAMP, -1))); // Using constants
 
         // Create arrayElemAt operation
         Document arrayElemAtDoc = new Document("$arrayElemAt", Arrays.asList(sortArrayDoc, 0));
@@ -424,7 +462,7 @@ public class ProductService {
 
         // Create mergeObjects for the map operation
         Document mergeObjectsDoc = new Document(
-                "$mergeObjects",
+                MERGE_OBJECTS,
                 new Document("shop", "$$offer.shop")
                         .append("url", "$$offer.url")
                         .append("priceHistory", filterOperation)
@@ -432,8 +470,11 @@ public class ProductService {
 
         // Create the final map operation
         return new Document(
-                "$map",
-                new Document().append(INPUT, "$offers").append("as", "offer").append("in", mergeObjectsDoc));
+                MAP, 
+                new Document()
+                        .append(INPUT, "$offers")
+                        .append("as", "offer")
+                        .append("in", mergeObjectsDoc)); // Using constant
     }
 
     /**
@@ -442,7 +483,7 @@ public class ProductService {
     private Document createDateFilterConditionDoc() {
         // Create conditional expression to choose appropriate filter
         return new Document(
-                COND,
+                COND, // Using constant
                 new Document()
                         .append("if", "$isZeroDayFilter")
                         .append("then", createTodayOnlyFilterCondition())

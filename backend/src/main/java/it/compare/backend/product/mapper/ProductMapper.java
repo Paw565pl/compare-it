@@ -25,15 +25,16 @@ public class ProductMapper {
      * Maps shop enum value to human-readable name
      */
     public String mapShopNameToHumanReadable(String shopName) {
-        if (shopName != null) {
-            try {
-                Shop shop = Shop.valueOf(shopName);
-                return shop.getHumanReadableName();
-            } catch (IllegalArgumentException e) {
-                // return original value if not found
-                return shopName;
-            }
+        if (shopName == null) {
+            return null;
         }
-        return null;
+
+        try {
+            Shop shop = Shop.valueOf(shopName);
+            return shop.getHumanReadableName();
+        } catch (IllegalArgumentException e) {
+            return shopName;
+        }
     }
 }
+
