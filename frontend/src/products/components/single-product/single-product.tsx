@@ -1,3 +1,4 @@
+import { H1 } from "@/core/components/ui/h1";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
@@ -26,7 +27,7 @@ const SingleProduct = ({
   );
 
   return (
-    <div className="border-grey-100 text-secondary flex flex-col bg-white p-6 md:flex-row">
+    <div className="border-grey-100 text-primary mt-1 flex flex-col bg-white p-6 md:flex-row">
       <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
         <Link href={`/produkty/${id}`}>
           <ProductImage name={name} imageUrl={mainImageUrl} />
@@ -36,32 +37,34 @@ const SingleProduct = ({
       <div className="flex grow flex-col justify-between">
         <div>
           <Link href={`/produkty/${id}`}>
-            <h1 className="mb-2 text-xl font-bold">{name}</h1>
+            <H1 className="mb-2 text-xl font-bold">{name}</H1>
           </Link>
-          <p className="mb-4 text-sm text-gray-500">Kategoria: {category}</p>
+          <p className="text-secondary mb-4 text-sm">Kategoria: {category}</p>
 
-          <p className="text-sm text-gray-600">Liczba ofert: {offerCount}</p>
+          <p className="text-secondary text-sm">Liczba ofert: {offerCount}</p>
         </div>
 
         <div className="mt-1">
-          <p className="mb-1 text-sm text-gray-600">Sklep: {lowestPriceShop}</p>
+          <p className="text-secondary mb-1 text-sm">
+            Sklep: {lowestPriceShop}
+          </p>
           <div className="mb-4 text-sm">
             {isAvailable ? (
-              <span className="font-semibold text-green-600">
+              <span className="font-semibold text-green-500">
                 Produkt dostępny
               </span>
             ) : (
-              <span className="font-semibold text-red-600">
+              <span className="font-semibold text-red-500">
                 Produkt niedostępny
               </span>
             )}
           </div>
-          <p className="text-secondary mb-2 text-lg font-semibold">
+          <p className="text-primary mb-2 text-lg font-semibold">
             Najniższa cena: {formattedPrice}
           </p>
           <Link
             href={`/produkty/${id}`}
-            className="bg-secondary hover:bg-hover block px-4 py-2 text-center font-semibold text-white transition"
+            className="bg-primary hover:bg-hover block px-4 py-2 text-center font-semibold text-white transition"
           >
             Porównaj oferty
           </Link>

@@ -19,9 +19,9 @@ export const SignOutButton = () => {
   };
 
   return (
-    <div className="border-secondary border-b-2 px-2 py-4 sm:p-4">
+    <div className="border-primary border-b-2 px-2 py-4 sm:p-4">
       <Button
-        variant="secondary"
+        variant="primary"
         onClick={() => handleSignOut()}
         className="text-md"
       >

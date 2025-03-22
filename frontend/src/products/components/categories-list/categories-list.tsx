@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/core/components/ui/button";
+import { H2 } from "@/core/components/ui/h2";
+import { Ul } from "@/core/components/ui/ul";
 import { cn } from "@/core/utils/cn";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
 import {
@@ -25,10 +28,8 @@ const CategoriesList = () => {
 
   return (
     <div className="flex flex-col items-start">
-      <h2 className="text-secondary mb-1 ml-4 text-2xl font-bold sm:ml-0">
-        Kategorie
-      </h2>
-      <ul className="mt-2 w-full bg-white">
+      <H2>Kategorie</H2>
+      <Ul>
         <li
           className={cn(
             "cursor-pointer transition-colors duration-200",
@@ -37,12 +38,9 @@ const CategoriesList = () => {
               : "hover:bg-hover hover:text-white",
           )}
         >
-          <button
-            onClick={() => handleCategoryChange(null)}
-            className="flex w-full justify-start px-4 py-2"
-          >
+          <Button variant="category" onClick={() => handleCategoryChange(null)}>
             <span>Wszystkie</span>
-          </button>
+          </Button>
         </li>
 
         {categoriesList?.map((category, index) => {
@@ -58,16 +56,16 @@ const CategoriesList = () => {
                   : "hover:bg-hover hover:text-white",
               )}
             >
-              <button
+              <Button
+                variant="category"
                 onClick={() => handleCategoryChange(category)}
-                className="flex w-full justify-start px-4 py-2"
               >
                 <span>{category}</span>
-              </button>
+              </Button>
             </li>
           );
         })}
-      </ul>
+      </Ul>
     </div>
   );
 };
