@@ -24,7 +24,7 @@ const buttonVariants = cva(
         category:
           "flex w-full justify-start px-4 py-2",
         filter:
-          "bg-primary hover:bg-hover px-4 py-2 text-white",
+          "bg-primary hover:bg-hover px-4 py-2 text-white w-full",
         sort:
           "bg-primary hover:bg-hover px-4 py-2 text-white",
         sortCategory:

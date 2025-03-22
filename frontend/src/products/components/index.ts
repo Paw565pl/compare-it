@@ -1,5 +1,5 @@
 import { CategoriesList } from "@/products/components/categories-list/categories-list";
-import { FilterBar } from "@/products/components/filter-bar/filter-bar";
+import { FiltersBar } from "@/products/components/filters-bar/filters-bar";
 import { ProductActionsButtons } from "@/products/components/product-actions-buttons/product-actions-buttons";
 import { ProductImage } from "@/products/components/product-image/product-image";
 import { ProductList } from "@/products/components/product-list/product-list";
@@ -14,7 +14,7 @@ import { SortBar } from "@/products/components/sort-bar/sort-bar";
 
 export {
   CategoriesList,
-  FilterBar,
+  FiltersBar,
   ProductActionsButtons,
   ProductImage,
   ProductList,
