@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/core/components/ui/button";
+import { H2 } from "@/core/components/ui/h2";
+import { Ul } from "@/core/components/ui/ul";
 import { cn } from "@/core/utils/cn";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
 import {
@@ -7,9 +10,6 @@ import {
   productPaginationSearchParams,
 } from "@/products/search-params/product-search-params";
 import { useQueryStates } from "nuqs";
-import { Button } from "@/core/components/ui/button";
-import { H2 } from "@/core/components/ui/h2";
-import { Ul } from "@/core/components/ui/ul";
 
 const CategoriesList = () => {
   const { data: categoriesList } = useFetchCategoriesList();
@@ -28,9 +28,7 @@ const CategoriesList = () => {
 
   return (
     <div className="flex flex-col items-start">
-      <H2>
-        Kategorie
-      </H2>
+      <H2>Kategorie</H2>
       <Ul>
         <li
           className={cn(
@@ -40,10 +38,7 @@ const CategoriesList = () => {
               : "hover:bg-hover hover:text-white",
           )}
         >
-          <Button
-            variant="category"
-            onClick={() => handleCategoryChange(null)}
-          >
+          <Button variant="category" onClick={() => handleCategoryChange(null)}>
             <span>Wszystkie</span>
           </Button>
         </li>

@@ -7,9 +7,5 @@ interface H1Props {
 }
 
 export const Ul = ({ children, className }: H1Props) => {
-  return (
-    <ul className={cn("mt-2 w-full bg-white", className)}>
-      {children}
-    </ul>
-  );
+  return <ul className={cn("mt-2 w-full bg-white", className)}>{children}</ul>;
 };

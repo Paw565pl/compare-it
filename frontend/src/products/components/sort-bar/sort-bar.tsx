@@ -31,10 +31,7 @@ const SortBar = () => {
 
   return (
     <div className="text-md relative items-center">
-      <Button
-        variant="sort"
-        onClick={toggleDropdown}
-      >
+      <Button variant="sort" onClick={toggleDropdown}>
         SORTUJ
         <ChevronDown className="w-6" />
       </Button>
@@ -45,7 +42,8 @@ const SortBar = () => {
             <li key={index}>
               <Button
                 variant="sortCategory"
-                onClick={() => handleSortChange(sortValue)}              >
+                onClick={() => handleSortChange(sortValue)}
+              >
                 {sortLabel}
               </Button>
             </li>

@@ -75,16 +75,12 @@ export const FiltersBar = () => {
 
   return (
     <>
-      <H2 className="mt-2">
-        Filtry
-      </H2>
+      <H2 className="mt-2">Filtry</H2>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="mt-2 bg-white py-4">
-            <H3>
-              Sklepy
-            </H3>
+            <H3>Sklepy</H3>
 
             <FormField
               control={form.control}
@@ -176,10 +172,7 @@ export const FiltersBar = () => {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            variant="filter"
-          >
+          <Button type="submit" variant="filter">
             FILTRUJ
           </Button>
         </form>

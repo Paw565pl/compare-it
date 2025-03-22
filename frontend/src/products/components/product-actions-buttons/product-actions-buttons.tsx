@@ -74,17 +74,11 @@ export const ProductActionsButtons = ({
         dialogHeader={"Dodaj alert"}
         handleSubmit={handleCreatePriceAlert}
       />
-      <Button
-        onClick={handleAddFavoriteProduct}
-        variant="priceAlert"
-      >
+      <Button onClick={handleAddFavoriteProduct} variant="priceAlert">
         <Heart />
         POLUB
       </Button>
-      <Button
-        onClick={handleDeleteFavoriteProduct}
-        variant="priceAlert"
-      >
+      <Button onClick={handleDeleteFavoriteProduct} variant="priceAlert">
         <HeartOff />
         USUŃ Z ULUBIONYCH
       </Button>
