@@ -39,17 +39,19 @@ const SingleProduct = ({
         </Link>
       </div>
 
-      <div className="flex grow flex-col justify-between">
+      <div className="flex flex-col justify-center">
         <div>
           <Link href={`/produkty/${id}`}>
             <H1 className="mb-2 text-xl font-bold">{name}</H1>
           </Link>
           <p className="text-secondary mb-4 text-sm">Kategoria: {category}</p>
 
-          <p className="text-secondary text-sm">Liczba ofert: {offerCount}</p>
+          <p className="text-secondary mb-1 text-sm">
+            Liczba ofert: {offerCount}
+          </p>
         </div>
 
-        <div className="mt-1">
+        <div>
           <p className="text-secondary mb-1 text-sm">
             Sklep: {lowestPriceShop}
           </p>

@@ -61,7 +61,7 @@ const SearchBar = () => {
       />
       <Button variant="search" type="submit">
         <Search className="text-lg" />
-        <div className="ml-2 hidden md:block">WYSZUKAJ</div>
+        <div className="hidden md:block">WYSZUKAJ</div>
       </Button>
     </form>
   );
