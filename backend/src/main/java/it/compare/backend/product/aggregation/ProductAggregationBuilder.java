@@ -1,6 +1,9 @@
 package it.compare.backend.product.aggregation;
 
+import static it.compare.backend.product.service.ProductService.AVAILABILITY_DAYS_THRESHOLD;
+
 import it.compare.backend.product.model.Category;
+import it.compare.backend.product.model.Product;
 import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,6 +13,8 @@ import lombok.Builder;
 import lombok.Getter;
 import org.bson.Document;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 
@@ -42,54 +47,49 @@ public class ProductAggregationBuilder {
     public static final String HAS_AVAILABLE_OFFERS = "hasAvailableOffers";
     public static final String ADD_FIELDS = "$addFields";
     public static final String MAP = "$map";
-    public static final String FILTER = "$filter";
     public static final String SORT_ARRAY = "$sortArray";
     public static final String MERGE_OBJECTS = "$mergeObjects";
     public static final String PRICE_HISTORY = "priceHistory";
-    public static final int AVAILABILITY_DAYS_THRESHOLD = 3;
 
     // Search parameters
-    private String searchName;
-    private String searchCategory;
-    private List<String> shop;
-    private BigDecimal minPrice;
-    private BigDecimal maxPrice;
-    private Boolean isAvailable;
-    private Pageable pageable;
+    private final String searchName;
+    private final String searchCategory;
+    private final List<String> shop;
+    private final BigDecimal minPrice;
+    private final BigDecimal maxPrice;
+    private final Boolean isAvailable;
+    private final Pageable pageable;
 
     /**
      * Creates a complete search aggregation pipeline
      */
-    public Aggregation buildSearchAggregation() {
+    public TypedAggregation<Product> buildSearchAggregation() {
         List<AggregationOperation> operations = getCommonAggregationOperations();
 
-        // Add sorting and pagination
         operations.addAll(getSortingAndPaginationOperations());
         operations.add(getProjectionOperation());
 
-        return Aggregation.newAggregation(operations);
+        return Aggregation.newAggregation(Product.class, operations);
     }
 
     /**
      * Creates a count aggregation pipeline for pagination
      */
-    public Aggregation buildCountAggregation() {
-        List<AggregationOperation> operations = getCommonAggregationOperations();
+    public TypedAggregation<Product> buildCountAggregation() {
+        var operations = getCommonAggregationOperations();
 
-        // Group by product ID to count unique products
         operations.add(Aggregation.group("$_id").count().as("count"));
 
-        // Final count operation
         operations.add(Aggregation.group().count().as("count"));
 
-        return Aggregation.newAggregation(operations);
+        return Aggregation.newAggregation(Product.class, operations);
     }
 
     /**
      * Creates common operations for both search and count aggregations
      */
     private List<AggregationOperation> getCommonAggregationOperations() {
-        List<AggregationOperation> operations = new ArrayList<>();
+        var operations = new ArrayList<AggregationOperation>();
 
         // Add base operations
         operations.addAll(getBaseAggregationOperations());
@@ -113,9 +113,8 @@ public class ProductAggregationBuilder {
      * Creates base operations for both search and count
      */
     public List<AggregationOperation> getBaseAggregationOperations() {
-        List<AggregationOperation> operations = new ArrayList<>();
+        var operations = new ArrayList<AggregationOperation>();
 
-        // Convert ObjectId to string for easier handling
         operations.add(Aggregation.addFields()
                 .addField(STRING_ID)
                 .withValue(ConvertOperators.ToString.toString("$" + ID))
@@ -153,10 +152,8 @@ public class ProductAggregationBuilder {
                                                                                                         TIMESTAMP,
                                                                                                         -1)))))))))));
 
-        // Unwinding offers
         operations.add(Aggregation.unwind(OFFERS, true));
 
-        // Create temporary fields for shop and its name
         operations.add(Aggregation.addFields()
                 .addField(SHOP_OBJECT)
                 .withValue(OFFERS_SHOP)
@@ -164,7 +161,6 @@ public class ProductAggregationBuilder {
                 .withValue(OFFERS_SHOP)
                 .build());
 
-        // Unwinding price history
         operations.add(Aggregation.unwind("offers.priceHistory", true));
 
         // Group to ensure we only keep one price history item per shop (the most recent one)
@@ -198,7 +194,7 @@ public class ProductAggregationBuilder {
      * Creates operations for price filtering and availability
      */
     public List<AggregationOperation> getPriceFilterOperations() {
-        List<AggregationOperation> operations = new ArrayList<>();
+        var operations = new ArrayList<AggregationOperation>();
 
         // Calculate availability based on timestamp directly in the database
         operations.add(Aggregation.addFields()
@@ -211,7 +207,7 @@ public class ProductAggregationBuilder {
                         .otherwise(false))
                 .build());
 
-        // Add a computed field for available price (only valid if isAvailable is true)
+        // Add a computed field for available price
         operations.add(Aggregation.addFields()
                 .addField(AVAILABLE_PRICE)
                 .withValue(ConditionalOperators.when(ComparisonOperators.Eq.valueOf("$" + IS_AVAILABLE)
@@ -220,7 +216,6 @@ public class ProductAggregationBuilder {
                         .otherwise(new Document()))
                 .build());
 
-        // Add price range filter if requested
         if (minPrice != null || maxPrice != null) {
             operations.add(createPriceRangeFilterOperation());
         }
@@ -232,10 +227,10 @@ public class ProductAggregationBuilder {
      * Creates operations for grouping products and finding the lowest prices
      */
     public List<AggregationOperation> getGroupingOperations() {
-        List<AggregationOperation> operations = new ArrayList<>();
+        var operations = new ArrayList<AggregationOperation>();
 
         // Group by product to find the lowest price
-        var groupOperation = Aggregation.group("$_id.productId")
+        operations.add(Aggregation.group("$_id.productId")
                 .first(STRING_ID)
                 .as(STRING_ID)
                 .first(NAME)
@@ -253,11 +248,9 @@ public class ProductAggregationBuilder {
                         .append(CURRENCY, "$" + CURRENCY)
                         .append(TIMESTAMP, "$" + TIMESTAMP)
                         .append(IS_AVAILABLE, "$" + IS_AVAILABLE))
-                .as(OFFERS);
+                .as(OFFERS));
 
-        operations.add(groupOperation);
-
-        // Count available offers and calculate the lowest prices
+        // Count available offers
         operations.add(Aggregation.addFields()
                 .addField(OFFERS_COUNT)
                 .withValue(ArrayOperators.Size.lengthOfArray(ArrayOperators.Filter.filter("$" + OFFERS)
@@ -266,57 +259,33 @@ public class ProductAggregationBuilder {
                                 .equalToValue(true))))
                 .build());
 
-        // Add fields for lowest offer and availability
+        // Add field for availability
         operations.add(Aggregation.addFields()
                 .addField(HAS_AVAILABLE_OFFERS)
                 .withValue(ComparisonOperators.Gt.valueOf("$" + OFFERS_COUNT).greaterThanValue(0))
                 .build());
 
-        operations.add(context -> new Document(
-                ADD_FIELDS,
-                new Document(
-                                LOWEST_OFFER,
-                                new Document(
-                                        COND,
-                                        new Document("if", new Document("$gt", Arrays.asList("$" + OFFERS_COUNT, 0)))
-                                                .append(
-                                                        "then",
-                                                        new Document(
-                                                                "$arrayElemAt",
-                                                                Arrays.asList(
-                                                                        new Document(
-                                                                                SORT_ARRAY,
-                                                                                new Document(
-                                                                                                INPUT,
-                                                                                                new Document(
-                                                                                                        FILTER,
-                                                                                                        new Document(
-                                                                                                                        INPUT,
-                                                                                                                        "$"
-                                                                                                                                + OFFERS)
-                                                                                                                .append(
-                                                                                                                        "as",
-                                                                                                                        OFFER)
-                                                                                                                .append(
-                                                                                                                        "cond",
-                                                                                                                        new Document(
-                                                                                                                                "$eq",
-                                                                                                                                Arrays
-                                                                                                                                        .asList(
-                                                                                                                                                OFFER_PREFIX
-                                                                                                                                                        + IS_AVAILABLE,
-                                                                                                                                                true)))))
-                                                                                        .append(
-                                                                                                "sortBy",
-                                                                                                // First sort by price,
-                                                                                                // then by timestamp
-                                                                                                new Document(PRICE, 1)
-                                                                                                        .append(
-                                                                                                                TIMESTAMP,
-                                                                                                                -1))),
-                                                                        0)))
-                                                .append("else", new Document())))
-                        .append("mainImageUrl", new Document("$arrayElemAt", Arrays.asList("$" + IMAGES_FIELD, 0)))));
+        // Add the lowest offer
+        operations.add(Aggregation.addFields()
+                .addField(LOWEST_OFFER)
+                .withValueOf(ConditionalOperators.when(ComparisonOperators.Gt.valueOf("$" + OFFERS_COUNT)
+                                .greaterThanValue(0))
+                        .then(ArrayOperators.ArrayElemAt.arrayOf(
+                                        ArrayOperators.SortArray.sortArrayOf(ArrayOperators.Filter.filter("$" + OFFERS)
+                                                        .as(OFFER)
+                                                        .by(ComparisonOperators.Eq.valueOf(OFFER_PREFIX + IS_AVAILABLE)
+                                                                .equalToValue(true)))
+                                                .by(Sort.by(Sort.Order.asc(PRICE), Sort.Order.desc(TIMESTAMP))))
+                                .elementAt(0))
+                        .otherwise(new Document()))
+                .build());
+
+        // Add main image URL field
+        operations.add(Aggregation.addFields()
+                .addField("mainImageUrl")
+                .withValueOf(
+                        ArrayOperators.ArrayElemAt.arrayOf("$" + IMAGES_FIELD).elementAt(0))
+                .build());
 
         return operations;
     }
@@ -325,14 +294,12 @@ public class ProductAggregationBuilder {
      * Creates operations for sorting and pagination
      */
     public List<AggregationOperation> getSortingAndPaginationOperations() {
-        List<AggregationOperation> operations = new ArrayList<>();
+        var operations = new ArrayList<AggregationOperation>();
 
-        // Add sorting if applicable
         if (pageable != null && pageable.getSort().isSorted()) {
             operations.add(createSortOperation());
         }
 
-        // Add pagination if applicable
         if (pageable != null) {
             operations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
             operations.add(Aggregation.limit(pageable.getPageSize()));
@@ -381,7 +348,6 @@ public class ProductAggregationBuilder {
      * Creates a price range filter operation
      */
     private AggregationOperation createPriceRangeFilterOperation() {
-        // Make sure we have valid values
         var minPriceValue = minPrice != null ? minPrice.doubleValue() : null;
         var maxPriceValue = maxPrice != null ? maxPrice.doubleValue() : null;
 
@@ -405,21 +371,14 @@ public class ProductAggregationBuilder {
         return context -> {
             Document sortDoc = new Document();
 
-            for (org.springframework.data.domain.Sort.Order order : pageable.getSort()) {
+            for (Order order : pageable.getSort()) {
                 int direction = order.getDirection() == org.springframework.data.domain.Sort.Direction.ASC ? 1 : -1;
                 String field = order.getProperty();
 
-                // Map field names to their internal representation
                 switch (field) {
-                    case PRICE_FIELD:
-                        sortDoc.append("lowestOffer.price", direction);
-                        break;
-                    case OFFERS_COUNT:
-                        sortDoc.append(OFFERS_COUNT, direction);
-                        break;
-                    default:
-                        sortDoc.append(field, direction);
-                        break;
+                    case PRICE_FIELD -> sortDoc.append("lowestOffer.price", direction);
+                    case OFFERS_COUNT -> sortDoc.append(OFFERS_COUNT, direction);
+                    default -> sortDoc.append(field, direction);
                 }
             }
 

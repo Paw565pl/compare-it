@@ -9,7 +9,6 @@ import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -40,7 +39,7 @@ public class ProductService {
     private static final String DAY = "day";
     private static final int MAX_PRICE_STAMP_RANGE_DAYS = 180;
     private static final int MIN_PRICE_STAMP_RANGE_DAYS = 1;
-    private static final int AVAILABILITY_DAYS_THRESHOLD = 3;
+    public static final int AVAILABILITY_DAYS_THRESHOLD = 3;
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -51,18 +50,14 @@ public class ProductService {
      * Finds all products matching given filters with pagination
      */
     public Page<ProductListResponse> findAll(ProductFiltersDto filters, Pageable pageable) {
-        // Create aggregation builder from filters
         var aggregationBuilder = createAggregationBuilder(filters, pageable);
 
-        // Execute main aggregation
-        AggregationResults<ProductListResponse> results = mongoTemplate.aggregate(
+        var results = mongoTemplate.aggregate(
                 aggregationBuilder.buildSearchAggregation(), PRODUCTS, ProductListResponse.class);
-        List<ProductListResponse> productResponses = results.getMappedResults();
+        var productResponses = results.getMappedResults();
 
-        // Execute count aggregation
         var total = executeCountAggregation(aggregationBuilder);
 
-        // Return paginated result
         return new PageImpl<>(productResponses, pageable, total);
     }
 
@@ -86,8 +81,7 @@ public class ProductService {
      */
     private long executeCountAggregation(ProductAggregationBuilder builder) {
         var countAggregation = builder.buildCountAggregation();
-        AggregationResults<CountResult> countResults =
-                mongoTemplate.aggregate(countAggregation, PRODUCTS, CountResult.class);
+        var countResults = mongoTemplate.aggregate(countAggregation, PRODUCTS, CountResult.class);
 
         var countResult = countResults.getUniqueMappedResult();
         return countResult != null ? countResult.count() : 0;
@@ -109,17 +103,14 @@ public class ProductService {
      * Fetches a product with aggregation and returns it as ProductDetailResponse
      */
     private ProductDetailResponse fetchProductWithAggregation(ObjectId id, Integer priceStampRangeDays) {
-        // Create and execute aggregation
         var aggregation = createProductDetailAggregation(id, priceStampRangeDays);
-        AggregationResults<ProductDetailResponse> results =
-                mongoTemplate.aggregate(aggregation, PRODUCTS, ProductDetailResponse.class);
+        var results = mongoTemplate.aggregate(aggregation, PRODUCTS, ProductDetailResponse.class);
 
         var detailResponse = results.getUniqueMappedResult();
 
         if (detailResponse == null) {
             log.debug("No results found for product with ID: {}", id);
 
-            // Check if the product exists with the given ID
             var productExists =
                     mongoTemplate.exists(Query.query(Criteria.where("_id").is(id)), Product.class);
 
@@ -141,8 +132,8 @@ public class ProductService {
     /**
      * Creates an aggregation to fetch product details
      */
-    private Aggregation createProductDetailAggregation(ObjectId id, Integer priceStampRangeDays) {
-        List<AggregationOperation> operations = new ArrayList<>();
+    private TypedAggregation<Product> createProductDetailAggregation(ObjectId id, Integer priceStampRangeDays) {
+        var operations = new ArrayList<AggregationOperation>();
 
         // 1. Match product by ID
         operations.add(Aggregation.match(Criteria.where("_id").is(id)));
@@ -191,7 +182,7 @@ public class ProductService {
                         "endOfToday",
                         "availabilityThresholdDate"));
 
-        return Aggregation.newAggregation(operations);
+        return Aggregation.newAggregation(Product.class, operations);
     }
 
     /**
@@ -200,28 +191,21 @@ public class ProductService {
     private Document createDateFilteringFieldsOperation(Integer priceStampRangeDays) {
         var addFieldsDoc = new Document();
 
-        // Get days range value, ensure it's within bounds (1-180 days)
         var rangeDays = priceStampRangeDays != null
                 ? Math.clamp(priceStampRangeDays, MIN_PRICE_STAMP_RANGE_DAYS, MAX_PRICE_STAMP_RANGE_DAYS)
                 : MIN_PRICE_STAMP_RANGE_DAYS;
 
-        // Add fields with range days value for reference
         addFieldsDoc.append("rangeDays", rangeDays);
 
-        // Add isZeroDayFilter field (always false now as we use minimum of 1 day)
         addFieldsDoc.append("isZeroDayFilter", false);
 
-        // Create date parts for today
         var todayDatePartsDoc = createTodayDatePartsDoc();
 
-        // Add start of today for filtering
         addFieldsDoc.append("startOfToday", new Document(DATE_FROM_PARTS, todayDatePartsDoc));
 
-        // Add end of today (start of tomorrow) for filtering
         var tomorrowDateDoc = createDateAddDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc));
         addFieldsDoc.append("endOfToday", tomorrowDateDoc);
 
-        // Calculate date range start for filtering
         var dateRangeStartDoc = createDateSubtractDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc), rangeDays);
         addFieldsDoc.append("dateRangeStart", dateRangeStartDoc);
 
@@ -261,24 +245,19 @@ public class ProductService {
      * Creates a map document that filters price history and calculates isAvailable
      */
     private Document createPriceHistoryFilterMapDocWithAvailability() {
-        // Create condition for date filtering
         var dateConditionDoc = createDateFilterConditionDoc();
 
-        // Create filter document for price history filtering
         var filterOperation = new Document(
                 "$filter",
                 new Document(INPUT, "$$offer.priceHistory")
                         .append("as", "price")
                         .append("cond", dateConditionDoc));
 
-        // Create sortArray operation
         var sortArrayDoc = new Document(
                 "$sortArray", new Document(INPUT, filterOperation).append("sortBy", new Document("timestamp", -1)));
 
-        // Create arrayElemAt operation
         var arrayElemAtDoc = new Document("$arrayElemAt", Arrays.asList(sortArrayDoc, 0));
 
-        // Create let operation for availability check
         var letDoc = new Document(
                 "$let",
                 new Document()
@@ -289,7 +268,6 @@ public class ProductService {
                                         "$gte",
                                         Arrays.asList("$$latestPrice.timestamp", "$availabilityThresholdDate"))));
 
-        // Create isOfferAvailable condition
         var isOfferAvailableDoc = new Document(
                 "$cond",
                 new Document()
@@ -297,7 +275,6 @@ public class ProductService {
                         .append("then", false)
                         .append("else", letDoc));
 
-        // Create mergeObjects for the map operation
         var mergeObjectsDoc = new Document(
                 "$mergeObjects",
                 new Document("shop", "$$offer.shop")
@@ -305,7 +282,6 @@ public class ProductService {
                         .append("priceHistory", filterOperation)
                         .append("isAvailable", isOfferAvailableDoc));
 
-        // Create the final map operation
         return new Document(
                 "$map",
                 new Document().append(INPUT, "$offers").append("as", "offer").append("in", mergeObjectsDoc));
@@ -315,7 +291,6 @@ public class ProductService {
      * Creates date filter condition document
      */
     private Document createDateFilterConditionDoc() {
-        // Create conditional expression to choose appropriate filter
         return new Document(
                 "$cond",
                 new Document()
