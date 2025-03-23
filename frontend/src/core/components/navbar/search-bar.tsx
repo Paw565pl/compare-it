@@ -7,8 +7,8 @@ import {
 import { Search } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { FormEvent, useEffect, useRef } from "react";
-import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,10 +59,7 @@ const SearchBar = () => {
         className="w-full bg-white p-2 focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
-      <Button
-        variant="search"
-        type="submit"
-      >
+      <Button variant="search" type="submit">
         <Search className="text-lg" />
         <div className="ml-2 hidden md:block">WYSZUKAJ</div>
       </Button>

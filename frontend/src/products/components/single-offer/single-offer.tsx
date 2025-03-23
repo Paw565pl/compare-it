@@ -1,6 +1,6 @@
 import { Button } from "@/core/components/ui/button";
+import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
-import { ShopImage } from "@/products/components/index";
 import { OfferEntity } from "@/products/entities/product-detail-entity";
 import Link from "next/link";
 
@@ -17,7 +17,12 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
   return (
     <div className="flex flex-col items-center justify-between bg-white p-4 sm:flex-row">
       <Link href={offer.url} target="_blank" rel="nofollow noopener">
-        <ShopImage name={offer.shop} imageUrl={offer.shopLogoUrl} />
+        <ImageWithFallback
+          name={offer.shop}
+          imageUrl={offer.shopLogoUrl}
+          width={200}
+          height={200}
+        />
       </Link>
       <div className="flex items-center">
         <div className="mr-4 flex flex-col items-center">

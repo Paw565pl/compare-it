@@ -1,6 +1,6 @@
 import { H1 } from "@/core/components/ui/h1";
+import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
-import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
 import Link from "next/link";
 
@@ -30,7 +30,12 @@ const SingleProduct = ({
     <div className="border-grey-100 text-primary mt-1 flex flex-col bg-white p-6 md:flex-row">
       <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
         <Link href={`/produkty/${id}`}>
-          <ProductImage name={name} imageUrl={mainImageUrl} />
+          <ImageWithFallback
+            name={name}
+            imageUrl={mainImageUrl}
+            width={200}
+            height={200}
+          />
         </Link>
       </div>
 

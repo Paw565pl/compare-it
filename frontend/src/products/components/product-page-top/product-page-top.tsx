@@ -3,9 +3,9 @@
 import { CommentsSection } from "@/comments/components";
 import { Button } from "@/core/components/ui/button";
 import { H1 } from "@/core/components/ui/h1";
+import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import {
   ProductActionsButtons,
-  ProductPageImage,
   ProductPageImages,
   ProductPageOffers,
 } from "@/products/components/index";
@@ -30,9 +30,11 @@ const ProductPageTop = ({ productId }: ProductPageTopProps) => {
     <div className="flex flex-col">
       <div className="border-grey-100 text-primary flex flex-col bg-white p-6 md:flex-row">
         <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
-          <ProductPageImage
+          <ImageWithFallback
             name={productData?.name || ""}
             imageUrl={productData?.images[0] || ""}
+            width={400}
+            height={400}
           />
         </div>
 
