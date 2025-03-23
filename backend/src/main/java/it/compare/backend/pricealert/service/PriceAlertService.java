@@ -130,7 +130,6 @@ public class PriceAlertService {
                         return new OfferPriceData(offer.getShop().getHumanReadableName(), latestPrice, offer.getUrl());
                     })
                     .filter(latest -> latest.priceStamp() != null)
-                    .filter(latest -> latest.priceStamp().getIsAvailable())
                     .filter(latest ->
                             alert.getIsOutletAllowed() || latest.priceStamp().getCondition() != Condition.OUTLET)
                     .toList();

@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 public class User {
 
     @MongoId
-    @Field("_id")
+    @Field(value = "_id")
     @NonNull private String id;
 
     @Field("username")

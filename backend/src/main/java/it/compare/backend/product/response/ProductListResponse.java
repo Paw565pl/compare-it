@@ -1,6 +1,8 @@
 package it.compare.backend.product.response;
 
+import com.mongodb.lang.Nullable;
 import it.compare.backend.product.model.Category;
+import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
 import lombok.*;
 
@@ -13,10 +15,15 @@ public class ProductListResponse {
     private String name;
     private String ean;
     private Category category;
-    private String mainImageUrl;
-    private BigDecimal lowestCurrentPrice;
-    private String lowestPriceCurrency;
-    private String lowestPriceShop;
-    private Long offerCount;
+
+    @Nullable private String mainImageUrl;
+
+    @Nullable private BigDecimal lowestCurrentPrice;
+
+    @Nullable private String lowestPriceCurrency;
+
+    @Nullable private Shop lowestPriceShop;
+
+    private Long offersCount;
     private Boolean isAvailable;
 }

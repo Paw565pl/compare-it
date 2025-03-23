@@ -17,7 +17,6 @@ public class PriceAlertMapper {
     public PriceAlertResponse toResponse(PriceAlert alert) {
         var lowestCurrentPrice = alert.getProduct().getOffers().stream()
                 .flatMap(offer -> offer.getPriceHistory().stream())
-                .filter(PriceStamp::getIsAvailable)
                 .filter(priceStamp -> alert.getIsOutletAllowed() || priceStamp.getCondition() != Condition.OUTLET)
                 .map(PriceStamp::getPrice)
                 .min(BigDecimal::compareTo)
