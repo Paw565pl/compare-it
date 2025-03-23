@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/core/utils/cn";
 import { useFetchCategoriesList } from "@/products/hooks/client/use-fetch-categories-list";
 import {
   productFiltersSearchParams,
@@ -13,7 +14,12 @@ const CategoriesList = () => {
   const [, setPagination] = useQueryStates(productPaginationSearchParams);
 
   const handleCategoryChange = (category: string | null) => {
-    setFilters({ category });
+    setFilters({
+      category,
+      minPrice: null,
+      maxPrice: null,
+      shop: null,
+    });
     setPagination((prev) => ({ ...prev, page: 0 }));
   };
 
@@ -24,11 +30,12 @@ const CategoriesList = () => {
       </h2>
       <ul className="mt-2 w-full bg-white">
         <li
-          className={`cursor-pointer transition-colors duration-200 ${
+          className={cn(
+            "cursor-pointer transition-colors duration-200",
             filters.category === null
               ? "bg-hover text-white"
-              : "hover:bg-hover hover:text-white"
-          }`}
+              : "hover:bg-hover hover:text-white",
+          )}
         >
           <button
             onClick={() => handleCategoryChange(null)}
@@ -44,11 +51,12 @@ const CategoriesList = () => {
           return (
             <li
               key={index}
-              className={`cursor-pointer transition-colors duration-200 ${
+              className={cn(
+                "cursor-pointer transition-colors duration-200",
                 isActive
                   ? "bg-hover text-white"
-                  : "hover:bg-hover hover:text-white"
-              }`}
+                  : "hover:bg-hover hover:text-white",
+              )}
             >
               <button
                 onClick={() => handleCategoryChange(category)}

@@ -6,17 +6,33 @@ import {
 } from "@/products/search-params/product-search-params";
 import { Search } from "lucide-react";
 import { useQueryStates } from "nuqs";
-import { FormEvent, useRef } from "react";
+import { FormEvent, useEffect, useRef } from "react";
 
 const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [, setProductFilters] = useQueryStates(productFiltersSearchParams);
+
+  const [productFilters, setProductFilters] = useQueryStates(
+    productFiltersSearchParams,
+  );
   const [, setPagination] = useQueryStates(productPaginationSearchParams);
+
+  useEffect(() => {
+    const searchElement = inputRef.current;
+    if (!searchElement) return;
+
+    const name = productFilters.name?.trim();
+
+    if (!name) searchElement.value = "";
+    else searchElement.value = name;
+  }, [productFilters.name]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const name = inputRef.current?.value.trim();
-    if (name) {
+
+    if (!name) {
+      setProductFilters({ name: null });
+    } else {
       setProductFilters({
         name,
         category: null,
@@ -35,8 +51,9 @@ const SearchBar = () => {
       className="flex w-full items-center justify-center"
     >
       <input
-        ref={inputRef}
         type="text"
+        ref={inputRef}
+        defaultValue={productFilters.name?.trim() || ""}
         className="w-full bg-white p-2 focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />

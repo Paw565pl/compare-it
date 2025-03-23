@@ -11,8 +11,8 @@ const addFavoriteProduct = async (
   accessToken: string,
   favoriteProductDto: FavoriteProductDto,
 ) => {
-  const { data } = await apiService.put<void>(
-    "/v1/favorite-products",
+  const { data } = await apiService.post<void>(
+    "/api/v1/favorite-products",
     favoriteProductDto,
     {
       headers: {

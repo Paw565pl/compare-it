@@ -19,7 +19,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
-    @Value("${ALLOWED_ORIGIN}")
+    @Value("${allowed-origin}")
     private String frontendUrl;
 
     public void sendPriceAlert(

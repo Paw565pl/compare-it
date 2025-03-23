@@ -1,9 +1,5 @@
 import { getQueryClient } from "@/core/libs/tanstack-query";
-import {
-  CategoriesList,
-  FilterBar,
-  ProductList,
-} from "@/products/components/index";
+import { CategoriesList, FiltersBar, ProductList } from "@/products/components";
 import { prefetchCategoriesList } from "@/products/hooks/server/prefetch-categories-list";
 import { prefetchProductPage } from "@/products/hooks/server/prefetch-product-page";
 import { prefetchShopsList } from "@/products/hooks/server/prefetch-shops-list";
@@ -43,7 +39,7 @@ export const ProductListPage = async ({
               <CategoriesList />
             </Suspense>
             <Suspense>
-              <FilterBar />
+              <FiltersBar />
             </Suspense>
           </div>
           <div className="flex w-full flex-col">

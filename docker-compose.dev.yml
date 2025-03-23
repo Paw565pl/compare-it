@@ -28,10 +28,10 @@ services:
     depends_on:
       - mongodb
       - smtp4dev
-    environment:
-      - ALLOWED_ORIGIN=http://localhost:3000
     develop:
       watch:
+        - action: rebuild
+          path: ./backend/build.gradle.kts
         - action: sync+restart
           path: ./backend
           target: /app/
@@ -50,13 +50,13 @@ services:
       - backend
     develop:
       watch:
+        - action: rebuild
+          path: ./frontend/package.json
         - action: sync
           path: ./frontend
           target: /app/
           ignore:
             - node_modules/
-        - action: rebuild
-          path: ./frontend/package.json
 
 volumes:
   mongodb-data:
