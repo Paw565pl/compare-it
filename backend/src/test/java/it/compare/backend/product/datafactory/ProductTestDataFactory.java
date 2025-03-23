@@ -26,12 +26,8 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     @Override
     public Product generate() {
         var priceStamp = new PriceStamp(
-                BigDecimal.valueOf(faker.number().positive()),
-                faker.currency().toString(),
-                faker.bool().bool(),
-                Condition.NEW);
-        var offer = new Offer(
-                Shop.RTV_EURO_AGD, faker.internet().url(), faker.internet().url());
+                BigDecimal.valueOf(faker.number().positive()), faker.currency().toString(), Condition.NEW);
+        var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
         offer.getPriceHistory().add(priceStamp);
 
         var product = new Product(
