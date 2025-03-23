@@ -15,10 +15,22 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90",
         outline:
           "border border-input bg-white shadow-xs hover:bg-accent hover:text-accent-foreground",
+        primary: "bg-primary text-primary-foreground shadow-xs hover:bg-hover",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-hover",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        category: "flex w-full justify-start px-4 py-2",
+        filter: "bg-primary hover:bg-hover px-4 py-2 text-white w-full",
+        sort: "bg-primary hover:bg-hover px-4 py-2 text-white",
+        sortCategory:
+          "flex w-full justify-start px-4 py-2 hover:bg-hover hover:text-white",
+        pagination:
+          "bg-primary hover:bg-hover m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0",
+        priceAlert:
+          "bg-primary text-white hover:bg-hover cursor-pointer shadow-none",
+        search:
+          "bg-primary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors duration-300",
       },
       size: {
         default: "h-9 px-4 py-2",

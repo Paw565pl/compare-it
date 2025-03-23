@@ -60,7 +60,7 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
           control={form.control}
           render={({ field }) => (
             <FormItem className="bg-white p-4">
-              <FormLabel className="text-secondary text-xl font-semibold">
+              <FormLabel className="text-primary text-xl font-semibold">
                 Dodaj Komentarz
               </FormLabel>
               <FormControl>
@@ -82,7 +82,7 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
         <Button
           disabled={!session}
           type="submit"
-          className="bg-secondary hover:bg-hover mt-2 w-full font-semibold shadow-none transition-colors duration-200"
+          className="bg-primary hover:bg-hover mt-2 w-full font-semibold shadow-none transition-colors duration-200"
         >
           DODAJ KOMENTARZ
         </Button>

@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
+import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { PriceAlertFormDialog } from "@/price-alerts/components";
 import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
@@ -15,7 +16,6 @@ import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
 import { useUpdatePriceAlert } from "@/price-alerts/hooks/client/use-update-price-alert";
 import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
-import { ProductImage } from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { Pen } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -66,9 +66,11 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
     <Card className="w-[22rem]">
       <CardHeader>
         <div className="flex justify-center">
-          <ProductImage
+          <ImageWithFallback
             name={priceAlert.productName}
             imageUrl={product?.images.at(0) || null}
+            width={200}
+            height={200}
           />
         </div>
 
@@ -104,7 +106,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
         />
         <PriceAlertFormDialog
           dialogTrigger={
-            <Button variant={"secondary"}>
+            <Button variant={"primary"}>
               <Pen /> Edytuj
             </Button>
           }

@@ -7,9 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
+import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
-import { ProductImage } from "@/products/components";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -45,7 +45,12 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
     <Card className="w-[22rem]">
       <CardHeader>
         <div className="flex justify-center">
-          <ProductImage name={product.name} imageUrl={product.mainImageUrl} />
+          <ImageWithFallback
+            name={product.name}
+            imageUrl={product.mainImageUrl}
+            width={200}
+            height={200}
+          />
         </div>
 
         <CardTitle className="text-2xl">

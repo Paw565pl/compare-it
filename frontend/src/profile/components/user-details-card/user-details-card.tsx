@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/core/components/ui/card";
 import { H1 } from "@/core/components/ui/h1";
+import { H3 } from "@/core/components/ui/h3";
 import { useSession } from "next-auth/react";
 
 export const UserDetailsCard = () => {
@@ -40,7 +41,9 @@ export const UserDetailsCard = () => {
 
           <div className="space-y-1.5">
             <div>
-              <h3 className="text-lg font-medium">{user.username}</h3>
+              <H3 className="p-0 text-lg font-medium text-black">
+                {user.username}
+              </H3>
               <p className="text-muted-foreground text-sm">{user.email}</p>
             </div>
           </div>
