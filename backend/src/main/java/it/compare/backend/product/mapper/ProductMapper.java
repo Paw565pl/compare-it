@@ -1,7 +1,6 @@
 package it.compare.backend.product.mapper;
 
 import it.compare.backend.product.model.Product;
-import it.compare.backend.product.model.Shop;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,21 +18,5 @@ public class ProductMapper {
 
     public ProductDetailResponse toDetailResponse(Product product) {
         return modelMapper.map(product, ProductDetailResponse.class);
-    }
-
-    /**
-     * Maps shop enum value to human-readable name
-     */
-    public String mapShopNameToHumanReadable(String shopName) {
-        if (shopName == null) {
-            return null;
-        }
-
-        try {
-            Shop shop = Shop.valueOf(shopName);
-            return shop.getHumanReadableName();
-        } catch (IllegalArgumentException e) {
-            return shopName;
-        }
     }
 }

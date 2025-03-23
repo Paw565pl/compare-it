@@ -10,9 +10,7 @@ import it.compare.backend.product.response.ProductListResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -27,9 +25,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ProductService {
 
     // Constants
@@ -37,6 +35,7 @@ public class ProductService {
     private static final String OFFERS = "offers";
     private static final String INPUT = "input";
     private static final String PRICE_TIMESTAMP = "$$price.timestamp";
+    private static final String PRODUCTS = "products";
     private static final String NOW = "$$NOW";
     private static final String DAY = "day";
     private static final int MAX_PRICE_STAMP_RANGE_DAYS = 180;
@@ -47,6 +46,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final MongoTemplate mongoTemplate;
 
+    private record CountResult(long count) {}
     /**
      * Finds all products matching given filters with pagination
      */
@@ -55,28 +55,15 @@ public class ProductService {
         var aggregationBuilder = createAggregationBuilder(filters, pageable);
 
         // Execute main aggregation
-        AggregationResults<ProductListResponse> results =
-                executeAggregation(aggregationBuilder.buildSearchAggregation(), ProductListResponse.class);
+        AggregationResults<ProductListResponse> results = mongoTemplate.aggregate(
+                aggregationBuilder.buildSearchAggregation(), PRODUCTS, ProductListResponse.class);
         List<ProductListResponse> productResponses = results.getMappedResults();
 
         // Execute count aggregation
-        long total = executeCountAggregation(aggregationBuilder);
-
-        // Map shop names
-        productResponses.forEach(this::mapShopName);
+        var total = executeCountAggregation(aggregationBuilder);
 
         // Return paginated result
         return new PageImpl<>(productResponses, pageable, total);
-    }
-
-    /**
-     * Maps shop name in product response to human-readable format
-     */
-    private void mapShopName(ProductListResponse response) {
-        if (response.getLowestPriceShop() != null) {
-            String humanReadableName = productMapper.mapShopNameToHumanReadable(response.getLowestPriceShop());
-            response.setLowestPriceShop(humanReadableName);
-        }
     }
 
     /**
@@ -95,27 +82,15 @@ public class ProductService {
     }
 
     /**
-     * Executes the aggregation pipeline
-     */
-    private <T> AggregationResults<T> executeAggregation(Aggregation aggregation, Class<T> outputClass) {
-        return mongoTemplate.aggregate(aggregation, "products", outputClass);
-    }
-
-    /**
      * Executes count aggregation and returns the count
      */
     private long executeCountAggregation(ProductAggregationBuilder builder) {
         var countAggregation = builder.buildCountAggregation();
-        AggregationResults<CountResult> countResults = executeAggregation(countAggregation, CountResult.class);
+        AggregationResults<CountResult> countResults =
+                mongoTemplate.aggregate(countAggregation, PRODUCTS, CountResult.class);
 
-        CountResult countResult = countResults.getUniqueMappedResult();
-        return countResult != null ? countResult.getCount() : 0;
-    }
-
-    @Getter
-    @Setter
-    private static class CountResult {
-        private long count;
+        var countResult = countResults.getUniqueMappedResult();
+        return countResult != null ? countResult.count() : 0;
     }
 
     /**
@@ -123,7 +98,7 @@ public class ProductService {
      */
     public ProductDetailResponse findById(String id, Integer priceStampRangeDays) {
         try {
-            ObjectId objectId = new ObjectId(id);
+            var objectId = new ObjectId(id);
             return fetchProductWithAggregation(objectId, priceStampRangeDays);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID format");
@@ -137,15 +112,15 @@ public class ProductService {
         // Create and execute aggregation
         var aggregation = createProductDetailAggregation(id, priceStampRangeDays);
         AggregationResults<ProductDetailResponse> results =
-                executeAggregation(aggregation, ProductDetailResponse.class);
+                mongoTemplate.aggregate(aggregation, PRODUCTS, ProductDetailResponse.class);
 
-        ProductDetailResponse detailResponse = results.getUniqueMappedResult();
+        var detailResponse = results.getUniqueMappedResult();
 
         if (detailResponse == null) {
             log.debug("No results found for product with ID: {}", id);
 
             // Check if the product exists with the given ID
-            boolean productExists =
+            var productExists =
                     mongoTemplate.exists(Query.query(Criteria.where("_id").is(id)), Product.class);
 
             if (!productExists) {
@@ -287,24 +262,24 @@ public class ProductService {
      */
     private Document createPriceHistoryFilterMapDocWithAvailability() {
         // Create condition for date filtering
-        Document dateConditionDoc = createDateFilterConditionDoc();
+        var dateConditionDoc = createDateFilterConditionDoc();
 
         // Create filter document for price history filtering
-        Document filterOperation = new Document(
+        var filterOperation = new Document(
                 "$filter",
                 new Document(INPUT, "$$offer.priceHistory")
                         .append("as", "price")
                         .append("cond", dateConditionDoc));
 
         // Create sortArray operation
-        Document sortArrayDoc = new Document(
+        var sortArrayDoc = new Document(
                 "$sortArray", new Document(INPUT, filterOperation).append("sortBy", new Document("timestamp", -1)));
 
         // Create arrayElemAt operation
-        Document arrayElemAtDoc = new Document("$arrayElemAt", Arrays.asList(sortArrayDoc, 0));
+        var arrayElemAtDoc = new Document("$arrayElemAt", Arrays.asList(sortArrayDoc, 0));
 
         // Create let operation for availability check
-        Document letDoc = new Document(
+        var letDoc = new Document(
                 "$let",
                 new Document()
                         .append("vars", new Document("latestPrice", arrayElemAtDoc))
@@ -315,7 +290,7 @@ public class ProductService {
                                         Arrays.asList("$$latestPrice.timestamp", "$availabilityThresholdDate"))));
 
         // Create isOfferAvailable condition
-        Document isOfferAvailableDoc = new Document(
+        var isOfferAvailableDoc = new Document(
                 "$cond",
                 new Document()
                         .append("if", new Document("$eq", Arrays.asList(new Document("$size", filterOperation), 0)))
@@ -323,7 +298,7 @@ public class ProductService {
                         .append("else", letDoc));
 
         // Create mergeObjects for the map operation
-        Document mergeObjectsDoc = new Document(
+        var mergeObjectsDoc = new Document(
                 "$mergeObjects",
                 new Document("shop", "$$offer.shop")
                         .append("url", "$$offer.url")
