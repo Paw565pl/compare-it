@@ -106,7 +106,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
         />
         <PriceAlertFormDialog
           dialogTrigger={
-            <Button variant={"secondary"}>
+            <Button variant={"primary"}>
               <Pen /> Edytuj
             </Button>
           }
