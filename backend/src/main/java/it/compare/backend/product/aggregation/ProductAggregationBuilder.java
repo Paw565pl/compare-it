@@ -14,6 +14,7 @@ import lombok.Getter;
 import org.bson.Document;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -60,23 +61,17 @@ public class ProductAggregationBuilder {
     private final Boolean isAvailable;
     private final Pageable pageable;
 
-    /**
-     * Creates a complete search aggregation pipeline
-     */
     public TypedAggregation<Product> buildSearchAggregation() {
-        List<AggregationOperation> operations = getCommonAggregationOperations();
+        var operations = createCommonAggregationOperations();
 
-        operations.addAll(getSortingAndPaginationOperations());
-        operations.add(getProjectionOperation());
+        operations.addAll(createSortingAndPaginationOperations());
+        operations.add(createProjectionOperation());
 
         return Aggregation.newAggregation(Product.class, operations);
     }
 
-    /**
-     * Creates a count aggregation pipeline for pagination
-     */
     public TypedAggregation<Product> buildCountAggregation() {
-        var operations = getCommonAggregationOperations();
+        var operations = createCommonAggregationOperations();
 
         operations.add(Aggregation.group("$_id").count().as("count"));
 
@@ -88,19 +83,15 @@ public class ProductAggregationBuilder {
     /**
      * Creates common operations for both search and count aggregations
      */
-    private List<AggregationOperation> getCommonAggregationOperations() {
+    private List<AggregationOperation> createCommonAggregationOperations() {
         var operations = new ArrayList<AggregationOperation>();
 
-        // Add base operations
-        operations.addAll(getBaseAggregationOperations());
+        operations.addAll(createBaseAggregationOperations());
 
-        // Add price filter operations (but not availability filter)
-        operations.addAll(getPriceFilterOperations());
+        operations.addAll(createPriceFilterOperations());
 
-        // Add grouping operations to calculate hasAvailableOffers
-        operations.addAll(getGroupingOperations());
+        operations.addAll(createGroupingOperations());
 
-        // Add availability filter AFTER grouping
         if (isAvailable != null) {
             operations.add(
                     Aggregation.match(Criteria.where(HAS_AVAILABLE_OFFERS).is(isAvailable)));
@@ -109,10 +100,7 @@ public class ProductAggregationBuilder {
         return operations;
     }
 
-    /**
-     * Creates base operations for both search and count
-     */
-    public List<AggregationOperation> getBaseAggregationOperations() {
+    public List<AggregationOperation> createBaseAggregationOperations() {
         var operations = new ArrayList<AggregationOperation>();
 
         operations.add(Aggregation.addFields()
@@ -120,10 +108,8 @@ public class ProductAggregationBuilder {
                 .withValue(ConvertOperators.ToString.toString("$" + ID))
                 .build());
 
-        // Basic filtering (category, name, etc.)
         operations.add(Aggregation.match(createBaseCriteria()));
 
-        // Sort priceHistory inside each offer by timestamp desc BEFORE unwinding
         operations.add(context -> new Document(
                 ADD_FIELDS,
                 new Document(
@@ -190,13 +176,9 @@ public class ProductAggregationBuilder {
         return operations;
     }
 
-    /**
-     * Creates operations for price filtering and availability
-     */
-    public List<AggregationOperation> getPriceFilterOperations() {
+    public List<AggregationOperation> createPriceFilterOperations() {
         var operations = new ArrayList<AggregationOperation>();
 
-        // Calculate availability based on timestamp directly in the database
         operations.add(Aggregation.addFields()
                 .addField(IS_AVAILABLE)
                 .withValue(ConditionalOperators.when(ComparisonOperators.Gte.valueOf("$" + TIMESTAMP)
@@ -207,7 +189,6 @@ public class ProductAggregationBuilder {
                         .otherwise(false))
                 .build());
 
-        // Add a computed field for available price
         operations.add(Aggregation.addFields()
                 .addField(AVAILABLE_PRICE)
                 .withValue(ConditionalOperators.when(ComparisonOperators.Eq.valueOf("$" + IS_AVAILABLE)
@@ -226,10 +207,9 @@ public class ProductAggregationBuilder {
     /**
      * Creates operations for grouping products and finding the lowest prices
      */
-    public List<AggregationOperation> getGroupingOperations() {
+    public List<AggregationOperation> createGroupingOperations() {
         var operations = new ArrayList<AggregationOperation>();
 
-        // Group by product to find the lowest price
         operations.add(Aggregation.group("$_id.productId")
                 .first(STRING_ID)
                 .as(STRING_ID)
@@ -250,7 +230,6 @@ public class ProductAggregationBuilder {
                         .append(IS_AVAILABLE, "$" + IS_AVAILABLE))
                 .as(OFFERS));
 
-        // Count available offers
         operations.add(Aggregation.addFields()
                 .addField(OFFERS_COUNT)
                 .withValue(ArrayOperators.Size.lengthOfArray(ArrayOperators.Filter.filter("$" + OFFERS)
@@ -259,13 +238,11 @@ public class ProductAggregationBuilder {
                                 .equalToValue(true))))
                 .build());
 
-        // Add field for availability
         operations.add(Aggregation.addFields()
                 .addField(HAS_AVAILABLE_OFFERS)
                 .withValue(ComparisonOperators.Gt.valueOf("$" + OFFERS_COUNT).greaterThanValue(0))
                 .build());
 
-        // Add the lowest offer
         operations.add(Aggregation.addFields()
                 .addField(LOWEST_OFFER)
                 .withValueOf(ConditionalOperators.when(ComparisonOperators.Gt.valueOf("$" + OFFERS_COUNT)
@@ -280,7 +257,6 @@ public class ProductAggregationBuilder {
                         .otherwise(new Document()))
                 .build());
 
-        // Add main image URL field
         operations.add(Aggregation.addFields()
                 .addField("mainImageUrl")
                 .withValueOf(
@@ -290,10 +266,7 @@ public class ProductAggregationBuilder {
         return operations;
     }
 
-    /**
-     * Creates operations for sorting and pagination
-     */
-    public List<AggregationOperation> getSortingAndPaginationOperations() {
+    public List<AggregationOperation> createSortingAndPaginationOperations() {
         var operations = new ArrayList<AggregationOperation>();
 
         if (pageable != null && pageable.getSort().isSorted()) {
@@ -308,10 +281,7 @@ public class ProductAggregationBuilder {
         return operations;
     }
 
-    /**
-     * Creates the final projection operation
-     */
-    public AggregationOperation getProjectionOperation() {
+    public AggregationOperation createProjectionOperation() {
         return context -> new Document(
                 "$project",
                 new Document("id", "$" + STRING_ID)
@@ -344,9 +314,6 @@ public class ProductAggregationBuilder {
                         .append(IS_AVAILABLE, "$" + HAS_AVAILABLE_OFFERS));
     }
 
-    /**
-     * Creates a price range filter operation
-     */
     private AggregationOperation createPriceRangeFilterOperation() {
         var minPriceValue = minPrice != null ? minPrice.doubleValue() : null;
         var maxPriceValue = maxPrice != null ? maxPrice.doubleValue() : null;
@@ -364,16 +331,13 @@ public class ProductAggregationBuilder {
         return Aggregation.match(priceCriteria);
     }
 
-    /**
-     * Creates a sort operation based on pageable
-     */
     private AggregationOperation createSortOperation() {
         return context -> {
-            Document sortDoc = new Document();
+            var sortDoc = new Document();
 
             for (Order order : pageable.getSort()) {
-                int direction = order.getDirection() == org.springframework.data.domain.Sort.Direction.ASC ? 1 : -1;
-                String field = order.getProperty();
+                var direction = order.getDirection() == Direction.ASC ? 1 : -1;
+                var field = order.getProperty();
 
                 switch (field) {
                     case PRICE_FIELD -> sortDoc.append("lowestOffer.price", direction);
@@ -386,9 +350,6 @@ public class ProductAggregationBuilder {
         };
     }
 
-    /**
-     * Creates base filtering criteria
-     */
     public Criteria createBaseCriteria() {
         var criteria = new Criteria();
 

@@ -34,7 +34,6 @@ public class ProductService {
     private static final String OFFERS = "offers";
     private static final String INPUT = "input";
     private static final String PRICE_TIMESTAMP = "$$price.timestamp";
-    private static final String PRODUCTS = "products";
     private static final String NOW = "$$NOW";
     private static final String DAY = "day";
     private static final int MAX_PRICE_STAMP_RANGE_DAYS = 180;
@@ -46,14 +45,11 @@ public class ProductService {
     private final MongoTemplate mongoTemplate;
 
     private record CountResult(long count) {}
-    /**
-     * Finds all products matching given filters with pagination
-     */
+
     public Page<ProductListResponse> findAll(ProductFiltersDto filters, Pageable pageable) {
         var aggregationBuilder = createAggregationBuilder(filters, pageable);
 
-        var results = mongoTemplate.aggregate(
-                aggregationBuilder.buildSearchAggregation(), PRODUCTS, ProductListResponse.class);
+        var results = mongoTemplate.aggregate(aggregationBuilder.buildSearchAggregation(), ProductListResponse.class);
         var productResponses = results.getMappedResults();
 
         var total = executeCountAggregation(aggregationBuilder);
@@ -61,9 +57,6 @@ public class ProductService {
         return new PageImpl<>(productResponses, pageable, total);
     }
 
-    /**
-     * Creates an aggregation builder from filters
-     */
     private ProductAggregationBuilder createAggregationBuilder(ProductFiltersDto filters, Pageable pageable) {
         return ProductAggregationBuilder.builder()
                 .searchName(filters.name())
@@ -76,20 +69,14 @@ public class ProductService {
                 .build();
     }
 
-    /**
-     * Executes count aggregation and returns the count
-     */
     private long executeCountAggregation(ProductAggregationBuilder builder) {
         var countAggregation = builder.buildCountAggregation();
-        var countResults = mongoTemplate.aggregate(countAggregation, PRODUCTS, CountResult.class);
+        var countResults = mongoTemplate.aggregate(countAggregation, CountResult.class);
 
         var countResult = countResults.getUniqueMappedResult();
         return countResult != null ? countResult.count() : 0;
     }
 
-    /**
-     * Finds a product by ID and returns it as a ProductDetailResponse
-     */
     public ProductDetailResponse findById(String id, Integer priceStampRangeDays) {
         try {
             var objectId = new ObjectId(id);
@@ -99,12 +86,9 @@ public class ProductService {
         }
     }
 
-    /**
-     * Fetches a product with aggregation and returns it as ProductDetailResponse
-     */
     private ProductDetailResponse fetchProductWithAggregation(ObjectId id, Integer priceStampRangeDays) {
         var aggregation = createProductDetailAggregation(id, priceStampRangeDays);
-        var results = mongoTemplate.aggregate(aggregation, PRODUCTS, ProductDetailResponse.class);
+        var results = mongoTemplate.aggregate(aggregation, ProductDetailResponse.class);
 
         var detailResponse = results.getUniqueMappedResult();
 
@@ -185,9 +169,6 @@ public class ProductService {
         return Aggregation.newAggregation(Product.class, operations);
     }
 
-    /**
-     * Creates date filtering fields for aggregation
-     */
     private Document createDateFilteringFieldsOperation(Integer priceStampRangeDays) {
         var addFieldsDoc = new Document();
 
@@ -212,9 +193,6 @@ public class ProductService {
         return new Document("$addFields", addFieldsDoc);
     }
 
-    /**
-     * Creates date parts document for today
-     */
     private Document createTodayDatePartsDoc() {
         return new Document()
                 .append("year", new Document("$year", NOW))
@@ -225,25 +203,16 @@ public class ProductService {
                 .append("second", 0);
     }
 
-    /**
-     * Creates date add document
-     */
     private Document createDateAddDocument(Document startDate) {
         return DateOperators.DateAdd.addValue(1, DAY).toDate(startDate).toDocument(Aggregation.DEFAULT_CONTEXT);
     }
 
-    /**
-     * Creates date subtract document
-     */
     private Document createDateSubtractDocument(Document startDate, int amount) {
         return DateOperators.DateSubtract.subtractValue(amount, DAY)
                 .fromDate(startDate)
                 .toDocument(Aggregation.DEFAULT_CONTEXT);
     }
 
-    /**
-     * Creates a map document that filters price history and calculates isAvailable
-     */
     private Document createPriceHistoryFilterMapDocWithAvailability() {
         var dateConditionDoc = createDateFilterConditionDoc();
 
@@ -287,9 +256,6 @@ public class ProductService {
                 new Document().append(INPUT, "$offers").append("as", "offer").append("in", mergeObjectsDoc));
     }
 
-    /**
-     * Creates date filter condition document
-     */
     private Document createDateFilterConditionDoc() {
         return new Document(
                 "$cond",
@@ -299,9 +265,6 @@ public class ProductService {
                         .append("else", createStandardDateRangeCondition()));
     }
 
-    /**
-     * Creates filter condition for today only
-     */
     private Document createTodayOnlyFilterCondition() {
         return BooleanOperators.And.and(
                         ComparisonOperators.Gte.valueOf(PRICE_TIMESTAMP).greaterThanEqualToValue("$startOfToday"),
@@ -309,19 +272,12 @@ public class ProductService {
                 .toDocument(Aggregation.DEFAULT_CONTEXT);
     }
 
-    /**
-     * Creates standard date range condition
-     */
     private Document createStandardDateRangeCondition() {
-        // Standard filtering: timestamp >= dateRangeStart
         return ComparisonOperators.Gte.valueOf(PRICE_TIMESTAMP)
                 .greaterThanEqualToValue("$dateRangeStart")
                 .toDocument(Aggregation.DEFAULT_CONTEXT);
     }
 
-    /**
-     * Finds a product by ID or throws an exception
-     */
     public Product findProductOrThrow(String id) {
         return productRepository
                 .findById(id)
