@@ -14,9 +14,7 @@ const ProductPageOffers = ({ productId }: ProductPageOffersProps) => {
   return (
     <div className="mt-4">
       {productData?.offers.map((offer, offerIndex) => (
-        <div key={offerIndex}>
-          <SingleOffer offer={offer} />
-        </div>
+          <SingleOffer offer={offer} key={offerIndex} />
       ))}
     </div>
   );

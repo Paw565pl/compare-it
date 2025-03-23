@@ -20,8 +20,8 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
         <ImageWithFallback
           name={offer.shop}
           imageUrl={offer.shopLogoUrl}
-          width={200}
-          height={200}
+          width={150}
+          height={150}
         />
       </Link>
       <div className="flex items-center">

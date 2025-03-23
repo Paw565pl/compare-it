@@ -79,7 +79,7 @@ export const PriceAlertFormDialog = ({
                 <FormItem>
                   <FormLabel>Cena docelowa (PLN)</FormLabel>
                   <FormControl>
-                    <Input className="focus:border-secondary" {...field} />
+                    <Input className="focus:border-primary" {...field} />
                   </FormControl>
 
                   <FormMessage />
@@ -97,7 +97,7 @@ export const PriceAlertFormDialog = ({
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="border-secondary data-[state=checked]:bg-secondary data-[state=checked]:text-secondary-foreground"
+                        className="border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                       />
                     </FormControl>
                     <FormLabel className="mt-0!">
@@ -111,7 +111,7 @@ export const PriceAlertFormDialog = ({
             />
 
             <DialogFooter>
-              <Button type="submit" variant="secondary">
+              <Button type="submit" variant="primary">
                 Zapisz
               </Button>
             </DialogFooter>

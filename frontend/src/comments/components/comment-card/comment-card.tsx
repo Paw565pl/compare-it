@@ -66,7 +66,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
   return (
     <div className="bg-white p-4">
       <div className="flex items-center gap-4">
-        <div className="text-secondary text-xl font-semibold">
+        <div className="text-primary text-xl font-semibold">
           {comment.author}
         </div>
         <div className="text-muted text-sm">{formattedCreatedAtDate}</div>
@@ -82,7 +82,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
         <div className="flex items-center">
           <Button
             onClick={handleCreatePositiveRating}
-            className="text-secondary bg-white p-1 shadow-none hover:bg-white"
+            className="text-primary bg-white p-1 shadow-none hover:bg-white"
           >
             <Smile />
           </Button>
