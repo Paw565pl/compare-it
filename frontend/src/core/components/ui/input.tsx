@@ -19,19 +19,5 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 );
 Input.displayName = "Input";
 
-const FilterInput = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentProps<"input">
->(({ className, type, ...props }, ref) => {
-  return (
-    <input
-      type={type}
-      className={cn("cursor-pointer", className)}
-      ref={ref}
-      {...props}
-    />
-  );
-});
-FilterInput.displayName = "FilterInput";
 
-export { FilterInput, Input };
+export { Input };

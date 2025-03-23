@@ -7,6 +7,7 @@ import {
 import { Search } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { FormEvent, useEffect, useRef } from "react";
+import { Input } from "../ui/input";
 
 const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +51,7 @@ const SearchBar = () => {
       onSubmit={handleSubmit}
       className="flex w-full items-center justify-center"
     >
-      <input
+      <Input
         type="text"
         ref={inputRef}
         defaultValue={productFilters.name?.trim() || ""}
