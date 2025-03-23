@@ -1,6 +1,6 @@
 import { Button } from "@/core/components/ui/button";
+import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
-import { ShopImage } from "@/products/components/index";
 import { OfferEntity } from "@/products/entities/product-detail-entity";
 import Link from "next/link";
 
@@ -17,7 +17,12 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
   return (
     <div className="flex flex-col items-center justify-between bg-white p-4 sm:flex-row">
       <Link href={offer.url} target="_blank" rel="nofollow noopener">
-        <ShopImage name={offer.shop} imageUrl={offer.shopLogoUrl} />
+        <ImageWithFallback
+          name={offer.shop}
+          imageUrl={offer.shopLogoUrl}
+          width={150}
+          height={150}
+        />
       </Link>
       <div className="flex items-center">
         <div className="mr-4 flex flex-col items-center">
@@ -25,7 +30,7 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
             href={offer.url}
             target="_blank"
             rel="nofollow noopener"
-            className="text-secondary justify-center text-lg font-semibold"
+            className="text-primary justify-center text-lg font-semibold"
           >
             {formattedPrice}
           </Link>
@@ -43,7 +48,7 @@ const SingleOffer = ({ offer }: SingleOfferProps) => {
         </div>
         <Button
           asChild
-          className="bg-secondary hover:bg-hover font-semibold shadow-none"
+          className="bg-primary hover:bg-hover font-semibold shadow-none"
         >
           <Link href={offer.url} target="_blank" rel="nofollow noopener">
             PRZEJDŹ DO OFERTY

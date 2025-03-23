@@ -9,6 +9,8 @@ import {
   FormItem,
   FormLabel,
 } from "@/core/components/ui/form";
+import { H2 } from "@/core/components/ui/h2";
+import { H3 } from "@/core/components/ui/h3";
 import { Input } from "@/core/components/ui/input";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
 import {
@@ -73,16 +75,12 @@ export const FiltersBar = () => {
 
   return (
     <>
-      <h2 className="text-secondary mt-6 mb-1 ml-4 text-2xl font-bold sm:ml-0">
-        Filtry
-      </h2>
+      <H2 className="mt-2">Filtry</H2>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="mt-2 bg-white py-4">
-            <h3 className="text-secondary pb-2 pl-4 text-xl font-bold">
-              Sklepy
-            </h3>
+            <H3>Sklepy</H3>
 
             <FormField
               control={form.control}
@@ -126,7 +124,7 @@ export const FiltersBar = () => {
               )}
             />
 
-            <h3 className="text-secondary py-2 pl-4 text-xl font-bold">Cena</h3>
+            <H3>Cena</H3>
 
             <div className="w-full space-y-1 px-4">
               <FormField
@@ -174,10 +172,7 @@ export const FiltersBar = () => {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="bg-secondary hover:bg-hover mb-8 w-full px-4 py-2 text-white"
-          >
+          <Button type="submit" variant="filter">
             FILTRUJ
           </Button>
         </form>

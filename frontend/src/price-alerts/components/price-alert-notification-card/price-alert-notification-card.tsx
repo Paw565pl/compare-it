@@ -7,11 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
+import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { formatDate } from "@/core/utils/format-date";
 import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
-import { ProductImage } from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { Clock, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -49,9 +49,11 @@ export const PriceAlertNotificationCard = ({
     <Card className="w-[22rem]">
       <CardHeader>
         <div className="flex justify-center">
-          <ProductImage
+          <ImageWithFallback
             name={priceAlert.productName}
             imageUrl={product?.images.at(0) || ""}
+            width={200}
+            height={200}
           />
         </div>
 

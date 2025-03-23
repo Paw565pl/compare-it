@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/core/components/ui/button";
 import { productPaginationSearchParams } from "@/products/search-params/product-search-params";
 import { ChevronDown } from "lucide-react";
 import { useQueryStates } from "nuqs";
@@ -30,24 +31,21 @@ const SortBar = () => {
 
   return (
     <div className="text-md relative items-center">
-      <button
-        onClick={toggleDropdown}
-        className="bg-secondary hover:bg-hover flex px-4 py-2 text-white transition-colors"
-      >
+      <Button variant="sort" onClick={toggleDropdown}>
         SORTUJ
         <ChevronDown className="w-6" />
-      </button>
+      </Button>
 
       {isDropdownOpen && (
         <ul className="absolute left-0 mt-2 border bg-white shadow-lg">
           {Object.entries(sortOptions).map(([sortLabel, sortValue], index) => (
             <li key={index}>
-              <button
+              <Button
+                variant="sortCategory"
                 onClick={() => handleSortChange(sortValue)}
-                className="hover:bg-hover w-full cursor-pointer px-4 py-2 text-left hover:text-white"
               >
                 {sortLabel}
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

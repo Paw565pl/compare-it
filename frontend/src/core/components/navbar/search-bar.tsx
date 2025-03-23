@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/input";
 import {
   productFiltersSearchParams,
   productPaginationSearchParams,
@@ -50,20 +52,17 @@ const SearchBar = () => {
       onSubmit={handleSubmit}
       className="flex w-full items-center justify-center"
     >
-      <input
+      <Input
         type="text"
         ref={inputRef}
         defaultValue={productFilters.name?.trim() || ""}
         className="w-full bg-white p-2 focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
-      <button
-        type="submit"
-        className="bg-secondary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors duration-300"
-      >
+      <Button variant="search" type="submit">
         <Search className="text-lg" />
-        <div className="ml-2 hidden md:block">WYSZUKAJ</div>
-      </button>
+        <div className="hidden md:block">WYSZUKAJ</div>
+      </Button>
     </form>
   );
 };

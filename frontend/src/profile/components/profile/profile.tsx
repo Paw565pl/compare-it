@@ -57,7 +57,7 @@ export const Profile = () => {
               setActiveComponent(component);
               setActiveButtonIndex(index);
             }}
-            variant={activeButtonIndex === index ? "secondary" : "outline"}
+            variant={activeButtonIndex === index ? "primary" : "outline"}
             size="icon"
             title={title}
             className="w-full p-6 sm:p-8"

@@ -1,20 +1,28 @@
 import Image from "next/image";
 
-interface ProductImageProps {
+interface ImageWithFallbackProps {
   readonly name: string;
   readonly imageUrl: string | null;
+  readonly width: number;
+  readonly height: number;
 }
 
 const noImagePlaceholderPath = "/no-image-placeholder.svg";
 
-export const ProductImage = ({ name, imageUrl }: ProductImageProps) => {
+export const ImageWithFallback = ({
+  name,
+  imageUrl,
+  width,
+  height,
+}: ImageWithFallbackProps) => {
   return (
     <Image
       src={imageUrl || noImagePlaceholderPath}
       onError={(e) => (e.currentTarget.src = noImagePlaceholderPath)}
-      width={200}
-      height={200}
+      width={width}
+      height={height}
       alt={name}
+      className="h-auto w-auto"
     />
   );
 };
