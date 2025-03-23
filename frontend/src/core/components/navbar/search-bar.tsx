@@ -8,6 +8,7 @@ import { Search } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { FormEvent, useEffect, useRef } from "react";
 import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -58,13 +59,13 @@ const SearchBar = () => {
         className="w-full bg-white p-2 focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
-      <button
+      <Button
+        variant="search"
         type="submit"
-        className="bg-primary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors duration-300"
       >
         <Search className="text-lg" />
         <div className="ml-2 hidden md:block">WYSZUKAJ</div>
-      </button>
+      </Button>
     </form>
   );
 };
