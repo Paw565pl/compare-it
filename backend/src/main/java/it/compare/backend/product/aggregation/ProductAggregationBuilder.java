@@ -61,12 +61,9 @@ public class ProductAggregationBuilder {
      * Creates a complete search aggregation pipeline
      */
     public Aggregation buildSearchAggregation() {
-        List<AggregationOperation> operations = new ArrayList<>();
+        List<AggregationOperation> operations = getCommonAggregationOperations();
 
-        // Add all aggregation operations
-        operations.addAll(getBaseAggregationOperations());
-        operations.addAll(getPriceFilterOperations());
-        operations.addAll(getGroupingOperations());
+        // Add sorting and pagination
         operations.addAll(getSortingAndPaginationOperations());
         operations.add(getProjectionOperation());
 
@@ -77,21 +74,38 @@ public class ProductAggregationBuilder {
      * Creates a count aggregation pipeline for pagination
      */
     public Aggregation buildCountAggregation() {
-        List<AggregationOperation> operations = new ArrayList<>();
-
-        // Add base operations (shared with search)
-        operations.addAll(getBaseAggregationOperations());
-
-        // Add price and availability filters (shared with search)
-        operations.addAll(getPriceFilterOperations());
+        List<AggregationOperation> operations = getCommonAggregationOperations();
 
         // Group by product ID to count unique products
-        operations.add(Aggregation.group("$_id.productId").count().as("count"));
+        operations.add(Aggregation.group("$_id").count().as("count"));
 
         // Final count operation
         operations.add(Aggregation.group().count().as("count"));
 
         return Aggregation.newAggregation(operations);
+    }
+
+    /**
+     * Creates common operations for both search and count aggregations
+     */
+    private List<AggregationOperation> getCommonAggregationOperations() {
+        List<AggregationOperation> operations = new ArrayList<>();
+
+        // Add base operations
+        operations.addAll(getBaseAggregationOperations());
+
+        // Add price filter operations (but not availability filter)
+        operations.addAll(getPriceFilterOperations());
+
+        // Add grouping operations to calculate hasAvailableOffers
+        operations.addAll(getGroupingOperations());
+
+        // Add availability filter AFTER grouping
+        if (isAvailable != null) {
+            operations.add(Aggregation.match(Criteria.where(HAS_AVAILABLE_OFFERS).is(isAvailable)));
+        }
+
+        return operations;
     }
 
     /**
@@ -129,9 +143,9 @@ public class ProductAggregationBuilder {
                                                                         new Document(
                                                                                 SORT_ARRAY,
                                                                                 new Document(
-                                                                                                INPUT,
-                                                                                                OFFER_PREFIX
-                                                                                                        + PRICE_HISTORY)
+                                                                                        INPUT,
+                                                                                        OFFER_PREFIX
+                                                                                                + PRICE_HISTORY)
                                                                                         .append(
                                                                                                 "sortBy",
                                                                                                 new Document(
@@ -205,11 +219,6 @@ public class ProductAggregationBuilder {
                         .otherwise(new Document()))
                 .build());
 
-        // Filter by availability if requested
-        if (isAvailable != null) {
-            operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(isAvailable)));
-        }
-
         // Add price range filter if requested
         if (minPrice != null || maxPrice != null) {
             operations.add(createPriceRangeFilterOperation());
@@ -262,48 +271,48 @@ public class ProductAggregationBuilder {
                 .withValue(ComparisonOperators.Gt.valueOf("$" + OFFER_COUNT).greaterThanValue(0))
                 .build());
 
-        // Use a direct MongoDB document approach for the lowest offer logic to avoid null issues
         operations.add(context -> new Document(
                 ADD_FIELDS,
                 new Document(
-                                LOWEST_OFFER,
-                                new Document(
-                                        COND,
-                                        new Document("if", new Document("$gt", Arrays.asList("$" + OFFER_COUNT, 0)))
-                                                .append(
-                                                        "then",
-                                                        new Document(
-                                                                "$arrayElemAt",
-                                                                Arrays.asList(
+                        LOWEST_OFFER,
+                        new Document(
+                                COND,
+                                new Document("if", new Document("$gt", Arrays.asList("$" + OFFER_COUNT, 0)))
+                                        .append(
+                                                "then",
+                                                new Document(
+                                                        "$arrayElemAt",
+                                                        Arrays.asList(
+                                                                new Document(
+                                                                        SORT_ARRAY,
                                                                         new Document(
-                                                                                SORT_ARRAY,
+                                                                                INPUT,
                                                                                 new Document(
+                                                                                        FILTER,
+                                                                                        new Document(
                                                                                                 INPUT,
-                                                                                                new Document(
-                                                                                                        FILTER,
+                                                                                                "$"
+                                                                                                        + OFFERS)
+                                                                                                .append(
+                                                                                                        "as",
+                                                                                                        OFFER)
+                                                                                                .append(
+                                                                                                        "cond",
                                                                                                         new Document(
-                                                                                                                        INPUT,
-                                                                                                                        "$"
-                                                                                                                                + OFFERS)
-                                                                                                                .append(
-                                                                                                                        "as",
-                                                                                                                        OFFER)
-                                                                                                                .append(
-                                                                                                                        "cond",
-                                                                                                                        new Document(
-                                                                                                                                "$eq",
-                                                                                                                                Arrays
-                                                                                                                                        .asList(
-                                                                                                                                                OFFER_PREFIX
-                                                                                                                                                        + IS_AVAILABLE,
-                                                                                                                                                true)))))
-                                                                                        .append(
-                                                                                                "sortBy",
-                                                                                                new Document(
-                                                                                                        PRICE, 1))),
-                                                                        0)))
-                                                .append("else", new Document()) // Empty document instead of null
-                                        ))
+                                                                                                                "$eq",
+                                                                                                                Arrays
+                                                                                                                        .asList(
+                                                                                                                                OFFER_PREFIX
+                                                                                                                                        + IS_AVAILABLE,
+                                                                                                                                true)))))
+                                                                                .append(
+                                                                                        "sortBy",
+                                                                                        // First sort by price, then by timestamp
+                                                                                        new Document(PRICE, 1)
+                                                                                                .append(TIMESTAMP, -1))),
+                                                                0)))
+                                        .append("else", new Document())
+                        ))
                         .append("mainImageUrl", new Document("$arrayElemAt", Arrays.asList("$" + IMAGES_FIELD, 0)))));
 
         return operations;
