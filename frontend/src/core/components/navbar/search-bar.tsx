@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/input";
 import {
   productFiltersSearchParams,
   productPaginationSearchParams,
@@ -7,8 +9,6 @@ import {
 import { Search } from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { FormEvent, useEffect, useRef } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 
 const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement>(null);
