@@ -36,10 +36,10 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
     );
   };
 
-  const formattedPrice = formatCurrency(
-    product.lowestCurrentPrice,
-    product.lowestPriceCurrency,
-  );
+  const formattedPrice =
+    product.lowestCurrentPrice && product.lowestPriceCurrency
+      ? formatCurrency(product.lowestCurrentPrice, product.lowestPriceCurrency)
+      : "-";
 
   return (
     <Card className="w-[22rem]">

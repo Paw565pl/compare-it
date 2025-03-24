@@ -18,13 +18,13 @@ const SingleProduct = ({
     lowestPriceShop,
     mainImageUrl,
     name,
-    offerCount,
+    offersCount,
   },
 }: SingleProductProps) => {
-  const formattedPrice = formatCurrency(
-    lowestCurrentPrice,
-    lowestPriceCurrency,
-  );
+  const formattedPrice =
+    lowestCurrentPrice && lowestPriceCurrency
+      ? formatCurrency(lowestCurrentPrice, lowestPriceCurrency)
+      : "-";
 
   return (
     <div className="border-grey-100 text-primary mt-1 flex flex-col bg-white p-6 md:flex-row">
@@ -47,7 +47,7 @@ const SingleProduct = ({
           <p className="text-secondary mb-4 text-sm">Kategoria: {category}</p>
 
           <p className="text-secondary mb-1 text-sm">
-            Liczba ofert: {offerCount}
+            Liczba ofert: {offersCount}
           </p>
         </div>
 
