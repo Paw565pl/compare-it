@@ -8,6 +8,6 @@ export const prefetchProductPage = (
   productFilters?: ProductFiltersDto,
   paginationOptions?: PaginationOptions,
 ) =>
-  queryClient.prefetchInfiniteQuery(
+  queryClient.prefetchQuery(
     getProductPageQueryOptions(productFilters, paginationOptions),
   );
