@@ -15,7 +15,6 @@ import org.bson.Document;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 
@@ -269,14 +268,10 @@ public class ProductAggregationBuilder {
     public List<AggregationOperation> createSortingAndPaginationOperations() {
         var operations = new ArrayList<AggregationOperation>();
 
-        if (pageable != null && pageable.getSort().isSorted()) {
-            operations.add(createSortOperation());
-        }
+        operations.add(createSortOperation());
 
-        if (pageable != null) {
-            operations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
-            operations.add(Aggregation.limit(pageable.getPageSize()));
-        }
+        operations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
+        operations.add(Aggregation.limit(pageable.getPageSize()));
 
         return operations;
     }
@@ -335,7 +330,7 @@ public class ProductAggregationBuilder {
         return context -> {
             var sortDoc = new Document();
 
-            for (Order order : pageable.getSort()) {
+            for (var order : pageable.getSort()) {
                 var direction = order.getDirection() == Direction.ASC ? 1 : -1;
                 var field = order.getProperty();
 
@@ -345,6 +340,8 @@ public class ProductAggregationBuilder {
                     default -> sortDoc.append(field, direction);
                 }
             }
+
+            if (sortDoc.isEmpty()) sortDoc.append("_id", 1);
 
             return new Document("$sort", sortDoc);
         };
