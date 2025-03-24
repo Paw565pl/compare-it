@@ -39,43 +39,39 @@ const SingleProduct = ({
         </Link>
       </div>
 
-      <div className="flex flex-col justify-center">
-        <div>
-          <Link href={`/produkty/${id}`}>
-            <H1 className="mb-2 text-xl font-bold">{name}</H1>
-          </Link>
-          <p className="text-secondary mb-4 text-sm">Kategoria: {category}</p>
+      <div className="flex w-full flex-col justify-center">
+        <H1 className="mb-2 text-xl font-bold">
+          <Link href={`/produkty/${id}`}>{name}</Link>
+        </H1>
 
-          <p className="text-secondary mb-1 text-sm">
-            Liczba ofert: {offersCount}
-          </p>
+        <p className="text-secondary mb-4 text-sm">Kategoria: {category}</p>
+
+        <p className="text-secondary mb-1 text-sm">
+          Liczba ofert: {offersCount}
+        </p>
+        <p className="text-secondary mb-1 text-sm">Sklep: {lowestPriceShop}</p>
+        <div className="mb-4 text-sm">
+          {isAvailable ? (
+            <span className="font-semibold text-green-500">
+              Produkt dostępny
+            </span>
+          ) : (
+            <span className="font-semibold text-red-500">
+              Produkt niedostępny
+            </span>
+          )}
         </div>
 
-        <div>
-          <p className="text-secondary mb-1 text-sm">
-            Sklep: {lowestPriceShop}
-          </p>
-          <div className="mb-4 text-sm">
-            {isAvailable ? (
-              <span className="font-semibold text-green-500">
-                Produkt dostępny
-              </span>
-            ) : (
-              <span className="font-semibold text-red-500">
-                Produkt niedostępny
-              </span>
-            )}
-          </div>
-          <p className="text-primary mb-2 text-lg font-semibold">
-            Najniższa cena: {formattedPrice}
-          </p>
-          <Link
-            href={`/produkty/${id}`}
-            className="bg-primary hover:bg-hover block px-4 py-2 text-center font-semibold text-white transition"
-          >
-            Porównaj oferty
-          </Link>
-        </div>
+        <p className="text-primary mb-2 text-lg font-semibold">
+          Najniższa cena: {formattedPrice}
+        </p>
+
+        <Link
+          href={`/produkty/${id}`}
+          className="bg-primary hover:bg-hover block w-full px-4 py-2 text-center font-semibold text-white transition"
+        >
+          Porównaj oferty
+        </Link>
       </div>
     </div>
   );
