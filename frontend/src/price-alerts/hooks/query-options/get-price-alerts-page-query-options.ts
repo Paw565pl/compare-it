@@ -18,9 +18,9 @@ const fetchPriceAlertsPage = async (
     "/api/v1/price-alerts",
     {
       params: {
-        page: pageParam,
         ...priceAlertFiltersDto,
         ...paginationOptions,
+        page: pageParam,
       },
       headers: {
         Authorization: `Bearer ${accessToken}`,
