@@ -3,7 +3,11 @@ package it.compare.backend.product.response;
 import it.compare.backend.product.model.Condition;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter
@@ -13,6 +17,8 @@ public class PriceStampResponse {
     private LocalDateTime timestamp;
     private BigDecimal price;
     private String currency;
-    private String promoCode;
+
+    @Nullable private String promoCode;
+
     private Condition condition;
 }
