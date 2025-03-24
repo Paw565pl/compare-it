@@ -23,7 +23,7 @@ const CategoriesList = () => {
       maxPrice: null,
       shop: null,
     });
-    setPagination((prev) => ({ ...prev, page: 0 }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   return (
