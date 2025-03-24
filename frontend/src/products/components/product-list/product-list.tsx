@@ -33,7 +33,7 @@ export const ProductList = () => {
     return <div className="text-red-600">Coś poszło nie tak!</div>;
 
   const hasNextPage =
-    productsPage.page.number + 1 <= productsPage.page.totalPages;
+    productsPage.page.number + 1 < productsPage.page.totalPages;
 
   return (
     <>
