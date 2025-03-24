@@ -73,7 +73,6 @@ public class ProductAggregationBuilder {
         var operations = createCommonAggregationOperations();
 
         operations.add(Aggregation.group("$_id").count().as("count"));
-
         operations.add(Aggregation.group().count().as("count"));
 
         return Aggregation.newAggregation(Product.class, operations);
@@ -86,9 +85,7 @@ public class ProductAggregationBuilder {
         var operations = new ArrayList<AggregationOperation>();
 
         operations.addAll(createBaseAggregationOperations());
-
         operations.addAll(createPriceFilterOperations());
-
         operations.addAll(createGroupingOperations());
 
         if (isAvailable != null) {
