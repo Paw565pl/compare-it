@@ -145,8 +145,8 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         product.setId(id);
         product.getOffers().clear();
 
-        Map<Shop, List<PriceStamp>> shopPriceStamps = new HashMap<>();
-        Map<Shop, String> shopUrls = new HashMap<>();
+        var shopPriceStamps = new EnumMap<Shop, List<PriceStamp>>(Shop.class);
+        var shopUrls = new EnumMap<Shop, String>(Shop.class);
 
         for (int i = 0; i < shopPriceTimeTriplets.length; i += 3) {
             var shop = (Shop) shopPriceTimeTriplets[i];

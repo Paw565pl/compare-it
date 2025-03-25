@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 class ProductListTest extends ProductTest {
 
-
     @Test
     void shouldReturnAllProducts() {
         var productsCount = productTestDataFactory.createMany(3).size();
