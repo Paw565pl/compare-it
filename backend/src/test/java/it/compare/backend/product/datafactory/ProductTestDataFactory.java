@@ -6,10 +6,7 @@ import it.compare.backend.product.model.*;
 import it.compare.backend.product.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
@@ -26,8 +23,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         this.productRepository = productRepository;
     }
 
-    public record OfferInfo(BigDecimal price, LocalDateTime timestamp) {
-    }
+    public record OfferInfo(BigDecimal price, LocalDateTime timestamp) {}
 
     @Override
     public Product generate() {
@@ -127,5 +123,52 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
             shopOffers.put(shop, new OfferInfo(price, timestamp));
         }
         createProductWithDetailedOffers(shopOffers);
+    }
+
+    public Product createProductWithCustomId(String id) {
+        var product = generate();
+        product.setId(id);
+
+        var priceStamp = new PriceStamp(BigDecimal.valueOf(1000), "PLN", Condition.NEW);
+        priceStamp.setTimestamp(LocalDateTime.now());
+
+        product.getOffers().clear();
+        var offer = new Offer(Shop.MEDIA_EXPERT, faker.internet().url());
+        offer.getPriceHistory().add(priceStamp);
+        product.getOffers().add(offer);
+
+        return productRepository.save(product);
+    }
+
+    public Product createProductWithCustomIdAndMultipleOffers(String id, Object... shopPriceTimeTriplets) {
+        var product = generate();
+        product.setId(id);
+        product.getOffers().clear();
+
+        Map<Shop, List<PriceStamp>> shopPriceStamps = new HashMap<>();
+        Map<Shop, String> shopUrls = new HashMap<>();
+
+        for (int i = 0; i < shopPriceTimeTriplets.length; i += 3) {
+            var shop = (Shop) shopPriceTimeTriplets[i];
+            var price = (BigDecimal) shopPriceTimeTriplets[i + 1];
+            var timestamp = (LocalDateTime) shopPriceTimeTriplets[i + 2];
+
+            var priceStamp = new PriceStamp(price, "PLN", Condition.NEW);
+            priceStamp.setTimestamp(timestamp);
+
+            shopPriceStamps.computeIfAbsent(shop, k -> new ArrayList<>()).add(priceStamp);
+
+            shopUrls.putIfAbsent(shop, faker.internet().url());
+        }
+
+        for (Shop shop : shopPriceStamps.keySet()) {
+            var offer = new Offer(shop, shopUrls.get(shop));
+
+            offer.getPriceHistory().addAll(shopPriceStamps.get(shop));
+
+            product.getOffers().add(offer);
+        }
+
+        return productRepository.save(product);
     }
 }

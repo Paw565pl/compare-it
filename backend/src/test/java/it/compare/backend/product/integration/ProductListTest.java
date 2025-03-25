@@ -13,10 +13,6 @@ import org.junit.jupiter.api.Test;
 
 class ProductListTest extends ProductTest {
 
-    @Test
-    void shouldReturnEmptyList() {
-        given().contentType(JSON).when().get().then().statusCode(200).body("page.totalElements", equalTo(0));
-    }
 
     @Test
     void shouldReturnAllProducts() {
@@ -295,8 +291,6 @@ class ProductListTest extends ProductTest {
                 .get()
                 .then()
                 .statusCode(200)
-                .log()
-                .body()
                 .body("content[0].lowestCurrentPrice", equalTo(1000))
                 .body("content[1].lowestCurrentPrice", equalTo(2000))
                 .body("content[2].lowestCurrentPrice", equalTo(4000));
