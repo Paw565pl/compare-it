@@ -115,7 +115,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     }
 
     public void createProductWithShopsPricesAndTimes(Object... shopPriceTimeTriplets) {
-        var shopOffers = new HashMap<Shop, OfferInfo>();
+        var shopOffers = new EnumMap<Shop, OfferInfo>(Shop.class);
         for (int i = 0; i < shopPriceTimeTriplets.length; i += 3) {
             var shop = (Shop) shopPriceTimeTriplets[i];
             var price = (BigDecimal) shopPriceTimeTriplets[i + 1];
