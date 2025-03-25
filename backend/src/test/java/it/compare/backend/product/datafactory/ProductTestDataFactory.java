@@ -56,4 +56,11 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     public void clear() {
         productRepository.deleteAll();
     }
+
+    public void createProductWithCategory(Category category) {
+        var product = generate();
+        product.setCategory(category);
+        productRepository.save(product);
+    }
+
 }
