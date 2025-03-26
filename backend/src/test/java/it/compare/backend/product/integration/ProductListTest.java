@@ -314,27 +314,72 @@ class ProductListTest extends ProductTest {
                 .body("content[4].offersCount", equalTo(0));
     }
 
-    @Test
-    void shouldReturnProductsWithCorrectLowestCurrentPriceAndOffersCount() {
+    static Stream<Arguments> productLowestCurrentPriceAndOffersCountTestCases() {
         var now = LocalDateTime.now();
         var twoDaysAgo = LocalDateTime.now().minusDays(2);
         var todayEarly = LocalDateTime.now().minusHours(1);
         var yesterday = LocalDateTime.now().minusDays(1);
         var fiveDaysAgo = LocalDateTime.now().minusDays(5);
 
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                todayEarly,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(110),
-                now,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(110),
-                yesterday,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo);
+        return Stream.of(
+                Arguments.of(
+                        new Object[] {
+                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), todayEarly,
+                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(110), now,
+                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(110), yesterday,
+                            Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo
+                        },
+                        110,
+                        Shop.RTV_EURO_AGD.getHumanReadableName(),
+                        "PLN",
+                        2),
+                Arguments.of(
+                        new Object[] {
+                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), todayEarly,
+                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(95), now,
+                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo,
+                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(150), yesterday,
+                            Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo
+                        },
+                        90,
+                        Shop.MORELE_NET.getHumanReadableName(),
+                        "PLN",
+                        3),
+                Arguments.of(
+                        new Object[] {
+                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), fiveDaysAgo,
+                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo,
+                            Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo
+                        },
+                        90,
+                        Shop.MORELE_NET.getHumanReadableName(),
+                        "PLN",
+                        1),
+                Arguments.of(
+                        new Object[] {
+                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), fiveDaysAgo,
+                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(110), fiveDaysAgo,
+                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo,
+                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(150), fiveDaysAgo,
+                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(110), fiveDaysAgo,
+                            Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo
+                        },
+                        null,
+                        null,
+                        null,
+                        0));
+    }
+
+    @ParameterizedTest
+    @MethodSource("productLowestCurrentPriceAndOffersCountTestCases")
+    void shouldReturnProductsWithCorrectLowestCurrentPriceAndOffersCount(
+            Object[] testData,
+            Integer expectedLowestPrice,
+            String expectedShop,
+            String expectedCurrency,
+            Integer expectedOffersCount) {
+
+        productTestDataFactory.createProductWithShopsPricesAndTimes(testData);
 
         given().contentType(JSON)
                 .when()
@@ -343,111 +388,14 @@ class ProductListTest extends ProductTest {
                 .statusCode(200)
                 .body(
                         "content[0].lowestCurrentPrice",
-                        equalTo(110),
+                        equalTo(expectedLowestPrice),
                         "content[0].lowestPriceShop",
-                        equalTo(Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        equalTo(expectedShop),
                         "content[0].lowestPriceCurrency",
-                        equalTo("PLN"),
+                        equalTo(expectedCurrency),
                         "content[0].offersCount",
-                        equalTo(2));
+                        equalTo(expectedOffersCount));
 
         productTestDataFactory.clear();
-
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                todayEarly,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(95),
-                now,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(70),
-                fiveDaysAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(150),
-                yesterday,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                twoDaysAgo);
-
-        given().contentType(JSON)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body(
-                        "content[0].lowestCurrentPrice",
-                        equalTo(90),
-                        "content[0].lowestPriceShop",
-                        equalTo(Shop.MORELE_NET.getHumanReadableName()),
-                        "content[0].lowestPriceCurrency",
-                        equalTo("PLN"),
-                        "content[0].offersCount",
-                        equalTo(3));
-
-        productTestDataFactory.clear();
-
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                fiveDaysAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(70),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                twoDaysAgo);
-
-        given().contentType(JSON)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body(
-                        "content[0].lowestCurrentPrice",
-                        equalTo(90),
-                        "content[0].lowestPriceShop",
-                        equalTo(Shop.MORELE_NET.getHumanReadableName()),
-                        "content[0].lowestPriceCurrency",
-                        equalTo("PLN"),
-                        "content[0].offersCount",
-                        equalTo(1));
-
-        productTestDataFactory.clear();
-
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                fiveDaysAgo,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(110),
-                fiveDaysAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(70),
-                fiveDaysAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(150),
-                fiveDaysAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(110),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo);
-
-        given().contentType(JSON)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body(
-                        "content[0].lowestCurrentPrice",
-                        equalTo(null),
-                        "content[0].lowestPriceShop",
-                        equalTo(null),
-                        "content[0].lowestPriceCurrency",
-                        equalTo(null),
-                        "content[0].offersCount",
-                        equalTo(0));
     }
 }

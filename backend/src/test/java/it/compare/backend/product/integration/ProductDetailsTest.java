@@ -8,7 +8,11 @@ import static org.hamcrest.Matchers.hasSize;
 import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ProductDetailsTest extends ProductTest {
 
@@ -40,7 +44,7 @@ class ProductDetailsTest extends ProductTest {
         var twoDaysAgo = LocalDateTime.now().minusDays(2);
         var fiveDaysAgo = LocalDateTime.now().minusDays(5);
 
-        var product2 = productTestDataFactory.createProductWithMultipleOffers(
+        var productWithMultipleOffers = productTestDataFactory.createProductWithMultipleOffers(
                 Shop.MEDIA_EXPERT,
                 BigDecimal.valueOf(100),
                 now,
@@ -59,7 +63,7 @@ class ProductDetailsTest extends ProductTest {
 
         given().contentType(JSON)
                 .when()
-                .get("/{productId}", product2.getId())
+                .get("/{productId}", productWithMultipleOffers.getId())
                 .then()
                 .statusCode(200)
                 .body("offers.size()", equalTo(3))
@@ -79,8 +83,21 @@ class ProductDetailsTest extends ProductTest {
                         equalTo(false));
     }
 
-    @Test
-    void shouldReturnOffersFilteredByPriceStampRangeDays() {
+    static Stream<Arguments> priceStampRangeTestCases() {
+        return Stream.of(
+                Arguments.of(3, 2, 1, 0),
+                Arguments.of(10, 3, 3, 2),
+                Arguments.of(-1, 1, 0, 0), // check if the priceStampRangeDays has a minimum value of 1
+                Arguments.of(400, 4, 4, 2), // check if the priceStampRangeDays has a maximum value of 180
+                Arguments.of(Integer.MIN_VALUE, 4, 3, 2) // check if the priceStampRangeDays has a default value of 90
+                );
+    }
+
+    @ParameterizedTest
+    @MethodSource("priceStampRangeTestCases")
+    void shouldReturnOffersFilteredByPriceStampRangeDays(
+            int rangeDays, int mediaExpertHistorySize, int rtvEuroAgdHistorySize, int moreleNetHistorySize) {
+
         var now = LocalDateTime.now();
         var twoDaysAgo = LocalDateTime.now().minusDays(2);
         var fiveDaysAgo = LocalDateTime.now().minusDays(5);
@@ -88,6 +105,7 @@ class ProductDetailsTest extends ProductTest {
         var weekAgo = LocalDateTime.now().minusWeeks(1);
         var eightyNineDaysAgo = LocalDateTime.now().minusDays(89);
         var ninetyOneDaysAgo = LocalDateTime.now().minusDays(91);
+
         var product = productTestDataFactory.createProductWithMultipleOffers(
                 Shop.MEDIA_EXPERT,
                 BigDecimal.valueOf(100),
@@ -123,54 +141,14 @@ class ProductDetailsTest extends ProductTest {
                 BigDecimal.valueOf(100),
                 yearAgo);
 
-        given().contentType(JSON)
-                .param("priceStampRangeDays", 3)
-                .when()
-                .get("/{productId}", product.getId())
-                .then()
-                .statusCode(200)
-                .body("offers", hasSize(3))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.MEDIA_EXPERT.getHumanReadableName()),
-                        hasSize(2))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.RTV_EURO_AGD.getHumanReadableName()),
-                        hasSize(1))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
-                        hasSize(0));
+        var request = given().contentType(JSON);
 
-        given().contentType(JSON)
-                .param("priceStampRangeDays", 10)
-                .when()
-                .get("/{productId}", product.getId())
-                .then()
-                .statusCode(200)
-                .body("offers", hasSize(3))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.MEDIA_EXPERT.getHumanReadableName()),
-                        hasSize(3))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.RTV_EURO_AGD.getHumanReadableName()),
-                        hasSize(3))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
-                        hasSize(2));
+        // testing for default value
+        if (rangeDays != Integer.MIN_VALUE) {
+            request = request.param("priceStampRangeDays", rangeDays);
+        }
 
-        // check if the priceStampRangeDays has a minimum value of 1
-        given().contentType(JSON)
-                .param("priceStampRangeDays", -1)
-                .when()
+        request.when()
                 .get("/{productId}", product.getId())
                 .then()
                 .statusCode(200)
@@ -179,60 +157,15 @@ class ProductDetailsTest extends ProductTest {
                         String.format(
                                 "offers.find { it.shop == '%s' }.priceHistory",
                                 Shop.MEDIA_EXPERT.getHumanReadableName()),
-                        hasSize(1))
+                        hasSize(mediaExpertHistorySize))
                 .body(
                         String.format(
                                 "offers.find { it.shop == '%s' }.priceHistory",
                                 Shop.RTV_EURO_AGD.getHumanReadableName()),
-                        hasSize(0))
+                        hasSize(rtvEuroAgdHistorySize))
                 .body(
                         String.format(
                                 "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
-                        hasSize(0));
-
-        // check if the priceStampRangeDays has a maximum value of 180
-        given().contentType(JSON)
-                .param("priceStampRangeDays", 400)
-                .when()
-                .get("/{productId}", product.getId())
-                .then()
-                .statusCode(200)
-                .body("offers", hasSize(3))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.MEDIA_EXPERT.getHumanReadableName()),
-                        hasSize(4))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.RTV_EURO_AGD.getHumanReadableName()),
-                        hasSize(4))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
-                        hasSize(2));
-
-        // check if the priceStampRangeDays has a default value of 90
-        given().contentType(JSON)
-                .when()
-                .get("/{productId}", product.getId())
-                .then()
-                .statusCode(200)
-                .body("offers", hasSize(3))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.MEDIA_EXPERT.getHumanReadableName()),
-                        hasSize(4))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.RTV_EURO_AGD.getHumanReadableName()),
-                        hasSize(3))
-                .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
-                        hasSize(2));
+                        hasSize(moreleNetHistorySize));
     }
 }
