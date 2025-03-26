@@ -6,7 +6,7 @@ const clientEnv = createEnv({
     NEXT_PUBLIC_API_BASE_URL: z.string().url(),
     NEXT_PUBLIC_AUTH_AUTH0_ISSUER: z.string().url(),
     NEXT_PUBLIC_AUTH_AUTH0_ID: z.string(),
-    NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME: z.number().positive(),
+    NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME: z.coerce.number().positive(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
