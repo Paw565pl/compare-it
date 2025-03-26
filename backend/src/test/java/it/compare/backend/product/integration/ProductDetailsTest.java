@@ -13,8 +13,18 @@ import org.junit.jupiter.api.Test;
 class ProductDetailsTest extends ProductTest {
 
     @Test
+    void shouldReturn404WhenProductNotFound() {
+        given().contentType(JSON).when().get("/67e2ca0874361032fa28d805").then().statusCode(404);
+    }
+
+    @Test
+    void shouldReturn400WhenProductIdIsInvalid() {
+        given().contentType(JSON).when().get("/invalid").then().statusCode(400);
+    }
+
+    @Test
     void shouldReturnProductDetails() {
-        var product = productTestDataFactory.createProductWithCustomId("67e2ca0874361032fa28d801");
+        var product = productTestDataFactory.createOne();
 
         given().contentType(JSON)
                 .when()
@@ -30,8 +40,7 @@ class ProductDetailsTest extends ProductTest {
         var twoDaysAgo = LocalDateTime.now().minusDays(2);
         var fiveDaysAgo = LocalDateTime.now().minusDays(5);
 
-        var product2 = productTestDataFactory.createProductWithCustomIdAndMultipleOffers(
-                "67e2ca0874361032fa28d802",
+        var product2 = productTestDataFactory.createProductWithMultipleOffers(
                 Shop.MEDIA_EXPERT,
                 BigDecimal.valueOf(100),
                 now,
@@ -53,22 +62,21 @@ class ProductDetailsTest extends ProductTest {
                 .get("/{productId}", product2.getId())
                 .then()
                 .statusCode(200)
-                .log()
-                .body()
                 .body("offers.size()", equalTo(3))
-                .body("offers.find { it.shop == 'Media Expert' }.isAvailable", equalTo(true))
-                .body("offers.find { it.shop == 'RTV Euro AGD' }.isAvailable", equalTo(true))
-                .body("offers.find { it.shop == 'Morele.net' }.isAvailable", equalTo(false));
-    }
-
-    @Test
-    void shouldReturn404WhenProductNotFound() {
-        given().contentType(JSON).when().get("/67e2ca0874361032fa28d805").then().statusCode(404);
-    }
-
-    @Test
-    void shouldReturn400WhenProductIdIsInvalid() {
-        given().contentType(JSON).when().get("/invalid").then().statusCode(400);
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.isAvailable",
+                                Shop.MEDIA_EXPERT.getHumanReadableName()),
+                        equalTo(true))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.isAvailable",
+                                Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        equalTo(true))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.isAvailable", Shop.MORELE_NET.getHumanReadableName()),
+                        equalTo(false));
     }
 
     @Test
@@ -80,8 +88,7 @@ class ProductDetailsTest extends ProductTest {
         var weekAgo = LocalDateTime.now().minusWeeks(1);
         var eightyNineDaysAgo = LocalDateTime.now().minusDays(89);
         var ninetyOneDaysAgo = LocalDateTime.now().minusDays(91);
-        var product = productTestDataFactory.createProductWithCustomIdAndMultipleOffers(
-                "67e2ca0874361032fa28d803",
+        var product = productTestDataFactory.createProductWithMultipleOffers(
                 Shop.MEDIA_EXPERT,
                 BigDecimal.valueOf(100),
                 now,
@@ -123,9 +130,20 @@ class ProductDetailsTest extends ProductTest {
                 .then()
                 .statusCode(200)
                 .body("offers", hasSize(3))
-                .body("offers.find { it.shop == 'Media Expert' }.priceHistory", hasSize(2))
-                .body("offers.find { it.shop == 'RTV Euro AGD' }.priceHistory", hasSize(1))
-                .body("offers.find { it.shop == 'Morele.net' }.priceHistory", hasSize(0));
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.MEDIA_EXPERT.getHumanReadableName()),
+                        hasSize(2))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        hasSize(1))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
+                        hasSize(0));
 
         given().contentType(JSON)
                 .param("priceStampRangeDays", 10)
@@ -134,9 +152,20 @@ class ProductDetailsTest extends ProductTest {
                 .then()
                 .statusCode(200)
                 .body("offers", hasSize(3))
-                .body("offers.find { it.shop == 'Media Expert' }.priceHistory", hasSize(3))
-                .body("offers.find { it.shop == 'RTV Euro AGD' }.priceHistory", hasSize(3))
-                .body("offers.find { it.shop == 'Morele.net' }.priceHistory", hasSize(2));
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.MEDIA_EXPERT.getHumanReadableName()),
+                        hasSize(3))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        hasSize(3))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
+                        hasSize(2));
 
         // check if the priceStampRangeDays has a minimum value of 1
         given().contentType(JSON)
@@ -146,9 +175,20 @@ class ProductDetailsTest extends ProductTest {
                 .then()
                 .statusCode(200)
                 .body("offers", hasSize(3))
-                .body("offers.find { it.shop == 'Media Expert' }.priceHistory", hasSize(1))
-                .body("offers.find { it.shop == 'RTV Euro AGD' }.priceHistory", hasSize(0))
-                .body("offers.find { it.shop == 'Morele.net' }.priceHistory", hasSize(0));
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.MEDIA_EXPERT.getHumanReadableName()),
+                        hasSize(1))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        hasSize(0))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
+                        hasSize(0));
 
         // check if the priceStampRangeDays has a maximum value of 180
         given().contentType(JSON)
@@ -158,9 +198,20 @@ class ProductDetailsTest extends ProductTest {
                 .then()
                 .statusCode(200)
                 .body("offers", hasSize(3))
-                .body("offers.find { it.shop == 'Media Expert' }.priceHistory", hasSize(4))
-                .body("offers.find { it.shop == 'RTV Euro AGD' }.priceHistory", hasSize(4))
-                .body("offers.find { it.shop == 'Morele.net' }.priceHistory", hasSize(2));
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.MEDIA_EXPERT.getHumanReadableName()),
+                        hasSize(4))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        hasSize(4))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
+                        hasSize(2));
 
         // check if the priceStampRangeDays has a default value of 90
         given().contentType(JSON)
@@ -169,8 +220,19 @@ class ProductDetailsTest extends ProductTest {
                 .then()
                 .statusCode(200)
                 .body("offers", hasSize(3))
-                .body("offers.find { it.shop == 'Media Expert' }.priceHistory", hasSize(4))
-                .body("offers.find { it.shop == 'RTV Euro AGD' }.priceHistory", hasSize(3))
-                .body("offers.find { it.shop == 'Morele.net' }.priceHistory", hasSize(2));
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.MEDIA_EXPERT.getHumanReadableName()),
+                        hasSize(4))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory",
+                                Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        hasSize(3))
+                .body(
+                        String.format(
+                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
+                        hasSize(2));
     }
 }

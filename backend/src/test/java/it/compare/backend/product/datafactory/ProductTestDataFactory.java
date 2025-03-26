@@ -78,10 +78,14 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         productRepository.save(product);
     }
 
-    public void createProductWithShop(Shop shp) {
+    public void createProductWithShop(Shop shop) {
         var product = generate();
         product.getOffers().clear();
-        var offer = new Offer(shp, faker.internet().url());
+        var offer = new Offer(shop, faker.internet().url());
+
+        var priceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), "PLN", Condition.NEW);
+        offer.getPriceHistory().add(priceStamp);
+
         product.getOffers().add(offer);
         productRepository.save(product);
     }
@@ -90,6 +94,34 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         var product = generate();
         product.setName(name);
         productRepository.save(product);
+    }
+
+    public Product createProductWithMultipleOffers(Object... shopPriceTimeTriplets) {
+        var product = generate();
+        product.getOffers().clear();
+
+        var shopPriceStamps = new EnumMap<Shop, List<PriceStamp>>(Shop.class);
+        var shopUrls = new EnumMap<Shop, String>(Shop.class);
+
+        for (int i = 0; i < shopPriceTimeTriplets.length; i += 3) {
+            var shop = (Shop) shopPriceTimeTriplets[i];
+            var price = (BigDecimal) shopPriceTimeTriplets[i + 1];
+            var timestamp = (LocalDateTime) shopPriceTimeTriplets[i + 2];
+
+            var priceStamp = new PriceStamp(price, "PLN", Condition.NEW);
+            priceStamp.setTimestamp(timestamp);
+
+            shopPriceStamps.computeIfAbsent(shop, k -> new ArrayList<>()).add(priceStamp);
+            shopUrls.putIfAbsent(shop, faker.internet().url());
+        }
+
+        for (Shop shop : shopPriceStamps.keySet()) {
+            var offer = new Offer(shop, shopUrls.get(shop));
+            offer.getPriceHistory().addAll(shopPriceStamps.get(shop));
+            product.getOffers().add(offer);
+        }
+
+        return productRepository.save(product);
     }
 
     public void createProductWithDetailedOffers(Map<Shop, OfferInfo> shopOffers) {
@@ -101,13 +133,9 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
             var offerInfo = entry.getValue();
 
             var offer = new Offer(shop, faker.internet().url());
-
             var priceStamp = new PriceStamp(offerInfo.price(), "PLN", Condition.NEW);
-
             priceStamp.setTimestamp(offerInfo.timestamp());
-
             offer.getPriceHistory().add(priceStamp);
-
             product.getOffers().add(offer);
         }
 
@@ -123,52 +151,5 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
             shopOffers.put(shop, new OfferInfo(price, timestamp));
         }
         createProductWithDetailedOffers(shopOffers);
-    }
-
-    public Product createProductWithCustomId(String id) {
-        var product = generate();
-        product.setId(id);
-
-        var priceStamp = new PriceStamp(BigDecimal.valueOf(1000), "PLN", Condition.NEW);
-        priceStamp.setTimestamp(LocalDateTime.now());
-
-        product.getOffers().clear();
-        var offer = new Offer(Shop.MEDIA_EXPERT, faker.internet().url());
-        offer.getPriceHistory().add(priceStamp);
-        product.getOffers().add(offer);
-
-        return productRepository.save(product);
-    }
-
-    public Product createProductWithCustomIdAndMultipleOffers(String id, Object... shopPriceTimeTriplets) {
-        var product = generate();
-        product.setId(id);
-        product.getOffers().clear();
-
-        var shopPriceStamps = new EnumMap<Shop, List<PriceStamp>>(Shop.class);
-        var shopUrls = new EnumMap<Shop, String>(Shop.class);
-
-        for (int i = 0; i < shopPriceTimeTriplets.length; i += 3) {
-            var shop = (Shop) shopPriceTimeTriplets[i];
-            var price = (BigDecimal) shopPriceTimeTriplets[i + 1];
-            var timestamp = (LocalDateTime) shopPriceTimeTriplets[i + 2];
-
-            var priceStamp = new PriceStamp(price, "PLN", Condition.NEW);
-            priceStamp.setTimestamp(timestamp);
-
-            shopPriceStamps.computeIfAbsent(shop, k -> new ArrayList<>()).add(priceStamp);
-
-            shopUrls.putIfAbsent(shop, faker.internet().url());
-        }
-
-        for (Shop shop : shopPriceStamps.keySet()) {
-            var offer = new Offer(shop, shopUrls.get(shop));
-
-            offer.getPriceHistory().addAll(shopPriceStamps.get(shop));
-
-            product.getOffers().add(offer);
-        }
-
-        return productRepository.save(product);
     }
 }

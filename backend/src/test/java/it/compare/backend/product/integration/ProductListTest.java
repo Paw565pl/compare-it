@@ -9,7 +9,12 @@ import it.compare.backend.product.model.Condition;
 import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ProductListTest extends ProductTest {
 
@@ -24,8 +29,17 @@ class ProductListTest extends ProductTest {
                 .body("page.totalElements", equalTo(productsCount));
     }
 
-    @Test
-    void shouldReturnFilteredProductsByCategory() {
+    static Stream<Arguments> categoryTestCases() {
+        return Stream.of(
+                Arguments.of(Category.PROCESSORS.getHumanReadableName(), 3),
+                Arguments.of(Category.GRAPHICS_CARDS.getHumanReadableName(), 2),
+                Arguments.of(Category.MOTHERBOARDS.getHumanReadableName(), 1),
+                Arguments.of(Category.RAM_MEMORY.getHumanReadableName(), 0));
+    }
+
+    @ParameterizedTest
+    @MethodSource("categoryTestCases")
+    void shouldReturnFilteredProductsByCategory(String categoryName, int expectedCount) {
         productTestDataFactory.createProductWithCategory(Category.PROCESSORS);
         productTestDataFactory.createProductWithCategory(Category.PROCESSORS);
         productTestDataFactory.createProductWithCategory(Category.PROCESSORS);
@@ -34,40 +48,17 @@ class ProductListTest extends ProductTest {
         productTestDataFactory.createProductWithCategory(Category.MOTHERBOARDS);
 
         given().contentType(JSON)
-                .param("category", Category.PROCESSORS.getHumanReadableName())
+                .param("category", categoryName)
                 .when()
                 .get()
                 .then()
                 .statusCode(200)
-                .body("page.totalElements", equalTo(3));
-
-        given().contentType(JSON)
-                .param("category", Category.GRAPHICS_CARDS.getHumanReadableName())
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(2));
-
-        given().contentType(JSON)
-                .param("category", Category.MOTHERBOARDS.getHumanReadableName())
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(1));
-
-        given().contentType(JSON)
-                .param("category", Category.RAM_MEMORY.getHumanReadableName())
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(0));
+                .body("page.totalElements", equalTo(expectedCount));
     }
 
-    @Test
-    void shouldReturnFilteredProductsByPrice() {
+    @ParameterizedTest
+    @CsvSource({"1000, 5000, 5", "1000, 3000, 3", "3000, 4000, 2", "4000, 5000, 2", "5000, 6000, 1", "6000, 7000, 0"})
+    void shouldReturnFilteredProductsByPrice(int minPrice, int maxPrice, int expectedCount) {
         productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(1000), "PLN", Condition.NEW);
         productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(2000), "PLN", Condition.NEW);
         productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(3000), "PLN", Condition.NEW);
@@ -75,62 +66,25 @@ class ProductListTest extends ProductTest {
         productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(5000), "PLN", Condition.NEW);
 
         given().contentType(JSON)
-                .param("minPrice", 1000)
-                .param("maxPrice", 5000)
+                .param("minPrice", minPrice)
+                .param("maxPrice", maxPrice)
                 .when()
                 .get()
                 .then()
                 .statusCode(200)
-                .body("page.totalElements", equalTo(5));
-
-        given().contentType(JSON)
-                .param("minPrice", 1000)
-                .param("maxPrice", 3000)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(3));
-
-        given().contentType(JSON)
-                .param("minPrice", 3000)
-                .param("maxPrice", 4000)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(2));
-
-        given().contentType(JSON)
-                .param("minPrice", 4000)
-                .param("maxPrice", 5000)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(2));
-
-        given().contentType(JSON)
-                .param("minPrice", 5000)
-                .param("maxPrice", 6000)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(1));
-
-        given().contentType(JSON)
-                .param("minPrice", 6000)
-                .param("maxPrice", 7000)
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(0));
+                .body("page.totalElements", equalTo(expectedCount));
     }
 
-    @Test
-    void shouldReturnFilteredProductsByShop() {
+    static Stream<Arguments> shopTestCases() {
+        return Stream.of(
+                Arguments.of(Shop.RTV_EURO_AGD.getHumanReadableName(), 2),
+                Arguments.of(Shop.MEDIA_EXPERT.getHumanReadableName(), 3),
+                Arguments.of(Shop.MORELE_NET.getHumanReadableName(), 0));
+    }
+
+    @ParameterizedTest
+    @MethodSource("shopTestCases")
+    void shouldReturnFilteredProductsByShop(String shopName, int expectedCount) {
         productTestDataFactory.createProductWithShop(Shop.RTV_EURO_AGD);
         productTestDataFactory.createProductWithShop(Shop.RTV_EURO_AGD);
         productTestDataFactory.createProductWithShop(Shop.MEDIA_EXPERT);
@@ -138,32 +92,17 @@ class ProductListTest extends ProductTest {
         productTestDataFactory.createProductWithShop(Shop.MEDIA_EXPERT);
 
         given().contentType(JSON)
-                .param("shop", Shop.RTV_EURO_AGD.getHumanReadableName())
+                .param("shop", shopName)
                 .when()
                 .get()
                 .then()
                 .statusCode(200)
-                .body("page.totalElements", equalTo(2));
-
-        given().contentType(JSON)
-                .param("shop", Shop.MEDIA_EXPERT.getHumanReadableName())
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(3));
-
-        given().contentType(JSON)
-                .param("shop", Shop.MORELE_NET.getHumanReadableName())
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(0));
+                .body("page.totalElements", equalTo(expectedCount));
     }
 
-    @Test
-    void shouldReturnFilteredProductsByName() {
+    @ParameterizedTest
+    @CsvSource({"'Intel i9 10900k', 1", "'Intel i9', 2", "'Intel i', 4", "AMD, 3", "Ryzen, 2"})
+    void shouldReturnFilteredProductsByName(String name, int expectedCount) {
         productTestDataFactory.createProductWithName("Intel i9 10900k");
         productTestDataFactory.createProductWithName("Intel i8 10900k");
         productTestDataFactory.createProductWithName("Intel i5 10900k");
@@ -173,44 +112,12 @@ class ProductListTest extends ProductTest {
         productTestDataFactory.createProductWithName("AMD RYZEN 7 3700x");
 
         given().contentType(JSON)
-                .param("name", "Intel i9 10900k")
+                .param("name", name)
                 .when()
                 .get()
                 .then()
                 .statusCode(200)
-                .body("page.totalElements", equalTo(1));
-
-        given().contentType(JSON)
-                .param("name", "Intel i9")
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(2));
-
-        given().contentType(JSON)
-                .param("name", "Intel i")
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(4));
-
-        given().contentType(JSON)
-                .param("name", "AMD")
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(3));
-
-        given().contentType(JSON)
-                .param("name", "Ryzen")
-                .when()
-                .get()
-                .then()
-                .statusCode(200)
-                .body("page.totalElements", equalTo(2));
+                .body("page.totalElements", equalTo(expectedCount));
     }
 
     @Test
@@ -247,6 +154,7 @@ class ProductListTest extends ProductTest {
                 .body("content[4].lowestCurrentPrice", equalTo(1000));
 
         productTestDataFactory.clear();
+
         // Multiple offers
         var today = LocalDateTime.now();
         var todayEarly = LocalDateTime.now().minusHours(1);
@@ -322,7 +230,6 @@ class ProductListTest extends ProductTest {
                 Shop.MORELE_NET,
                 BigDecimal.valueOf(90),
                 yesterday);
-
         productTestDataFactory.createProductWithShopsPricesAndTimes(
                 Shop.RTV_EURO_AGD,
                 BigDecimal.valueOf(100),
@@ -336,7 +243,6 @@ class ProductListTest extends ProductTest {
                 Shop.MORELE_NET,
                 BigDecimal.valueOf(90),
                 yesterday);
-
         productTestDataFactory.createProductWithShopsPricesAndTimes(
                 Shop.RTV_EURO_AGD,
                 BigDecimal.valueOf(100),
@@ -353,7 +259,6 @@ class ProductListTest extends ProductTest {
                 Shop.MORELE_NET,
                 BigDecimal.valueOf(90),
                 fiveDaysAgo);
-
         productTestDataFactory.createProductWithShopsPricesAndTimes(
                 Shop.RTV_EURO_AGD,
                 BigDecimal.valueOf(100),
@@ -383,6 +288,7 @@ class ProductListTest extends ProductTest {
                 Shop.MORELE_NET,
                 BigDecimal.valueOf(90),
                 now);
+
         given().contentType(JSON)
                 .param("sort", "offersCount,asc")
                 .when()
@@ -394,6 +300,7 @@ class ProductListTest extends ProductTest {
                 .body("content[2].offersCount", equalTo(2))
                 .body("content[3].offersCount", equalTo(3))
                 .body("content[4].offersCount", equalTo(3));
+
         given().contentType(JSON)
                 .param("sort", "offersCount,desc")
                 .when()
@@ -428,6 +335,7 @@ class ProductListTest extends ProductTest {
                 Shop.MORELE_NET,
                 BigDecimal.valueOf(90),
                 fiveDaysAgo);
+
         given().contentType(JSON)
                 .when()
                 .get()

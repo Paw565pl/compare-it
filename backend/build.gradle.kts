@@ -67,6 +67,7 @@ val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
 val javaSonarVersion = "8.7.0.37452"
 val jsoupVersion = "1.18.3"
+val junitJupiterParamsVersion = "5.12.0"
 
 dependencies {
     sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:${javaSonarVersion}")
@@ -97,6 +98,7 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("net.datafaker:datafaker:${dataFakerVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:${junitJupiterParamsVersion}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
