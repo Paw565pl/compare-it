@@ -25,7 +25,10 @@ export const ProductListPage = async ({
     await loadProductPaginationSearchParams(searchParams);
 
   await Promise.all([
-    prefetchProductPage(queryClient, productFilters, productPagination),
+    prefetchProductPage(queryClient, productFilters, {
+      ...productPagination,
+      page: productPagination.page - 1,
+    }),
     prefetchCategoriesList(queryClient),
     prefetchShopsList(queryClient),
   ]);

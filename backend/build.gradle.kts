@@ -3,9 +3,9 @@ import com.diffplug.spotless.LineEnding
 plugins {
     java
     idea
-    id("org.springframework.boot") version "3.4.3"
+    id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
-    id("com.diffplug.spotless") version "6.25.0"
+    id("com.diffplug.spotless") version "7.0.2"
     id("se.solrike.sonarlint") version "2.2.0"
 }
 
@@ -34,7 +34,7 @@ spotless {
         palantirJavaFormat()
         trimTrailingWhitespace()
         endWithNewline()
-        indentWithSpaces()
+        leadingTabsToSpaces()
         formatAnnotations()
     }
 }
@@ -60,13 +60,12 @@ repositories {
 val springdocVersion = "2.8.5"
 val modelMapperVersion = "3.2.2"
 val modelMapperRecordVersion = "1.0.0"
-val httpclientVersion = "5.4.1"
-val httpcoreVersion = "5.3.1"
-val httpcoreH2Version = "5.3.1"
+val apacheHttpClientVersion = "5.4.2"
+val apacheHttpCoreVersion = "5.3.4"
 val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
-val javaSonarVersion = "8.7.0.37452"
-val jsoupVersion = "1.18.3"
+val javaSonarVersion = "8.11.0.38440"
+val jsoupVersion = "1.19.1"
 
 dependencies {
     sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:${javaSonarVersion}")
@@ -81,9 +80,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.modelmapper:modelmapper:${modelMapperVersion}")
     implementation("org.modelmapper:modelmapper-module-record:${modelMapperRecordVersion}")
-    implementation("org.apache.httpcomponents.client5:httpclient5:${httpclientVersion}")
-    implementation("org.apache.httpcomponents.core5:httpcore5:${httpcoreVersion}")
-    implementation("org.apache.httpcomponents.core5:httpcore5-h2:${httpcoreH2Version}")
+    implementation("org.apache.httpcomponents.client5:httpclient5:${apacheHttpClientVersion}")
+    implementation("org.apache.httpcomponents.core5:httpcore5:${apacheHttpCoreVersion}")
+    implementation("org.apache.httpcomponents.core5:httpcore5-h2:${apacheHttpCoreVersion}")
     implementation("com.sezinkarli:random-user-agent-generator:${randomUserAgentGeneratorVersion}")
     implementation("org.jsoup:jsoup:${jsoupVersion}")
     compileOnly("org.projectlombok:lombok")

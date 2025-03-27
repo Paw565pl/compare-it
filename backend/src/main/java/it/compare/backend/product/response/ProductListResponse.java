@@ -1,10 +1,13 @@
 package it.compare.backend.product.response;
 
-import com.mongodb.lang.Nullable;
 import it.compare.backend.product.model.Category;
 import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter

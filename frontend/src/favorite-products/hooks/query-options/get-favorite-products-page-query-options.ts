@@ -16,8 +16,8 @@ const fetchFavoriteProductsPage = async (
     "/api/v1/favorite-products",
     {
       params: {
-        page: pageParam,
         ...paginationOptions,
+        page: pageParam,
       },
       headers: {
         Authorization: `Bearer ${accessToken}`,

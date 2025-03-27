@@ -2,21 +2,19 @@
 
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/input";
-import {
-  productFiltersSearchParams,
-  productPaginationSearchParams,
-} from "@/products/search-params/product-search-params";
+import { productFiltersSearchParams } from "@/products/search-params/product-search-params";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useQueryStates } from "nuqs";
 import { FormEvent, useEffect, useRef } from "react";
 
-const SearchBar = () => {
+export const SearchBar = () => {
+  const { push } = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [productFilters, setProductFilters] = useQueryStates(
     productFiltersSearchParams,
   );
-  const [, setPagination] = useQueryStates(productPaginationSearchParams);
 
   useEffect(() => {
     const searchElement = inputRef.current;
@@ -28,23 +26,16 @@ const SearchBar = () => {
     else searchElement.value = name;
   }, [productFilters.name]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const name = inputRef.current?.value.trim();
 
     if (!name) {
       setProductFilters({ name: null });
-    } else {
-      setProductFilters({
-        name,
-        category: null,
-        minPrice: null,
-        maxPrice: null,
-        shop: null,
-      });
-
-      setPagination((prev) => ({ ...prev, page: 0 }));
+      return;
     }
+
+    push(`/produkty?name=${name}`);
   };
 
   return (
@@ -56,15 +47,13 @@ const SearchBar = () => {
         type="text"
         ref={inputRef}
         defaultValue={productFilters.name?.trim() || ""}
-        className="w-full bg-white p-2 focus:outline-hidden md:w-1/3"
+        className="w-full bg-white p-2 shadow-none focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
       <Button variant="search" type="submit">
         <Search className="text-lg" />
-        <div className="hidden md:block">WYSZUKAJ</div>
+        <span className="hidden md:block">WYSZUKAJ</span>
       </Button>
     </form>
   );
 };
-
-export { SearchBar };

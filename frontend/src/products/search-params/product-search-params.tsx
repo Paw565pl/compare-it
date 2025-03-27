@@ -18,7 +18,7 @@ export const loadProductFiltersSearchParams = createLoader(
 );
 
 export const productPaginationSearchParams = {
-  page: parseAsInteger.withDefault(0),
+  page: parseAsInteger.withDefault(1),
   size: parseAsInteger.withDefault(20),
   sort: parseAsString,
 } as const;
