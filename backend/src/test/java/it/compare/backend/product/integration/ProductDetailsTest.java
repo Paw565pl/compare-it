@@ -5,9 +5,11 @@ import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
+import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Stream;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -47,22 +49,12 @@ class ProductDetailsTest extends ProductTest {
         var twoDaysAgo = LocalDateTime.now().minusDays(2);
         var fiveDaysAgo = LocalDateTime.now().minusDays(5);
 
-        var productWithMultipleOffers = productTestDataFactory.createProductWithMultipleOffers(
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(100),
-                now,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(100),
-                twoDaysAgo,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(200),
-                twoDaysAgo,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(200),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(200),
-                fiveDaysAgo);
+        var productWithMultipleOffers = productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), now),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), twoDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(200), twoDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(200), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(200), fiveDaysAgo)));
 
         given().contentType(JSON)
                 .when()
@@ -109,40 +101,20 @@ class ProductDetailsTest extends ProductTest {
         var eightyNineDaysAgo = LocalDateTime.now().minusDays(89);
         var ninetyOneDaysAgo = LocalDateTime.now().minusDays(91);
 
-        var product = productTestDataFactory.createProductWithMultipleOffers(
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(100),
-                now,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(100),
-                twoDaysAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(100),
-                weekAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(100),
-                eightyNineDaysAgo,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(200),
-                twoDaysAgo,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(200),
-                weekAgo,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(200),
-                fiveDaysAgo,
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(200),
-                ninetyOneDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(200),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(200),
-                weekAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(100),
-                yearAgo);
+        var product = productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), now),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), twoDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), weekAgo),
+                new ProductTestDataFactory.OfferPriceStamp(
+                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), eightyNineDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(200), twoDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(200), weekAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(200), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(
+                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(200), ninetyOneDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(200), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(200), weekAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(100), yearAgo)));
 
         var request = given().contentType(JSON);
 

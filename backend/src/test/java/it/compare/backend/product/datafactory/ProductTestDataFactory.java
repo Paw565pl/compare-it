@@ -6,7 +6,9 @@ import it.compare.backend.product.model.*;
 import it.compare.backend.product.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
@@ -22,8 +24,6 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         this.faker = faker;
         this.productRepository = productRepository;
     }
-
-    public record OfferInfo(BigDecimal price, LocalDateTime timestamp) {}
 
     @Override
     public Product generate() {
@@ -96,60 +96,29 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         productRepository.save(product);
     }
 
-    public Product createProductWithMultipleOffers(Object... shopPriceTimeTriplets) {
+    public record OfferPriceStamp(Shop shop, BigDecimal price, LocalDateTime timestamp) {}
+
+    public Product createProductWithOffers(List<OfferPriceStamp> offerPriceStamps) {
         var product = generate();
         product.getOffers().clear();
 
-        var shopPriceStamps = new EnumMap<Shop, List<PriceStamp>>(Shop.class);
-        var shopUrls = new EnumMap<Shop, String>(Shop.class);
+        offerPriceStamps.forEach(offerPriceStamp -> {
+            var priceStamp = new PriceStamp(offerPriceStamp.price(), "PLN", Condition.NEW);
+            priceStamp.setTimestamp(offerPriceStamp.timestamp());
 
-        for (int i = 0; i < shopPriceTimeTriplets.length; i += 3) {
-            var shop = (Shop) shopPriceTimeTriplets[i];
-            var price = (BigDecimal) shopPriceTimeTriplets[i + 1];
-            var timestamp = (LocalDateTime) shopPriceTimeTriplets[i + 2];
+            var offer = product.getOffers().stream()
+                    .filter(o -> o.getShop().equals(offerPriceStamp.shop))
+                    .findFirst();
 
-            var priceStamp = new PriceStamp(price, "PLN", Condition.NEW);
-            priceStamp.setTimestamp(timestamp);
-
-            shopPriceStamps.computeIfAbsent(shop, k -> new ArrayList<>()).add(priceStamp);
-            shopUrls.putIfAbsent(shop, faker.internet().url());
-        }
-
-        for (Shop shop : shopPriceStamps.keySet()) {
-            var offer = new Offer(shop, shopUrls.get(shop));
-            offer.getPriceHistory().addAll(shopPriceStamps.get(shop));
-            product.getOffers().add(offer);
-        }
+            if (offer.isPresent()) offer.get().getPriceHistory().add(priceStamp);
+            else {
+                var newOffer =
+                        new Offer(offerPriceStamp.shop(), faker.internet().url());
+                newOffer.getPriceHistory().add(priceStamp);
+                product.getOffers().add(newOffer);
+            }
+        });
 
         return productRepository.save(product);
-    }
-
-    public void createProductWithDetailedOffers(Map<Shop, OfferInfo> shopOffers) {
-        var product = generate();
-        product.getOffers().clear();
-
-        for (Map.Entry<Shop, OfferInfo> entry : shopOffers.entrySet()) {
-            var shop = entry.getKey();
-            var offerInfo = entry.getValue();
-
-            var offer = new Offer(shop, faker.internet().url());
-            var priceStamp = new PriceStamp(offerInfo.price(), "PLN", Condition.NEW);
-            priceStamp.setTimestamp(offerInfo.timestamp());
-            offer.getPriceHistory().add(priceStamp);
-            product.getOffers().add(offer);
-        }
-
-        productRepository.save(product);
-    }
-
-    public void createProductWithShopsPricesAndTimes(Object... shopPriceTimeTriplets) {
-        var shopOffers = new EnumMap<Shop, OfferInfo>(Shop.class);
-        for (int i = 0; i < shopPriceTimeTriplets.length; i += 3) {
-            var shop = (Shop) shopPriceTimeTriplets[i];
-            var price = (BigDecimal) shopPriceTimeTriplets[i + 1];
-            var timestamp = (LocalDateTime) shopPriceTimeTriplets[i + 2];
-            shopOffers.put(shop, new OfferInfo(price, timestamp));
-        }
-        createProductWithDetailedOffers(shopOffers);
     }
 }

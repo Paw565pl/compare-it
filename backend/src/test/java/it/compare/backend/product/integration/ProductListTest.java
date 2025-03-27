@@ -4,11 +4,13 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
 
+import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Category;
 import it.compare.backend.product.model.Condition;
 import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -155,42 +157,24 @@ class ProductListTest extends ProductTest {
 
         productTestDataFactory.clear();
 
-        // Multiple offers
         var today = LocalDateTime.now();
         var todayEarly = LocalDateTime.now().minusHours(1);
         var yesterday = LocalDateTime.now().minusDays(1);
         var fiveDaysAgo = LocalDateTime.now().minusDays(5);
 
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(1000),
-                today,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(2000),
-                yesterday,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(3000),
-                todayEarly);
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(4000),
-                today,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(5000),
-                yesterday,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(1000),
-                fiveDaysAgo);
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(5000),
-                today,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(6000),
-                todayEarly,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(2000),
-                yesterday);
+        productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(1000), today),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(2000), yesterday),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(3000), todayEarly)));
+
+        productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(4000), today),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(5000), yesterday),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(1000), fiveDaysAgo)));
+        productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(5000), today),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(6000), todayEarly),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(2000), yesterday)));
 
         given().contentType(JSON)
                 .param("sort", "lowestCurrentPrice,asc")
@@ -215,79 +199,36 @@ class ProductListTest extends ProductTest {
 
     @Test
     void shouldReturnSortedProductsByOffersCount() {
-
         var now = LocalDateTime.now();
         var yesterday = LocalDateTime.now().minusDays(1);
         var fiveDaysAgo = LocalDateTime.now().minusDays(5);
 
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                now,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(110),
-                yesterday,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                yesterday);
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                now,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(70),
-                yesterday,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                yesterday);
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                yesterday,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(70),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo);
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                fiveDaysAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(70),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo);
-        productTestDataFactory.createProductWithShopsPricesAndTimes(
-                Shop.RTV_EURO_AGD,
-                BigDecimal.valueOf(100),
-                fiveDaysAgo,
-                Shop.MEDIA_EXPERT,
-                BigDecimal.valueOf(70),
-                now,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                fiveDaysAgo,
-                Shop.MORELE_NET,
-                BigDecimal.valueOf(90),
-                now);
+        productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), now),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(110), yesterday),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), yesterday)));
+        productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), now),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), yesterday),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), yesterday)));
+        productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), yesterday),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo)));
+        productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo)));
+        productTestDataFactory.createProductWithOffers(List.of(
+                new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), now),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo),
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), now)));
 
         given().contentType(JSON)
                 .param("sort", "offersCount,asc")
@@ -323,47 +264,61 @@ class ProductListTest extends ProductTest {
 
         return Stream.of(
                 Arguments.of(
-                        new Object[] {
-                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), todayEarly,
-                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(110), now,
-                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(110), yesterday,
-                            Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo
-                        },
+                        List.of(
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), todayEarly),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(110), now),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(110), yesterday),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo)),
                         110,
                         Shop.RTV_EURO_AGD.getHumanReadableName(),
                         "PLN",
                         2),
                 Arguments.of(
-                        new Object[] {
-                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), todayEarly,
-                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(95), now,
-                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo,
-                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(150), yesterday,
-                            Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo
-                        },
+                        List.of(
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), todayEarly),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(95), now),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(150), yesterday),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo)),
                         90,
                         Shop.MORELE_NET.getHumanReadableName(),
                         "PLN",
                         3),
                 Arguments.of(
-                        new Object[] {
-                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), fiveDaysAgo,
-                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo,
-                            Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo
-                        },
+                        List.of(
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo)),
                         90,
                         Shop.MORELE_NET.getHumanReadableName(),
                         "PLN",
                         1),
                 Arguments.of(
-                        new Object[] {
-                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), fiveDaysAgo,
-                            Shop.RTV_EURO_AGD, BigDecimal.valueOf(110), fiveDaysAgo,
-                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo,
-                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(150), fiveDaysAgo,
-                            Shop.MEDIA_EXPERT, BigDecimal.valueOf(110), fiveDaysAgo,
-                            Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo
-                        },
+                        List.of(
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(110), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(70), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(150), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(110), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo)),
                         null,
                         null,
                         null,
@@ -373,13 +328,13 @@ class ProductListTest extends ProductTest {
     @ParameterizedTest
     @MethodSource("productLowestCurrentPriceAndOffersCountTestCases")
     void shouldReturnProductsWithCorrectLowestCurrentPriceAndOffersCount(
-            Object[] testData,
+            List<ProductTestDataFactory.OfferPriceStamp> testData,
             Integer expectedLowestPrice,
             String expectedShop,
             String expectedCurrency,
             Integer expectedOffersCount) {
 
-        productTestDataFactory.createProductWithShopsPricesAndTimes(testData);
+        productTestDataFactory.createProductWithOffers(testData);
 
         given().contentType(JSON)
                 .when()

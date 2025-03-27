@@ -8,7 +8,6 @@ import it.compare.backend.product.repository.ProductRepository;
 import java.util.Collections;
 import java.util.List;
 import net.datafaker.Faker;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -66,7 +65,7 @@ class ProductRepositoryTest extends ProductTest {
 
         var products = productRepository.findAllByEanIn(eanList);
 
-        assertThat(products.size(), Matchers.is(3));
+        assertThat(products.size(), is(3));
         assertThat(
                 products.stream().map(Product::getEan).toList(),
                 containsInAnyOrder(product.getEan(), product2.getEan(), product3.getEan()));
