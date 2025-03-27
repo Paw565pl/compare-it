@@ -2,7 +2,6 @@ package it.compare.backend.product.service;
 
 import it.compare.backend.product.aggregation.ProductAggregationBuilder;
 import it.compare.backend.product.dto.ProductFiltersDto;
-import it.compare.backend.product.mapper.ProductMapper;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.product.response.ProductDetailResponse;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -41,7 +39,6 @@ public class ProductService {
     public static final int AVAILABILITY_DAYS_THRESHOLD = 3;
 
     private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
     private final MongoTemplate mongoTemplate;
 
     private record CountResult(long count) {}
@@ -93,21 +90,7 @@ public class ProductService {
         var detailResponse = results.getUniqueMappedResult();
 
         if (detailResponse == null) {
-            log.debug("No results found for product with ID: {}", id);
-
-            var productExists =
-                    mongoTemplate.exists(Query.query(Criteria.where("_id").is(id)), Product.class);
-
-            if (!productExists) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
-            }
-
-            // If the product exists but has no data in the specified range,
-            // return the product structure with empty price history
-            var product =
-                    mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Product.class);
-
-            return productMapper.toDetailResponse(product);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
         }
 
         return detailResponse;
