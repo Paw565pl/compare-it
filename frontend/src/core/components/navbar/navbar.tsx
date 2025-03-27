@@ -21,11 +21,11 @@ export const Navbar = () => {
           <AuthSection />
         </div>
       </div>
-      <div className="w-full p-4 pb-0 sm:mt-0 sm:p-0">
+      <search className="w-full p-4 pb-0 sm:mt-0 sm:p-0">
         <Suspense>
           <SearchBar />
         </Suspense>
-      </div>
+      </search>
       {/* Mobile View Auth Section */}
       <div className="hidden pl-2 sm:block">
         <AuthSection />

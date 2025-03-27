@@ -4,7 +4,6 @@ import com.mongodb.lang.NonNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 
@@ -14,9 +13,8 @@ import org.springframework.data.mongodb.core.mapping.FieldType;
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class PriceStamp {
-    @Field("timestamp")
-    @CreatedDate
-    private LocalDateTime timestamp;
+    @NonNull @Field("timestamp")
+    private LocalDateTime timestamp = LocalDateTime.now();
 
     @NonNull @Field(value = "price", targetType = FieldType.DECIMAL128)
     private BigDecimal price;

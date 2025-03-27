@@ -17,8 +17,8 @@ const fetchCommentPage = async (
     `/api/v1/products/${productId}/comments`,
     {
       params: {
-        page: pageParam,
         ...paginationOptions,
+        page: pageParam,
       },
     },
   );

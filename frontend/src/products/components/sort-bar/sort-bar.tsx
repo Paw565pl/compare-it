@@ -25,7 +25,7 @@ const SortBar = () => {
   };
 
   const handleSortChange = (sortValue: string) => {
-    setPagination((prev) => ({ ...prev, page: 0, sort: sortValue }));
+    setPagination((prev) => ({ ...prev, page: 1, sort: sortValue }));
     setIsDropdownOpen(false);
   };
 

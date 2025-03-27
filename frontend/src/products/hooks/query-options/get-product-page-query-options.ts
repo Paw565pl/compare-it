@@ -5,11 +5,10 @@ import { PaginationOptions } from "@/core/services/api/types/pagination-options"
 import { ProductFiltersDto } from "@/products/dtos/product-filters-dto";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
 import { productsQueryKey } from "@/products/hooks/query-options/products-query-key";
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 const fetchProductPage = async (
-  pageParam: unknown,
   productFilters?: ProductFiltersDto,
   paginationOptions?: PaginationOptions,
 ) => {
@@ -17,7 +16,6 @@ const fetchProductPage = async (
     "/api/v1/products",
     {
       params: {
-        page: pageParam,
         ...productFilters,
         ...paginationOptions,
       },
@@ -30,15 +28,8 @@ export const getProductPageQueryOptions = (
   productFilters?: ProductFiltersDto,
   paginationOptions?: PaginationOptions,
 ) =>
-  infiniteQueryOptions<
-    PaginatedData<ProductListEntity>,
-    AxiosError<ErrorResponse>
-  >({
+  queryOptions<PaginatedData<ProductListEntity>, AxiosError<ErrorResponse>>({
     queryKey: [...productsQueryKey, productFilters, paginationOptions] as const,
-    queryFn: ({ pageParam }) =>
-      fetchProductPage(pageParam, productFilters, paginationOptions),
-    getNextPageParam: ({ page: { number, totalPages } }) =>
-      number + 1 < totalPages ? number + 1 : undefined,
-    initialPageParam: 0,
+    queryFn: () => fetchProductPage(productFilters, paginationOptions),
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
