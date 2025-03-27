@@ -9,6 +9,7 @@ import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,7 +19,9 @@ class ProductDetailsTest extends ProductTest {
 
     @Test
     void shouldReturn404WhenProductNotFound() {
-        given().contentType(JSON).when().get("/67e2ca0874361032fa28d805").then().statusCode(404);
+        var randomObjectId = new ObjectId().toString();
+
+        given().contentType(JSON).when().get("/" + randomObjectId).then().statusCode(404);
     }
 
     @Test
