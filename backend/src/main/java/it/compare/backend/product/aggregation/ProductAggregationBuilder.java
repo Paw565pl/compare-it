@@ -98,12 +98,6 @@ public class ProductAggregationBuilder {
 
     public List<AggregationOperation> createBaseAggregationOperations() {
         var operations = new ArrayList<AggregationOperation>();
-
-        operations.add(Aggregation.addFields()
-                .addField(STRING_ID)
-                .withValue(ConvertOperators.ToString.toString("$" + ID))
-                .build());
-
         operations.add(Aggregation.match(createBaseCriteria()));
 
         operations.add(context -> new Document(
