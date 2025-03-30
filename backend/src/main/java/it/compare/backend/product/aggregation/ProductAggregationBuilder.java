@@ -319,19 +319,17 @@ public class ProductAggregationBuilder {
 
     private AggregationOperation createSortOperation() {
         return context -> {
-            var sortDoc = new Document("_id", 1);
+            var sortDoc = new Document();
 
             for (var order : pageable.getSort()) {
                 var direction = order.getDirection() == Direction.ASC ? 1 : -1;
                 var field = order.getProperty();
 
-                switch (field) {
-                    case PRICE_FIELD -> sortDoc.append("lowestOffer.price", direction);
-                    case OFFERS_COUNT -> sortDoc.append(OFFERS_COUNT, direction);
-                    default -> sortDoc.append(field, direction);
-                }
+                if (field.equalsIgnoreCase(PRICE_FIELD)) sortDoc.append("lowestOffer.price", direction);
+                else sortDoc.append(field, direction);
             }
 
+            sortDoc.append("_id", 1);
             return new Document("$sort", sortDoc);
         };
     }
