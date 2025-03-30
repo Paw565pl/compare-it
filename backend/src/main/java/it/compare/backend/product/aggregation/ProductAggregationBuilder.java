@@ -319,7 +319,7 @@ public class ProductAggregationBuilder {
 
     private AggregationOperation createSortOperation() {
         return context -> {
-            var sortDoc = new Document();
+            var sortDoc = new Document("_id", 1);
 
             for (var order : pageable.getSort()) {
                 var direction = order.getDirection() == Direction.ASC ? 1 : -1;
@@ -331,8 +331,6 @@ public class ProductAggregationBuilder {
                     default -> sortDoc.append(field, direction);
                 }
             }
-
-            if (sortDoc.isEmpty()) sortDoc.append("_id", 1);
 
             return new Document("$sort", sortDoc);
         };
