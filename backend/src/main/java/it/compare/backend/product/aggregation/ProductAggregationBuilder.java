@@ -261,7 +261,7 @@ public class ProductAggregationBuilder {
 
         operations.add(createSortOperation());
 
-        operations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
+        operations.add(Aggregation.skip(pageable.getOffset()));
         operations.add(Aggregation.limit(pageable.getPageSize()));
 
         return operations;

@@ -85,7 +85,7 @@ public class FavoriteProductService {
         var sortByFavoritedAt = Aggregation.sort(sortDirection, FAVORITED_AT_FIELD);
         aggregationPipeline.add(sortByFavoritedAt);
 
-        aggregationPipeline.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
+        aggregationPipeline.add(Aggregation.skip(pageable.getOffset()));
         aggregationPipeline.add(Aggregation.limit(pageable.getPageSize()));
         aggregationPipeline.add(aggregationBuilder.createProjectionOperation());
 
