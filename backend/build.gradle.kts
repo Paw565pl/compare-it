@@ -64,12 +64,10 @@ val apacheHttpClientVersion = "5.4.2"
 val apacheHttpCoreVersion = "5.3.4"
 val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
-val javaSonarVersion = "8.11.0.38440"
 val jsoupVersion = "1.19.1"
 val junitJupiterParamsVersion = "5.12.0"
 
 dependencies {
-    sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:${javaSonarVersion}")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
