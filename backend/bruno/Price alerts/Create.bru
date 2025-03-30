@@ -1,0 +1,19 @@
+meta {
+  name: Create
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/api/v1/price-alerts
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "productId": "6762fa57e3469470cecead5e",
+    "targetPrice": 3000.00,
+    "isOutletAllowed": true
+  }
+}
