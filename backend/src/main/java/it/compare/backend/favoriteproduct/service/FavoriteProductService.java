@@ -6,20 +6,24 @@ import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
 import it.compare.backend.favoriteproduct.model.FavoriteProduct;
 import it.compare.backend.favoriteproduct.repository.FavoriteProductRepository;
 import it.compare.backend.favoriteproduct.response.FavoriteProductStatusResponse;
-import it.compare.backend.product.mapper.ProductMapper;
+import it.compare.backend.product.aggregation.ProductAggregationBuilder;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.response.ProductListResponse;
 import it.compare.backend.product.service.ProductService;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,42 +35,65 @@ public class FavoriteProductService {
 
     private final MongoTemplate mongoTemplate;
     private final UserRepository userRepository;
-    private final ProductMapper productMapper;
     private final ProductService productService;
     private final FavoriteProductRepository favoriteProductRepository;
 
     public Page<ProductListResponse> findAllByUser(OAuthUserDetails oAuthUserDetails, Pageable pageable) {
+        record FavoriteProductAggregationResult(ObjectId productId) {}
+
         var userId = oAuthUserDetails.getId();
+        var sortDirection = pageable.getSort().stream()
+                .filter(sort -> sort.getProperty().equalsIgnoreCase("createdAt"))
+                .findFirst()
+                .map(Sort.Order::getDirection)
+                .orElse(Sort.Direction.DESC);
 
-        var criteria = Criteria.where("user.$id").is(userId);
-        var total = mongoTemplate.count(Query.query(criteria), FavoriteProduct.class);
+        var match = Aggregation.match(Criteria.where("user.$id").is(userId));
+        var sort = Aggregation.sort(sortDirection, "createdAt");
+        AggregationOperation project =
+                context -> new Document("$project", new Document("productId", "$product.$id").append("_id", 0));
 
-        var match = Aggregation.match(criteria);
+        var favoriteProductAggregation = Aggregation.newAggregation(FavoriteProduct.class, match, sort, project);
+        var favoriteProductIds = mongoTemplate
+                .aggregate(favoriteProductAggregation, FavoriteProductAggregationResult.class)
+                .getMappedResults()
+                .stream()
+                .map(FavoriteProductAggregationResult::productId)
+                .toList();
 
-        final var PRODUCT_FIELD = "product";
-        var lookupProduct = Aggregation.lookup("products", "product.$id", "_id", PRODUCT_FIELD);
-        var unwindProduct = Aggregation.unwind(PRODUCT_FIELD);
+        if (favoriteProductIds.isEmpty()) return Page.empty(pageable);
+        var total = favoriteProductIds.size();
 
-        var sortByCreatedAtDesc = Aggregation.sort(Direction.DESC, "createdAt");
-        var skip = Aggregation.skip(pageable.getOffset());
-        var limit = Aggregation.limit(pageable.getPageSize());
+        var matchFavoriteProductIds = Aggregation.match(Criteria.where("_id").in(favoriteProductIds));
+        var aggregationBuilder = ProductAggregationBuilder.builder().build();
 
-        var replaceRootWithProduct = Aggregation.replaceRoot(PRODUCT_FIELD);
-        var aggregation = Aggregation.newAggregation(
-                FavoriteProduct.class,
-                match,
-                lookupProduct,
-                unwindProduct,
-                sortByCreatedAtDesc,
-                skip,
-                limit,
-                replaceRootWithProduct);
+        var aggregationPipeline = new ArrayList<AggregationOperation>();
+        aggregationPipeline.add(matchFavoriteProductIds);
+        aggregationPipeline.addAll(aggregationBuilder.createBaseAggregationOperations());
+        aggregationPipeline.addAll(aggregationBuilder.createPriceFilterOperations());
+        aggregationPipeline.addAll(aggregationBuilder.createGroupingOperations());
 
-        var products = mongoTemplate.aggregate(aggregation, Product.class).getMappedResults();
-        var productsResponse =
-                products.stream().map(productMapper::toListResponse).toList();
+        // add temporary field to sort by
+        final var FAVORITED_AT_FIELD = "__favoritedAt";
+        var addFavoritedAtField = Aggregation.addFields()
+                .addField(FAVORITED_AT_FIELD)
+                .withValue(
+                        ArrayOperators.IndexOfArray.arrayOf(favoriteProductIds).indexOf("$_id"))
+                .build();
+        aggregationPipeline.add(addFavoritedAtField);
 
-        return new PageImpl<>(productsResponse, pageable, total);
+        var sortByFavoritedAt = Aggregation.sort(sortDirection, FAVORITED_AT_FIELD);
+        aggregationPipeline.add(sortByFavoritedAt);
+
+        aggregationPipeline.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
+        aggregationPipeline.add(Aggregation.limit(pageable.getPageSize()));
+        aggregationPipeline.add(aggregationBuilder.createProjectionOperation());
+
+        var aggregation = Aggregation.newAggregation(Product.class, aggregationPipeline);
+        var productResponses =
+                mongoTemplate.aggregate(aggregation, ProductListResponse.class).getMappedResults();
+
+        return new PageImpl<>(productResponses, pageable, total);
     }
 
     public FavoriteProductStatusResponse findFavoriteProductStatus(
