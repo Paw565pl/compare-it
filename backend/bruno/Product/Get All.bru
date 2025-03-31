@@ -1,5 +1,5 @@
 meta {
-  name: Product List
+  name: Get All
   type: http
   seq: 1
 }
@@ -14,8 +14,10 @@ params:query {
   ~category: Procesory
   ~name: Intel
   ~shop: Rtv euro agd
-  ~sort: name,asc
   ~minPrice: 200
   ~maxPrice: 800
   ~isAvailable: true
+  ~page: 0
+  ~size: 20
+  ~sort: name,asc
 }

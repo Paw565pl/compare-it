@@ -1,0 +1,23 @@
+meta {
+  name: Update
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:8080/api/v1/price-alerts/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 679a7914619f7f17a4ccfa88
+}
+
+body:json {
+  {
+    "productId": "6762fa57e3469470cecead5e",
+    "targetPrice": 3000.00,
+    "isOutletAllowed": false
+  }
+}
