@@ -1,16 +1,22 @@
 meta {
-  name: Get Rating
+  name: Create
   type: http
-  seq: 1
+  seq: 2
 }
 
-get {
+post {
   url: http://localhost:8080/api/v1/products/:productId/comments/:commentId/rate
-  body: none
+  body: json
   auth: inherit
 }
 
 params:path {
   productId: 678ab25c83090f04acb0013d
   commentId: 678cc819222a82653d9ceeef
+}
+
+body:json {
+  {
+    "isPositive": true
+  }
 }

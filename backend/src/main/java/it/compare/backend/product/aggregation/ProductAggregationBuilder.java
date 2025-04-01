@@ -98,12 +98,6 @@ public class ProductAggregationBuilder {
 
     public List<AggregationOperation> createBaseAggregationOperations() {
         var operations = new ArrayList<AggregationOperation>();
-
-        operations.add(Aggregation.addFields()
-                .addField(STRING_ID)
-                .withValue(ConvertOperators.ToString.toString("$" + ID))
-                .build());
-
         operations.add(Aggregation.match(createBaseCriteria()));
 
         operations.add(context -> new Document(
@@ -267,7 +261,7 @@ public class ProductAggregationBuilder {
 
         operations.add(createSortOperation());
 
-        operations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
+        operations.add(Aggregation.skip(pageable.getOffset()));
         operations.add(Aggregation.limit(pageable.getPageSize()));
 
         return operations;
@@ -331,15 +325,11 @@ public class ProductAggregationBuilder {
                 var direction = order.getDirection() == Direction.ASC ? 1 : -1;
                 var field = order.getProperty();
 
-                switch (field) {
-                    case PRICE_FIELD -> sortDoc.append("lowestOffer.price", direction);
-                    case OFFERS_COUNT -> sortDoc.append(OFFERS_COUNT, direction);
-                    default -> sortDoc.append(field, direction);
-                }
+                if (field.equalsIgnoreCase(PRICE_FIELD)) sortDoc.append("lowestOffer.price", direction);
+                else sortDoc.append(field, direction);
             }
 
-            if (sortDoc.isEmpty()) sortDoc.append("_id", 1);
-
+            sortDoc.append("_id", 1);
             return new Document("$sort", sortDoc);
         };
     }

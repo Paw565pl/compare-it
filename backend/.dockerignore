@@ -43,3 +43,6 @@ Dockerfile.*
 
 .gitignore
 .editorconfig
+
+# Bruno
+bruno/

@@ -5,11 +5,13 @@ import static org.springframework.web.client.RestClient.Builder;
 import java.time.Duration;
 import java.util.Set;
 import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.impl.LaxRedirectStrategy;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -19,33 +21,35 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class RestClientConfig {
 
+    private static final Duration TIMEOUT = Duration.ofSeconds(20);
+
     @Bean
     public RestClient restClient(
             Builder restClientBuilder,
             BasicCookieStore cookieStore,
             LaxRedirectStrategy redirectStrategy,
-            PoolingHttpClientConnectionManager connectionManager,
-            HttpRequestRetryStrategy httpRequestRetryStrategy) {
+            HttpRequestRetryStrategy httpRequestRetryStrategy,
+            PoolingHttpClientConnectionManager connectionManager) {
+        var requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(Timeout.of(TIMEOUT))
+                .setResponseTimeout(Timeout.of(TIMEOUT))
+                .build();
         var httpClient = HttpClients.custom()
                 .setDefaultCookieStore(cookieStore)
                 .setRedirectStrategy(redirectStrategy)
                 .setRetryStrategy(httpRequestRetryStrategy)
                 .setConnectionManager(connectionManager)
+                .setDefaultRequestConfig(requestConfig)
                 .build();
-
         var requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        requestFactory.setConnectTimeout(Duration.ofSeconds(20));
-        requestFactory.setConnectionRequestTimeout(Duration.ofSeconds(20));
-        requestFactory.setReadTimeout(Duration.ofSeconds(20));
 
         return restClientBuilder
                 .requestFactory(requestFactory)
                 .defaultHeaders((httpHeaders -> {
-                    httpHeaders.set("Accept", "*/*");
+                    httpHeaders.set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
                     httpHeaders.set("Accept-Encoding", "gzip, deflate, br, zstd");
                     httpHeaders.set("Accept-Language", "pl,en-US;q=0.7,en;q=0.3");
                     httpHeaders.set("Cache-Control", "no-cache");
-                    httpHeaders.set("Connection", "keep-alive");
                     httpHeaders.set("Referer", "https://www.google.com/");
                     httpHeaders.set("Sec-Fetch-Dest", "document");
                     httpHeaders.set("Sec-Fetch-Mode", "navigate");
@@ -56,7 +60,7 @@ public class RestClientConfig {
                     httpHeaders.set("TE", "trailers");
                     httpHeaders.set(
                             "User-Agent",
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36");
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
                 }))
                 .build();
     }
@@ -81,9 +85,13 @@ public class RestClientConfig {
         var connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(100);
         connectionManager.setDefaultMaxPerRoute(20);
-        connectionManager.setConnectionConfigResolver(route -> ConnectionConfig.custom()
-                .setValidateAfterInactivity(TimeValue.ofSeconds(20))
-                .build());
+
+        var connectionConfig = ConnectionConfig.custom()
+                .setValidateAfterInactivity(TimeValue.of(TIMEOUT))
+                .setConnectTimeout(Timeout.of(TIMEOUT))
+                .setSocketTimeout(Timeout.of(TIMEOUT))
+                .build();
+        connectionManager.setDefaultConnectionConfig(connectionConfig);
 
         return connectionManager;
     }

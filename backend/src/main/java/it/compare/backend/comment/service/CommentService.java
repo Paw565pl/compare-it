@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,43 @@ public class CommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
     }
 
+    public Page<CommentResponse> findAllByProductId(String productId, Pageable pageable) {
+        var productObjectId = convertProductId(productId);
+        productService.findProductOrThrow(productId);
+
+        var criteria = Criteria.where("product.$id").is(productObjectId);
+        var total = mongoTemplate.count(Query.query(criteria), Comment.class);
+
+        var operations = new ArrayList<>(getCommentRatingsAggregationOperations());
+
+        var match = Aggregation.match(criteria);
+        operations.addFirst(match);
+
+        var validSortProperties = Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD);
+        var sortOrders = pageable.getSort()
+                .filter(order -> validSortProperties.contains(order.getProperty()))
+                .toList();
+        var sort = Aggregation.sort(Sort.by(sortOrders));
+        operations.add(sort);
+
+        operations.add(Aggregation.skip(pageable.getOffset()));
+        operations.add(Aggregation.limit(pageable.getPageSize()));
+
+        var aggregation = Aggregation.newAggregation(Comment.class, operations);
+        var results =
+                mongoTemplate.aggregate(aggregation, CommentResponse.class).getMappedResults();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    private ObjectId convertProductId(String id) {
+        try {
+            return new ObjectId(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID format");
+        }
+    }
+
     private List<AggregationOperation> getCommentRatingsAggregationOperations() {
         var ratingsLookup = Aggregation.lookup(RATINGS_COLLECTION, "_id", "comment.$id", RATINGS_COLLECTION);
         var authorLookup = Aggregation.lookup("users", "author.$id", "_id", "author");
@@ -77,43 +115,14 @@ public class CommentService {
         return List.of(ratingsLookup, authorLookup, addFields, project);
     }
 
-    public Page<CommentResponse> findAllByProductId(String productId, Pageable pageable) {
-        productService.findProductOrThrow(productId);
-
-        var criteria = Criteria.where("product.$id").is(productId);
-        var total = mongoTemplate.count(Query.query(criteria), Comment.class);
-
-        var operations = new ArrayList<>(getCommentRatingsAggregationOperations());
-
-        var match = Aggregation.match(criteria);
-        operations.addFirst(match);
-
-        var sortOrders = new ArrayList<Sort.Order>();
-        var validSortProperties = Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD);
-
-        pageable.getSort().forEach(order -> {
-            var property = order.getProperty();
-            if (validSortProperties.contains(property)) sortOrders.add(new Sort.Order(order.getDirection(), property));
-        });
-        var sort = Aggregation.sort(Sort.by(sortOrders));
-        operations.add(sort);
-
-        var skip = Aggregation.skip(pageable.getOffset());
-        var limit = Aggregation.limit(pageable.getPageSize());
-        operations.add(skip);
-        operations.add(limit);
-
-        var aggregation = Aggregation.newAggregation(Comment.class, operations);
-        var results =
-                mongoTemplate.aggregate(aggregation, CommentResponse.class).getMappedResults();
-
-        return new PageImpl<>(results, pageable, total);
-    }
-
     public CommentResponse findById(String productId, String commentId) {
+        var productObjectId = convertProductId(productId);
+        var commentObjectId = convertCommentId(commentId);
+
         productService.findProductOrThrow(productId);
 
-        var criteria = Criteria.where("product.$id").is(productId).and("_id").is(commentId);
+        var criteria =
+                Criteria.where("product.$id").is(productObjectId).and("_id").is(commentObjectId);
         var match = Aggregation.match(criteria);
 
         var operations = new ArrayList<>(getCommentRatingsAggregationOperations());
@@ -127,6 +136,14 @@ public class CommentService {
         if (result == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
 
         return result;
+    }
+
+    private ObjectId convertCommentId(String id) {
+        try {
+            return new ObjectId(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid comment ID format");
+        }
     }
 
     @Transactional
