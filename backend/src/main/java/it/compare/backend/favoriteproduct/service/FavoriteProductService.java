@@ -141,7 +141,7 @@ public class FavoriteProductService {
         var favoriteProduct = favoriteProductRepository
                 .findByUserIdAndProductId(user.getId(), product.getId())
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "This product is not in your favorites."));
+                        new ResponseStatusException(HttpStatus.BAD_REQUEST, "This product is not in your favorites."));
         favoriteProductRepository.delete(favoriteProduct);
     }
 }
