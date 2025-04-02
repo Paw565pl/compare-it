@@ -270,7 +270,7 @@ public class ProductAggregationBuilder {
     public AggregationOperation createProjectionOperation() {
         return context -> new Document(
                 "$project",
-                new Document("id", "$" + STRING_ID)
+                new Document("_id", 1)
                         .append(NAME, 1)
                         .append("ean", 1)
                         .append(CATEGORY, 1)
