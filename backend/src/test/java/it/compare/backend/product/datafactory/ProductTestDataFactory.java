@@ -48,10 +48,10 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     public Collection<Product> createMany(int count) {
         var products = new ArrayList<Product>();
         for (int i = 0; i < count; i++) {
-            products.add(createOne());
+            products.add(generate());
         }
 
-        return products;
+        return productRepository.saveAll(products);
     }
 
     @Override
