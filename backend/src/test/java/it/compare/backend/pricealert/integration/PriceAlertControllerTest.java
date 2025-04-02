@@ -1,4 +1,4 @@
-package it.compare.backend.priceAlert.integration;
+package it.compare.backend.pricealert.integration;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -35,7 +36,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
     @Test
     void shouldReturnAuthenticationError() {
-        given().contentType(JSON).when().get().then().statusCode(401);
+        given().contentType(JSON).when().get().then().statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -48,7 +49,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .then()
                 .log()
                 .ifValidationFails()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(0));
     }
 
@@ -63,7 +64,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(2))
                 .body("content.id", containsInAnyOrder(alert1.getId(), alert2.getId()));
     }
@@ -81,7 +82,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(2))
                 .body("content.id", containsInAnyOrder(alert1.getId(), alert2.getId()));
     }
@@ -90,7 +91,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     void shouldReturnPriceAlertsBasedOnActiveField() {
         var alert1 = priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var alert2 = priceAlertTestDataFactory.createPriceAlertForUser(testUser);
-        var alert3 = priceAlertTestDataFactory.createInactiveAlert(testUser);
+        var alert3 = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
 
         given().contentType(JSON)
                 .auth()
@@ -99,7 +100,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(2))
                 .body("content.id", containsInAnyOrder(alert1.getId(), alert2.getId()));
 
@@ -110,7 +111,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(1))
                 .body("content.id", contains(alert3.getId()));
     }
@@ -126,12 +127,12 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .post()
                 .then()
-                .statusCode(409);
+                .statusCode(HttpStatus.CONFLICT.value());
     }
 
     @Test
     void shouldReturnCode201AfterCreatingPriceAlertForTheSameProductWithInactiveStatus() {
-        var alert = priceAlertTestDataFactory.createInactiveAlert(testUser);
+        var alert = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
         var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
         given().contentType(JSON)
                 .auth()
@@ -140,7 +141,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .post()
                 .then()
-                .statusCode(201);
+                .statusCode(HttpStatus.CREATED.value());
 
         given().contentType(JSON)
                 .auth()
@@ -148,7 +149,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(2));
     }
 
@@ -164,7 +165,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .post()
                 .then()
-                .statusCode(201)
+                .statusCode(HttpStatus.CREATED.value())
                 .body("productId", equalTo(product.getId()))
                 .body("targetPrice", equalTo(targetPrice.intValue()))
                 .body("outletAllowed", equalTo(outletAllowed));
@@ -182,7 +183,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .delete("/{alertId}", anotherAlert.getId())
                 .then()
-                .statusCode(403);
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -195,7 +196,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .delete("/{alertId}", alert.getId())
                 .then()
-                .statusCode(204);
+                .statusCode(HttpStatus.NO_CONTENT.value());
     }
 
     @Test
@@ -212,7 +213,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .put("/{alertId}", anotherAlert.getId())
                 .then()
-                .statusCode(403);
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @ParameterizedTest
@@ -227,7 +228,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .put("/{alertId}", alert.getId())
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("productId", equalTo(alert.getProduct().getId()))
                 .body("targetPrice", equalTo(targetPrice.intValue()))
                 .body("outletAllowed", equalTo(outletAllowed));

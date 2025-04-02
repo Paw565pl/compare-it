@@ -1,7 +1,7 @@
-package it.compare.backend.priceAlert.integration;
+package it.compare.backend.pricealert.integration;
 
 import it.compare.backend.core.test.IntegrationTest;
-import it.compare.backend.priceAlert.datafactory.PriceAlertTestDataFactory;
+import it.compare.backend.pricealert.datafactory.PriceAlertTestDataFactory;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.user.datafactory.UserTestDataFactory;
 import org.junit.jupiter.api.AfterEach;

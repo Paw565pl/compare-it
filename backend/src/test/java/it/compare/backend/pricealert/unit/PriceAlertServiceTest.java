@@ -1,4 +1,4 @@
-package it.compare.backend.priceAlert.unit;
+package it.compare.backend.pricealert.unit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

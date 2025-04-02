@@ -1,4 +1,4 @@
-package it.compare.backend.priceAlert.datafactory;
+package it.compare.backend.pricealert.datafactory;
 
 import it.compare.backend.auth.model.User;
 import it.compare.backend.core.config.FakerConfig;
@@ -44,7 +44,7 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
 
         PriceAlert priceAlert = new PriceAlert(product, targetPrice);
         priceAlert.setUser(user);
-        priceAlert.setIsOutletAllowed(faker.bool().bool());
+        priceAlert.setIsOutletAllowed(true);
 
         return priceAlert;
     }
@@ -68,12 +68,6 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
         priceAlertRepository.deleteAll();
     }
 
-    public PriceAlert createInactiveAlert(User user) {
-        PriceAlert alert = generate();
-        alert.setUser(user);
-        alert.setActive(false);
-        return priceAlertRepository.save(alert);
-    }
 
     public PriceAlert createPriceAlertForUser(User user) {
         var product = productTestDataFactory.createOne();

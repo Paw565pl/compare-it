@@ -1,4 +1,4 @@
-package it.compare.backend.priceAlert.integration;
+package it.compare.backend.pricealert.integration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
