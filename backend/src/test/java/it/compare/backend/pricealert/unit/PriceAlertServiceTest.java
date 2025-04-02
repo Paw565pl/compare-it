@@ -1,6 +1,8 @@
 package it.compare.backend.pricealert.unit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -110,8 +112,8 @@ class PriceAlertServiceTest {
         verify(priceAlertRepository).save(alertCaptor.capture());
 
         var savedAlert = alertCaptor.getValue();
-        assertFalse(savedAlert.getActive());
-        assertNotNull(savedAlert.getLastNotificationSent());
+        assertThat(savedAlert.getActive(), is(false));
+        assertThat(savedAlert.getLastNotificationSent(), notNullValue());
     }
 
     @Test
@@ -131,7 +133,7 @@ class PriceAlertServiceTest {
 
         verifyNoInteractions(emailService);
         verify(priceAlertRepository, never()).save(any(PriceAlert.class));
-        assertTrue(alert.getActive());
+        assertThat(alert.getActive(), is(true));
     }
 
     @Test

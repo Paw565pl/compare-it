@@ -68,7 +68,6 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
         priceAlertRepository.deleteAll();
     }
 
-
     public PriceAlert createPriceAlertForUser(User user) {
         var product = productTestDataFactory.createOne();
         var alert = new PriceAlert(
