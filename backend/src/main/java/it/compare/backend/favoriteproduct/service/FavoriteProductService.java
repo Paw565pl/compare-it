@@ -13,7 +13,6 @@ import it.compare.backend.product.service.ProductService;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,6 +22,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.aggregation.ConvertOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class FavoriteProductService {
     private final FavoriteProductRepository favoriteProductRepository;
 
     public Page<ProductListResponse> findAllByUser(OAuthUserDetails oAuthUserDetails, Pageable pageable) {
-        record FavoriteProductAggregationResult(ObjectId productId) {}
+        record FavoriteProductAggregationResult(String productId) {}
 
         var userId = oAuthUserDetails.getId();
         var sortDirection = pageable.getSort().stream()
@@ -73,16 +73,25 @@ public class FavoriteProductService {
         aggregationPipeline.addAll(aggregationBuilder.createPriceFilterOperations());
         aggregationPipeline.addAll(aggregationBuilder.createGroupingOperations());
 
+        // add temporary field to properly match favoritedAt with right product using array indexOf
+        final var STRING_ID_FIELD = "__stringId";
+        var addStringIdField = Aggregation.addFields()
+                .addField(STRING_ID_FIELD)
+                .withValue(ConvertOperators.ToString.toString("$_id"))
+                .build();
+        aggregationPipeline.add(addStringIdField);
+
         // add temporary field to sort by
         final var FAVORITED_AT_FIELD = "__favoritedAt";
         var addFavoritedAtField = Aggregation.addFields()
                 .addField(FAVORITED_AT_FIELD)
                 .withValue(
-                        ArrayOperators.IndexOfArray.arrayOf(favoriteProductIds).indexOf("$_id"))
+                        ArrayOperators.IndexOfArray.arrayOf(favoriteProductIds).indexOf("$" + STRING_ID_FIELD))
                 .build();
         aggregationPipeline.add(addFavoritedAtField);
 
-        var sortByFavoritedAt = Aggregation.sort(sortDirection, FAVORITED_AT_FIELD);
+        // asc direction is necessary to keep order of sorting in first aggregation
+        var sortByFavoritedAt = Aggregation.sort(Sort.Direction.ASC, FAVORITED_AT_FIELD);
         aggregationPipeline.add(sortByFavoritedAt);
 
         aggregationPipeline.add(Aggregation.skip(pageable.getOffset()));
