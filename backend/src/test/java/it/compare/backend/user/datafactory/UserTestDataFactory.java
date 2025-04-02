@@ -25,7 +25,7 @@ public class UserTestDataFactory implements TestDataFactory<User> {
 
     @Override
     public User generate() {
-        User user = new User();
+        var user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setEmail(faker.internet().emailAddress());
         user.setUsername(String.valueOf(faker.name()));
@@ -49,23 +49,5 @@ public class UserTestDataFactory implements TestDataFactory<User> {
     @Override
     public void clear() {
         userRepository.deleteAll();
-    }
-
-    public User createUserWithEmail(String email) {
-        User user = generate();
-        user.setEmail(email);
-        return userRepository.save(user);
-    }
-
-    public User createUserWithUsername(String username) {
-        User user = generate();
-        user.setUsername(username);
-        return userRepository.save(user);
-    }
-
-    public User createUserWithId(String id) {
-        User user = generate();
-        user.setId(id);
-        return userRepository.save(user);
     }
 }

@@ -68,53 +68,9 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
         priceAlertRepository.deleteAll();
     }
 
-    public PriceAlert createAlertWithUser(User user) {
-        Product product = productTestDataFactory.createOne();
-        BigDecimal targetPrice = BigDecimal.valueOf(faker.number().randomDouble(2, 50, 5000));
-
-        PriceAlert priceAlert = new PriceAlert(product, targetPrice);
-        priceAlert.setUser(user);
-        priceAlert.setIsOutletAllowed(faker.bool().bool());
-
-        return priceAlertRepository.save(priceAlert);
-    }
-
-    public PriceAlert createAlertWithProduct(Product product) {
-        User user = userTestDataFactory.createOne();
-        BigDecimal targetPrice = BigDecimal.valueOf(faker.number().randomDouble(2, 50, 5000));
-
-        PriceAlert priceAlert = new PriceAlert(product, targetPrice);
-        priceAlert.setUser(user);
-        priceAlert.setIsOutletAllowed(faker.bool().bool());
-
-        return priceAlertRepository.save(priceAlert);
-    }
-
-    public PriceAlert createAlertWithTargetPrice(BigDecimal targetPrice) {
-        Product product = productTestDataFactory.createOne();
-        User user = userTestDataFactory.createOne();
-
-        PriceAlert priceAlert = new PriceAlert(product, targetPrice);
-        priceAlert.setUser(user);
-        priceAlert.setIsOutletAllowed(faker.bool().bool());
-
-        return priceAlertRepository.save(priceAlert);
-    }
-
-    public PriceAlert createAlertWithOutletAllowed(boolean isOutletAllowed) {
-        Product product = productTestDataFactory.createOne();
-        User user = userTestDataFactory.createOne();
-        BigDecimal targetPrice = BigDecimal.valueOf(faker.number().randomDouble(2, 50, 5000));
-
-        PriceAlert priceAlert = new PriceAlert(product, targetPrice);
-        priceAlert.setUser(user);
-        priceAlert.setIsOutletAllowed(isOutletAllowed);
-
-        return priceAlertRepository.save(priceAlert);
-    }
-
-    public PriceAlert createInactiveAlert() {
+    public PriceAlert createInactiveAlert(User user) {
         PriceAlert alert = generate();
+        alert.setUser(user);
         alert.setActive(false);
         return priceAlertRepository.save(alert);
     }
@@ -142,13 +98,5 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
         PriceAlert alert = createPriceAlertForUser(user);
         alert.setActive(active);
         return priceAlertRepository.save(alert);
-    }
-
-    public Collection<PriceAlert> createManyForUser(User user, int count) {
-        var alerts = new ArrayList<PriceAlert>();
-        for (int i = 0; i < count; i++) {
-            alerts.add(createPriceAlertForUser(user));
-        }
-        return alerts;
     }
 }
