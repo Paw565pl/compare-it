@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 class FavoriteProductListTest extends FavoriteProductTest {
@@ -25,7 +26,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
 
     @Test
     void shouldReturnUnauthorized() {
-        given().contentType(JSON).when().get().then().statusCode(401);
+        given().contentType(JSON).when().get().then().statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -36,7 +37,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("page.totalElements", equalTo(0));
     }
 
@@ -58,7 +59,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("page.totalElements", equalTo(1));
 
         when(jwtDecoder.decode(otherUserMockToken.getTokenValue())).thenReturn(otherUserMockToken);
@@ -68,7 +69,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("page.totalElements", equalTo(0));
     }
 
@@ -87,7 +88,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .log()
                 .all()
                 .body(
@@ -107,7 +108,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .log()
                 .all()
                 .body(
