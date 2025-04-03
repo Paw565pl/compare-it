@@ -16,19 +16,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 class ProductDetailsTest extends ProductTest {
 
     @Test
-    void shouldReturn404WhenProductNotFound() {
+    void shouldReturnNotFoundWhenProductNotFound() {
         var randomObjectId = new ObjectId().toString();
 
-        given().contentType(JSON).when().get("/" + randomObjectId).then().statusCode(404);
+        given().contentType(JSON).when().get("/" + randomObjectId).then().statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
-    void shouldReturn400WhenProductIdIsInvalid() {
-        given().contentType(JSON).when().get("/invalid").then().statusCode(400);
+    void shouldReturnBadRequestWhenProductIdIsInvalid() {
+        given().contentType(JSON).when().get("/invalid").then().statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -39,7 +40,7 @@ class ProductDetailsTest extends ProductTest {
                 .when()
                 .get("/{productId}", product.getId())
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(product.getId()))
                 .body("name", equalTo(product.getName()))
                 .body("category", equalTo(product.getCategory().getHumanReadableName()))
@@ -60,7 +61,7 @@ class ProductDetailsTest extends ProductTest {
                 .when()
                 .get("/{productId}", productWithMultipleOffers.getId())
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("offers.size()", equalTo(3))
                 .body(
                         String.format(
@@ -126,7 +127,7 @@ class ProductDetailsTest extends ProductTest {
         request.when()
                 .get("/{productId}", product.getId())
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("offers", hasSize(3))
                 .body(
                         String.format(
