@@ -12,11 +12,13 @@ import it.compare.backend.pricealert.model.PriceAlert;
 import it.compare.backend.pricealert.respository.PriceAlertRepository;
 import it.compare.backend.pricealert.service.EmailService;
 import it.compare.backend.pricealert.service.PriceAlertService;
+import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.*;
+import it.compare.backend.user.datafactory.UserTestDataFactory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,48 +44,27 @@ class PriceAlertServiceTest {
     @InjectMocks
     private PriceAlertService priceAlertService;
 
+    private ProductTestDataFactory productFactory;
+
     private User testUser;
 
     @BeforeEach
     void setUp() {
-        testUser = new User();
-        testUser.setId(String.valueOf(UUID.randomUUID()));
-        testUser.setEmail("test@example.com");
-        testUser.setUsername("testuser");
-
-        var testProduct = createTestProduct();
-
-        var testAlert = new PriceAlert(testProduct, BigDecimal.valueOf(100));
-        testAlert.setId(String.valueOf(UUID.randomUUID()));
-        testAlert.setUser(testUser);
-        testAlert.setIsOutletAllowed(true);
-    }
-
-    private Product createTestProduct() {
-        var product = new Product(String.valueOf(UUID.randomUUID()), "Test Product", Category.PROCESSORS);
-
-        var priceStamp = new PriceStamp(BigDecimal.valueOf(150), "PLN", Condition.NEW);
-        priceStamp.setTimestamp(LocalDateTime.now());
-
-        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
-        offer.getPriceHistory().add(priceStamp);
-
-        product.getOffers().add(offer);
-
-        return product;
+        Faker faker = new Faker();
+        UserTestDataFactory userFactory = new UserTestDataFactory(faker, null);
+        productFactory = new ProductTestDataFactory(faker, null);
+        testUser = userFactory.generate();
     }
 
     @Test
     void shouldSendEmailWhenPriceBelowTarget() {
-        var product = createTestProduct();
-        product.getOffers().clear();
+        var product = productFactory.generate();
 
+        product.getOffers().clear();
         var lowPriceStamp = new PriceStamp(BigDecimal.valueOf(90), "PLN", Condition.NEW);
         lowPriceStamp.setTimestamp(LocalDateTime.now());
-
         var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
         offer.getPriceHistory().add(lowPriceStamp);
-
         product.getOffers().add(offer);
 
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));
@@ -92,9 +73,7 @@ class PriceAlertServiceTest {
         alert.setActive(true);
         alert.setCreatedAt(LocalDateTime.now());
 
-        var alerts = List.of(alert);
-
-        when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(alerts);
+        when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
         priceAlertService.checkPriceAlerts(product);
 
@@ -118,16 +97,21 @@ class PriceAlertServiceTest {
 
     @Test
     void shouldNotSendEmailWhenPriceAboveTarget() {
-        var product = createTestProduct();
+        var product = productFactory.generate();
 
-        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
+        product.getOffers().clear();
+        var highPriceStamp = new PriceStamp(BigDecimal.valueOf(150), "PLN", Condition.NEW);
+        highPriceStamp.setTimestamp(LocalDateTime.now());
+        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
+        offer.getPriceHistory().add(highPriceStamp);
+        product.getOffers().add(offer);
+
+        PriceAlert alert = new PriceAlert(product, BigDecimal.valueOf(100));
         alert.setUser(testUser);
         alert.setIsOutletAllowed(true);
         alert.setActive(true);
 
-        var alerts = List.of(alert);
-
-        when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(alerts);
+        when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
         priceAlertService.checkPriceAlerts(product);
 
@@ -138,22 +122,7 @@ class PriceAlertServiceTest {
 
     @Test
     void shouldRespectOutletAllowedWhenCheckingPrices() {
-        var product = new Product(String.valueOf(UUID.randomUUID()), "Test Product", Category.PROCESSORS);
-
-        var outletPriceStamp = new PriceStamp(BigDecimal.valueOf(80), "PLN", Condition.OUTLET);
-        outletPriceStamp.setTimestamp(LocalDateTime.now());
-
-        var outletOffer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/outlet");
-        outletOffer.getPriceHistory().add(outletPriceStamp);
-
-        var newPriceStamp = new PriceStamp(BigDecimal.valueOf(120), "PLN", Condition.NEW);
-        newPriceStamp.setTimestamp(LocalDateTime.now());
-
-        var newOffer = new Offer(Shop.MEDIA_EXPERT, "https://example.com/new");
-        newOffer.getPriceHistory().add(newPriceStamp);
-
-        product.getOffers().add(outletOffer);
-        product.getOffers().add(newOffer);
+        Product product = createProductWithNewAndOutletOffers(BigDecimal.valueOf(120), BigDecimal.valueOf(80));
 
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));
         alert.setUser(testUser);
@@ -161,9 +130,7 @@ class PriceAlertServiceTest {
         alert.setActive(true);
         alert.setCreatedAt(LocalDateTime.now());
 
-        var alerts = List.of(alert);
-
-        when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(alerts);
+        when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
         priceAlertService.checkPriceAlerts(product);
 
@@ -171,7 +138,6 @@ class PriceAlertServiceTest {
         verify(priceAlertRepository, never()).save(any(PriceAlert.class));
 
         alert.setIsOutletAllowed(true);
-
         priceAlertService.checkPriceAlerts(product);
 
         verify(emailService)
@@ -183,5 +149,25 @@ class PriceAlertServiceTest {
                         BigDecimal.valueOf(100),
                         Shop.RTV_EURO_AGD.getHumanReadableName(),
                         "https://example.com/outlet");
+    }
+
+    private Product createProductWithNewAndOutletOffers(BigDecimal newPrice, BigDecimal outletPrice) {
+
+        var product = productFactory.generate();
+        product.getOffers().clear();
+
+        var outletPriceStamp = new PriceStamp(outletPrice, "PLN", Condition.OUTLET);
+        outletPriceStamp.setTimestamp(LocalDateTime.now());
+        var outletOffer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/outlet");
+        outletOffer.getPriceHistory().add(outletPriceStamp);
+        product.getOffers().add(outletOffer);
+
+        var newPriceStamp = new PriceStamp(newPrice, "PLN", Condition.NEW);
+        newPriceStamp.setTimestamp(LocalDateTime.now());
+        var newOffer = new Offer(Shop.MEDIA_EXPERT, "https://example.com/new");
+        newOffer.getPriceHistory().add(newPriceStamp);
+        product.getOffers().add(newOffer);
+
+        return product;
     }
 }

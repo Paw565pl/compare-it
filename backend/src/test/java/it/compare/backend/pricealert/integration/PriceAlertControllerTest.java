@@ -2,6 +2,7 @@ package it.compare.backend.pricealert.integration;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -9,12 +10,14 @@ import static org.mockito.Mockito.when;
 import it.compare.backend.auth.model.User;
 import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
+import it.compare.backend.pricealert.respository.PriceAlertRepository;
 import java.math.BigDecimal;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -23,6 +26,9 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
     @MockitoBean
     private JwtDecoder jwtDecoder;
+
+    @Autowired
+    private PriceAlertRepository priceAlertRepository;
 
     private User testUser;
     private static final String BEARER_TOKEN = "mock-token";
@@ -143,14 +149,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
-        given().contentType(JSON)
-                .auth()
-                .oauth2(BEARER_TOKEN)
-                .when()
-                .get()
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("content", hasSize(2));
+        assertThat(priceAlertRepository.count(), is(2L));
     }
 
     @ParameterizedTest
@@ -169,6 +168,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .body("productId", equalTo(product.getId()))
                 .body("targetPrice", equalTo(targetPrice.intValue()))
                 .body("outletAllowed", equalTo(outletAllowed));
+        assertThat(priceAlertRepository.count(), is(1L));
     }
 
     @Test
@@ -197,6 +197,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .delete("/{alertId}", alert.getId())
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value());
+        assertThat(priceAlertRepository.count(), is(0L));
     }
 
     @Test
