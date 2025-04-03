@@ -38,11 +38,11 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
     @Override
     public PriceAlert generate() {
         var product = productTestDataFactory.createOne();
-        User user = userTestDataFactory.createOne();
+        var user = userTestDataFactory.createOne();
 
         var targetPrice = BigDecimal.valueOf(faker.number().randomDouble(2, 50, 5000));
 
-        PriceAlert priceAlert = new PriceAlert(product, targetPrice);
+        var priceAlert = new PriceAlert(product, targetPrice);
         priceAlert.setUser(user);
         priceAlert.setIsOutletAllowed(true);
 
@@ -88,7 +88,7 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
     }
 
     public PriceAlert createPriceAlertWithActiveStatus(User user, boolean active) {
-        PriceAlert alert = createPriceAlertForUser(user);
+        var alert = createPriceAlertForUser(user);
         alert.setActive(active);
         return priceAlertRepository.save(alert);
     }
