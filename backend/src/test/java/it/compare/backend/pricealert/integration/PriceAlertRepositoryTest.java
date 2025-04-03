@@ -4,15 +4,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import it.compare.backend.pricealert.model.PriceAlert;
-import it.compare.backend.pricealert.respository.PriceAlertRepository;
 import it.compare.backend.user.datafactory.UserTestDataFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
 class PriceAlertRepositoryTest extends PriceAlertTest {
-    @Autowired
-    private PriceAlertRepository priceAlertRepository;
 
     @Autowired
     private UserTestDataFactory userTestDataFactory;

@@ -10,14 +10,12 @@ import static org.mockito.Mockito.when;
 import it.compare.backend.auth.model.User;
 import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
-import it.compare.backend.pricealert.respository.PriceAlertRepository;
 import java.math.BigDecimal;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -26,9 +24,6 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
     @MockitoBean
     private JwtDecoder jwtDecoder;
-
-    @Autowired
-    private PriceAlertRepository priceAlertRepository;
 
     private User testUser;
     private static final String BEARER_TOKEN = "mock-token";

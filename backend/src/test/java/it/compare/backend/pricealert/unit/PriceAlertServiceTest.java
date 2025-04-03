@@ -44,15 +44,14 @@ class PriceAlertServiceTest {
     @InjectMocks
     private PriceAlertService priceAlertService;
 
-    private ProductTestDataFactory productFactory;
+    private final Faker faker = new Faker();
+    private final UserTestDataFactory userFactory = new UserTestDataFactory(faker, null);
+    private final ProductTestDataFactory productFactory = new ProductTestDataFactory(faker, null);
 
     private User testUser;
 
     @BeforeEach
     void setUp() {
-        Faker faker = new Faker();
-        UserTestDataFactory userFactory = new UserTestDataFactory(faker, null);
-        productFactory = new ProductTestDataFactory(faker, null);
         testUser = userFactory.generate();
     }
 
@@ -106,7 +105,7 @@ class PriceAlertServiceTest {
         offer.getPriceHistory().add(highPriceStamp);
         product.getOffers().add(offer);
 
-        PriceAlert alert = new PriceAlert(product, BigDecimal.valueOf(100));
+        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
         alert.setUser(testUser);
         alert.setIsOutletAllowed(true);
         alert.setActive(true);
@@ -122,7 +121,7 @@ class PriceAlertServiceTest {
 
     @Test
     void shouldRespectOutletAllowedWhenCheckingPrices() {
-        Product product = createProductWithNewAndOutletOffers(BigDecimal.valueOf(120), BigDecimal.valueOf(80));
+        var product = createProductWithNewAndOutletOffers(BigDecimal.valueOf(120), BigDecimal.valueOf(80));
 
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));
         alert.setUser(testUser);
