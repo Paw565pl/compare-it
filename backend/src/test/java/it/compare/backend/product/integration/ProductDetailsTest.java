@@ -21,14 +21,14 @@ import org.springframework.http.HttpStatus;
 class ProductDetailsTest extends ProductTest {
 
     @Test
-    void shouldReturn404WhenProductNotFound() {
+    void shouldReturnNotFoundWhenProductNotFound() {
         var randomObjectId = new ObjectId().toString();
 
         given().contentType(JSON).when().get("/" + randomObjectId).then().statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
-    void shouldReturn400WhenProductIdIsInvalid() {
+    void shouldReturnBadRequestWhenProductIdIsInvalid() {
         given().contentType(JSON).when().get("/invalid").then().statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
