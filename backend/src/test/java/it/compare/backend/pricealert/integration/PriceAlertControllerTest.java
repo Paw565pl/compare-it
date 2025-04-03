@@ -48,8 +48,6 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .when()
                 .get()
                 .then()
-                .log()
-                .ifValidationFails()
                 .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(0));
     }
@@ -118,7 +116,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     }
 
     @Test
-    void shouldReturnCode409AfterCreatingPriceAlertForTheSameProductWithActiveStatus() {
+    void shouldReturnConflictAfterCreatingPriceAlertForTheSameProductWithActiveStatus() {
         var alert = priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
         given().contentType(JSON)
@@ -132,7 +130,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     }
 
     @Test
-    void shouldReturnCode201AfterCreatingPriceAlertForTheSameProductWithInactiveStatus() {
+    void shouldReturnCreatedAfterCreatingPriceAlertForTheSameProductWithInactiveStatus() {
         var alert = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
         var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
         given().contentType(JSON)
@@ -149,7 +147,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
     @ParameterizedTest
     @CsvSource({"100, true", "200, false", "300, true", "500, false"})
-    void shouldReturnCode201AfterCreatingPriceAlert(BigDecimal targetPrice, boolean outletAllowed) {
+    void shouldReturnCreatedAfterCreatingPriceAlert(BigDecimal targetPrice, boolean outletAllowed) {
         var product = productTestDataFactory.createOne();
         var alertDto = new PriceAlertDto(product.getId(), targetPrice, outletAllowed);
         given().contentType(JSON)
@@ -167,7 +165,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     }
 
     @Test
-    void shouldReturnCode403AfterDeletePriceAlertThatDoesNotBelongToUser() {
+    void shouldReturnForbiddenAfterDeletePriceAlertThatDoesNotBelongToUser() {
         priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var anotherUser = userTestDataFactory.createOne();
         var anotherAlert = priceAlertTestDataFactory.createPriceAlertForUser(anotherUser);
@@ -182,7 +180,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     }
 
     @Test
-    void shouldReturnCode204AfterDeletingPriceAlert() {
+    void shouldReturnNoContentAfterDeletingPriceAlert() {
         var alert = priceAlertTestDataFactory.createPriceAlertForUser(testUser);
 
         given().contentType(JSON)
@@ -196,7 +194,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     }
 
     @Test
-    void shouldReturnCode403AfterUpdatingPriceAlertThatDoesNotBelongToUser() {
+    void shouldReturnForbiddenAfterUpdatingPriceAlertThatDoesNotBelongToUser() {
         priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var anotherUser = userTestDataFactory.createOne();
         var anotherAlert = priceAlertTestDataFactory.createPriceAlertForUser(anotherUser);

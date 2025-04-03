@@ -37,10 +37,10 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
 
     @Override
     public PriceAlert generate() {
-        Product product = productTestDataFactory.createOne();
+        var product = productTestDataFactory.createOne();
         User user = userTestDataFactory.createOne();
 
-        BigDecimal targetPrice = BigDecimal.valueOf(faker.number().randomDouble(2, 50, 5000));
+        var targetPrice = BigDecimal.valueOf(faker.number().randomDouble(2, 50, 5000));
 
         PriceAlert priceAlert = new PriceAlert(product, targetPrice);
         priceAlert.setUser(user);
