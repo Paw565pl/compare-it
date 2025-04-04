@@ -15,15 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 @Import(ProductTestDataFactory.class)
 class FavoriteProductStatusTest extends FavoriteProductTest {
 
     @Autowired
     private ProductTestDataFactory productTestDataFactory;
-
-    private static final Jwt mockToken = AuthMock.getToken("1", List.of());
 
     @BeforeEach
     void mockToken() {
@@ -69,6 +66,9 @@ class FavoriteProductStatusTest extends FavoriteProductTest {
     @Test
     void shouldReturnCorrectStatusIfProductIsFavorite() {
         var favoriteProduct = favoriteProductTestDataFactory.createOne();
+
+        var mockToken = AuthMock.getToken(favoriteProduct.getUser().getId(), List.of());
+        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
 
         given().contentType(JSON)
                 .auth()

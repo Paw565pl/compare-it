@@ -6,18 +6,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import it.compare.backend.auth.model.User;
 import it.compare.backend.core.mock.AuthMock;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 class FavoriteProductListTest extends FavoriteProductTest {
-
-    private static final Jwt mockToken = AuthMock.getToken("1", List.of());
 
     @BeforeEach
     void mockToken() {
@@ -47,9 +43,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
         var favoriteProductUserId = favoriteProduct.getUser().getId();
         var userMockToken = AuthMock.getToken(favoriteProductUserId, List.of());
 
-        // TODO: change this to use user data factory
-        var otherUser = new User("2", "test", "test@test.com");
-        userRepository.save(otherUser);
+        var otherUser = userTestDataFactory.createOne();
         var otherUserMockToken = AuthMock.getToken(otherUser.getId(), List.of());
 
         when(jwtDecoder.decode(userMockToken.getTokenValue())).thenReturn(userMockToken);
@@ -75,11 +69,15 @@ class FavoriteProductListTest extends FavoriteProductTest {
 
     @Test
     void shouldReturnFavoriteProductsSortedByCreatedAt() {
-        var favoriteProducts =
-                favoriteProductTestDataFactory.createMany(3).stream().toList();
+        var user = userTestDataFactory.createOne();
+        var favoriteProducts = favoriteProductTestDataFactory.createMany(3, user);
+
         favoriteProducts.forEach(favoriteProduct -> favoriteProduct.setCreatedAt(
                 LocalDateTime.now().minusDays(favoriteProducts.indexOf(favoriteProduct) + 1)));
         favoriteProductRepository.saveAll(favoriteProducts);
+
+        var mockToken = AuthMock.getToken(user.getId(), List.of());
+        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
 
         given().contentType(JSON)
                 .auth()
@@ -89,8 +87,6 @@ class FavoriteProductListTest extends FavoriteProductTest {
                 .get()
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .log()
-                .all()
                 .body(
                         "content[0].id",
                         equalTo(favoriteProducts.get(2).getProduct().getId()))
@@ -109,8 +105,6 @@ class FavoriteProductListTest extends FavoriteProductTest {
                 .get()
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .log()
-                .all()
                 .body(
                         "content[0].id",
                         equalTo(favoriteProducts.get(0).getProduct().getId()))

@@ -7,25 +7,20 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
-import java.util.List;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 @Import(ProductTestDataFactory.class)
 class FavoriteProductCreateTest extends FavoriteProductTest {
 
     @Autowired
     private ProductTestDataFactory productTestDataFactory;
-
-    private static final Jwt mockToken = AuthMock.getToken("1", List.of());
 
     @BeforeEach
     void mockToken() {
