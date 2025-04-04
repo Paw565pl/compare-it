@@ -7,7 +7,7 @@ import it.compare.backend.favoriteproduct.model.FavoriteProduct;
 import it.compare.backend.favoriteproduct.repository.FavoriteProductRepository;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
 
@@ -45,7 +45,7 @@ public class FavoriteProductTestDataFactory implements TestDataFactory<FavoriteP
     }
 
     @Override
-    public Collection<FavoriteProduct> createMany(int count) {
+    public List<FavoriteProduct> createMany(int count) {
         var favoriteProducts = new ArrayList<FavoriteProduct>();
         for (int i = 0; i < count; i++) {
             favoriteProducts.add(generate());

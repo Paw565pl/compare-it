@@ -5,7 +5,7 @@ import it.compare.backend.auth.repository.UserRepository;
 import it.compare.backend.core.config.FakerConfig;
 import it.compare.backend.core.datafactory.TestDataFactory;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
@@ -29,6 +29,7 @@ public class UserTestDataFactory implements TestDataFactory<User> {
         user.setId(UUID.randomUUID().toString());
         user.setEmail(faker.internet().emailAddress());
         user.setUsername(String.valueOf(faker.name()));
+
         return user;
     }
 
@@ -38,12 +39,13 @@ public class UserTestDataFactory implements TestDataFactory<User> {
     }
 
     @Override
-    public Collection<User> createMany(int count) {
+    public List<User> createMany(int count) {
         var users = new ArrayList<User>();
         for (int i = 0; i < count; i++) {
-            users.add(createOne());
+            users.add(generate());
         }
-        return users;
+
+        return userRepository.saveAll(users);
     }
 
     @Override

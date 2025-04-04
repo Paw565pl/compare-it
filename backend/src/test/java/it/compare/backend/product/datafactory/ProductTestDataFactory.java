@@ -7,7 +7,6 @@ import it.compare.backend.product.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
@@ -45,7 +44,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     }
 
     @Override
-    public Collection<Product> createMany(int count) {
+    public List<Product> createMany(int count) {
         var products = new ArrayList<Product>();
         for (int i = 0; i < count; i++) {
             products.add(generate());
