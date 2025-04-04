@@ -14,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 class ProductRepositoryTest extends ProductTest {
 
     @Autowired
-    private ProductRepository productRepository;
+    private Faker faker;
 
     @Autowired
-    private Faker faker;
+    private ProductRepository productRepository;
 
     @Test
     void shouldReturnEmptyListWhenEanListIsEmpty() {
