@@ -28,7 +28,7 @@ public class UserTestDataFactory implements TestDataFactory<User> {
         var user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setEmail(faker.internet().emailAddress());
-        user.setUsername(faker.name().toString());
+        user.setUsername(faker.name().name());
 
         return user;
     }
