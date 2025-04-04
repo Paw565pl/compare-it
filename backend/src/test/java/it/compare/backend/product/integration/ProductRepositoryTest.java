@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.*;
 
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
-import java.util.Collections;
 import java.util.List;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ class ProductRepositoryTest extends ProductTest {
 
     @Test
     void shouldReturnEmptyListWhenEanListIsEmpty() {
-        List<String> emptyEanList = Collections.emptyList();
+        List<String> emptyEanList = List.of();
 
         var products = productRepository.findAllByEanIn(emptyEanList);
 

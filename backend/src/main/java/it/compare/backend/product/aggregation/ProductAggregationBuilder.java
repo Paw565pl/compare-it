@@ -112,7 +112,7 @@ public class ProductAggregationBuilder {
                                                 "in",
                                                 new Document(
                                                         MERGE_OBJECTS,
-                                                        Arrays.asList(
+                                                        List.of(
                                                                 "$$offer",
                                                                 new Document(
                                                                         PRICE_HISTORY,
