@@ -17,6 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.HttpStatus;
 
 class ProductListTest extends ProductTest {
 
@@ -27,7 +28,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("page.totalElements", equalTo(productsCount));
     }
 
@@ -54,7 +55,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("page.totalElements", equalTo(expectedCount));
     }
 
@@ -73,7 +74,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("page.totalElements", equalTo(expectedCount));
     }
 
@@ -98,7 +99,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("page.totalElements", equalTo(expectedCount));
     }
 
@@ -118,7 +119,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("page.totalElements", equalTo(expectedCount));
     }
 
@@ -136,7 +137,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content[0].lowestCurrentPrice", equalTo(1000))
                 .body("content[1].lowestCurrentPrice", equalTo(2000))
                 .body("content[2].lowestCurrentPrice", equalTo(3000))
@@ -148,7 +149,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content[0].lowestCurrentPrice", equalTo(5000))
                 .body("content[1].lowestCurrentPrice", equalTo(4000))
                 .body("content[2].lowestCurrentPrice", equalTo(3000))
@@ -181,7 +182,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content[0].lowestCurrentPrice", equalTo(1000))
                 .body("content[1].lowestCurrentPrice", equalTo(2000))
                 .body("content[2].lowestCurrentPrice", equalTo(4000));
@@ -191,7 +192,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content[0].lowestCurrentPrice", equalTo(4000))
                 .body("content[1].lowestCurrentPrice", equalTo(2000))
                 .body("content[2].lowestCurrentPrice", equalTo(1000));
@@ -235,7 +236,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content[0].offersCount", equalTo(0))
                 .body("content[1].offersCount", equalTo(1))
                 .body("content[2].offersCount", equalTo(2))
@@ -247,7 +248,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("content[0].offersCount", equalTo(3))
                 .body("content[1].offersCount", equalTo(3))
                 .body("content[2].offersCount", equalTo(2))
@@ -340,7 +341,7 @@ class ProductListTest extends ProductTest {
                 .when()
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body(
                         "content[0].lowestCurrentPrice",
                         equalTo(expectedLowestPrice),
