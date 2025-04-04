@@ -11,12 +11,13 @@ import it.compare.backend.auth.model.User;
 import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -26,12 +27,13 @@ class PriceAlertControllerTest extends PriceAlertTest {
     private JwtDecoder jwtDecoder;
 
     private User testUser;
-    private static final String BEARER_TOKEN = "mock-token";
+    private Jwt mockToken;
 
     @BeforeEach
     void setup() {
         testUser = userTestDataFactory.createOne();
-        var mockToken = AuthMock.getToken(testUser.getId(), Collections.emptyList());
+
+        mockToken = AuthMock.getToken(testUser.getId(), List.of());
         when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
     }
 
@@ -44,7 +46,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     void shouldReturnEmptyListWhenNoAlertsExist() {
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .when()
                 .get()
                 .then()
@@ -59,7 +61,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .when()
                 .get()
                 .then()
@@ -77,7 +79,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .when()
                 .get()
                 .then()
@@ -94,7 +96,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .queryParam("active", true)
                 .when()
                 .get()
@@ -105,7 +107,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .queryParam("active", false)
                 .when()
                 .get()
@@ -119,9 +121,10 @@ class PriceAlertControllerTest extends PriceAlertTest {
     void shouldReturnConflictAfterCreatingPriceAlertForTheSameProductWithActiveStatus() {
         var alert = priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
+
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .body(alertDto)
                 .when()
                 .post()
@@ -133,15 +136,15 @@ class PriceAlertControllerTest extends PriceAlertTest {
     void shouldReturnCreatedAfterCreatingPriceAlertForTheSameProductWithInactiveStatus() {
         var alert = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
         var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
+
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .body(alertDto)
                 .when()
                 .post()
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
-
         assertThat(priceAlertRepository.count(), is(2L));
     }
 
@@ -150,9 +153,10 @@ class PriceAlertControllerTest extends PriceAlertTest {
     void shouldReturnCreatedAfterCreatingPriceAlert(BigDecimal targetPrice, boolean outletAllowed) {
         var product = productTestDataFactory.createOne();
         var alertDto = new PriceAlertDto(product.getId(), targetPrice, outletAllowed);
+
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .body(alertDto)
                 .when()
                 .post()
@@ -172,7 +176,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .when()
                 .delete("/{alertId}", anotherAlert.getId())
                 .then()
@@ -185,7 +189,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .when()
                 .delete("/{alertId}", alert.getId())
                 .then()
@@ -198,11 +202,11 @@ class PriceAlertControllerTest extends PriceAlertTest {
         priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var anotherUser = userTestDataFactory.createOne();
         var anotherAlert = priceAlertTestDataFactory.createPriceAlertForUser(anotherUser);
-
         var alertDto = new PriceAlertDto(anotherAlert.getProduct().getId(), BigDecimal.valueOf(100), true);
+
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .body(alertDto)
                 .when()
                 .put("/{alertId}", anotherAlert.getId())
@@ -215,9 +219,10 @@ class PriceAlertControllerTest extends PriceAlertTest {
     void shouldReturnUpdatedPriceAlert(BigDecimal targetPrice, boolean outletAllowed) {
         var alert = priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var alertDto = new PriceAlertDto(alert.getProduct().getId(), targetPrice, outletAllowed);
+
         given().contentType(JSON)
                 .auth()
-                .oauth2(BEARER_TOKEN)
+                .oauth2(mockToken.getTokenValue())
                 .body(alertDto)
                 .when()
                 .put("/{alertId}", alert.getId())

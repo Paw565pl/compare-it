@@ -7,7 +7,6 @@ import it.compare.backend.product.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
@@ -28,7 +27,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     @Override
     public Product generate() {
         var priceStamp = new PriceStamp(
-                BigDecimal.valueOf(faker.number().positive()), faker.currency().toString(), Condition.NEW);
+                BigDecimal.valueOf(faker.number().positive()), faker.money().currency(), Condition.NEW);
         var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
         offer.getPriceHistory().add(priceStamp);
 
@@ -45,13 +44,13 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     }
 
     @Override
-    public Collection<Product> createMany(int count) {
+    public List<Product> createMany(int count) {
         var products = new ArrayList<Product>();
         for (int i = 0; i < count; i++) {
-            products.add(createOne());
+            products.add(generate());
         }
 
-        return products;
+        return productRepository.saveAll(products);
     }
 
     @Override
@@ -71,6 +70,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         var customPriceStamp = new PriceStamp(price, currency, condition);
         customPriceStamp.setTimestamp(LocalDateTime.now());
         product.getOffers().clear();
+
         var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
         offer.getPriceHistory().add(customPriceStamp);
         product.getOffers().add(offer);

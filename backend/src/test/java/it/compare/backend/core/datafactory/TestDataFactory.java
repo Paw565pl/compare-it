@@ -1,6 +1,6 @@
 package it.compare.backend.core.datafactory;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface TestDataFactory<T> {
 
@@ -8,7 +8,7 @@ public interface TestDataFactory<T> {
 
     T createOne();
 
-    Collection<T> createMany(int count);
+    List<T> createMany(int count);
 
     void clear();
 }
