@@ -1,11 +1,11 @@
 package it.compare.backend.favoriteproduct.datafactory;
 
 import it.compare.backend.auth.model.User;
-import it.compare.backend.auth.repository.UserRepository;
 import it.compare.backend.core.datafactory.TestDataFactory;
 import it.compare.backend.favoriteproduct.model.FavoriteProduct;
 import it.compare.backend.favoriteproduct.repository.FavoriteProductRepository;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
+import it.compare.backend.user.datafactory.UserTestDataFactory;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.boot.test.context.TestComponent;
@@ -17,24 +17,21 @@ public class FavoriteProductTestDataFactory implements TestDataFactory<FavoriteP
 
     private final FavoriteProductRepository favoriteProductRepository;
     private final ProductTestDataFactory productTestDataFactory;
-    private final UserRepository userRepository;
+    private final UserTestDataFactory userTestDataFactory;
 
     public FavoriteProductTestDataFactory(
             FavoriteProductRepository favoriteProductRepository,
             ProductTestDataFactory productTestDataFactory,
-            UserRepository userRepository) {
+            UserTestDataFactory userTestDataFactory) {
         this.favoriteProductRepository = favoriteProductRepository;
         this.productTestDataFactory = productTestDataFactory;
-        this.userRepository = userRepository;
+        this.userTestDataFactory = userTestDataFactory;
     }
 
     @Override
     public FavoriteProduct generate() {
         var product = productTestDataFactory.createOne();
-
-        // TODO: change this to use user data factory
-        var user = new User("1", "test", "test@test.com");
-        userRepository.save(user);
+        var user = userTestDataFactory.createOne();
 
         return new FavoriteProduct(user, product);
     }
@@ -54,10 +51,22 @@ public class FavoriteProductTestDataFactory implements TestDataFactory<FavoriteP
         return favoriteProductRepository.saveAll(favoriteProducts);
     }
 
+    public List<FavoriteProduct> createMany(int count, User user) {
+        var favoriteProducts = new ArrayList<FavoriteProduct>();
+        for (int i = 0; i < count; i++) {
+            var favoriteProduct = generate();
+            favoriteProduct.setUser(user);
+
+            favoriteProducts.add(favoriteProduct);
+        }
+
+        return favoriteProductRepository.saveAll(favoriteProducts);
+    }
+
     @Override
     public void clear() {
         productTestDataFactory.clear();
-        userRepository.deleteAll();
+        userTestDataFactory.clear();
         favoriteProductRepository.deleteAll();
     }
 }
