@@ -40,11 +40,11 @@ class MediaExpertScraperWorker {
     @Async
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         var webDriver = webDriverFactory.getObject();
+        var productUrls = new ArrayList<String>();
 
         try {
-            var productUrls = new ArrayList<String>();
             var numberOfPages = getNumberOfPages(webDriver, categoryLocator);
-            log.info("available pages: {} for category {}", numberOfPages, category);
+            log.debug("available pages: {} for category {}", numberOfPages, category);
 
             for (var currentPage = 1; currentPage <= numberOfPages; currentPage++) {
                 var uri = UriComponentsBuilder.fromUriString(BASE_URL)
@@ -53,7 +53,7 @@ class MediaExpertScraperWorker {
                         .queryParam("limit", 50)
                         .build()
                         .toUri();
-                log.info("scraping page {} for category {}", currentPage, category);
+                log.debug("scraping page {} for category {}", currentPage, category);
 
                 webDriver.get(uri.toString());
                 var pageSource = webDriver.getPageSource();
@@ -72,7 +72,7 @@ class MediaExpertScraperWorker {
 
             var products = productUrls.stream()
                     .map(url -> {
-                        log.info(
+                        log.debug(
                                 "scraping product nr {} of {} in category {}",
                                 productUrls.indexOf(url) + 1,
                                 productUrls.size(),
@@ -134,7 +134,7 @@ class MediaExpertScraperWorker {
                     .trim();
             var ean = getEan(webDriver, sparkId);
             if (ean == null) {
-                log.error("ean is null for product url: {}", uri);
+                log.debug("ean is null for product url: {}", uri);
                 return null;
             }
 
@@ -178,7 +178,7 @@ class MediaExpertScraperWorker {
 
             return product;
         } catch (Exception e) {
-            log.error("unexpected error has ocurred while scraping single product: {}", e.getMessage());
+            log.error("unexpected error has occurred while scraping single product: {}", e.getMessage());
             return null;
         }
     }
