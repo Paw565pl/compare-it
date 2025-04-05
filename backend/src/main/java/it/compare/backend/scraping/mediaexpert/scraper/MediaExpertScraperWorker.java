@@ -53,7 +53,7 @@ class MediaExpertScraperWorker {
                         .queryParam("limit", 50)
                         .build()
                         .toUri();
-                log.info("scraping page {} with uri: {}", currentPage, uri);
+                log.info("scraping page {} for category {}", currentPage, category);
 
                 webDriver.get(uri.toString());
                 var pageSource = webDriver.getPageSource();
@@ -111,7 +111,7 @@ class MediaExpertScraperWorker {
                 .path(productHref)
                 .build()
                 .toUri();
-        log.info("Scraping product {}", uri);
+        log.debug("scraping product from uri: {}", uri);
 
         try {
             webDriver.get(uri.toString());
@@ -165,7 +165,7 @@ class MediaExpertScraperWorker {
             product.getImages().addAll(images);
             product.getOffers().add(offer);
 
-            log.info("Scraped product: {}", product);
+            log.debug("scraped product: {}", product);
             ScrapingUtil.sleep();
 
             return product;
