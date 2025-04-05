@@ -50,6 +50,7 @@ class MediaExpertScraperWorker {
                 var uri = UriComponentsBuilder.fromUriString(BASE_URL)
                         .path(categoryLocator)
                         .queryParam("page", currentPage)
+                        .queryParam("limit", 50)
                         .build()
                         .toUri();
                 log.info("scraping page {} with uri: {}", currentPage, uri);
