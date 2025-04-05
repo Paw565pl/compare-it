@@ -6,6 +6,8 @@ export const getShopLogoUrl = (shop: ShopEntity) => {
       return "/shop/rtveuroagd_logo.webp";
     case ShopEntity.MORELE_NET:
       return "/shop/morele_logo.webp";
+    case ShopEntity.MEDIA_EXPERT:
+      return "/shop/mediaexpert_logo.svg";
     default:
       return "/no-image-placeholder.svg";
   }
