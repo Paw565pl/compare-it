@@ -72,7 +72,11 @@ class MediaExpertScraperWorker {
 
             var products = productUrls.stream()
                     .map(url -> {
-                        log.info("scraping product nr {} in category {}", productUrls.indexOf(url) + 1, category);
+                        log.info(
+                                "scraping product nr {} of {} in category {}",
+                                productUrls.indexOf(url) + 1,
+                                productUrls.size(),
+                                category);
                         return scrapeProduct(webDriver, category, url);
                     })
                     .filter(Objects::nonNull)
