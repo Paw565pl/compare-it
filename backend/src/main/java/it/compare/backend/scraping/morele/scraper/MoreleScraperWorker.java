@@ -143,7 +143,7 @@ public class MoreleScraperWorker implements ScraperWorker {
     }
 
     private String buildUri(String path) {
-        return UriComponentsBuilder.fromUriString(BASE_URL + path).build().toUriString();
+        return UriComponentsBuilder.fromUriString(BASE_URL).path(path).build().toUriString();
     }
 
     private int getPagesCount(Document document) {
