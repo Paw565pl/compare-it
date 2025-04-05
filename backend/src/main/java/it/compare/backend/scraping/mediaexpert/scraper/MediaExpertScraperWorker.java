@@ -89,6 +89,11 @@ class MediaExpertScraperWorker implements ScraperWorker {
         }
     }
 
+    @Override
+    public Shop getShop() {
+        return CURRENT_SHOP;
+    }
+
     private int getNumberOfPages(WebDriver webDriver, String categoryLocator) {
         var uri = UriComponentsBuilder.fromUriString(BASE_URL)
                 .path(categoryLocator)

@@ -107,6 +107,11 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
         return CompletableFuture.completedFuture(products);
     }
 
+    @Override
+    public Shop getShop() {
+        return CURRENT_SHOP;
+    }
+
     private BigDecimal getLowestPrice(RtvEuroAgdProduct.Prices prices, Optional<List<Long>> outletPrices) {
         var priceList = new ArrayList<Long>();
 

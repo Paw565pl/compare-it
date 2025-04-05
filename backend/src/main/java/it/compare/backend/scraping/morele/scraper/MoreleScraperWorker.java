@@ -54,6 +54,11 @@ public class MoreleScraperWorker implements ScraperWorker {
         return CompletableFuture.completedFuture(products);
     }
 
+    @Override
+    public Shop getShop() {
+        return CURRENT_SHOP;
+    }
+
     private void processCurrentPage(
             String categoryLocator, int currentPage, Category category, List<Product> products) {
         try {
