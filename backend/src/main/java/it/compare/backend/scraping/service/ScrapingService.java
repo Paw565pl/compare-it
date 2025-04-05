@@ -6,21 +6,18 @@ import it.compare.backend.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ScrapingService {
 
     private final ProductRepository productRepository;
     private final PriceAlertService priceAlertService;
-
-    public ScrapingService(ProductRepository productRepository, PriceAlertService priceAlertService) {
-        this.productRepository = productRepository;
-        this.priceAlertService = priceAlertService;
-    }
 
     @Transactional
     public void createProductsOrAddPriceStamp(List<Product> scrapedProducts) {
@@ -57,9 +54,9 @@ public class ScrapingService {
             productsToSave.add(existingProduct);
         });
 
-        productsToSave.forEach(product -> {
-            var savedProduct = productRepository.save(product);
-            priceAlertService.checkPriceAlerts(savedProduct);
-        });
+        var savedProducts = productRepository.saveAll(productsToSave);
+        log.info("saved {} products", savedProducts.size());
+
+        savedProducts.forEach(priceAlertService::checkPriceAlerts);
     }
 }
