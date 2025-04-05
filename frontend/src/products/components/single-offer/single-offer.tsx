@@ -24,6 +24,7 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
           imageUrl={getShopLogoUrl(offer.shop)}
           width={150}
           height={150}
+          className="w-[150px] pb-2 sm:pb-0"
         />
       </Link>
       <div className="flex items-center">

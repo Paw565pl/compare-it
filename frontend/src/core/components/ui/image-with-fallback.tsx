@@ -1,3 +1,4 @@
+import { cn } from "@/core/utils/cn";
 import Image from "next/image";
 
 interface ImageWithFallbackProps {
@@ -5,6 +6,7 @@ interface ImageWithFallbackProps {
   readonly imageUrl: string | null;
   readonly width: number;
   readonly height: number;
+  readonly className?: string;
 }
 
 const noImagePlaceholderPath = "/no-image-placeholder.svg";
@@ -14,6 +16,7 @@ export const ImageWithFallback = ({
   imageUrl,
   width,
   height,
+  className,
 }: ImageWithFallbackProps) => {
   return (
     <Image
@@ -22,7 +25,7 @@ export const ImageWithFallback = ({
       width={width}
       height={height}
       alt={name}
-      className="h-auto w-auto"
+      className={cn("h-auto w-auto", className)}
     />
   );
 };
