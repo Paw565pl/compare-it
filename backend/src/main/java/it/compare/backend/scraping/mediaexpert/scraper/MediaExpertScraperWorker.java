@@ -95,7 +95,7 @@ class MediaExpertScraperWorker {
 
         try {
             webDriver.get(uri.toString());
-            new WebDriverWait(webDriver, Duration.ofSeconds(5))
+            new WebDriverWait(webDriver, Duration.ofSeconds(10))
                     .until(ExpectedConditions.visibilityOfElementLocated(new ByClassName("lastpage-button")));
 
             var pageSource = webDriver.getPageSource();
