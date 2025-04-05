@@ -12,8 +12,8 @@ const sortOptions = {
   "Cena malejąco": "lowestCurrentPrice,desc",
   "Nazwa a-z": "name",
   "Nazwa z-a": "name,desc",
-  "Liczba ofert rosnąco": "offerCount",
-  "Liczba ofert malejąco": "offerCount,desc",
+  "Liczba ofert rosnąco": "offerCounts",
+  "Liczba ofert malejąco": "offerCounts,desc",
 };
 
 const SortBar = () => {
