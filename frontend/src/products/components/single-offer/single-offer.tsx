@@ -18,15 +18,21 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
 
   return (
     <div className="flex flex-col items-center justify-between bg-white p-4 sm:flex-row">
-      <Link href={offer.url} target="_blank" rel="nofollow noopener">
+      <Link
+        href={offer.url}
+        target="_blank"
+        rel="nofollow noopener"
+        className="bg-background mb-3 px-2 py-4 sm:mb-0"
+      >
         <ImageWithFallback
           name={offer.shop}
           imageUrl={getShopLogoUrl(offer.shop)}
           width={150}
           height={150}
-          className="w-[150px] pb-2 sm:pb-0"
+          className="w-[150px]"
         />
       </Link>
+
       <div className="flex items-center">
         <div className="mr-4 flex flex-col items-center">
           <span className="text-primary justify-center text-lg font-semibold">
@@ -44,6 +50,7 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
             )}
           </div>
         </div>
+
         <Button
           asChild
           className="bg-primary hover:bg-hover font-semibold shadow-none"
