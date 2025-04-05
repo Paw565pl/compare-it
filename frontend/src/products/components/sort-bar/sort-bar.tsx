@@ -12,8 +12,8 @@ const sortOptions = {
   "Cena malejąco": "lowestCurrentPrice,desc",
   "Nazwa a-z": "name",
   "Nazwa z-a": "name,desc",
-  "Liczba ofert rosnąco": "offerCount",
-  "Liczba ofert malejąco": "offerCount,desc",
+  "Liczba ofert rosnąco": "offersCount",
+  "Liczba ofert malejąco": "offersCount,desc",
 };
 
 const SortBar = () => {
@@ -25,7 +25,9 @@ const SortBar = () => {
   };
 
   const handleSortChange = (sortValue: string) => {
-    setPagination((prev) => ({ ...prev, page: 1, sort: sortValue }));
+    const sort = sortValue !== "default" ? sortValue : null;
+
+    setPagination((prev) => ({ ...prev, page: 1, sort }));
     setIsDropdownOpen(false);
   };
 

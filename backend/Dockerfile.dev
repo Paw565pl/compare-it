@@ -2,6 +2,8 @@ FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
+RUN apk --no-cache add chromium chromium-chromedriver
+
 COPY gradle gradle
 COPY gradlew build.gradle.kts settings.gradle.kts .
 

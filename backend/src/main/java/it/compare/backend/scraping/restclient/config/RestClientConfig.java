@@ -77,7 +77,7 @@ public class RestClientConfig {
 
     @Bean
     public HttpRequestRetryStrategy httpRequestRetryStrategy() {
-        return new HttpRequestRetryStrategy(3, TimeValue.ofSeconds(5), Set.of(HttpStatus.FORBIDDEN.value()));
+        return new HttpRequestRetryStrategy(3, TimeValue.ofSeconds(3), Set.of(HttpStatus.FORBIDDEN.value()));
     }
 
     @Bean

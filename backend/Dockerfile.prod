@@ -21,6 +21,8 @@ USER spring:spring
 
 WORKDIR /app
 
+RUN apk --no-cache add chromium chromium-chromedriver
+
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

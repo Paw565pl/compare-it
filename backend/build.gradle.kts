@@ -65,6 +65,7 @@ val apacheHttpCoreVersion = "5.3.4"
 val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
 val jsoupVersion = "1.19.1"
+val seleniumVersion = "4.30.0"
 val junitJupiterParamsVersion = "5.12.0"
 
 dependencies {
@@ -84,6 +85,7 @@ dependencies {
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:${apacheHttpCoreVersion}")
     implementation("com.sezinkarli:random-user-agent-generator:${randomUserAgentGeneratorVersion}")
     implementation("org.jsoup:jsoup:${jsoupVersion}")
+    implementation("org.seleniumhq.selenium:selenium-java:${seleniumVersion}")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

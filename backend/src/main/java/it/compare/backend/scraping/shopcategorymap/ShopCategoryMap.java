@@ -49,5 +49,23 @@ public class ShopCategoryMap {
                         "/kategoria/zasilacze-komputerowe-61",
                         Category.PC_CASE,
                         "/kategoria/obudowy-33"));
+
+        values.put(
+                Shop.MEDIA_EXPERT,
+                Map.of(
+                        Category.GRAPHICS_CARDS,
+                        "/komputery-i-tablety/podzespoly-komputerowe/karty-graficzne",
+                        Category.PROCESSORS,
+                        "/komputery-i-tablety/podzespoly-komputerowe/procesory",
+                        Category.MOTHERBOARDS,
+                        "/komputery-i-tablety/podzespoly-komputerowe/plyty-glowne",
+                        Category.RAM_MEMORY,
+                        "/komputery-i-tablety/podzespoly-komputerowe/pamieci-ram",
+                        Category.SSD_DRIVES,
+                        "/komputery-i-tablety/dyski-i-pamieci/dyski-ssd",
+                        Category.POWER_SUPPLY,
+                        "/komputery-i-tablety/podzespoly-komputerowe/zasilacze",
+                        Category.PC_CASE,
+                        "/komputery-i-tablety/podzespoly-komputerowe/obudowy"));
     }
 }

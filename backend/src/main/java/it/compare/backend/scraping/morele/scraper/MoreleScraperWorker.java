@@ -2,104 +2,136 @@ package it.compare.backend.scraping.morele.scraper;
 
 import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.model.*;
+import it.compare.backend.scraping.scraper.ScraperWorker;
+import it.compare.backend.scraping.util.ScrapingUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
-public class MoreleScraperWorker {
+@RequiredArgsConstructor
+public class MoreleScraperWorker implements ScraperWorker {
+
     private static final Shop CURRENT_SHOP = Shop.MORELE_NET;
     private static final String BASE_URL = "https://www.morele.net";
-    private final SecureRandom secureRandom;
+
     private final RestClient restClient;
 
-    public MoreleScraperWorker(SecureRandom secureRandom, RestClient restClient) {
-        this.secureRandom = secureRandom;
-        this.restClient = restClient;
-    }
-
     @Async
-    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
+    @Override
+    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         var products = new ArrayList<Product>();
 
         try {
-            var initialUri = buildUri(categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/1");
+            var initialUri = buildUri(categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/1");
             var initialDocument = fetchDocument(initialUri);
             var pagesCount = getPagesCount(initialDocument);
 
             for (var currentPage = 1; currentPage <= pagesCount; currentPage++) {
-                processCurrentPage(categoryName, currentPage, category, products);
+                log.info("processing page {} for category {}", currentPage, category);
+                processCurrentPage(categoryLocator, currentPage, category, products);
             }
-        } catch (IOException e) {
-            log.error("io exception", e);
+        } catch (HttpStatusCodeException e) {
+            log.warn(
+                    "http error has occurred while scraping category {} - {}",
+                    category,
+                    e.getStatusCode().value());
+        } catch (Exception e) {
+            log.error(
+                    "unexpected error of class {} has occurred while scraping category {} - {}",
+                    e.getClass(),
+                    category,
+                    e.getMessage());
         }
 
         return CompletableFuture.completedFuture(products);
     }
 
-    private void processCurrentPage(String categoryName, int currentPage, Category category, List<Product> products) {
-        try {
-            var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
-            var uri = buildUri(currentPagePath);
+    @Override
+    public Shop getShop() {
+        return CURRENT_SHOP;
+    }
 
+    private void processCurrentPage(
+            String categoryLocator, int currentPage, Category category, List<Product> products) {
+        var currentPagePath = categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
+        var uri = buildUri(currentPagePath);
+
+        try {
             var document = fetchDocument(uri);
             var productLinks = document.select("div.cat-product.card a.productLink");
             scrapeProduct(productLinks, category, products);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.error("Interrupted error occurred", e);
-        } catch (IOException | NoSuchElementException e) {
-            log.error("Error occurred", e);
+        } catch (HttpStatusCodeException e) {
+            log.warn(
+                    "http error has occurred while scraping category {} from uri {} - {}",
+                    category,
+                    uri,
+                    e.getStatusCode().value());
+        } catch (Exception e) {
+            log.error(
+                    "unexpected error of class {} has occurred while scraping category {} from uri {} - {}",
+                    e.getClass(),
+                    category,
+                    uri,
+                    e.getMessage());
         }
     }
 
-    private void scrapeProduct(Elements productLinks, Category category, List<Product> products)
-            throws InterruptedException {
+    private void scrapeProduct(Elements productLinks, Category category, List<Product> products) {
         for (var link : productLinks) {
             var href = BASE_URL + link.attr("href");
+
             try {
                 var productDocument = fetchDocument(href);
                 var product = createProductFromDocument(productDocument, category, href);
+
                 if (product != null) {
-                    log.info("Product created: {}", product);
+                    log.debug("product created: {}", product);
                     products.add(product);
                 }
-                Thread.sleep(secureRandom.nextInt(500, 2000));
-            } catch (HttpStatusException e) {
-                handleHttpStatusException(e, href);
-            } catch (NoSuchElementException | IOException e) {
-                log.error("Error occurred", e);
+
+                ScrapingUtil.sleep();
+            } catch (HttpStatusCodeException e) {
+                log.warn(
+                        "http error has occurred while scraping category {} at href {} - {}",
+                        category,
+                        href,
+                        e.getStatusCode().value());
+            } catch (Exception e) {
+                log.error(
+                        "unexpected error of class {} has occurred while scraping category {} at href {} - {}",
+                        e.getClass(),
+                        category,
+                        href,
+                        e.getMessage());
             }
         }
     }
 
     private Product createProductFromDocument(Document productDocument, Category category, String href) {
         var ean = extractEan(productDocument);
-        if (ean.isEmpty() || !ean.matches("\\d+")) {
-            return null;
-        }
-        var title = extractName(productDocument);
+        if (ean.isEmpty() || !ean.matches("\\d+")) return null;
+
         var price = extractPrice(productDocument);
-        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
-            return null;
-        }
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) return null;
+
+        var title = extractName(productDocument);
         var images = extractImages(productDocument);
+
         var condition = extractCondition(productDocument);
         var priceStamp = new PriceStamp(price, "PLN", condition);
 
@@ -110,21 +142,14 @@ public class MoreleScraperWorker {
         offer.getPriceHistory().add(priceStamp);
 
         var productEntity = new Product(ean, title, category);
-        productEntity.setImages(images);
+        productEntity.getImages().addAll(images);
         productEntity.getOffers().add(offer);
+
         return productEntity;
     }
 
-    private void handleHttpStatusException(HttpStatusException e, String href) {
-        if (e.getStatusCode() == HttpStatus.FORBIDDEN.value()) {
-            log.warn("403 Forbidden error while accessing product: {}", href);
-        } else {
-            log.error("Error fetching product document: {}", href, e);
-        }
-    }
-
     private String buildUri(String path) {
-        return UriComponentsBuilder.fromUriString(BASE_URL + path).build().toUriString();
+        return UriComponentsBuilder.fromUriString(BASE_URL).path(path).build().toUriString();
     }
 
     private int getPagesCount(Document document) {
@@ -142,7 +167,7 @@ public class MoreleScraperWorker {
                 .body(String.class);
 
         var responseBody = Optional.ofNullable(response)
-                .orElseThrow(() -> new IOException("Response body is null for URI: " + uri));
+                .orElseThrow(() -> new IOException("response body is null for URI: " + uri));
 
         return Jsoup.parse(responseBody);
     }
@@ -163,6 +188,7 @@ public class MoreleScraperWorker {
         var price = Optional.ofNullable(
                 productDocument.selectFirst("aside.product-sidebar div.product-box-main div.product-price"));
         if (price.isEmpty()) return null;
+
         var priceString = price.get().text().replaceAll("[^0-9,]", "").replace(",", ".");
         return new BigDecimal(priceString);
     }
@@ -172,28 +198,25 @@ public class MoreleScraperWorker {
     }
 
     private List<String> extractImages(Document productDocument) {
-        var imagesList = new ArrayList<String>();
-        var images = productDocument.select(
+        var imageList = new ArrayList<String>();
+        var imageElements = productDocument.select(
                 "div.swiper-container.swiper-gallery-window div.swiper-wrapper.gallery-holder div.swiper-slide.mobx");
 
-        for (var image : images) {
+        for (var image : imageElements) {
             var imageUrl = image.attr("data-src");
-            if (!imageUrl.startsWith("https://www.youtube.com")) {
-                imagesList.add(imageUrl);
-            }
+            if (!imageUrl.startsWith("https://www.youtube.com")) imageList.add(imageUrl);
         }
 
-        imagesList.removeIf(String::isBlank);
-        return imagesList;
+        imageList.removeIf(String::isBlank);
+        return imageList;
     }
 
     private Optional<String> extractPromoCode(Document productDocument) {
         var promoCodeElements =
                 productDocument.select("div.product-discount-code span:not(.product-discount-code__label)");
-
-        if (!promoCodeElements.isEmpty()) {
+        if (!promoCodeElements.isEmpty())
             return Optional.of(promoCodeElements.getFirst().text().trim());
-        }
+
         return Optional.empty();
     }
 }

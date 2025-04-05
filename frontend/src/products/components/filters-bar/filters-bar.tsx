@@ -87,39 +87,37 @@ export const FiltersBar = () => {
               name="shop"
               render={() => (
                 <FormItem className="block w-full">
-                  {shopList
-                    ?.filter((shop) => shop !== "Media Expert")
-                    .map((shop, index) => (
-                      <FormField
-                        control={form.control}
-                        name="shop"
-                        key={index}
-                        render={({ field }) => (
-                          <FormItem key={index}>
-                            <FormLabel className="hover:bg-hover flex w-full cursor-pointer items-center px-4 py-3 transition-colors duration-200 hover:text-white">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(shop)}
-                                  onCheckedChange={(checked) =>
-                                    checked
-                                      ? field.onChange([...field.value, shop])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== shop,
-                                          ),
-                                        )
-                                  }
-                                  className="cursor-pointer"
-                                />
-                              </FormControl>
-                              <FormLabel className="cursor-pointer sm:text-lg">
-                                {shop}
-                              </FormLabel>
+                  {shopList?.map((shop, index) => (
+                    <FormField
+                      control={form.control}
+                      name="shop"
+                      key={index}
+                      render={({ field }) => (
+                        <FormItem key={index}>
+                          <FormLabel className="hover:bg-hover flex w-full cursor-pointer items-center px-4 py-3 transition-colors duration-200 hover:text-white">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(shop)}
+                                onCheckedChange={(checked) =>
+                                  checked
+                                    ? field.onChange([...field.value, shop])
+                                    : field.onChange(
+                                        field.value?.filter(
+                                          (value) => value !== shop,
+                                        ),
+                                      )
+                                }
+                                className="cursor-pointer"
+                              />
+                            </FormControl>
+                            <FormLabel className="cursor-pointer sm:text-lg">
+                              {shop}
                             </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  ))}
                 </FormItem>
               )}
             />
