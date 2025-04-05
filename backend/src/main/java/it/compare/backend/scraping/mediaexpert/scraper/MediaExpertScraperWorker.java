@@ -62,16 +62,19 @@ class MediaExpertScraperWorker {
                 var document = Jsoup.parse(pageSource);
 
                 var productList = document.select("div.offers-list");
-                var currentPageProductsHrefs = productList.select("h2.name a").stream()
+                var currentPageProductUrls = productList.select("h2.name a").stream()
                         .map(link -> link.attr("href"))
                         .toList();
-                productUrls.addAll(currentPageProductsHrefs);
+                productUrls.addAll(currentPageProductUrls);
 
                 ScrapingUtil.sleep();
             }
 
             var products = productUrls.stream()
-                    .map(url -> scrapeProduct(webDriver, category, url))
+                    .map(url -> {
+                        log.info("scraping product nr {} in category {}", productUrls.indexOf(url) + 1, category);
+                        return scrapeProduct(webDriver, category, url);
+                    })
                     .filter(Objects::nonNull)
                     .toList();
             return CompletableFuture.completedFuture(products);
