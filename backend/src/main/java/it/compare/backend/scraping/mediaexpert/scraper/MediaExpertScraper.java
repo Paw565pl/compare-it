@@ -22,14 +22,15 @@ public class MediaExpertScraper {
     @Async
     public void scrape() {
         var categories = shopCategoryMap.getValues().get(CURRENT_SHOP);
+
         categories.forEach((category, categoryName) -> {
             log.info("started scraping category: {}", category);
 
             worker.scrapeCategory(category, categoryName)
                     .thenAccept(scrapingService::createProductsOrAddPriceStamp)
-                    .thenRun(() -> log.info("finished scraping category: {}", category))
+                    .thenRun(() -> log.info("finished scraping category - {}", category))
                     .exceptionally(e -> {
-                        log.error("error while scraping category {}: {}", category, e.getMessage());
+                        log.error("error while scraping category {} - {}", category, e.getMessage());
                         return null;
                     });
         });
