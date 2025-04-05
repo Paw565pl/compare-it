@@ -4,7 +4,7 @@ import it.compare.backend.auth.model.Role;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 
-public abstract class AuthUtil {
+public final class AuthUtil {
 
     private AuthUtil() {
         throw new IllegalStateException("Attempted to instantiate utility class");
