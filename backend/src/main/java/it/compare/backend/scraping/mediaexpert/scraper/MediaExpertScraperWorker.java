@@ -139,7 +139,8 @@ class MediaExpertScraperWorker {
             var priceWithoutSymbol = priceElement != null ? priceElement.replaceAll("\\D", "") : null;
             var price = (priceWithoutSymbol != null && !priceWithoutSymbol.isEmpty())
                     ? new BigDecimal(priceWithoutSymbol).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
-                    : BigDecimal.ZERO;
+                    : null;
+            if (price == null) return null;
 
             var promoCodeElement = document.select("div.promo-code");
             var promoCode = !promoCodeElement.isEmpty()
