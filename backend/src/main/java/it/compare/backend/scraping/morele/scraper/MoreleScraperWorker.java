@@ -46,12 +46,16 @@ public class MoreleScraperWorker implements ScraperWorker {
                 processCurrentPage(categoryLocator, currentPage, category, products);
             }
         } catch (HttpStatusCodeException e) {
-            log.error(
+            log.warn(
                     "http error has occurred while scraping category {} - {}",
                     category,
                     e.getStatusCode().value());
         } catch (Exception e) {
-            log.error("unexpected error has occurred while scraping category {} - {}", category, e.getMessage());
+            log.error(
+                    "unexpected error of class {} has occurred while scraping category {} - {}",
+                    e.getClass(),
+                    category,
+                    e.getMessage());
         }
 
         return CompletableFuture.completedFuture(products);
@@ -72,14 +76,15 @@ public class MoreleScraperWorker implements ScraperWorker {
             var productLinks = document.select("div.cat-product.card a.productLink");
             scrapeProduct(productLinks, category, products);
         } catch (HttpStatusCodeException e) {
-            log.error(
+            log.warn(
                     "http error has occurred while scraping category {} from uri {} - {}",
                     category,
                     uri,
                     e.getStatusCode().value());
         } catch (Exception e) {
             log.error(
-                    "unexpected error has occurred while scraping category {} from uri {} - {}",
+                    "unexpected error of class {} has occurred while scraping category {} from uri {} - {}",
+                    e.getClass(),
                     category,
                     uri,
                     e.getMessage());
@@ -101,14 +106,15 @@ public class MoreleScraperWorker implements ScraperWorker {
 
                 ScrapingUtil.sleep();
             } catch (HttpStatusCodeException e) {
-                log.error(
+                log.warn(
                         "http error has occurred while scraping category {} at href {} - {}",
                         category,
                         href,
                         e.getStatusCode().value());
             } catch (Exception e) {
                 log.error(
-                        "unexpected error has occurred while scraping category {} at href {} - {}",
+                        "unexpected error of class {} has occurred while scraping category {} at href {} - {}",
+                        e.getClass(),
                         category,
                         href,
                         e.getMessage());

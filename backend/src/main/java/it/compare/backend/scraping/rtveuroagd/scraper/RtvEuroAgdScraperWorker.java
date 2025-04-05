@@ -98,13 +98,14 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                 currentStartFrom += PAGE_SIZE;
                 ScrapingUtil.sleep();
             } catch (HttpStatusCodeException e) {
-                log.error(
+                log.warn(
                         "http error has occurred while scraping products from category {} - {}",
                         category,
                         e.getStatusCode().value());
             } catch (Exception e) {
                 log.error(
-                        "unexpected error has occurred while scraping products from category {} - {}",
+                        "unexpected error of class {} has occurred while scraping products from category {} - {}",
+                        e.getClass(),
                         category,
                         e.getMessage());
             }

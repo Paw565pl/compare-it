@@ -116,7 +116,8 @@ class MediaExpertScraperWorker implements ScraperWorker {
                     .orElse(1);
         } catch (Exception e) {
             log.error(
-                    "unexpected error has occurred while getting number of pages from uri {} - {}",
+                    "unexpected error of class {} has occurred while getting number of pages from uri {} - {}",
+                    e.getClass(),
                     uri,
                     e.getMessage());
         }
@@ -190,7 +191,8 @@ class MediaExpertScraperWorker implements ScraperWorker {
             return product;
         } catch (Exception e) {
             log.error(
-                    "unexpected error has occurred while scraping single product from category {} from uri {} - {}",
+                    "unexpected error of class {} has occurred while scraping single product from category {} from uri {} - {}",
+                    e.getClass(),
                     category,
                     uri,
                     e.getMessage());
@@ -218,7 +220,7 @@ class MediaExpertScraperWorker implements ScraperWorker {
             return ean.map(systemAttribute -> systemAttribute.values().getFirst())
                     .orElse(null);
         } catch (JsonProcessingException e) {
-            log.error("json deserialization error from uri {} - {}", uri, e.getMessage());
+            log.warn("json deserialization error from uri {} - {}", uri, e.getMessage());
             return null;
         }
     }
