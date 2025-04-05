@@ -2,6 +2,7 @@ package it.compare.backend.scraping.morele.scraper;
 
 import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.model.*;
+import it.compare.backend.scraping.scraper.ScraperWorker;
 import it.compare.backend.scraping.util.ScrapingUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MoreleScraperWorker {
+public class MoreleScraperWorker implements ScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.MORELE_NET;
     private static final String BASE_URL = "https://www.morele.net";
@@ -33,17 +34,18 @@ public class MoreleScraperWorker {
     private final RestClient restClient;
 
     @Async
-    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
+    @Override
+    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         var products = new ArrayList<Product>();
 
         try {
-            var initialUri = buildUri(categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/1");
+            var initialUri = buildUri(categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/1");
             var initialDocument = fetchDocument(initialUri);
             var pagesCount = getPagesCount(initialDocument);
 
             for (var currentPage = 1; currentPage <= pagesCount; currentPage++) {
                 log.info("processing page {} for category {}", currentPage, category);
-                processCurrentPage(categoryName, currentPage, category, products);
+                processCurrentPage(categoryLocator, currentPage, category, products);
             }
         } catch (Exception e) {
             log.error("unexpected error has occurred while scraping category - {}", e.getMessage());
@@ -52,9 +54,10 @@ public class MoreleScraperWorker {
         return CompletableFuture.completedFuture(products);
     }
 
-    private void processCurrentPage(String categoryName, int currentPage, Category category, List<Product> products) {
+    private void processCurrentPage(
+            String categoryLocator, int currentPage, Category category, List<Product> products) {
         try {
-            var currentPagePath = categoryName + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
+            var currentPagePath = categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
             var uri = buildUri(currentPagePath);
 
             var document = fetchDocument(uri);

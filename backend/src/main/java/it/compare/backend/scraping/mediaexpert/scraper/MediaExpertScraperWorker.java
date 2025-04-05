@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.compare.backend.product.model.*;
 import it.compare.backend.scraping.mediaexpert.dto.MediaExpertSparkStateDto;
+import it.compare.backend.scraping.scraper.ScraperWorker;
 import it.compare.backend.scraping.util.ScrapingUtil;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,7 +30,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-class MediaExpertScraperWorker {
+class MediaExpertScraperWorker implements ScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.MEDIA_EXPERT;
     private static final String BASE_URL = "https://www.mediaexpert.pl";
@@ -38,6 +39,7 @@ class MediaExpertScraperWorker {
     private final ObjectFactory<WebDriver> webDriverFactory;
 
     @Async
+    @Override
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         var webDriver = webDriverFactory.getObject();
         var productUrls = new ArrayList<String>();

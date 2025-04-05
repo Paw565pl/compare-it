@@ -4,6 +4,7 @@ import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.model.*;
 import it.compare.backend.scraping.rtveuroagd.dto.RtvEuroAgdProduct;
 import it.compare.backend.scraping.rtveuroagd.dto.RtvEuroAgdResponse;
+import it.compare.backend.scraping.scraper.ScraperWorker;
 import it.compare.backend.scraping.util.ScrapingUtil;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-class RtvEuroAgdScraperWorker {
+class RtvEuroAgdScraperWorker implements ScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.RTV_EURO_AGD;
     private static final String BASE_URL = "https://www.euro.com.pl/rest/api/products/search";
@@ -30,7 +31,8 @@ class RtvEuroAgdScraperWorker {
     private final RestClient restClient;
 
     @Async
-    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
+    @Override
+    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         final var PAGE_SIZE = 25;
         var currentStartFrom = 0;
 
@@ -41,7 +43,7 @@ class RtvEuroAgdScraperWorker {
                 var uri = UriComponentsBuilder.fromUriString(BASE_URL)
                         .queryParam("numberOfItems", PAGE_SIZE)
                         .queryParam("startFrom", currentStartFrom)
-                        .queryParam("category", categoryName)
+                        .queryParam("category", categoryLocator)
                         .queryParam("developSearchMode", "false")
                         .build()
                         .toUri();
