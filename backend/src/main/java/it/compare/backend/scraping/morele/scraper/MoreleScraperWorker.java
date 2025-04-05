@@ -8,18 +8,16 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -47,8 +45,13 @@ public class MoreleScraperWorker implements ScraperWorker {
                 log.info("processing page {} for category {}", currentPage, category);
                 processCurrentPage(categoryLocator, currentPage, category, products);
             }
+        } catch (HttpStatusCodeException e) {
+            log.error(
+                    "http error has occurred while scraping category {} - {}",
+                    category,
+                    e.getStatusCode().value());
         } catch (Exception e) {
-            log.error("unexpected error has occurred while scraping category - {}", e.getMessage());
+            log.error("unexpected error has occurred while scraping category {} - {}", category, e.getMessage());
         }
 
         return CompletableFuture.completedFuture(products);
@@ -61,17 +64,25 @@ public class MoreleScraperWorker implements ScraperWorker {
 
     private void processCurrentPage(
             String categoryLocator, int currentPage, Category category, List<Product> products) {
-        try {
-            var currentPagePath = categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
-            var uri = buildUri(currentPagePath);
+        var currentPagePath = categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
+        var uri = buildUri(currentPagePath);
 
+        try {
             var document = fetchDocument(uri);
             var productLinks = document.select("div.cat-product.card a.productLink");
             scrapeProduct(productLinks, category, products);
-        } catch (IOException | NoSuchElementException e) {
-            log.error("Error occurred", e);
+        } catch (HttpStatusCodeException e) {
+            log.error(
+                    "http error has occurred while scraping category {} from uri {} - {}",
+                    category,
+                    uri,
+                    e.getStatusCode().value());
         } catch (Exception e) {
-            log.error("unexpected error has occurred while scraping category - {}", e.getMessage());
+            log.error(
+                    "unexpected error has occurred while scraping category {} from uri {} - {}",
+                    category,
+                    uri,
+                    e.getMessage());
         }
     }
 
@@ -89,11 +100,18 @@ public class MoreleScraperWorker implements ScraperWorker {
                 }
 
                 ScrapingUtil.sleep();
-            } catch (HttpStatusException e) {
-                handleHttpStatusException(e, href);
+            } catch (HttpStatusCodeException e) {
+                log.error(
+                        "http error has occurred while scraping category {} at href {} - {}",
+                        category,
+                        href,
+                        e.getStatusCode().value());
             } catch (Exception e) {
                 log.error(
-                        "unexpected error has occurred while scraping category at href {} - {}", href, e.getMessage());
+                        "unexpected error has occurred while scraping category {} at href {} - {}",
+                        category,
+                        href,
+                        e.getMessage());
             }
         }
     }
@@ -122,14 +140,6 @@ public class MoreleScraperWorker implements ScraperWorker {
         productEntity.getOffers().add(offer);
 
         return productEntity;
-    }
-
-    private void handleHttpStatusException(HttpStatusException e, String url) {
-        if (e.getStatusCode() == HttpStatus.FORBIDDEN.value()) {
-            log.warn("403 forbidden error while accessing product at uri {} - {}", url, e.getMessage());
-        } else {
-            log.error("error while fetching product document at uri {} - {}", url, e.getMessage());
-        }
     }
 
     private String buildUri(String path) {

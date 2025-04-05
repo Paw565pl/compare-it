@@ -46,7 +46,7 @@ class MediaExpertScraperWorker implements ScraperWorker {
 
         try {
             var numberOfPages = getNumberOfPages(webDriver, categoryLocator);
-            log.debug("available pages: {} for category {}", numberOfPages, category);
+            log.debug("available pages: {} - category {}", numberOfPages, category);
 
             for (var currentPage = 1; currentPage <= numberOfPages; currentPage++) {
                 var uri = UriComponentsBuilder.fromUriString(BASE_URL)
@@ -55,7 +55,7 @@ class MediaExpertScraperWorker implements ScraperWorker {
                         .queryParam("limit", 50)
                         .build()
                         .toUri();
-                log.debug("scraping page {} for category {}", currentPage, category);
+                log.debug("scraping page {} - category {}", currentPage, category);
 
                 webDriver.get(uri.toString());
                 var pageSource = webDriver.getPageSource();
@@ -116,9 +116,12 @@ class MediaExpertScraperWorker implements ScraperWorker {
                     .orElse(1);
         } catch (Exception e) {
             log.error(
-                    "unexpected error has ocurred while getting number of pages from uri {} - {}", uri, e.getMessage());
-            return 1;
+                    "unexpected error has occurred while getting number of pages from uri {} - {}",
+                    uri,
+                    e.getMessage());
         }
+
+        return 1;
     }
 
     private Product scrapeProduct(WebDriver webDriver, Category category, String productHref) {
@@ -187,7 +190,8 @@ class MediaExpertScraperWorker implements ScraperWorker {
             return product;
         } catch (Exception e) {
             log.error(
-                    "unexpected error has occurred while scraping single product from uri {} - {}",
+                    "unexpected error has occurred while scraping single product from category {} from uri {} - {}",
+                    category,
                     uri,
                     e.getMessage());
             return null;

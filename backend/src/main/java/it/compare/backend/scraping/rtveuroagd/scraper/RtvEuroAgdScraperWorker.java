@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
@@ -97,10 +97,16 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
 
                 currentStartFrom += PAGE_SIZE;
                 ScrapingUtil.sleep();
-            } catch (RestClientException e) {
-                log.error("error while fetching products from uri - {}", e.getMessage());
+            } catch (HttpStatusCodeException e) {
+                log.error(
+                        "http error has occurred while scraping products from category {} - {}",
+                        category,
+                        e.getStatusCode().value());
             } catch (Exception e) {
-                log.error("unexpected error has occurred while fetching products - {}", e.getMessage());
+                log.error(
+                        "unexpected error has occurred while scraping products from category {} - {}",
+                        category,
+                        e.getMessage());
             }
         }
 
