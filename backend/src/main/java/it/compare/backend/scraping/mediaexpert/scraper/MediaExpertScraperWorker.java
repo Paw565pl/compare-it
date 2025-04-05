@@ -149,6 +149,10 @@ class MediaExpertScraperWorker {
             var images = document.select("div#section_product-gallery-thumbs img").stream()
                     .map(image -> image.attr("src").trim().replace("gallery_100_100", "gallery_500_500"))
                     .toList();
+            if (images.isEmpty())
+                images = document.select(".product-gallery-view img").stream()
+                        .map(image -> image.attr("src").trim())
+                        .toList();
 
             var condition = getCondition(document);
             var priceStamp = new PriceStamp(price, "PLN", condition);
