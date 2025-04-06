@@ -10,7 +10,7 @@ import it.compare.backend.product.model.Product;
 import it.compare.backend.user.datafactory.UserTestDataFactory;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
@@ -55,12 +55,13 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
     }
 
     @Override
-    public Collection<PriceAlert> createMany(int count) {
+    public List<PriceAlert> createMany(int count) {
         var alerts = new ArrayList<PriceAlert>();
         for (int i = 0; i < count; i++) {
-            alerts.add(createOne());
+            alerts.add(generate());
         }
-        return alerts;
+
+        return priceAlertRepository.saveAll(alerts);
     }
 
     @Override
@@ -75,6 +76,7 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
                 product.getOffers().getFirst().getPriceHistory().getFirst().getPrice());
         alert.setUser(user);
         alert.setIsOutletAllowed(faker.bool().bool());
+
         return priceAlertRepository.save(alert);
     }
 
@@ -84,12 +86,14 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
                 product.getOffers().getFirst().getPriceHistory().getFirst().getPrice());
         alert.setUser(user);
         alert.setIsOutletAllowed(faker.bool().bool());
+
         return priceAlertRepository.save(alert);
     }
 
     public PriceAlert createPriceAlertWithActiveStatus(User user, boolean active) {
         var alert = createPriceAlertForUser(user);
         alert.setActive(active);
+
         return priceAlertRepository.save(alert);
     }
 }

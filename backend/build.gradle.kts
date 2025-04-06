@@ -97,6 +97,7 @@ dependencies {
     testImplementation("net.datafaker:datafaker:${dataFakerVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter-params:${junitJupiterParamsVersion}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:7.30.1.34514")
 }
 
 tasks.withType<Test> {
