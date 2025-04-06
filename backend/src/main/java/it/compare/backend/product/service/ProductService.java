@@ -7,7 +7,7 @@ import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.product.response.ProductDetailResponse;
 import it.compare.backend.product.response.ProductListResponse;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -208,7 +208,7 @@ public class ProductService {
         var sortArrayDoc = new Document(
                 "$sortArray", new Document(INPUT, filterOperation).append("sortBy", new Document("timestamp", -1)));
 
-        var arrayElemAtDoc = new Document("$arrayElemAt", Arrays.asList(sortArrayDoc, 0));
+        var arrayElemAtDoc = new Document("$arrayElemAt", List.of(sortArrayDoc, 0));
 
         var letDoc = new Document(
                 "$let",
@@ -217,13 +217,12 @@ public class ProductService {
                         .append(
                                 "in",
                                 new Document(
-                                        "$gte",
-                                        Arrays.asList("$$latestPrice.timestamp", "$availabilityThresholdDate"))));
+                                        "$gte", List.of("$$latestPrice.timestamp", "$availabilityThresholdDate"))));
 
         var isOfferAvailableDoc = new Document(
                 "$cond",
                 new Document()
-                        .append("if", new Document("$eq", Arrays.asList(new Document("$size", filterOperation), 0)))
+                        .append("if", new Document("$eq", List.of(new Document("$size", filterOperation), 0)))
                         .append("then", false)
                         .append("else", letDoc));
 
