@@ -285,7 +285,7 @@ class ScrapingServiceTest {
                 .filter(p -> p.getEan().equals(PRODUCT_2_EAN))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("new product 2 not found in saved list"));
-        assertThat(foundNewProduct2, (sameInstance(this.newProduct2)));
+        assertThat(foundNewProduct2, (sameInstance(newProduct2)));
         assertThat(foundNewProduct2.getOffers(), hasSize(1));
         assertThat(foundNewProduct2.getOffers().getFirst().getShop(), (equalTo(Shop.MEDIA_EXPERT)));
         assertThat(foundNewProduct2.getOffers().getFirst().getPriceHistory(), contains(newPriceStamp));
