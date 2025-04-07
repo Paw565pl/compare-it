@@ -1,4 +1,4 @@
-from random import randint, choice
+from random import choice, randint
 
 from locust import FastHttpUser, between, task
 
@@ -9,7 +9,7 @@ class WebsiteUser(FastHttpUser):
 
     def on_start(self):
         response = self.client.get(
-            "/api/v1/products/", name="/api/v1/products/", params={"size": 50}
+            "/api/v1/products", name="/api/v1/products", params={"size": 50}
         )
 
         products = response.json()["content"]
@@ -20,7 +20,7 @@ class WebsiteUser(FastHttpUser):
     def view_products(self):
         page_number = randint(1, 10)
         self.client.get(
-            "/api/v1/products/", name="/api/v1/products/", params={"page": page_number}
+            "/api/v1/products", name="/api/v1/products", params={"page": page_number}
         )
 
     @task(3)
