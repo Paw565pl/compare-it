@@ -14,11 +14,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "galeriachelm.com",
-      },
-      {
-        protocol: "https",
-        hostname: "www.morele.net",
+        hostname: "prod-api.mediaexpert.pl",
       },
     ],
   },
