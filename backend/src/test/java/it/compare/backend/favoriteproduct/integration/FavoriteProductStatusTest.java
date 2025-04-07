@@ -67,7 +67,12 @@ class FavoriteProductStatusTest extends FavoriteProductTest {
     void shouldReturnCorrectStatusIfProductIsFavorite() {
         var favoriteProduct = favoriteProductTestDataFactory.createOne();
 
-        var mockToken = AuthMock.getToken(favoriteProduct.getUser().getId(), List.of());
+        var favoriteProductUserId = favoriteProduct.getUser().getId();
+        var favoriteProductUsername = favoriteProduct.getUser().getUsername();
+        var favoriteProductEmail = favoriteProduct.getUser().getEmail();
+        var mockToken =
+                AuthMock.getToken(favoriteProductUserId, favoriteProductUsername, favoriteProductEmail, List.of());
+
         when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
 
         given().contentType(JSON)
