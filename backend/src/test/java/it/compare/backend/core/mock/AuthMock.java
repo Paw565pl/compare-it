@@ -10,6 +10,8 @@ public abstract class AuthMock {
 
     public static Jwt getToken(String userId, String username, String email, List<Role> roles) {
         var now = Instant.now();
+        var roleStrings = roles.stream().map(Role::name).toList();
+
         return Jwt.withTokenValue("mock-token")
                 .header("alg", "HS256")
                 .issuer("self")
@@ -17,7 +19,7 @@ public abstract class AuthMock {
                 .claim("sub", userId)
                 .claim("preferred_username", username)
                 .claim("email", email)
-                .claim("realm_access", Map.of("roles", roles))
+                .claim("realm_access", Map.of("roles", roleStrings))
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(3600))
                 .build();

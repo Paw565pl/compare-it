@@ -7,11 +7,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import it.compare.backend.auth.model.Role;
 import it.compare.backend.comment.datafactory.CommentTestDataFactory;
 import it.compare.backend.comment.model.Comment;
+import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.user.datafactory.UserTestDataFactory;
+import java.util.List;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,8 +33,6 @@ class CommentDeleteTest extends CommentTest {
 
     @BeforeEach
     void setUpDeleteTest() {
-        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
-
         testProduct = productTestDataFactory.createOne();
         testComment = commentTestDataFactory.createCommentForProduct(testProduct);
         testComment.setAuthor(user);
@@ -99,6 +100,24 @@ class CommentDeleteTest extends CommentTest {
         given().contentType(JSON)
                 .auth()
                 .oauth2(mockToken.getTokenValue())
+                .when()
+                .delete("/{productId}/comments/{commentId}", testProduct.getId(), testComment.getId())
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+        assertThat(commentRepository.count(), equalTo(0L));
+    }
+
+    @Test
+    void shouldReturnNoContentAfterDeletingCommentByAdmin() {
+        var adminUser = userTestDataFactory.createOne();
+        var mockAdminToken = AuthMock.getToken(
+                adminUser.getId(), adminUser.getUsername(), adminUser.getEmail(), List.of(Role.ADMIN));
+        when(jwtDecoder.decode(anyString())).thenReturn(mockAdminToken);
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockAdminToken.getTokenValue())
                 .when()
                 .delete("/{productId}/comments/{commentId}", testProduct.getId(), testComment.getId())
                 .then()

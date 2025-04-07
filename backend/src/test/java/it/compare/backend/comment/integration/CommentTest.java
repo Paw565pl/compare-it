@@ -1,5 +1,8 @@
 package it.compare.backend.comment.integration;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import it.compare.backend.auth.model.User;
 import it.compare.backend.comment.datafactory.CommentTestDataFactory;
 import it.compare.backend.comment.repository.CommentRepository;
@@ -39,6 +42,7 @@ abstract class CommentTest extends IntegrationTest {
 
         user = userTestDataFactory.createOne();
         mockToken = AuthMock.getToken(user.getId(), user.getUsername(), user.getEmail(), List.of());
+        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
     }
 
     @AfterEach

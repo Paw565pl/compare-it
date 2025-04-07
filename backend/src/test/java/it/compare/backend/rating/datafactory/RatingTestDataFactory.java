@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
 
 @TestComponent
-@Import({CommentTestDataFactory.class, FakerConfig.class})
+@Import({CommentTestDataFactory.class, FakerConfig.class, ProductTestDataFactory.class, UserTestDataFactory.class})
 public class RatingTestDataFactory implements TestDataFactory<Rating> {
 
     private final RatingRepository ratingRepository;

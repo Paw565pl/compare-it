@@ -4,14 +4,14 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 import it.compare.backend.comment.dto.CommentDto;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
+import java.util.stream.Stream;
 import org.bson.types.ObjectId;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
@@ -21,11 +21,6 @@ class CommentCreateTest extends CommentTest {
 
     @Autowired
     private ProductTestDataFactory productTestDataFactory;
-
-    @BeforeEach
-    void mockToken() {
-        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
-    }
 
     @Test
     void shouldReturnUnauthorized() {
@@ -57,44 +52,15 @@ class CommentCreateTest extends CommentTest {
         assertThat(commentRepository.count(), equalTo(0L));
     }
 
-    @Test
-    void shouldReturnValidationErrorIfCommentIsBlank() {
-        var product = productTestDataFactory.createOne();
-        var body = new CommentDto("");
-
-        given().contentType(JSON)
-                .auth()
-                .oauth2(mockToken.getTokenValue())
-                .body(body)
-                .when()
-                .post("/{productId}/comments", product.getId())
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
-
-        assertThat(commentRepository.count(), equalTo(0L));
+    static Stream<String> invalidCommentTextProvider() {
+        return Stream.of("", "yes", "text", "a".repeat(2001), "a".repeat(2000) + "b");
     }
 
-    @Test
-    void shouldReturnValidationErrorIfCommentLengthIsLessThan10() {
+    @ParameterizedTest()
+    @MethodSource("invalidCommentTextProvider")
+    void shouldReturnValidationErrorForInvalidCommentLength(String commentText) {
         var product = productTestDataFactory.createOne();
-        var body = new CommentDto("text");
-
-        given().contentType(JSON)
-                .auth()
-                .oauth2(mockToken.getTokenValue())
-                .body(body)
-                .when()
-                .post("/{productId}/comments", product.getId())
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
-
-        assertThat(commentRepository.count(), equalTo(0L));
-    }
-
-    @Test
-    void shouldReturnValidationErrorIfCommentLengthIsMoreThan2000() {
-        var product = productTestDataFactory.createOne();
-        var body = new CommentDto("a".repeat(2001));
+        var body = new CommentDto(commentText);
 
         given().contentType(JSON)
                 .auth()

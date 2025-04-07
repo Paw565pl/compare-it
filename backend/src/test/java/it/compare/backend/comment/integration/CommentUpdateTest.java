@@ -4,8 +4,6 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 import it.compare.backend.comment.datafactory.CommentTestDataFactory;
 import it.compare.backend.comment.dto.CommentDto;
@@ -31,8 +29,6 @@ class CommentUpdateTest extends CommentTest {
 
     @BeforeEach
     void mockToken() {
-        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
-
         testProduct = productTestDataFactory.createOne();
 
         testComment = commentTestDataFactory.createCommentForProduct(testProduct);
