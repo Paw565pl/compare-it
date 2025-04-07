@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
 @Import({ProductTestDataFactory.class, UserTestDataFactory.class, CommentTestDataFactory.class})
-class CommentEditTest extends CommentTest {
+class CommentUpdateTest extends CommentTest {
 
     @Autowired
     private ProductTestDataFactory productTestDataFactory;

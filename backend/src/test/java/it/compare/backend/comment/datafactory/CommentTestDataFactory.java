@@ -3,6 +3,7 @@ package it.compare.backend.comment.datafactory;
 import it.compare.backend.auth.model.User;
 import it.compare.backend.comment.model.Comment;
 import it.compare.backend.comment.repository.CommentRepository;
+import it.compare.backend.core.config.FakerConfig;
 import it.compare.backend.core.datafactory.TestDataFactory;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Product;
@@ -14,26 +15,28 @@ import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
 
 @TestComponent
-@Import({ProductTestDataFactory.class})
+@Import({ProductTestDataFactory.class, FakerConfig.class})
 public class CommentTestDataFactory implements TestDataFactory<Comment> {
 
     public final CommentRepository commentRepository;
     public final ProductTestDataFactory productTestDataFactory;
-    public final Faker faker = new Faker();
+    private final Faker faker;
     private final UserTestDataFactory userTestDataFactory;
 
     public CommentTestDataFactory(
             CommentRepository commentRepository,
             ProductTestDataFactory productTestDataFactory,
-            UserTestDataFactory userTestDataFactory) {
+            UserTestDataFactory userTestDataFactory,
+            Faker faker) {
         this.commentRepository = commentRepository;
         this.productTestDataFactory = productTestDataFactory;
         this.userTestDataFactory = userTestDataFactory;
+        this.faker = faker;
     }
 
     @Override
     public Comment generate() {
-        return new Comment("Test comment", productTestDataFactory.generate());
+        return new Comment(faker.lorem().sentence(), productTestDataFactory.generate());
     }
 
     @Override
