@@ -7,7 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 
-public abstract class JwtUtil {
+public final class JwtUtil {
 
     private JwtUtil() {
         throw new IllegalStateException("Attempted to instantiate utility class");

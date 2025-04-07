@@ -10,15 +10,15 @@ interface SingleProductProps {
 
 const SingleProduct = ({
   product: {
-    category,
     id,
-    isAvailable,
+    name,
+    category,
+    mainImageUrl,
     lowestCurrentPrice,
     lowestPriceCurrency,
     lowestPriceShop,
-    mainImageUrl,
-    name,
     offersCount,
+    isAvailable,
   },
 }: SingleProductProps) => {
   const formattedPrice =
@@ -49,7 +49,11 @@ const SingleProduct = ({
         <p className="text-secondary mb-1 text-sm">
           Liczba ofert: {offersCount}
         </p>
-        <p className="text-secondary mb-1 text-sm">Sklep: {lowestPriceShop}</p>
+
+        <p className="text-secondary mb-1 text-sm">
+          Sklep: {lowestPriceShop || "-"}
+        </p>
+
         <div className="mb-4 text-sm">
           {isAvailable ? (
             <span className="font-semibold text-green-500">
