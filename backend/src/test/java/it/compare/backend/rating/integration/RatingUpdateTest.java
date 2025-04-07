@@ -4,8 +4,6 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 import it.compare.backend.rating.dto.RatingDto;
 import org.bson.types.ObjectId;
@@ -17,7 +15,6 @@ class RatingUpdateTest extends RatingTest {
 
     @BeforeEach
     void setUpUpdateTest() {
-        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
         ratingTestDataFactory.createRatingForComment(testComment, user, true);
     }
 

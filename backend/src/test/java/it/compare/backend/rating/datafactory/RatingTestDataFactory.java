@@ -3,7 +3,6 @@ package it.compare.backend.rating.datafactory;
 import it.compare.backend.auth.model.User;
 import it.compare.backend.comment.datafactory.CommentTestDataFactory;
 import it.compare.backend.comment.model.Comment;
-import it.compare.backend.core.config.FakerConfig;
 import it.compare.backend.core.datafactory.TestDataFactory;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.rating.model.Rating;
@@ -15,7 +14,7 @@ import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
 
 @TestComponent
-@Import({CommentTestDataFactory.class, FakerConfig.class, ProductTestDataFactory.class, UserTestDataFactory.class})
+@Import({CommentTestDataFactory.class, ProductTestDataFactory.class, UserTestDataFactory.class})
 public class RatingTestDataFactory implements TestDataFactory<Rating> {
 
     private final RatingRepository ratingRepository;

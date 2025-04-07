@@ -1,5 +1,8 @@
 package it.compare.backend.rating.integration;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import it.compare.backend.auth.model.User;
 import it.compare.backend.comment.datafactory.CommentTestDataFactory;
 import it.compare.backend.comment.model.Comment;
@@ -60,6 +63,7 @@ abstract class RatingTest extends IntegrationTest {
         testComment = commentTestDataFactory.createCommentForProduct(testProduct);
         testComment.setAuthor(user);
         testComment = commentTestDataFactory.commentRepository.save(testComment);
+        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
     }
 
     @AfterEach

@@ -5,12 +5,10 @@ import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import it.compare.backend.comment.datafactory.CommentTestDataFactory;
 import it.compare.backend.comment.dto.CommentDto;
 import it.compare.backend.comment.model.Comment;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Product;
-import it.compare.backend.user.datafactory.UserTestDataFactory;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
-@Import({ProductTestDataFactory.class, UserTestDataFactory.class, CommentTestDataFactory.class})
+@Import(ProductTestDataFactory.class)
 class CommentUpdateTest extends CommentTest {
 
     @Autowired

@@ -4,21 +4,15 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 import it.compare.backend.rating.dto.RatingDto;
 import org.bson.types.ObjectId;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 
 class RatingCreateTest extends RatingTest {
-
-    @BeforeEach
-    void mockToken() {
-        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
-    }
 
     @Test
     void shouldReturnUnauthorized() {
@@ -82,9 +76,10 @@ class RatingCreateTest extends RatingTest {
         assertThat(ratingRepository.count(), equalTo(0L));
     }
 
-    @Test
-    void shouldReturnCreatedAfterCreatingPositiveRating() {
-        var body = new RatingDto(true);
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldReturnCreatedAfterCreatingRating(boolean isPositive) {
+        var body = new RatingDto(isPositive);
 
         given().contentType(JSON)
                 .auth()
@@ -94,24 +89,7 @@ class RatingCreateTest extends RatingTest {
                 .post("/{productId}/comments/{commentId}/rate", testProduct.getId(), testComment.getId())
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
-                .body("isPositive", equalTo(true));
-
-        assertThat(ratingRepository.count(), equalTo(1L));
-    }
-
-    @Test
-    void shouldReturnCreatedAfterCreatingNegativeRating() {
-        var body = new RatingDto(false);
-
-        given().contentType(JSON)
-                .auth()
-                .oauth2(mockToken.getTokenValue())
-                .body(body)
-                .when()
-                .post("/{productId}/comments/{commentId}/rate", testProduct.getId(), testComment.getId())
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body("isPositive", equalTo(false));
+                .body("isPositive", equalTo(isPositive));
 
         assertThat(ratingRepository.count(), equalTo(1L));
     }

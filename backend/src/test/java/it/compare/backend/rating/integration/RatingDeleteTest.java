@@ -4,8 +4,6 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +14,6 @@ class RatingDeleteTest extends RatingTest {
 
     @BeforeEach
     void setUpDeleteTest() {
-        when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
         ratingTestDataFactory.createRatingForComment(testComment, user, true);
     }
 
