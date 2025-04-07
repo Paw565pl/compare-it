@@ -58,6 +58,57 @@ class CommentCreateTest extends CommentTest {
     }
 
     @Test
+    void shouldReturnValidationErrorIfCommentIsBlank() {
+        var product = productTestDataFactory.createOne();
+        var body = new CommentDto("");
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .body(body)
+                .when()
+                .post("/{productId}/comments", product.getId())
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        assertThat(commentRepository.count(), equalTo(0L));
+    }
+
+    @Test
+    void shouldReturnValidationErrorIfCommentLengthIsLessThan10() {
+        var product = productTestDataFactory.createOne();
+        var body = new CommentDto("text");
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .body(body)
+                .when()
+                .post("/{productId}/comments", product.getId())
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        assertThat(commentRepository.count(), equalTo(0L));
+    }
+
+    @Test
+    void shouldReturnValidationErrorIfCommentLengthIsMoreThan2000() {
+        var product = productTestDataFactory.createOne();
+        var body = new CommentDto("a".repeat(2001));
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .body(body)
+                .when()
+                .post("/{productId}/comments", product.getId())
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        assertThat(commentRepository.count(), equalTo(0L));
+    }
+
+    @Test
     void shouldReturnCreatedAfterCreatingComment() {
         var product = productTestDataFactory.createOne();
         var commentText = "test comment";
