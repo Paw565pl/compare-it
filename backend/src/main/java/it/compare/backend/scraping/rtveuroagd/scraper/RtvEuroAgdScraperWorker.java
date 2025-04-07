@@ -4,38 +4,36 @@ import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.model.*;
 import it.compare.backend.scraping.rtveuroagd.dto.RtvEuroAgdProduct;
 import it.compare.backend.scraping.rtveuroagd.dto.RtvEuroAgdResponse;
+import it.compare.backend.scraping.scraper.ScraperWorker;
+import it.compare.backend.scraping.util.ScrapingUtil;
 import java.math.BigDecimal;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
-class RtvEuroAgdScraperWorker {
+@RequiredArgsConstructor
+class RtvEuroAgdScraperWorker implements ScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.RTV_EURO_AGD;
     private static final String BASE_URL = "https://www.euro.com.pl/rest/api/products/search";
 
-    private final SecureRandom secureRandom;
     private final RestClient restClient;
 
-    RtvEuroAgdScraperWorker(SecureRandom secureRandom, RestClient restClient) {
-        this.secureRandom = secureRandom;
-        this.restClient = restClient;
-    }
-
     @Async
-    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryName) {
-        final var pageSize = 25;
+    @Override
+    public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
+        final var PAGE_SIZE = 25;
         var currentStartFrom = 0;
 
         var products = new ArrayList<Product>();
@@ -43,25 +41,25 @@ class RtvEuroAgdScraperWorker {
         while (true) {
             try {
                 var uri = UriComponentsBuilder.fromUriString(BASE_URL)
+                        .queryParam("numberOfItems", PAGE_SIZE)
                         .queryParam("startFrom", currentStartFrom)
-                        .queryParam("numberOfItems", pageSize)
-                        .queryParam("category", categoryName)
+                        .queryParam("category", categoryLocator)
                         .queryParam("developSearchMode", "false")
                         .build()
                         .toUri();
 
-                var productsResponse = this.restClient
+                var productResponses = this.restClient
                         .get()
                         .uri(uri)
                         .header("Accept", "application/json")
                         .header("User-Agent", RandomUserAgentGenerator.getNext())
                         .retrieve()
                         .body(RtvEuroAgdResponse.class);
-                if (productsResponse == null
-                        || productsResponse.results() == null
-                        || productsResponse.results().isEmpty()) break;
+                if (productResponses == null
+                        || productResponses.results() == null
+                        || productResponses.results().isEmpty()) break;
 
-                productsResponse.results().forEach(productResponse -> {
+                productResponses.results().forEach(productResponse -> {
                     if (productResponse.eanCodes().isEmpty()) return;
 
                     var outletPrices = productResponse
@@ -70,11 +68,16 @@ class RtvEuroAgdScraperWorker {
                                     .map(RtvEuroAgdProduct.OutletCategory::price)
                                     .toList());
                     var price = getLowestPrice(productResponse.prices(), outletPrices);
+                    if (price == null) return;
+
                     var promoCode = productResponse
                             .voucherDetails()
                             .map(RtvEuroAgdProduct.VoucherDetails::voucherCode)
                             .orElse(null);
-                    var condition = productResponse.outletDetails().isPresent() ? Condition.OUTLET : Condition.NEW;
+                    var condition = productResponse
+                            .outletDetails()
+                            .map(outletDetails -> Condition.OUTLET)
+                            .orElse(Condition.NEW);
 
                     var priceStamp = new PriceStamp(price, "PLN", condition);
                     priceStamp.setPromoCode(promoCode);
@@ -92,17 +95,28 @@ class RtvEuroAgdScraperWorker {
                     products.add(productEntity);
                 });
 
-                currentStartFrom += pageSize;
-                Thread.sleep(secureRandom.nextInt(500, 2000));
-            } catch (RestClientException e) {
-                log.error("Error while fetching products: {}", e.getMessage());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.error(e.getMessage());
+                currentStartFrom += PAGE_SIZE;
+                ScrapingUtil.sleep();
+            } catch (HttpStatusCodeException e) {
+                log.warn(
+                        "http error has occurred while scraping products from category {} - {}",
+                        category,
+                        e.getStatusCode().value());
+            } catch (Exception e) {
+                log.error(
+                        "unexpected error of class {} has occurred while scraping products from category {} - {}",
+                        e.getClass(),
+                        category,
+                        e.getMessage());
             }
         }
 
         return CompletableFuture.completedFuture(products);
+    }
+
+    @Override
+    public Shop getShop() {
+        return CURRENT_SHOP;
     }
 
     private BigDecimal getLowestPrice(RtvEuroAgdProduct.Prices prices, Optional<List<Long>> outletPrices) {
