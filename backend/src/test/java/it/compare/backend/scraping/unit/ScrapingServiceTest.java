@@ -177,7 +177,44 @@ class ScrapingServiceTest {
     }
 
     @Test
-    void shouldSavePriceStampIfProductAndShopExist() {
+    void shouldSavePriceStampIfProductExistsButOfferDoesNot() {
+        var shopOffer = new Offer(Shop.MEDIA_EXPERT, faker.internet().url());
+        shopOffer.getPriceHistory().add(newPriceStamp);
+
+        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSORS);
+        product.getOffers().add(shopOffer);
+
+        var scrapedProducts = List.of(product);
+        var eans = List.of(PRODUCT_1_EAN);
+
+        when(productRepository.findAllByEanIn(eans)).thenReturn(List.of(existingProduct1));
+        when(productRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        scrapingService.createProductsOrAddPriceStamp(scrapedProducts);
+
+        verify(productRepository).findAllByEanIn(eans);
+        verify(productRepository).saveAll(productListCaptor.capture());
+        verify(priceAlertService, times(1)).checkPriceAlerts(any(Product.class));
+
+        var savedProducts = productListCaptor.getValue();
+        assertThat(savedProducts, hasSize(1));
+
+        var updatedProduct = savedProducts.getFirst();
+        assertThat(updatedProduct, (sameInstance(existingProduct1)));
+        assertThat(updatedProduct.getEan(), (equalTo(PRODUCT_1_EAN)));
+        assertThat(updatedProduct.getOffers(), hasSize(3));
+        assertThat(updatedProduct.getOffers(), hasItem(hasProperty("shop", equalTo(Shop.MEDIA_EXPERT))));
+
+        var addedOffer = updatedProduct.getOffers().stream()
+                .filter(o -> o.getShop() == Shop.MEDIA_EXPERT)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("new offer not found in existing product"));
+        assertThat(addedOffer.getPriceHistory(), hasSize(1));
+        assertThat(addedOffer.getPriceHistory(), contains(newPriceStamp));
+    }
+
+    @Test
+    void shouldSavePriceStampIfProductAndOfferExist() {
         var scrapedProducts = List.of(newProduct1);
         var eans = List.of(PRODUCT_1_EAN);
 
@@ -212,43 +249,6 @@ class ScrapingServiceTest {
                 .orElseThrow(() -> new AssertionError("existing offer not found in existing product"));
         assertThat(existingOffer.getPriceHistory(), hasSize(1));
         assertThat(existingOffer.getPriceHistory(), contains(existingPriceStamp2));
-    }
-
-    @Test
-    void shouldSavePriceStampIfProductExistsButShopDoesNot() {
-        var shopOffer = new Offer(Shop.MEDIA_EXPERT, faker.internet().url());
-        shopOffer.getPriceHistory().add(newPriceStamp);
-
-        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSORS);
-        product.getOffers().add(shopOffer);
-
-        var scrapedProducts = List.of(product);
-        var eans = List.of(PRODUCT_1_EAN);
-
-        when(productRepository.findAllByEanIn(eans)).thenReturn(List.of(existingProduct1));
-        when(productRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        scrapingService.createProductsOrAddPriceStamp(scrapedProducts);
-
-        verify(productRepository).findAllByEanIn(eans);
-        verify(productRepository).saveAll(productListCaptor.capture());
-        verify(priceAlertService, times(1)).checkPriceAlerts(any(Product.class));
-
-        var savedProducts = productListCaptor.getValue();
-        assertThat(savedProducts, hasSize(1));
-
-        var updatedProduct = savedProducts.getFirst();
-        assertThat(updatedProduct, (sameInstance(existingProduct1)));
-        assertThat(updatedProduct.getEan(), (equalTo(PRODUCT_1_EAN)));
-        assertThat(updatedProduct.getOffers(), hasSize(3));
-        assertThat(updatedProduct.getOffers(), hasItem(hasProperty("shop", equalTo(Shop.MEDIA_EXPERT))));
-
-        var addedOffer = updatedProduct.getOffers().stream()
-                .filter(o -> o.getShop() == Shop.MEDIA_EXPERT)
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("new offer not found in existing product"));
-        assertThat(addedOffer.getPriceHistory(), hasSize(1));
-        assertThat(addedOffer.getPriceHistory(), contains(newPriceStamp));
     }
 
     @Test
