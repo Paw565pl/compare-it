@@ -41,10 +41,14 @@ class FavoriteProductListTest extends FavoriteProductTest {
     void shouldReturnUsersFavoriteProducts() {
         var favoriteProduct = favoriteProductTestDataFactory.createOne();
         var favoriteProductUserId = favoriteProduct.getUser().getId();
-        var userMockToken = AuthMock.getToken(favoriteProductUserId, List.of());
+        var favoriteProductUsername = favoriteProduct.getUser().getUsername();
+        var favoriteProductEmail = favoriteProduct.getUser().getEmail();
+        var userMockToken =
+                AuthMock.getToken(favoriteProductUserId, favoriteProductUsername, favoriteProductEmail, List.of());
 
         var otherUser = userTestDataFactory.createOne();
-        var otherUserMockToken = AuthMock.getToken(otherUser.getId(), List.of());
+        var otherUserMockToken =
+                AuthMock.getToken(otherUser.getId(), otherUser.getUsername(), otherUser.getEmail(), List.of());
 
         when(jwtDecoder.decode(userMockToken.getTokenValue())).thenReturn(userMockToken);
         given().contentType(JSON)
@@ -76,7 +80,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
                 LocalDateTime.now().minusDays(favoriteProducts.indexOf(favoriteProduct) + 1)));
         favoriteProductRepository.saveAll(favoriteProducts);
 
-        var mockToken = AuthMock.getToken(user.getId(), List.of());
+        var mockToken = AuthMock.getToken(user.getId(), user.getUsername(), user.getEmail(), List.of());
         when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
 
         given().contentType(JSON)

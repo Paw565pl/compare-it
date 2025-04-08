@@ -8,16 +8,18 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public abstract class AuthMock {
 
-    public static Jwt getToken(String userId, List<Role> roles) {
+    public static Jwt getToken(String userId, String username, String email, List<Role> roles) {
         var now = Instant.now();
+        var roleStrings = roles.stream().map(Role::name).toList();
+
         return Jwt.withTokenValue("mock-token")
                 .header("alg", "HS256")
                 .issuer("self")
                 .header("typ", "JWT")
                 .claim("sub", userId)
-                .claim("preferred_username", "test")
-                .claim("email", "test@test.com")
-                .claim("realm_access", Map.of("roles", roles))
+                .claim("preferred_username", username)
+                .claim("email", email)
+                .claim("realm_access", Map.of("roles", roleStrings))
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(3600))
                 .build();
