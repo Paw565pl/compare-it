@@ -5,6 +5,7 @@ import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class ScrapingService {
 
         var eanList = scrapedProducts.stream().map(Product::getEan).toList();
         var existingProductsMap = productRepository.findAllByEanIn(eanList).stream()
-                .collect(Collectors.toMap(Product::getEan, product -> product));
+                .collect(Collectors.toMap(Product::getEan, Function.identity()));
 
         scrapedProducts.forEach(scrapedProduct -> {
             var existingProduct = existingProductsMap.get(scrapedProduct.getEan());
