@@ -1,6 +1,7 @@
 "use client";
 
 import { Role } from "@/auth/types/role";
+import { hasRequiredRole } from "@/auth/utils/has-required-role";
 import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
 import { DeleteConfirmationAlertDialog } from "@/core/components/index";
@@ -34,7 +35,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
   );
 
 
-  const isAuthorOrAdmin = session?.user?.username === comment.author || session?.user?.username === Role.ADMIN;
+  const isAuthorOrAdmin = session?.user?.username === comment.author || hasRequiredRole(session, Role.ADMIN);
 
   const handleDeleteComment = () => {
     deleteComment(undefined, {
