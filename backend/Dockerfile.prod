@@ -15,13 +15,13 @@ FROM eclipse-temurin:21-jre-alpine
 
 ENV SPRING_PROFILES_ACTIVE=prod
 
+RUN apk --no-cache add chromium chromium-chromedriver
+
 RUN addgroup -S spring && adduser -S spring -G spring
 
 USER spring:spring
 
 WORKDIR /app
-
-RUN apk --no-cache add chromium chromium-chromedriver
 
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
