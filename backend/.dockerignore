@@ -44,5 +44,6 @@ Dockerfile.*
 .gitignore
 .editorconfig
 
-# Bruno
 bruno/
+
+performance_tests/

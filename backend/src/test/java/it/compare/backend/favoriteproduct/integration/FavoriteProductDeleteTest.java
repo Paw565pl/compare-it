@@ -70,7 +70,11 @@ class FavoriteProductDeleteTest extends FavoriteProductTest {
         var favoriteProduct = favoriteProductTestDataFactory.createOne();
         var body = new FavoriteProductDto(favoriteProduct.getProduct().getId());
 
-        var mockToken = AuthMock.getToken(favoriteProduct.getUser().getId(), List.of());
+        var mockToken = AuthMock.getToken(
+                favoriteProduct.getUser().getId(),
+                favoriteProduct.getUser().getUsername(),
+                favoriteProduct.getUser().getEmail(),
+                List.of());
         when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
 
         given().contentType(JSON)
