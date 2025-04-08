@@ -71,7 +71,7 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
                       ? "Podziel się swoją opinią..."
                       : "Zaloguj się aby dodać komentarz"
                   }
-                  className="bg-background min-h-20 p-2 text-sm border"
+                  className="bg-background min-h-20 border p-2 text-sm"
                   {...field}
                 />
               </FormControl>
