@@ -69,13 +69,15 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
         <div className="text-primary text-xl font-semibold">
           {comment.author}
         </div>
-        <div className="text-muted text-sm">{formattedCreatedAtDate}</div>
-        {isAuthor && (
-          <DeleteConfirmationAlertDialog
-            alertDialogTriggerClassName="bg-white p-1 text-red-500 shadow-none hover:bg-background"
-            handleDelete={handleDeleteComment}
-          />
-        )}
+        <div className="flex justify-between w-full items-center">
+          <div className="text-sm text-primary text-center">{formattedCreatedAtDate}</div>
+          {isAuthor && (
+            <DeleteConfirmationAlertDialog
+              alertDialogTriggerClassName="bg-white text-red-500 shadow-none hover:bg-background"
+              handleDelete={handleDeleteComment}
+            />
+          )}
+        </div>
       </div>
       <div>{comment.text}</div>
       <div className="flex gap-4">
