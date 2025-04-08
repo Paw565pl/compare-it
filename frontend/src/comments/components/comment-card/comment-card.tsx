@@ -34,8 +34,9 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
     comment.id,
   );
 
-
-  const isAuthorOrAdmin = session?.user?.username === comment.author || hasRequiredRole(session, Role.ADMIN);
+  const isAuthorOrAdmin =
+    session?.user?.username === comment.author ||
+    hasRequiredRole(session, Role.ADMIN);
 
   const handleDeleteComment = () => {
     deleteComment(undefined, {
@@ -72,8 +73,10 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
         <div className="text-primary text-xl font-semibold">
           {comment.author}
         </div>
-        <div className="flex justify-between w-full items-center">
-          <div className="text-sm text-primary text-center">{formattedCreatedAtDate}</div>
+        <div className="flex w-full items-center justify-between">
+          <div className="text-primary text-center text-sm">
+            {formattedCreatedAtDate}
+          </div>
           {isAuthorOrAdmin && (
             <DeleteConfirmationAlertDialog
               alertDialogTriggerClassName="bg-white text-red-500 shadow-none hover:bg-background"
