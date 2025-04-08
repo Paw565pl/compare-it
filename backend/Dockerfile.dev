@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apk --no-cache add chromium chromium-chromedriver
 
 COPY gradle gradle
-COPY gradlew build.gradle.kts settings.gradle.kts .
+COPY gradlew build.gradle.kts settings.gradle.kts ./
 
 RUN chmod +x ./gradlew && ./gradlew dependencies --no-daemon
 
