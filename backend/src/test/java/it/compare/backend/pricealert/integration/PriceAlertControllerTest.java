@@ -33,7 +33,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     void setup() {
         testUser = userTestDataFactory.createOne();
 
-        mockToken = AuthMock.getToken(testUser.getId(), List.of());
+        mockToken = AuthMock.getToken(testUser.getId(), testUser.getUsername(), testUser.getEmail(), List.of());
         when(jwtDecoder.decode(anyString())).thenReturn(mockToken);
     }
 
