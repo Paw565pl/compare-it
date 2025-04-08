@@ -1,5 +1,6 @@
 "use client";
 
+import { Role } from "@/auth/types/role";
 import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
 import { DeleteConfirmationAlertDialog } from "@/core/components/index";
@@ -32,7 +33,8 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
     comment.id,
   );
 
-  const isAuthor = session?.user?.username === comment.author;
+
+  const isAuthorOrAdmin = session?.user?.username === comment.author || session?.user?.username === Role.ADMIN;
 
   const handleDeleteComment = () => {
     deleteComment(undefined, {
@@ -71,7 +73,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
         </div>
         <div className="flex justify-between w-full items-center">
           <div className="text-sm text-primary text-center">{formattedCreatedAtDate}</div>
-          {isAuthor && (
+          {isAuthorOrAdmin && (
             <DeleteConfirmationAlertDialog
               alertDialogTriggerClassName="bg-white text-red-500 shadow-none hover:bg-background"
               handleDelete={handleDeleteComment}
