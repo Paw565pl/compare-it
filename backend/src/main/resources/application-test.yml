@@ -10,4 +10,5 @@ spring:
           auth: false
           starttls.enable: false
 
-allowed-origin: ""
+cors:
+  allowed-origins: "*"

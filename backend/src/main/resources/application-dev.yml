@@ -33,4 +33,5 @@ logging:
             repository:
               query: debug
 
-allowed-origin: "http://localhost:3000"
+cors:
+  allowed-origins: "*"
