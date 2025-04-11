@@ -1,11 +1,10 @@
 package it.compare.backend.pricealert.service;
 
+import it.compare.backend.core.properties.CorsProperties;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,10 @@ import org.thymeleaf.context.Context;
 @Service
 @RequiredArgsConstructor
 public class EmailService {
+
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
-
-    @Value("${allowed-origin}")
-    private String frontendUrl;
+    private final CorsProperties corsProperties;
 
     public void sendPriceAlert(
             String recipientEmail,
@@ -31,19 +29,20 @@ public class EmailService {
             String shopName,
             String offerUrl) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            var message = mailSender.createMimeMessage();
+            var helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            Context context = new Context();
+            var context = new Context();
             context.setVariable("productName", productName);
             context.setVariable("productId", productId);
             context.setVariable("currentPrice", currentPrice);
             context.setVariable("targetPrice", targetPrice);
             context.setVariable("shopName", shopName);
             context.setVariable("url", offerUrl);
-            context.setVariable("frontendUrl", frontendUrl);
+            context.setVariable(
+                    "frontendUrl", corsProperties.getAllowedOrigins().getFirst());
 
-            String htmlContent = templateEngine.process("price-alert", context);
+            var htmlContent = templateEngine.process("price-alert", context);
 
             helper.setTo(recipientEmail);
             helper.setSubject("OKAZJA: " + productName + " osiągnął cenę docelową!");

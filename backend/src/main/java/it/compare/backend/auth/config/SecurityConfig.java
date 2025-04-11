@@ -3,8 +3,7 @@ package it.compare.backend.auth.config;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import it.compare.backend.auth.jwt.JwtConverter;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
+import it.compare.backend.core.properties.CorsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -21,32 +20,31 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${allowed-origin}")
-    private String allowedOrigin;
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtConverter jwtConverter) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http, JwtConverter jwtConverter, CorsConfigurationSource corsConfigurationSource)
+            throws Exception {
         http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter)));
 
         http.csrf(AbstractHttpConfigurer::disable);
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource));
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 
         return http.build();
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigin));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+    protected CorsConfigurationSource corsConfigurationSource(CorsProperties corsProperties) {
+        var configuration = new CorsConfiguration();
+        configuration.setAllowedHeaders(corsProperties.getAllowedHeaders());
+        configuration.setAllowedMethods(corsProperties.getAllowedMethods());
+        configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }
