@@ -137,9 +137,10 @@ public class CommentService {
                 .by(Eq.valueOf("$$rating.author.$id").equalToValue(userId));
         var findFirstRating = ArrayOperators.First.firstOf(filterRatingsByUserId);
 
+        var nullValue = ObjectOperators.getValueOf("non-existing-field");
         var calculateIsRatingPositiveField = ConditionalOperators.ifNull(
                         ObjectOperators.GetField.getField("isPositive").of(findFirstRating))
-                .thenValueOf(ObjectOperators.getValueOf("null"));
+                .thenValueOf(nullValue);
 
         return Aggregation.addFields()
                 .addFieldWithValue(IS_POSITIVE_RATING_FIELD, calculateIsRatingPositiveField)
