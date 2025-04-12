@@ -10,21 +10,14 @@ import static org.mockito.Mockito.when;
 import it.compare.backend.auth.model.Role;
 import it.compare.backend.comment.model.Comment;
 import it.compare.backend.core.mock.AuthMock;
-import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Product;
 import java.util.List;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
-@Import(ProductTestDataFactory.class)
 class CommentDeleteTest extends CommentTest {
-
-    @Autowired
-    private ProductTestDataFactory productTestDataFactory;
 
     private Product testProduct;
     private Comment testComment;
