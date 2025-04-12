@@ -36,17 +36,14 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
     },
   });
 
-  const handleCreateComment = ({ text }: CommentFormValues) => {
-    createComment(
-      { text },
-      {
-        onSuccess: () => {
-          toast.success("Komentarz został dodany.");
-          form.reset();
-        },
-        onError: () => toast.error("Coś poszło nie tak!"),
+  const handleCreateComment = (commentFormValues: CommentFormValues) => {
+    createComment(commentFormValues, {
+      onSuccess: () => {
+        toast.success("Komentarz został dodany.");
+        form.reset();
       },
-    );
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
   };
 
   return (
