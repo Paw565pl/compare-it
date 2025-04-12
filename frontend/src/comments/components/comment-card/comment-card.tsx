@@ -4,6 +4,7 @@ import { Role } from "@/auth/types/role";
 import { hasRequiredRole } from "@/auth/utils/has-required-role";
 import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
+import { useFetchCommentPage } from "@/comments/hooks/client/use-fetch-comment-page";
 import { DeleteConfirmationAlertDialog } from "@/core/components/index";
 import { Button } from "@/core/components/ui/button";
 import { cn } from "@/core/utils/cn";
@@ -25,27 +26,29 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
+  const { isFetching: isFetchingCommentsPage } = useFetchCommentPage(
+    productId,
+    session?.tokens?.accessToken,
+  );
+
   const { mutate: deleteComment } = useDeleteComment(
     accessToken,
     productId,
     comment.id,
   );
 
-  const { mutate: createRating } = useCreateRating(
-    accessToken,
-    productId,
-    comment.id,
-  );
-  const { mutate: updateRating } = useUpdateRating(
-    accessToken,
-    productId,
-    comment.id,
-  );
-  const { mutate: deleteRating } = useDeleteRating(
-    accessToken,
-    productId,
-    comment.id,
-  );
+  const { mutate: createRating, isPending: isCreateRatingPending } =
+    useCreateRating(accessToken, productId, comment.id);
+  const { mutate: updateRating, isPending: isUpdateRatingPending } =
+    useUpdateRating(accessToken, productId, comment.id);
+  const { mutate: deleteRating, isPending: isDeleteRatingPending } =
+    useDeleteRating(accessToken, productId, comment.id);
+
+  const isRatingButtonDisabled =
+    isFetchingCommentsPage ||
+    isCreateRatingPending ||
+    isUpdateRatingPending ||
+    isDeleteRatingPending;
 
   const isAuthorOrAdmin =
     session?.user?.username === comment.author ||
@@ -108,6 +111,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
       <div className="flex gap-4">
         <div className="flex items-center">
           <Button
+            disabled={isRatingButtonDisabled}
             onClick={session ? () => handleMutateRating(true) : undefined}
             className={cn(
               "text-primary bg-white p-1 shadow-none hover:bg-white",
@@ -126,6 +130,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
 
         <div className="flex items-center">
           <Button
+            disabled={isRatingButtonDisabled}
             onClick={session ? () => handleMutateRating(false) : undefined}
             className={cn(
               "bg-white p-1 text-gray-500 shadow-none hover:bg-white",
