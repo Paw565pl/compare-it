@@ -4,7 +4,6 @@ import { Role } from "@/auth/types/role";
 import { hasRequiredRole } from "@/auth/utils/has-required-role";
 import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
-import { useFetchCommentPage } from "@/comments/hooks/client/use-fetch-comment-page";
 import { DeleteConfirmationAlertDialog } from "@/core/components/index";
 import { Button } from "@/core/components/ui/button";
 import { cn } from "@/core/utils/cn";
@@ -26,11 +25,6 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
-  const { isFetching: isFetchingCommentsPage } = useFetchCommentPage(
-    productId,
-    session?.tokens?.accessToken,
-  );
-
   const { mutate: deleteComment } = useDeleteComment(
     accessToken,
     productId,
@@ -45,10 +39,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
     useDeleteRating(accessToken, productId, comment.id);
 
   const isRatingButtonDisabled =
-    isFetchingCommentsPage ||
-    isCreateRatingPending ||
-    isUpdateRatingPending ||
-    isDeleteRatingPending;
+    isCreateRatingPending || isUpdateRatingPending || isDeleteRatingPending;
 
   const isAuthorOrAdmin =
     session?.user?.username === comment.author ||
