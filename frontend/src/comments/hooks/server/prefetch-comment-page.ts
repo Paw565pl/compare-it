@@ -5,8 +5,9 @@ import { QueryClient } from "@tanstack/react-query";
 export const prefetchCommentPage = (
   queryClient: QueryClient,
   productId: string,
+  accessToken?: string,
   paginationOptions?: PaginationOptions,
 ) =>
   queryClient.prefetchInfiniteQuery(
-    getCommentPageQueryOptions(productId, paginationOptions),
+    getCommentPageQueryOptions(productId, accessToken, paginationOptions),
   );

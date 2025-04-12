@@ -5,4 +5,8 @@ export const prefetchComment = (
   queryClient: QueryClient,
   productId: string,
   commentId: string,
-) => queryClient.prefetchQuery(getCommentQueryOptions(productId, commentId));
+  accessToken?: string,
+) =>
+  queryClient.prefetchQuery(
+    getCommentQueryOptions(productId, commentId, accessToken),
+  );
