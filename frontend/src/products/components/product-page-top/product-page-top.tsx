@@ -31,7 +31,7 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
   return (
     <div className="flex flex-col">
       <div className="border-grey-100 text-primary flex flex-col bg-white p-6 md:flex-row">
-        <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
+        <div className="shrink-0 self-center md:mr-6 md:mb-0">
           <ImageWithFallback
             name={productData.name}
             imageUrl={productData.images.at(0) || ""}
@@ -40,8 +40,8 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
           />
         </div>
 
-        <div className="flex grow flex-col justify-between">
-          <div>
+        <div className="flex h-full flex-col justify-between">
+          <div className="flex">
             <div>
               <H1 className="mb-2 text-3xl font-bold">{productData.name}</H1>
               <p className="text-md mb-4 text-gray-500">

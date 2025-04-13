@@ -28,7 +28,7 @@ const buttonVariants = cva(
         pagination:
           "bg-primary hover:bg-hover m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0",
         priceAlert:
-          "bg-primary text-white hover:bg-hover cursor-pointer shadow-none",
+          "text-primary hover:bg-hover hover:text-white cursor-pointer shadow-none",
         search:
           "bg-primary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors duration-300",
       },

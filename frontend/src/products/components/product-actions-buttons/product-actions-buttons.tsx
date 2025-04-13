@@ -71,7 +71,22 @@ export const ProductActionsButtons = ({
   };
 
   return (
-    <div className="mt-4 flex w-full justify-between">
+    <div className="flex flex-col gap-4">
+      {favoriteProductStatus?.isFavorite ? (
+        <Button onClick={handleDeleteFavoriteProduct} variant="priceAlert">
+          <span className="flex items-center gap-2">
+            <HeartOff />
+            USUŃ Z ULUBIONYCH
+          </span>
+        </Button>
+      ) : (
+        <Button onClick={handleAddFavoriteProduct} variant="priceAlert">
+          <span className="flex items-center gap-2">
+            <Heart />
+            POLUB
+          </span>
+        </Button>
+      )}
       <PriceAlertFormDialog
         dialogTrigger={
           <Button variant="priceAlert">
@@ -82,17 +97,6 @@ export const ProductActionsButtons = ({
         dialogHeader={"Dodaj alert"}
         handleSubmit={handleCreatePriceAlert}
       />
-      {favoriteProductStatus?.isFavorite ? (
-        <Button onClick={handleDeleteFavoriteProduct} variant="priceAlert">
-          <HeartOff />
-          USUŃ Z ULUBIONYCH
-        </Button>
-      ) : (
-        <Button onClick={handleAddFavoriteProduct} variant="priceAlert">
-          <Heart />
-          POLUB
-        </Button>
-      )}
     </div>
   );
 };
