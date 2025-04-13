@@ -68,6 +68,7 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
                       ? "Podziel się swoją opinią..."
                       : "Zaloguj się aby dodać komentarz"
                   }
+                  maxWordCount={commentSchema.shape.text.maxLength ?? undefined}
                   className="bg-background border p-2 text-sm"
                   {...field}
                 />
