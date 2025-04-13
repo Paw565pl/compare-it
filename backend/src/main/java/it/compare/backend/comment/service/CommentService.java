@@ -221,9 +221,9 @@ public class CommentService {
         if (!canUpdate) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
         comment.setText(commentDto.text());
-        var savedComment = commentRepository.save(comment);
+        commentRepository.save(comment);
 
-        return commentMapper.toResponse(savedComment);
+        return findById(oAuthUserDetails, productId, commentId);
     }
 
     @Transactional
