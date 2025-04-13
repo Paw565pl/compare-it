@@ -42,18 +42,19 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
 
         <div className="flex grow flex-col justify-between">
           <div>
-            <H1 className="mb-2 text-3xl font-bold">{productData.name}</H1>
-            <p className="text-md mb-4 text-gray-500">
-              Kod EAN: {productData.ean}
-            </p>
-            <p className="text-md mb-4 text-gray-500">
-              Kategoria: {productData.category}
-            </p>
+            <div>
+              <H1 className="mb-2 text-3xl font-bold">{productData.name}</H1>
+              <p className="text-md mb-4 text-gray-500">
+                Kod EAN: {productData.ean}
+              </p>
+              <p className="text-md mb-4 text-gray-500">
+                Kategoria: {productData.category}
+              </p>
 
-            <p className="text-sm text-gray-600">
-              Liczba ofert: {productData.offers.length}
-            </p>
-
+              <p className="text-sm text-gray-600">
+                Liczba ofert: {productData.offers.length}
+              </p>
+            </div>
             <ProductActionsButtons productId={productId} />
           </div>
         </div>
