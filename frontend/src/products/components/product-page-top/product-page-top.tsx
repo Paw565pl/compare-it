@@ -40,8 +40,8 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
           />
         </div>
 
-        <div className="flex h-full flex-col justify-between">
-          <div className="flex">
+        <div className="flex h-full w-full flex-col justify-between">
+          <div className="flex flex-col justify-between lg:flex-row">
             <div>
               <H1 className="mb-2 text-3xl font-bold">{productData.name}</H1>
               <p className="text-md mb-4 text-gray-500">
