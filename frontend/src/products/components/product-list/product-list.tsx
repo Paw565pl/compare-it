@@ -4,8 +4,8 @@ import { H2 } from "@/core/components/ui/h2";
 import {
   ProductPagination,
   SingleProduct,
-  SortBar,
-} from "@/products/components/index";
+  SortSelect,
+} from "@/products/components";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import {
   productFiltersSearchParams,
@@ -39,7 +39,7 @@ export const ProductList = () => {
     <>
       <div className="mb-1 flex justify-between">
         <H2>Produkty</H2>
-        <SortBar />
+        <SortSelect />
       </div>
 
       <ul className="space-y-2">

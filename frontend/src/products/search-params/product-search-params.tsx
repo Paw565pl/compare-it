@@ -20,9 +20,7 @@ export const loadProductFiltersSearchParams = createLoader(
 export const productPaginationSearchParams = {
   page: parseAsInteger.withDefault(1),
   size: parseAsInteger.withDefault(20),
-  sort: parseAsString.withDefault("offersCount,desc").withOptions({
-    clearOnDefault: false,
-  }),
+  sort: parseAsString,
 } as const;
 
 export const loadProductPaginationSearchParams = createLoader(

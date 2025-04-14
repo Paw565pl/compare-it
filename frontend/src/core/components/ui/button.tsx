@@ -22,9 +22,6 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         category: "flex w-full justify-start px-4 py-2",
         filter: "bg-primary hover:bg-hover px-4 py-2 text-white w-full",
-        sort: "bg-primary hover:bg-hover px-4 py-2 text-white",
-        sortCategory:
-          "flex w-full justify-start px-4 py-2 hover:bg-hover hover:text-white",
         pagination:
           "bg-primary hover:bg-hover m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0",
         priceAlert:

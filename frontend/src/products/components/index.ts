@@ -8,7 +8,7 @@ import { ProductPageTop } from "@/products/components/product-page-top/product-p
 import { ProductPagination } from "@/products/components/product-pagination/product-pagination";
 import { SingleOffer } from "@/products/components/single-offer/single-offer";
 import { SingleProduct } from "@/products/components/single-product/single-product";
-import { SortBar } from "@/products/components/sort-bar/sort-bar";
+import { SortSelect } from "@/products/components/sort-bar/sort-bar";
 
 export {
   CategoriesList,
@@ -21,5 +21,5 @@ export {
   ProductPagination,
   SingleOffer,
   SingleProduct,
-  SortBar,
+  SortSelect,
 };
