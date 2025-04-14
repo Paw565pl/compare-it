@@ -1,6 +1,7 @@
 import { CategoriesList } from "@/products/components/categories-list/categories-list";
 import { FiltersBar } from "@/products/components/filters-bar/filters-bar";
 import { ProductActionsButtons } from "@/products/components/product-actions-buttons/product-actions-buttons";
+import { ProductListPageHeader } from "@/products/components/product-list-page-header/product-list-page-header";
 import { ProductList } from "@/products/components/product-list/product-list";
 import { ProductPageImages } from "@/products/components/product-page-images/product-page-images";
 import { ProductPageOffers } from "@/products/components/product-page-offers/product-page-offers";
@@ -15,6 +16,7 @@ export {
   FiltersBar,
   ProductActionsButtons,
   ProductList,
+  ProductListPageHeader,
   ProductPageImages,
   ProductPageOffers,
   ProductPageTop,

@@ -1,11 +1,6 @@
 "use client";
 
-import { H2 } from "@/core/components/ui/h2";
-import {
-  ProductPagination,
-  SingleProduct,
-  SortSelect,
-} from "@/products/components";
+import { ProductPagination, SingleProduct } from "@/products/components";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import {
   productFiltersSearchParams,
@@ -28,7 +23,7 @@ export const ProductList = () => {
     page: Math.max(0, pagination.page - 1),
   });
 
-  if (isLoading) return <div className="text-primary">Ładowanie...</div>;
+  if (isLoading) return <p className="text-primary pt-4">Ładowanie...</p>;
   if (error || !productsPage)
     return <div className="text-red-600">Coś poszło nie tak!</div>;
 
@@ -37,11 +32,6 @@ export const ProductList = () => {
 
   return (
     <>
-      <div className="mb-1 flex justify-between">
-        <H2>Produkty</H2>
-        <SortSelect />
-      </div>
-
       <ul className="space-y-2">
         {productsPage.content.map((product) => (
           <li key={product.id}>
