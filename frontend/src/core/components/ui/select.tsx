@@ -6,6 +6,11 @@ import * as React from "react";
 
 import { cn } from "@/core/utils/cn";
 
+export interface SelectOption {
+  readonly label: React.ReactNode;
+  readonly value: string | number;
+}
+
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
