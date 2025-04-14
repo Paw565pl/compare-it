@@ -8,7 +8,7 @@ import { cn } from "@/core/utils/cn";
 
 export interface SelectOption {
   readonly label: React.ReactNode;
-  readonly value: string | number;
+  readonly value: string;
 }
 
 function Select({
