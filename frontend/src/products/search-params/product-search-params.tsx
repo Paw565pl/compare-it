@@ -1,5 +1,6 @@
 import {
   createLoader,
+  parseAsBoolean,
   parseAsFloat,
   parseAsInteger,
   parseAsString,
@@ -10,6 +11,7 @@ export const productFiltersSearchParams = {
   category: parseAsString,
   minPrice: parseAsFloat,
   maxPrice: parseAsFloat,
+  isAvailable: parseAsBoolean,
   shop: parseAsString,
 } as const;
 
