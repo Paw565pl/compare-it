@@ -42,7 +42,7 @@ export const useUpdateRating = (
     ] as const,
     mutationFn: (ratingDto) =>
       updateRating(accessToken, productId, commentId, ratingDto),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = [
         ...productsQueryKey,

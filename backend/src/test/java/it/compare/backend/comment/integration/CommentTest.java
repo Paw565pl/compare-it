@@ -8,6 +8,7 @@ import it.compare.backend.comment.datafactory.CommentTestDataFactory;
 import it.compare.backend.comment.repository.CommentRepository;
 import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.core.test.IntegrationTest;
+import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.user.datafactory.UserTestDataFactory;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -18,7 +19,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-@Import({UserTestDataFactory.class, CommentTestDataFactory.class})
+@Import({UserTestDataFactory.class, CommentTestDataFactory.class, ProductTestDataFactory.class})
 abstract class CommentTest extends IntegrationTest {
 
     @MockitoBean
@@ -29,6 +30,9 @@ abstract class CommentTest extends IntegrationTest {
 
     @Autowired
     CommentTestDataFactory commentTestDataFactory;
+
+    @Autowired
+    ProductTestDataFactory productTestDataFactory;
 
     @Autowired
     CommentRepository commentRepository;

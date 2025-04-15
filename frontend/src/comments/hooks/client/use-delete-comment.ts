@@ -37,7 +37,7 @@ export const useDeleteComment = (
       "delete",
     ] as const,
     mutationFn: () => deleteComment(accessToken, productId, commentId),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = [
         ...productsQueryKey,

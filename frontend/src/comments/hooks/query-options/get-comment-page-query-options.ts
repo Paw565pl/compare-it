@@ -11,6 +11,7 @@ import { AxiosError } from "axios";
 const fetchCommentPage = async (
   productId: string,
   pageParam: unknown,
+  accessToken?: string,
   paginationOptions?: PaginationOptions,
 ) => {
   const { data } = await apiService.get<PaginatedData<CommentEntity>>(
@@ -20,6 +21,9 @@ const fetchCommentPage = async (
         ...paginationOptions,
         page: pageParam,
       },
+      headers: {
+        Authorization: accessToken ? `Bearer ${accessToken}` : undefined,
+      },
     },
   );
   return data;
@@ -27,10 +31,12 @@ const fetchCommentPage = async (
 
 export const getCommentPageQueryOptions = (
   productId: string,
+  accessToken?: string,
   paginationOptions?: PaginationOptions,
 ) =>
   infiniteQueryOptions<PaginatedData<CommentEntity>, AxiosError<ErrorResponse>>(
     {
+      // eslint-disable-next-line @tanstack/query/exhaustive-deps
       queryKey: [
         ...productsQueryKey,
         productId,
@@ -38,7 +44,7 @@ export const getCommentPageQueryOptions = (
         paginationOptions,
       ] as const,
       queryFn: ({ pageParam }) =>
-        fetchCommentPage(productId, pageParam, paginationOptions),
+        fetchCommentPage(productId, pageParam, accessToken, paginationOptions),
       getNextPageParam: ({ page: { number, totalPages } }) =>
         number + 1 < totalPages ? number + 1 : undefined,
       initialPageParam: 0,
