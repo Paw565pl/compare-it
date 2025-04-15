@@ -35,7 +35,7 @@ export const useCreateComment = (accessToken: string, productId: string) =>
     ] as const,
     mutationFn: (commentDto) =>
       createComment(accessToken, productId, commentDto),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = [
         ...productsQueryKey,

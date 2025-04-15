@@ -25,7 +25,7 @@ export const useDeleteFavoriteProduct = (accessToken: string) =>
     mutationKey: [...favoriteProductsQueryKey, "delete"] as const,
     mutationFn: (favoriteProductDto) =>
       deleteFavoriteProduct(accessToken, favoriteProductDto),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = favoriteProductsQueryKey;
 

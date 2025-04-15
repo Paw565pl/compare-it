@@ -27,7 +27,7 @@ export const useCreatePriceAlert = (accessToken: string) =>
   useMutation<PriceAlertEntity, AxiosError<ErrorResponse>, PriceAlertDto>({
     mutationKey: [...priceAlertsQueryKey, "create"] as const,
     mutationFn: (priceAlertDto) => createPriceAlert(accessToken, priceAlertDto),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = priceAlertsQueryKey;
 

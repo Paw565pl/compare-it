@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter
@@ -18,4 +19,5 @@ public class CommentResponse {
     private LocalDateTime createdAt;
     private Long positiveRatingsCount;
     private Long negativeRatingsCount;
+    private @Nullable Boolean isRatingPositive;
 }

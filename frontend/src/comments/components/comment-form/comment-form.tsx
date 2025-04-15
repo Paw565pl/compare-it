@@ -36,17 +36,14 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
     },
   });
 
-  const handleCreateComment = ({ text }: CommentFormValues) => {
-    createComment(
-      { text },
-      {
-        onSuccess: () => {
-          toast.success("Komentarz został dodany.");
-          form.reset();
-        },
-        onError: () => toast.error("Coś poszło nie tak!"),
+  const handleCreateComment = (commentFormValues: CommentFormValues) => {
+    createComment(commentFormValues, {
+      onSuccess: () => {
+        toast.success("Komentarz został dodany.");
+        form.reset();
       },
-    );
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
   };
 
   return (
@@ -71,6 +68,7 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
                       ? "Podziel się swoją opinią..."
                       : "Zaloguj się aby dodać komentarz"
                   }
+                  maxWordCount={commentSchema.shape.text.maxLength ?? undefined}
                   className="bg-background border p-2 text-sm"
                   {...field}
                 />

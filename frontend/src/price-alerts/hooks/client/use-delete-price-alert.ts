@@ -25,7 +25,7 @@ export const useDeletePriceAlert = (
   useMutation<void, AxiosError<ErrorResponse>, void>({
     mutationKey: [...priceAlertsQueryKey, priceAlertId, "delete"] as const,
     mutationFn: () => deletePriceAlert(accessToken, priceAlertId),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = priceAlertsQueryKey;
 

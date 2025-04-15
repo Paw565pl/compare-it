@@ -7,20 +7,13 @@ import static org.hamcrest.Matchers.equalTo;
 
 import it.compare.backend.comment.dto.CommentDto;
 import it.compare.backend.comment.model.Comment;
-import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Product;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
-@Import(ProductTestDataFactory.class)
 class CommentUpdateTest extends CommentTest {
-
-    @Autowired
-    private ProductTestDataFactory productTestDataFactory;
 
     private Product testProduct;
     private Comment testComment;
