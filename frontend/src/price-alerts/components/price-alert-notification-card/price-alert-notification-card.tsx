@@ -50,10 +50,10 @@ export const PriceAlertNotificationCard = ({
       <CardHeader>
         <div className="flex justify-center">
           <ImageWithFallback
-            name={priceAlert.productName}
-            imageUrl={product?.images.at(0) || ""}
-            width={200}
-            height={200}
+            src={product?.images.at(0) || ""}
+            alt={priceAlert.productName}
+            width={300}
+            height={265}
           />
         </div>
 

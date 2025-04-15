@@ -31,10 +31,10 @@ const SingleProduct = ({
       <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
         <Link href={`/produkty/${id}`}>
           <ImageWithFallback
-            name={name}
-            imageUrl={mainImageUrl}
-            width={200}
-            height={200}
+            src={mainImageUrl}
+            alt={name}
+            width={300}
+            height={265}
           />
         </Link>
       </div>

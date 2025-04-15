@@ -67,10 +67,10 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
       <CardHeader>
         <div className="flex justify-center">
           <ImageWithFallback
-            name={priceAlert.productName}
-            imageUrl={product?.images.at(0) || null}
-            width={200}
-            height={200}
+            src={product?.images.at(0) || null}
+            alt={priceAlert.productName}
+            width={300}
+            height={265}
           />
         </div>
 

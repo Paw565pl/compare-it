@@ -25,11 +25,10 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
         className="bg-background mb-3 px-2 py-4 sm:mb-0"
       >
         <ImageWithFallback
-          name={offer.shop}
-          imageUrl={getShopLogoUrl(offer.shop)}
-          width={150}
-          height={150}
-          className="w-[150px]"
+          src={getShopLogoUrl(offer.shop)}
+          alt={offer.shop}
+          width={170}
+          height={25}
         />
       </Link>
 

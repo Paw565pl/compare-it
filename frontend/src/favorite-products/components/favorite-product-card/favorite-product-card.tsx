@@ -46,10 +46,10 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
       <CardHeader>
         <div className="flex justify-center">
           <ImageWithFallback
-            name={product.name}
-            imageUrl={product.mainImageUrl}
-            width={200}
-            height={200}
+            src={product.mainImageUrl}
+            alt={product.name}
+            width={300}
+            height={265}
           />
         </div>
 

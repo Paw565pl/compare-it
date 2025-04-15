@@ -1,31 +1,54 @@
-import { cn } from "@/core/utils/cn";
-import Image from "next/image";
+"use client";
 
-interface ImageWithFallbackProps {
-  readonly name: string;
-  readonly imageUrl: string | null;
-  readonly width: number;
-  readonly height: number;
-  readonly className?: string;
+import { Skeleton } from "@/core/components/ui/skeleton";
+import { cn } from "@/core/utils/cn";
+import Image, { ImageProps } from "next/image";
+import { useState } from "react";
+
+interface ImageWithFallbackProps extends Omit<ImageProps, "src"> {
+  readonly src: string | null;
+  readonly skeletonClassName?: string;
 }
 
-const noImagePlaceholderPath = "/no-image-placeholder.svg";
+const NO_IMAGE_PLACEHOLDER_PATH = "/no-image-placeholder.svg";
 
 export const ImageWithFallback = ({
-  name,
-  imageUrl,
-  width,
-  height,
+  src,
+  alt,
   className,
+  skeletonClassName,
+  ...props
 }: ImageWithFallbackProps) => {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
-    <Image
-      src={imageUrl || noImagePlaceholderPath}
-      onError={(e) => (e.currentTarget.src = noImagePlaceholderPath)}
-      width={width}
-      height={height}
-      alt={name}
-      className={cn("h-auto w-auto", className)}
-    />
+    <div
+      className="relative overflow-hidden"
+      style={{
+        height: props.height,
+        width: props.width,
+      }}
+    >
+      {isLoading && (
+        <Skeleton
+          className={cn("absolute inset-0 h-full w-full", skeletonClassName)}
+        />
+      )}
+      <Image
+        {...props}
+        src={src || NO_IMAGE_PLACEHOLDER_PATH}
+        alt={alt}
+        className={cn(
+          "transition-opacity duration-300 ease-in-out",
+          isLoading ? "opacity-0" : "opacity-100",
+          className,
+        )}
+        onLoad={() => setIsLoading(false)}
+        onError={(e) => {
+          e.currentTarget.src = NO_IMAGE_PLACEHOLDER_PATH;
+          setIsLoading(false);
+        }}
+      />
+    </div>
   );
 };
