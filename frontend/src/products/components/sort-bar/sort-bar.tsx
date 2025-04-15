@@ -49,8 +49,8 @@ export const SortSelect = () => {
   );
 
   const handleSortChange = (sortValue: string) => {
-    const sort = sortValue !== "default" ? sortValue : null;
-    setPagination((prev) => ({ ...prev, page: 1, sort }));
+    const newSort = sortValue !== "default" ? sortValue : null;
+    setPagination((prev) => ({ ...prev, page: 1, sort: newSort }));
   };
 
   return (
