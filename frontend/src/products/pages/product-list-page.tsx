@@ -51,8 +51,9 @@ export const ProductListPage = async ({
         </aside>
 
         <section className="flex w-full flex-col">
+          <ProductListPageHeader />
+
           <Suspense>
-            <ProductListPageHeader />
             <ProductList />
           </Suspense>
         </section>
