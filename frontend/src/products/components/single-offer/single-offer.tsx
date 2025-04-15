@@ -27,8 +27,8 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
         <ImageWithFallback
           src={getShopLogoUrl(offer.shop)}
           alt={offer.shop}
-          width={170}
-          height={25}
+          width={160}
+          height={26}
         />
       </Link>
 
