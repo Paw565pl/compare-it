@@ -41,7 +41,7 @@ const sortOptions: SelectOption[] = [
     label: "Liczba ofert (malejąco)",
     value: "offersCount,desc",
   },
-];
+] as const;
 
 export const SortSelect = () => {
   const [{ sort }, setPagination] = useQueryStates(
@@ -54,7 +54,7 @@ export const SortSelect = () => {
   };
 
   return (
-    <Select value={sort ?? undefined} onValueChange={handleSortChange}>
+    <Select value={sort ?? ""} onValueChange={handleSortChange}>
       <SelectTrigger className="w-48">
         <SelectValue placeholder="SORTUJ" />
       </SelectTrigger>
