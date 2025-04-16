@@ -45,11 +45,12 @@ public class ProductService {
 
     public Page<ProductListResponse> findAll(ProductFiltersDto filters, Pageable pageable) {
         var aggregationBuilder = createAggregationBuilder(filters, pageable);
+        var total = executeCountAggregation(aggregationBuilder);
+
+        if (total == 0) return Page.empty(pageable);
 
         var results = mongoTemplate.aggregate(aggregationBuilder.buildSearchAggregation(), ProductListResponse.class);
         var productResponses = results.getMappedResults();
-
-        var total = executeCountAggregation(aggregationBuilder);
 
         return new PageImpl<>(productResponses, pageable, total);
     }

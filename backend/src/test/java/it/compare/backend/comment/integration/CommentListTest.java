@@ -92,7 +92,9 @@ class CommentListTest extends CommentTest {
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(3))
-                .body("content.findAll { it.author == '" + user.getUsername() + "' }", hasSize(NUMBER_OF_COMMENTS));
+                .body(
+                        String.format("content.findAll { it.author == \"%s\" }", user.getUsername()),
+                        hasSize(NUMBER_OF_COMMENTS));
         assertThat(commentRepository.count(), equalTo(3L));
     }
 
