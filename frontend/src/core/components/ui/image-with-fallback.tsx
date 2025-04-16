@@ -23,7 +23,7 @@ export const ImageWithFallback = ({
 
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative flex items-center justify-center overflow-hidden"
       style={{
         height: props.height,
         width: props.width,
