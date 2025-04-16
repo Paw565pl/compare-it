@@ -19,6 +19,7 @@ export const ProductPagination = ({ hasNextPage }: ProductPaginationProps) => {
     <div className="mt-6 flex items-center justify-between">
       <Button
         variant="pagination"
+        aria-label="Poprzednia strona"
         onClick={() =>
           setProductPagination((prev) => ({
             ...prev,
@@ -34,6 +35,7 @@ export const ProductPagination = ({ hasNextPage }: ProductPaginationProps) => {
 
       <Button
         variant="pagination"
+        aria-label="Następna strona"
         onClick={() =>
           setProductPagination((prev) => ({ ...prev, page: prev.page + 1 }))
         }
