@@ -13,8 +13,9 @@ export const ProductPageImages = ({ name, images }: ProductPageImagesProps) => {
           key={imageUrlIndex}
           src={imageUrl}
           alt={name}
-          width={300}
-          height={265}
+          fill
+          sizes="(max-width: 359px) 100vw, 320px"
+          containerClassName="h-[265px] w-[300px] bg-white"
         />
       ))}
     </div>
