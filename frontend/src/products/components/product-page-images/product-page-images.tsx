@@ -7,7 +7,7 @@ interface ProductPageImagesProps {
 
 export const ProductPageImages = ({ name, images }: ProductPageImagesProps) => {
   return (
-    <div className="mt-4 flex flex-wrap justify-center gap-1">
+    <div className="mt-4 flex flex-wrap justify-center gap-3">
       {images.map((imageUrl, imageUrlIndex) => (
         <ImageWithFallback
           key={imageUrlIndex}
