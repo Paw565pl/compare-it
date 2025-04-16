@@ -55,7 +55,7 @@ export const SortSelect = () => {
 
   return (
     <Select value={sort ?? ""} onValueChange={handleSortChange}>
-      <SelectTrigger className="w-48">
+      <SelectTrigger className="xs:w-48 w-40">
         <SelectValue placeholder="SORTUJ" />
       </SelectTrigger>
       <SelectContent>

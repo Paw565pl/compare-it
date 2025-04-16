@@ -71,7 +71,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
             alt={priceAlert.productName}
             fill
             sizes="(max-width: 359px) 100vw, 320px"
-            containerClassName="max-[360px]:w-[280px] w-[300px] h-[265px] bg-white"
+            containerClassName="w-[280px] xs:w-[300px] h-[265px] bg-white"
           />
         </div>
 
