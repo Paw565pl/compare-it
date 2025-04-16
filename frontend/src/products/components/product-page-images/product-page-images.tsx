@@ -15,7 +15,7 @@ export const ProductPageImages = ({ name, images }: ProductPageImagesProps) => {
           alt={name}
           fill
           sizes="(max-width: 359px) 100vw, 320px"
-          containerClassName="w-[300px] h-[265px] bg-white"
+          containerClassName="w-75 h-66.25 bg-white"
         />
       ))}
     </div>

@@ -37,7 +37,7 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
             alt={productData.name}
             fill
             sizes="(max-width: 359px) 100vw, 320px"
-            containerClassName="w-[360px] h-[318px] bg-white"
+            containerClassName="w-90 h-79.5 bg-white"
           />
         </div>
 
