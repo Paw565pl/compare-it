@@ -49,7 +49,7 @@ export const Profile = () => {
 
   return (
     <div className="flex flex-col items-center sm:flex-row sm:items-start sm:gap-6">
-      <aside className="mb-6 flex w-full gap-2 sm:mb-0 sm:w-1/12 sm:flex-col sm:gap-4">
+      <aside className="mb-6 flex w-full gap-2 max-[360px]:flex-wrap sm:mb-0 sm:w-1/12 sm:flex-col sm:gap-4">
         {asideButtons.map(({ title, component, icon }, index) => (
           <Button
             key={index}

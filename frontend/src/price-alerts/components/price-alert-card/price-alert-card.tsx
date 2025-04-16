@@ -63,7 +63,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
   const formattedDesiredPrice = formatCurrency(priceAlert.targetPrice, "PLN");
 
   return (
-    <Card className="w-[22rem]">
+    <Card className="w-88">
       <CardHeader>
         <div className="flex justify-center">
           <ImageWithFallback
@@ -71,7 +71,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
             alt={priceAlert.productName}
             fill
             sizes="(max-width: 359px) 100vw, 320px"
-            containerClassName="w-[300px] h-[265px] bg-white"
+            containerClassName="max-[360px]:w-[280px] w-[300px] h-[265px] bg-white"
           />
         </div>
 

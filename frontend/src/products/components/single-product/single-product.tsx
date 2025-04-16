@@ -27,7 +27,7 @@ const SingleProduct = ({
       : "-";
 
   return (
-    <div className="border-grey-100 text-primary mt-1 flex flex-col bg-white p-6 md:flex-row">
+    <div className="border-grey-100 text-primary mt-1 flex flex-col bg-white p-4 sm:p-6 md:flex-row">
       <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
         <Link href={`/produkty/${id}`}>
           <ImageWithFallback
