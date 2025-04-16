@@ -117,7 +117,6 @@ export const FiltersBar = () => {
                                         ),
                                       )
                                 }
-                                className="cursor-pointer"
                               />
                             </FormControl>
                             <FormLabel className="cursor-pointer sm:text-lg">
@@ -145,7 +144,6 @@ export const FiltersBar = () => {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="cursor-pointer"
                         />
                       </FormControl>
                       <FormLabel className="cursor-pointer sm:text-lg">
