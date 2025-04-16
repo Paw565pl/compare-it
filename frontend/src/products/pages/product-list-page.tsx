@@ -45,13 +45,16 @@ export const ProductListPage = async ({
           <Suspense>
             <CategoriesList />
           </Suspense>
+
           <Suspense>
             <FiltersBar />
           </Suspense>
         </aside>
 
         <section className="flex w-full flex-col">
-          <ProductListPageHeader />
+          <Suspense>
+            <ProductListPageHeader />
+          </Suspense>
 
           <Suspense>
             <ProductList />
