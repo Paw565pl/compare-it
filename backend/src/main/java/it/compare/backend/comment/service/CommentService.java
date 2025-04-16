@@ -13,6 +13,7 @@ import it.compare.backend.product.service.ProductService;
 import it.compare.backend.rating.repository.RatingRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -21,14 +22,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Size;
 import org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -45,9 +46,12 @@ public class CommentService {
     private final RatingRepository ratingRepository;
 
     private static final String RATINGS_COLLECTION = "ratings";
+    private static final String SINGLE_RATING_FIELD = "rating";
+    private static final String AUTHOR_FIELD = "author";
+    private static final String CREATED_AT_FIELD = "createdAt";
     private static final String POSITIVE_RATINGS_COUNT_FIELD = "positiveRatingsCount";
     private static final String NEGATIVE_RATINGS_COUNT_FIELD = "negativeRatingsCount";
-    private static final String CREATED_AT_FIELD = "createdAt";
+    private static final String IS_POSITIVE_RATING_FIELD = "isRatingPositive";
 
     public Comment findCommentOrThrow(String id) {
         return commentRepository
@@ -55,27 +59,44 @@ public class CommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
     }
 
-    public Page<CommentResponse> findAllByProductId(String productId, Pageable pageable) {
+    public Page<CommentResponse> findAllByProductId(
+            @Nullable OAuthUserDetails oAuthUserDetails, String productId, Pageable pageable) {
         var productObjectId = convertProductId(productId);
         productService.findProductOrThrow(productId);
 
         var criteria = Criteria.where("product.$id").is(productObjectId);
         var total = mongoTemplate.count(Query.query(criteria), Comment.class);
+        if (total == 0) return Page.empty(pageable);
 
-        var operations = new ArrayList<>(getCommentRatingsAggregationOperations());
+        var operations = new ArrayList<AggregationOperation>();
 
-        var match = Aggregation.match(criteria);
-        operations.addFirst(match);
+        operations.add(Aggregation.match(criteria));
+        operations.addAll(getRatingsCountsAggregationOperations());
+
+        var userId = Optional.ofNullable(oAuthUserDetails).map(OAuthUserDetails::getId);
+        userId.ifPresent(userIdValue -> operations.add(getUserRatingAggregationOperation(userIdValue)));
+
+        operations.add(Aggregation.project().andExclude(RATINGS_COLLECTION));
 
         var validSortProperties = Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD);
         var sortOrders = pageable.getSort()
                 .filter(order -> validSortProperties.contains(order.getProperty()))
                 .toList();
-        var sort = Aggregation.sort(Sort.by(sortOrders));
-        operations.add(sort);
+        operations.add(Aggregation.sort(Sort.by(sortOrders)));
 
         operations.add(Aggregation.skip(pageable.getOffset()));
         operations.add(Aggregation.limit(pageable.getPageSize()));
+
+        var project = Aggregation.project(
+                        "id",
+                        "text",
+                        CREATED_AT_FIELD,
+                        POSITIVE_RATINGS_COUNT_FIELD,
+                        NEGATIVE_RATINGS_COUNT_FIELD,
+                        IS_POSITIVE_RATING_FIELD)
+                .and("author.username")
+                .as(AUTHOR_FIELD);
+        operations.add(project);
 
         var aggregation = Aggregation.newAggregation(Comment.class, operations);
         var results =
@@ -92,50 +113,74 @@ public class CommentService {
         }
     }
 
-    private List<AggregationOperation> getCommentRatingsAggregationOperations() {
+    private List<AggregationOperation> getRatingsCountsAggregationOperations() {
         var ratingsLookup = Aggregation.lookup(RATINGS_COLLECTION, "_id", "comment.$id", RATINGS_COLLECTION);
-        var authorLookup = Aggregation.lookup("users", "author.$id", "_id", "author");
+        var authorLookup = Aggregation.lookup("users", "author.$id", "_id", AUTHOR_FIELD);
 
         var positiveRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
-                .as("rating")
-                .by(Eq.valueOf("rating.isPositive").equalToValue(true));
+                .as(SINGLE_RATING_FIELD)
+                .by(Eq.valueOf("$$rating.isPositive").equalToValue(true));
         var negativeRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
-                .as("rating")
-                .by(Eq.valueOf("rating.isPositive").equalToValue(false));
+                .as(SINGLE_RATING_FIELD)
+                .by(Eq.valueOf("$$rating.isPositive").equalToValue(false));
         var addFields = Aggregation.addFields()
                 .addFieldWithValue(POSITIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(positiveRatingsCountFilter))
                 .addFieldWithValue(NEGATIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(negativeRatingsCountFilter))
                 .build();
 
-        var project = Aggregation.project(
-                        "id", "text", CREATED_AT_FIELD, POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD)
-                .and("author.username")
-                .as("author");
-
-        return List.of(ratingsLookup, authorLookup, addFields, project);
+        return List.of(ratingsLookup, authorLookup, addFields);
     }
 
-    public CommentResponse findById(String productId, String commentId) {
+    private AddFieldsOperation getUserRatingAggregationOperation(String userId) {
+        var filterRatingsByUserId = Filter.filter(RATINGS_COLLECTION)
+                .as(SINGLE_RATING_FIELD)
+                .by(Eq.valueOf("$$rating.author.$id").equalToValue(userId));
+        var findFirstRating = ArrayOperators.First.firstOf(filterRatingsByUserId);
+
+        var nullValue = ObjectOperators.getValueOf("non-existing-field");
+        var calculateIsRatingPositiveField = ConditionalOperators.ifNull(
+                        ObjectOperators.GetField.getField("isPositive").of(findFirstRating))
+                .thenValueOf(nullValue);
+
+        return Aggregation.addFields()
+                .addFieldWithValue(IS_POSITIVE_RATING_FIELD, calculateIsRatingPositiveField)
+                .build();
+    }
+
+    public CommentResponse findById(@Nullable OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
         var productObjectId = convertProductId(productId);
         var commentObjectId = convertCommentId(commentId);
 
         productService.findProductOrThrow(productId);
+        var operations = new ArrayList<AggregationOperation>();
 
         var criteria =
                 Criteria.where("product.$id").is(productObjectId).and("_id").is(commentObjectId);
-        var match = Aggregation.match(criteria);
+        operations.add(Aggregation.match(criteria));
+        operations.addAll(getRatingsCountsAggregationOperations());
 
-        var operations = new ArrayList<>(getCommentRatingsAggregationOperations());
-        operations.addFirst(match);
+        var userId = Optional.ofNullable(oAuthUserDetails).map(OAuthUserDetails::getId);
+        userId.ifPresent(userIdValue -> operations.add(getUserRatingAggregationOperation(userIdValue)));
+
+        var project = Aggregation.project(
+                        "id",
+                        "text",
+                        CREATED_AT_FIELD,
+                        POSITIVE_RATINGS_COUNT_FIELD,
+                        NEGATIVE_RATINGS_COUNT_FIELD,
+                        IS_POSITIVE_RATING_FIELD)
+                .and("author.username")
+                .as(AUTHOR_FIELD);
+        operations.add(project);
 
         var aggregation = Aggregation.newAggregation(Comment.class, operations);
-        var result = mongoTemplate
+        var commentResponse = mongoTemplate
                 .aggregate(aggregation, Comment.class, CommentResponse.class)
                 .getUniqueMappedResult();
 
-        if (result == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+        if (commentResponse == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
 
-        return result;
+        return commentResponse;
     }
 
     private ObjectId convertCommentId(String id) {
@@ -176,9 +221,9 @@ public class CommentService {
         if (!canUpdate) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
         comment.setText(commentDto.text());
-        var savedComment = commentRepository.save(comment);
+        commentRepository.save(comment);
 
-        return commentMapper.toResponse(savedComment);
+        return findById(oAuthUserDetails, productId, commentId);
     }
 
     @Transactional

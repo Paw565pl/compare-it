@@ -3,12 +3,10 @@ package it.compare.backend.comment.integration;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 
 import it.compare.backend.comment.model.Comment;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.rating.datafactory.RatingTestDataFactory;
-import java.util.List;
 import java.util.stream.Stream;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
@@ -22,19 +20,20 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
 @Import(RatingTestDataFactory.class)
-class CommentListTest extends CommentTest {
+class CommentRetrieveTest extends CommentTest {
 
     @Autowired
     private RatingTestDataFactory ratingTestDataFactory;
 
     private Product testProduct;
-    private List<Comment> testComments;
-    private static final int NUMBER_OF_COMMENTS = 3;
+    private Comment testComment;
 
     @BeforeEach
     void setup() {
         testProduct = productTestDataFactory.createOne();
-        testComments = commentTestDataFactory.createMultipleCommentsForProduct(testProduct, user, NUMBER_OF_COMMENTS);
+        testComment = commentTestDataFactory
+                .createMultipleCommentsForProduct(testProduct, user, 1)
+                .getFirst();
     }
 
     @Override
@@ -45,45 +44,39 @@ class CommentListTest extends CommentTest {
     }
 
     @Test
-    void shouldReturnNotFoundForNonExistentProduct() {
+    void shouldReturnNotFoundForNonExistentComment() {
         given().contentType(JSON)
                 .when()
-                .get("/{productId}/comments", new ObjectId().toString())
+                .get("/{productId}/comments/{commentId}", testProduct.getId(), new ObjectId().toString())
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
-    void shouldReturnAllCommentsForProduct() {
+    void shouldReturnNotFoundForCommentForDifferentProduct() {
+        var anotherProduct = productTestDataFactory.createOne();
+
         given().contentType(JSON)
                 .when()
-                .get("/{productId}/comments", testProduct.getId())
+                .get("/{productId}/comments/{commentId}", anotherProduct.getId(), testComment.getId())
                 .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("content", hasSize(3))
-                .body(
-                        String.format("content.findAll { it.author == \"%s\" }", user.getUsername()),
-                        hasSize(NUMBER_OF_COMMENTS));
-        assertThat(commentRepository.count(), equalTo(3L));
+                .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
-    void shouldReturnPaginatedResults() {
+    void shouldReturnCommentById() {
         given().contentType(JSON)
-                .queryParam("page", 0)
-                .queryParam("size", 2)
                 .when()
-                .get("/{productId}/comments", testProduct.getId())
+                .get("/{productId}/comments/{commentId}", testProduct.getId(), testComment.getId())
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("content", hasSize(2))
-                .body("page.totalElements", equalTo(NUMBER_OF_COMMENTS))
-                .body("page.totalPages", equalTo(2));
+                .body("id", equalTo(testComment.getId()))
+                .body("text", equalTo(testComment.getText()))
+                .body("author", equalTo(user.getUsername()));
     }
 
     @Test
     void shouldAlwaysReturnIsRatingPositiveFieldAsNullIfUserIsNotAuthenticated() {
-        var testComment = testComments.getFirst();
         ratingTestDataFactory.createRatingForComment(testComment, user, true);
 
         given().contentType(JSON)
@@ -91,7 +84,7 @@ class CommentListTest extends CommentTest {
                 .get("/{productId}/comments", testProduct.getId())
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("content.findAll { it.isRatingPositive == null }", hasSize(NUMBER_OF_COMMENTS));
+                .body("isRatingPositive", equalTo(null));
     }
 
     static Stream<Arguments> commentIsRatingPositiveFieldTestCases() {
@@ -101,18 +94,15 @@ class CommentListTest extends CommentTest {
     @ParameterizedTest
     @MethodSource("commentIsRatingPositiveFieldTestCases")
     void shouldReturnCorrectIsRatingPositiveFieldValue(Boolean ratingValue, Boolean expectedIsRatingPositive) {
-        var testComment = testComments.getFirst();
         if (ratingValue != null) ratingTestDataFactory.createRatingForComment(testComment, user, ratingValue);
 
         given().auth()
                 .oauth2(mockToken.getTokenValue())
                 .contentType(JSON)
                 .when()
-                .get("/{productId}/comments", testProduct.getId())
+                .get("/{productId}/comments/{commentId}", testProduct.getId(), testComment.getId())
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body(
-                        String.format("content.find { it.id == '%s' }.isRatingPositive", testComment.getId()),
-                        equalTo(expectedIsRatingPositive));
+                .body("isRatingPositive", equalTo(expectedIsRatingPositive));
     }
 }

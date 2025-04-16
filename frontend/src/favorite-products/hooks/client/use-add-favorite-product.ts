@@ -28,7 +28,7 @@ export const useAddFavoriteProduct = (accessToken: string) =>
     mutationKey: [...favoriteProductsQueryKey, "add"] as const,
     mutationFn: (favoriteProductDto) =>
       addFavoriteProduct(accessToken, favoriteProductDto),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = favoriteProductsQueryKey;
 

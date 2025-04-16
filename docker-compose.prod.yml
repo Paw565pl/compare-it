@@ -27,7 +27,7 @@ services:
       - mongodb
       - smtp4dev
     environment:
-      - ALLOWED_ORIGIN=http://localhost:3000
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000
       - SPRING_DATA_MONGODB_URI=mongodb://root:password@mongodb:27017/compare-it?authSource=admin
 
   frontend:

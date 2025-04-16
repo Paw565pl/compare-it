@@ -4,5 +4,9 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 
 export const useFetchCommentPage = (
   productId: string,
+  accessToken?: string,
   paginationOptions?: PaginationOptions,
-) => useInfiniteQuery(getCommentPageQueryOptions(productId, paginationOptions));
+) =>
+  useInfiniteQuery(
+    getCommentPageQueryOptions(productId, accessToken, paginationOptions),
+  );

@@ -39,3 +39,7 @@ server:
   error:
     include-message: always
     include-path: never
+
+cors:
+  allowed-headers: "*"
+  allowed-methods: "*"

@@ -38,7 +38,7 @@ export const useDeleteRating = (
       "delete",
     ] as const,
     mutationFn: () => deleteRating(accessToken, productId, commentId),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = [
         ...productsQueryKey,

@@ -41,7 +41,7 @@ export const useUpdateComment = (
     ] as const,
     mutationFn: (commentDto) =>
       updateComment(accessToken, productId, commentId, commentDto),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = [
         ...productsQueryKey,

@@ -6,21 +6,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import it.compare.backend.comment.dto.CommentDto;
-import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import java.util.stream.Stream;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 
-@Import(ProductTestDataFactory.class)
 class CommentCreateTest extends CommentTest {
-
-    @Autowired
-    private ProductTestDataFactory productTestDataFactory;
 
     @Test
     void shouldReturnUnauthorized() {

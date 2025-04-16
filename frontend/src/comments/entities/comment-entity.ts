@@ -5,4 +5,5 @@ export interface CommentEntity {
   readonly createdAt: string;
   readonly positiveRatingsCount: number;
   readonly negativeRatingsCount: number;
+  readonly isRatingPositive: boolean | null;
 }

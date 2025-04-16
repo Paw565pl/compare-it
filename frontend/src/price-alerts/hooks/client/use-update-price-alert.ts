@@ -32,7 +32,7 @@ export const useUpdatePriceAlert = (
     mutationKey: [...priceAlertsQueryKey, priceAlertId, "update"] as const,
     mutationFn: (priceAlertDto) =>
       updatePriceAlert(accessToken, priceAlertId, priceAlertDto),
-    onSuccess: () => {
+    onSettled: () => {
       const queryClient = getQueryClient();
       const queryKey = priceAlertsQueryKey;
 
