@@ -24,7 +24,6 @@ public class ProductAggregationBuilder {
     // Field constants to avoid duplication
     public static final String PRICE_FIELD = "lowestCurrentPrice";
     public static final String SHOP_OBJECT = "shopObject";
-    public static final String STRING_ID = "stringId";
     public static final String OFFERS = "offers";
     public static final String OFFER_PREFIX = "$$offer.";
     public static final String OFFERS_SHOP_FIELD = "offers.shop";
@@ -179,8 +178,6 @@ public class ProductAggregationBuilder {
         // Group to ensure we only keep one price history item per shop (the most recent one)
         operations.add(
                 Aggregation.group(Fields.from(Fields.field("productId", "$" + ID), Fields.field("shop", OFFERS_SHOP)))
-                        .first("$" + STRING_ID)
-                        .as(STRING_ID)
                         .first("$" + NAME)
                         .as(NAME)
                         .first("$ean")
@@ -238,8 +235,6 @@ public class ProductAggregationBuilder {
         var operations = new ArrayList<AggregationOperation>();
 
         operations.add(Aggregation.group("$_id.productId")
-                .first(STRING_ID)
-                .as(STRING_ID)
                 .first(NAME)
                 .as(NAME)
                 .first("ean")

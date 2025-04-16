@@ -115,7 +115,7 @@ class ProductDetailsTest extends ProductTest {
                         Shop.RTV_EURO_AGD, BigDecimal.valueOf(200), ninetyOneDaysAgo),
                 new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(200), fiveDaysAgo),
                 new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(200), weekAgo),
-                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(100), yearAgo)));
+                new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(110), yearAgo)));
 
         var request = given().contentType(JSON);
 
@@ -143,5 +143,74 @@ class ProductDetailsTest extends ProductTest {
                         String.format(
                                 "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
                         hasSize(moreleNetHistorySize));
+    }
+
+    static Stream<Arguments> sortOffersByLowestPriceTestCases() {
+        var now = LocalDateTime.now();
+        var twoDaysAgo = LocalDateTime.now().minusDays(2);
+        var fiveDaysAgo = LocalDateTime.now().minusDays(5);
+        return Stream.of(
+                Arguments.of(
+                        List.of(
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(200), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(210), twoDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MORELE_NET, BigDecimal.valueOf(400), fiveDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MORELE_NET, BigDecimal.valueOf(300), twoDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(500), twoDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), now)),
+                        List.of(
+                                Shop.MEDIA_EXPERT.getHumanReadableName(),
+                                Shop.RTV_EURO_AGD.getHumanReadableName(),
+                                Shop.MORELE_NET.getHumanReadableName())),
+                Arguments.of(
+                        List.of(
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(199), twoDaysAgo),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(150), now),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(199), now),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MORELE_NET, BigDecimal.valueOf(205), now)),
+                        List.of(
+                                Shop.MEDIA_EXPERT.getHumanReadableName(),
+                                Shop.RTV_EURO_AGD.getHumanReadableName(),
+                                Shop.MORELE_NET.getHumanReadableName())),
+                Arguments.of(
+                        List.of(
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MEDIA_EXPERT, BigDecimal.valueOf(300), now),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.RTV_EURO_AGD, BigDecimal.valueOf(150), now),
+                                new ProductTestDataFactory.OfferPriceStamp(
+                                        Shop.MORELE_NET, BigDecimal.valueOf(250), now)),
+                        List.of(
+                                Shop.RTV_EURO_AGD.getHumanReadableName(),
+                                Shop.MORELE_NET.getHumanReadableName(),
+                                Shop.MEDIA_EXPERT.getHumanReadableName())));
+    }
+
+    @ParameterizedTest
+    @MethodSource("sortOffersByLowestPriceTestCases")
+    void shouldReturnOffersSortedByLowestPriceOnLastPriceStamp(
+            List<ProductTestDataFactory.OfferPriceStamp> offerPriceStamps, List<String> expectedShops) {
+        var product = productTestDataFactory.createProductWithOffers(offerPriceStamps);
+
+        given().contentType(JSON)
+                .when()
+                .get("/{productId}", product.getId())
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .log()
+                .body()
+                .body("offers[0].shop", equalTo(expectedShops.get(0)))
+                .body("offers[1].shop", equalTo(expectedShops.get(1)))
+                .body("offers[2].shop", equalTo(expectedShops.get(2)));
     }
 }
