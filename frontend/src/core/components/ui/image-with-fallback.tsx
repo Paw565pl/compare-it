@@ -7,6 +7,7 @@ import { useState } from "react";
 
 interface ImageWithFallbackProps extends Omit<ImageProps, "src"> {
   readonly src: string | null;
+  readonly containerClassName?: string;
   readonly skeletonClassName?: string;
 }
 
@@ -16,6 +17,7 @@ export const ImageWithFallback = ({
   src,
   alt,
   className,
+  containerClassName,
   skeletonClassName,
   ...props
 }: ImageWithFallbackProps) => {
@@ -23,11 +25,14 @@ export const ImageWithFallback = ({
 
   return (
     <div
-      className="relative flex items-center justify-center overflow-hidden"
       style={{
         height: props.height,
         width: props.width,
       }}
+      className={cn(
+        "relative flex max-w-[95svw] items-center justify-center overflow-hidden",
+        containerClassName,
+      )}
     >
       {isLoading && (
         <Skeleton
@@ -40,6 +45,7 @@ export const ImageWithFallback = ({
         alt={alt}
         className={cn(
           "transition-opacity duration-300 ease-in-out",
+          props.fill ? "object-contain" : "",
           isLoading ? "opacity-0" : "opacity-100",
           className,
         )}
