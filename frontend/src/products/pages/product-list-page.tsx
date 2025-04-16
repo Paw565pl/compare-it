@@ -40,7 +40,7 @@ export const ProductListPage = async ({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <section className="flex flex-col lg:flex-row lg:p-4">
+      <section className="flex flex-col lg:flex-row xl:p-4">
         <aside className="mr-0 w-full lg:mr-4 lg:w-1/5">
           <Suspense>
             <CategoriesList />
