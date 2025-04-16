@@ -34,7 +34,9 @@ export const FiltersBar = () => {
   const [productFilters, setProductFilters] = useQueryStates(
     productFiltersSearchParams,
   );
-  const [, setPagination] = useQueryStates(productPaginationSearchParams);
+  const [, setProductPagination] = useQueryStates(
+    productPaginationSearchParams,
+  );
 
   const defaultValues = useMemo<ProductFiltersFields>(
     () =>
@@ -78,7 +80,7 @@ export const FiltersBar = () => {
       ...prevFilters,
       ...parsedFilters,
     }));
-    setPagination((prev) => ({ ...prev, page: 1 }));
+    setProductPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   return (

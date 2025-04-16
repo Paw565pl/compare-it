@@ -44,13 +44,13 @@ const sortOptions: SelectOption[] = [
 ] as const;
 
 export const SortSelect = () => {
-  const [{ sort }, setPagination] = useQueryStates(
+  const [{ sort }, setProductPagination] = useQueryStates(
     productPaginationSearchParams,
   );
 
   const handleSortChange = (sortValue: string) => {
     const newSort = sortValue !== "default" ? sortValue : null;
-    setPagination((prev) => ({ ...prev, page: 1, sort: newSort }));
+    setProductPagination((prev) => ({ ...prev, page: 1, sort: newSort }));
   };
 
   return (

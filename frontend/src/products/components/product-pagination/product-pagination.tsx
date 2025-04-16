@@ -10,8 +10,9 @@ interface ProductPaginationProps {
 }
 
 export const ProductPagination = ({ hasNextPage }: ProductPaginationProps) => {
-  const [pagination, setPagination] = useQueryStates(
+  const [productPagination, setProductPagination] = useQueryStates(
     productPaginationSearchParams,
+    { scroll: true },
   );
 
   return (
@@ -19,22 +20,22 @@ export const ProductPagination = ({ hasNextPage }: ProductPaginationProps) => {
       <Button
         variant="pagination"
         onClick={() =>
-          setPagination((prev) => ({
+          setProductPagination((prev) => ({
             ...prev,
             page: Math.max(prev.page - 1, 1),
           }))
         }
-        disabled={pagination.page === 1}
+        disabled={productPagination.page === 1}
       >
         <ChevronLeft />
       </Button>
 
-      <span className="text-gray-700">Strona {pagination.page}</span>
+      <span className="text-gray-700">Strona {productPagination.page}</span>
 
       <Button
         variant="pagination"
         onClick={() =>
-          setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+          setProductPagination((prev) => ({ ...prev, page: prev.page + 1 }))
         }
         disabled={!hasNextPage}
       >

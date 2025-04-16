@@ -9,18 +9,16 @@ import {
 import { useQueryStates } from "nuqs";
 
 export const ProductList = () => {
-  const [filters] = useQueryStates(productFiltersSearchParams);
-  const [pagination] = useQueryStates(productPaginationSearchParams, {
-    scroll: true,
-  });
+  const [productFilters] = useQueryStates(productFiltersSearchParams);
+  const [productPagination] = useQueryStates(productPaginationSearchParams);
 
   const {
     data: productsPage,
     isLoading,
     error,
-  } = useFetchProductPage(filters, {
-    ...pagination,
-    page: Math.max(0, pagination.page - 1),
+  } = useFetchProductPage(productFilters, {
+    ...productPagination,
+    page: Math.max(0, productPagination.page - 1),
   });
 
   if (isLoading) return <p className="text-primary pt-4">Ładowanie...</p>;
