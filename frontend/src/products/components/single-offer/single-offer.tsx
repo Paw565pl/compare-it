@@ -27,8 +27,9 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
         <ImageWithFallback
           src={getShopLogoUrl(offer.shop)}
           alt={offer.shop}
-          width={160}
-          height={26}
+          fill
+          sizes="(max-width: 359px) 100vw, 320px"
+          containerClassName="w-[160px] h-[25px]"
         />
       </Link>
 

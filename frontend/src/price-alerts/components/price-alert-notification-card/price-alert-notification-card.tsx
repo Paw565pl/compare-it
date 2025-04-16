@@ -52,8 +52,9 @@ export const PriceAlertNotificationCard = ({
           <ImageWithFallback
             src={product?.images.at(0) || ""}
             alt={priceAlert.productName}
-            width={300}
-            height={265}
+            fill
+            sizes="(max-width: 359px) 100vw, 320px"
+            containerClassName="w-[300px] h-[265px] bg-white"
           />
         </div>
 

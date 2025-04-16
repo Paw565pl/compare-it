@@ -35,8 +35,9 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
           <ImageWithFallback
             src={productData.images.at(0) || ""}
             alt={productData.name}
-            width={360}
-            height={318}
+            fill
+            sizes="(max-width: 359px) 100vw, 320px"
+            containerClassName="w-[360px] h-[318px] bg-white"
           />
         </div>
 

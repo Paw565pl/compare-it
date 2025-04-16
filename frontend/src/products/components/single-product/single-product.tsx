@@ -33,8 +33,9 @@ const SingleProduct = ({
           <ImageWithFallback
             src={mainImageUrl}
             alt={name}
-            width={300}
-            height={265}
+            fill
+            sizes="(max-width: 359px) 100vw, 320px"
+            containerClassName="w-[300px] h-[265px] bg-white"
           />
         </Link>
       </div>
