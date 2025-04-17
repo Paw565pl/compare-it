@@ -1,6 +1,6 @@
 import { createTokens } from "@/auth/utils/create-tokens";
 import { createUser } from "@/auth/utils/create-user";
-import { refreshToken } from "@/auth/utils/refresh-token";
+import { refreshTokens } from "@/auth/utils/refresh-tokens";
 import NextAuth from "next-auth";
 import Auth0, { Auth0Profile } from "next-auth/providers/auth0";
 
@@ -22,9 +22,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return !!auth;
     },
     jwt: async ({ token, account, profile, trigger }) => {
-      // manual server side or client side refresh was requested
-      if (trigger === "update" || trigger === undefined)
-        return refreshToken(token);
+      // manual refresh was requested
+      if (trigger === "update") return refreshTokens(token);
 
       // first-time login
       if (account && profile) {
@@ -44,7 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       // subsequent logins, but the `access_token` has expired, try to refresh it
       else {
-        return refreshToken(token);
+        return refreshTokens(token);
       }
     },
     session: ({ session, token }) => {
