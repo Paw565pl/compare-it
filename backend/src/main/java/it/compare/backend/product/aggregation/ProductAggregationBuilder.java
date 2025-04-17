@@ -105,7 +105,6 @@ public class ProductAggregationBuilder {
         }
 
         operations.add(Aggregation.group("$_id.productId"));
-
         operations.add(Aggregation.group().count().as("count"));
 
         return Aggregation.newAggregation(Product.class, operations);
@@ -121,10 +120,9 @@ public class ProductAggregationBuilder {
         operations.addAll(createPriceFilterOperations());
         operations.addAll(createGroupingOperations());
 
-        if (isAvailable != null) {
+        if (isAvailable != null)
             operations.add(
                     Aggregation.match(Criteria.where(HAS_AVAILABLE_OFFERS).is(isAvailable)));
-        }
 
         return operations;
     }
@@ -221,9 +219,7 @@ public class ProductAggregationBuilder {
                         .otherwise(new Document()))
                 .build());
 
-        if (minPrice != null || maxPrice != null) {
-            operations.add(createPriceRangeFilterOperation());
-        }
+        if (minPrice != null || maxPrice != null) operations.add(createPriceRangeFilterOperation());
 
         return operations;
     }
@@ -269,20 +265,18 @@ public class ProductAggregationBuilder {
                 .addField(LOWEST_OFFER)
                 .withValueOf(ConditionalOperators.when(ComparisonOperators.Gt.valueOf("$" + OFFERS_COUNT)
                                 .greaterThanValue(0))
-                        .then(ArrayOperators.ArrayElemAt.arrayOf(
-                                        ArrayOperators.SortArray.sortArrayOf(ArrayOperators.Filter.filter("$" + OFFERS)
-                                                        .as(OFFER)
-                                                        .by(ComparisonOperators.Eq.valueOf(OFFER_PREFIX + IS_AVAILABLE)
-                                                                .equalToValue(true)))
-                                                .by(Sort.by(Sort.Order.asc(PRICE), Sort.Order.desc(TIMESTAMP))))
-                                .elementAt(0))
+                        .then(ArrayOperators.First.firstOf(
+                                ArrayOperators.SortArray.sortArrayOf(ArrayOperators.Filter.filter("$" + OFFERS)
+                                                .as(OFFER)
+                                                .by(ComparisonOperators.Eq.valueOf(OFFER_PREFIX + IS_AVAILABLE)
+                                                        .equalToValue(true)))
+                                        .by(Sort.by(Sort.Order.asc(PRICE), Sort.Order.desc(TIMESTAMP)))))
                         .otherwise(new Document()))
                 .build());
 
         operations.add(Aggregation.addFields()
                 .addField("mainImageUrl")
-                .withValueOf(
-                        ArrayOperators.ArrayElemAt.arrayOf("$" + IMAGES_FIELD).elementAt(0))
+                .withValueOf(ArrayOperators.First.firstOf("$" + IMAGES_FIELD))
                 .build());
 
         return operations;
