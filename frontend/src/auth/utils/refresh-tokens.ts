@@ -2,7 +2,7 @@ import { TokenRefreshResponse } from "@/auth/types/token-refresh-response";
 import { User } from "@/auth/types/user";
 import { createUser } from "@/auth/utils/create-user";
 import serverEnv from "@/core/libs/env/server-env";
-import axios, { isAxiosError } from "axios";
+import axios from "axios";
 import { decodeJwt } from "jose";
 import { JWT } from "next-auth/jwt";
 import { Auth0Profile } from "next-auth/providers/auth0";
@@ -11,8 +11,6 @@ const calculateTokenExpirationTime = (expiresIn: number) =>
   Math.floor(Date.now() / 1000 + expiresIn);
 
 export const refreshTokens = async (token: JWT): Promise<JWT | null> => {
-  console.log("PERFORMING TOKEN REFRESH ...");
-
   try {
     const {
       data: { access_token, refresh_token, id_token, expires_in },
@@ -47,10 +45,7 @@ export const refreshTokens = async (token: JWT): Promise<JWT | null> => {
         idToken: id_token,
       },
     };
-  } catch (e) {
-    if (isAxiosError(e)) console.log(e.response?.data, e.response?.status);
-    else console.log(e);
-
+  } catch {
     // Refresh token expired
     return null;
   }
