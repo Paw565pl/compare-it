@@ -48,6 +48,7 @@ public class ProductAggregationBuilder {
     public static final String MAP = "$map";
     public static final String MERGE_OBJECTS = "$mergeObjects";
     public static final String PRICE_HISTORY = "priceHistory";
+    public static final String MAIN_IMAGE_URL_FIELD = "mainImageUrl";
 
     // Search parameters
     private final String searchName;
@@ -182,8 +183,8 @@ public class ProductAggregationBuilder {
                         .as("ean")
                         .first("$" + CATEGORY)
                         .as(CATEGORY)
-                        .first("$" + IMAGES_FIELD)
-                        .as(IMAGES_FIELD)
+                        .first(ArrayOperators.First.firstOf(IMAGES_FIELD))
+                        .as(MAIN_IMAGE_URL_FIELD)
                         .first("$" + SHOP_OBJECT)
                         .as(SHOP_OBJECT)
                         .first("$shopHumanName")
@@ -237,8 +238,8 @@ public class ProductAggregationBuilder {
                 .as("ean")
                 .first(CATEGORY)
                 .as(CATEGORY)
-                .first(IMAGES_FIELD)
-                .as(IMAGES_FIELD)
+                .first(MAIN_IMAGE_URL_FIELD)
+                .as(MAIN_IMAGE_URL_FIELD)
                 .push(new Document(SHOP_OBJECT, "$" + SHOP_OBJECT)
                         .append(SHOP_NAME, "$" + SHOP_NAME)
                         .append(PRICE, "$" + PRICE)
@@ -274,11 +275,6 @@ public class ProductAggregationBuilder {
                         .otherwise(new Document()))
                 .build());
 
-        operations.add(Aggregation.addFields()
-                .addField("mainImageUrl")
-                .withValueOf(ArrayOperators.First.firstOf("$" + IMAGES_FIELD))
-                .build());
-
         return operations;
     }
 
@@ -300,7 +296,7 @@ public class ProductAggregationBuilder {
                         .append(NAME, 1)
                         .append("ean", 1)
                         .append(CATEGORY, 1)
-                        .append("mainImageUrl", 1)
+                        .append(MAIN_IMAGE_URL_FIELD, 1)
                         .append(OFFERS_COUNT, 1)
                         .append(
                                 PRICE_FIELD,
