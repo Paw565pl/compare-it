@@ -1,6 +1,7 @@
 import { Role } from "@/auth/types/role";
 import { Tokens } from "@/auth/types/tokens";
 import { User } from "@/auth/types/user";
+
 import "next-auth";
 
 declare module "next-auth" {
@@ -11,8 +12,12 @@ declare module "next-auth" {
     user?: User;
     tokens?: Tokens;
   }
+}
 
-  interface Profile {
+import "next-auth/providers/auth0";
+
+declare module "next-auth/providers/auth0" {
+  interface Auth0Profile {
     realm_access?: {
       roles?: Role[];
     };
