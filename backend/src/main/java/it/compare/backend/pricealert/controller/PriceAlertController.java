@@ -7,6 +7,7 @@ import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
 import it.compare.backend.pricealert.response.PriceAlertResponse;
 import it.compare.backend.pricealert.service.PriceAlertService;
+import it.compare.backend.pricealert.validator.ValidPriceAlertId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,8 +16,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -47,7 +50,7 @@ public class PriceAlertController {
     @IsAuthenticated
     @DeleteMapping("/price-alerts/{alertId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePriceAlert(@AuthenticationPrincipal Jwt jwt, @PathVariable String alertId) {
+    public void deletePriceAlert(@AuthenticationPrincipal Jwt jwt, @ValidPriceAlertId @PathVariable String alertId) {
         priceAlertService.deletePriceAlert(OAuthUserDetails.fromJwt(jwt), alertId);
     }
 
@@ -55,7 +58,7 @@ public class PriceAlertController {
     @PutMapping("/price-alerts/{alertId}")
     public PriceAlertResponse updatePriceAlert(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable String alertId,
+            @ValidPriceAlertId @PathVariable String alertId,
             @Valid @RequestBody PriceAlertDto alertDto) {
         return priceAlertService.updatePriceAlert(OAuthUserDetails.fromJwt(jwt), alertId, alertDto);
     }

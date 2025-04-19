@@ -61,10 +61,9 @@ public class CommentService {
 
     public Page<CommentResponse> findAllByProductId(
             @Nullable OAuthUserDetails oAuthUserDetails, String productId, Pageable pageable) {
-        var productObjectId = convertProductId(productId);
         productService.findProductOrThrow(productId);
 
-        var criteria = Criteria.where("product.$id").is(productObjectId);
+        var criteria = Criteria.where("product.$id").is(new ObjectId(productId));
         var total = mongoTemplate.count(Query.query(criteria), Comment.class);
         if (total == 0) return Page.empty(pageable);
 
@@ -105,14 +104,6 @@ public class CommentService {
         return new PageImpl<>(results, pageable, total);
     }
 
-    private ObjectId convertProductId(String id) {
-        try {
-            return new ObjectId(id);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID format");
-        }
-    }
-
     private List<AggregationOperation> getRatingsCountsAggregationOperations() {
         var ratingsLookup = Aggregation.lookup(RATINGS_COLLECTION, "_id", "comment.$id", RATINGS_COLLECTION);
         var authorLookup = Aggregation.lookup("users", "author.$id", "_id", AUTHOR_FIELD);
@@ -148,14 +139,13 @@ public class CommentService {
     }
 
     public CommentResponse findById(@Nullable OAuthUserDetails oAuthUserDetails, String productId, String commentId) {
-        var productObjectId = convertProductId(productId);
-        var commentObjectId = convertCommentId(commentId);
-
         productService.findProductOrThrow(productId);
         var operations = new ArrayList<AggregationOperation>();
 
-        var criteria =
-                Criteria.where("product.$id").is(productObjectId).and("_id").is(commentObjectId);
+        var criteria = Criteria.where("product.$id")
+                .is(new ObjectId(productId))
+                .and("_id")
+                .is(new ObjectId(commentId));
         operations.add(Aggregation.match(criteria));
         operations.addAll(getRatingsCountsAggregationOperations());
 
@@ -181,14 +171,6 @@ public class CommentService {
         if (commentResponse == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
 
         return commentResponse;
-    }
-
-    private ObjectId convertCommentId(String id) {
-        try {
-            return new ObjectId(id);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid comment ID format");
-        }
     }
 
     @Transactional

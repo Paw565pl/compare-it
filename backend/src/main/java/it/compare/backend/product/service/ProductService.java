@@ -11,7 +11,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -76,31 +75,22 @@ public class ProductService {
     }
 
     public ProductDetailResponse findById(String id, Integer priceStampRangeDays) {
-        try {
-            var objectId = new ObjectId(id);
-            return fetchProductWithAggregation(objectId, priceStampRangeDays);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID format");
-        }
-    }
-
-    private ProductDetailResponse fetchProductWithAggregation(ObjectId id, Integer priceStampRangeDays) {
         var aggregation = createProductDetailAggregation(id, priceStampRangeDays);
         var results = mongoTemplate.aggregate(aggregation, ProductDetailResponse.class);
 
-        var detailResponse = results.getUniqueMappedResult();
+        var productDetailResponse = results.getUniqueMappedResult();
 
-        if (detailResponse == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+        if (productDetailResponse == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found.");
         }
 
-        return detailResponse;
+        return productDetailResponse;
     }
 
     /**
      * Creates an aggregation to fetch product details
      */
-    private TypedAggregation<Product> createProductDetailAggregation(ObjectId id, Integer priceStampRangeDays) {
+    private TypedAggregation<Product> createProductDetailAggregation(String id, Integer priceStampRangeDays) {
         var operations = new ArrayList<AggregationOperation>();
 
         // 1. Match product by ID
