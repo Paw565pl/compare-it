@@ -71,17 +71,25 @@ export const ProductActionsButtons = ({
   };
 
   return (
-    <div className="mt-4 flex flex-col gap-4 lg:mt-0">
+    <div className="mt-4 flex flex-col items-start gap-4 lg:mt-0">
       {favoriteProductStatus?.isFavorite ? (
-        <Button onClick={handleDeleteFavoriteProduct} variant="priceAlert">
-          <span className="flex w-full items-center gap-2 lg:items-start">
+        <Button
+          onClick={handleDeleteFavoriteProduct}
+          variant="priceAlert"
+          size={"noPadding"}
+        >
+          <span className="flex items-center gap-2">
             <HeartOff />
             USUŃ Z ULUBIONYCH
           </span>
         </Button>
       ) : (
-        <Button onClick={handleAddFavoriteProduct} variant="priceAlert">
-          <span className="flex w-full items-center gap-2 lg:items-start">
+        <Button
+          onClick={handleAddFavoriteProduct}
+          variant="priceAlert"
+          size={"noPadding"}
+        >
+          <span className="flex items-center gap-2">
             <Heart />
             POLUB
           </span>
@@ -89,8 +97,8 @@ export const ProductActionsButtons = ({
       )}
       <PriceAlertFormDialog
         dialogTrigger={
-          <Button variant="priceAlert">
-            <span className="flex w-full items-center gap-2 lg:items-start">
+          <Button variant="priceAlert" size={"noPadding"}>
+            <span className="flex items-center gap-2">
               <Notebook />
               DODAJ ALERT CENOWY
             </span>
