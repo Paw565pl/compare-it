@@ -23,7 +23,14 @@ export const ProductList = () => {
 
   if (isLoading) return <p className="text-primary pt-4">Ładowanie...</p>;
   if (error || !productsPage)
-    return <div className="pt-4 text-red-600">Coś poszło nie tak!</div>;
+    return <p className="pt-4 text-red-600">Coś poszło nie tak!</p>;
+  if (productsPage.page.totalElements === 0)
+    return (
+      <p className="pt-4">
+        Ups! Wygląda na to, że nie mamy niczego, co by spełniało twoje
+        wymagania. Spróbuj rozszerzyć kryteria wyszukiwania.
+      </p>
+    );
 
   const hasNextPage =
     productsPage.page.number + 1 < productsPage.page.totalPages;
