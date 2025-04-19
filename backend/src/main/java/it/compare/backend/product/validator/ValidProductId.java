@@ -1,20 +1,22 @@
-package it.compare.backend.product;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+package it.compare.backend.product.validator;
 
 import it.compare.backend.core.validator.ValidObjectId;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import jakarta.validation.constraints.NotBlank;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER})
 @Constraint(validatedBy = {})
-@NotBlank(message = "productId cannot be empty.") @ValidObjectId(message = "productId must be a valid ObjectId.")
+@NotBlank(message = "productId cannot be empty.")
+@ValidObjectId(message = "productId must be a valid ObjectId.")
 public @interface ValidProductId {
     String message() default "Invalid productId format.";
 
