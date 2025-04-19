@@ -2,9 +2,6 @@ name: Backend Build
 run-name: ${{ github.actor }} is building backend
 on: [push]
 
-permissions:
-  contents: write
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
