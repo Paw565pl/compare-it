@@ -49,7 +49,7 @@ public class PriceAlertService {
                 .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        String userId = user.getId();
+        var userId = user.getId();
 
         Page<PriceAlert> alerts;
 
@@ -111,7 +111,8 @@ public class PriceAlertService {
 
         if (!alert.getUser().getId().equals(user.getId())) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
-        if (alert.getIsActive().equals(false)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (alert.getIsActive().equals(false))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not update inactive alerts.");
 
         alert.setTargetPrice(alertDto.targetPrice());
         alert.setIsOutletAllowed(alertDto.isOutletAllowed());
@@ -142,7 +143,7 @@ public class PriceAlertService {
         var alertsByProductId = alerts.stream()
                 .collect(Collectors.groupingBy(alert -> alert.getProduct().getId()));
 
-        for (Product product : products) {
+        for (var product : products) {
             var productAlerts = alertsByProductId.get(product.getId());
             if (productAlerts == null || productAlerts.isEmpty()) continue;
 
@@ -157,7 +158,7 @@ public class PriceAlertService {
                     .filter(latest -> latest.priceStamp() != null)
                     .toList();
 
-            for (PriceAlert alert : productAlerts) {
+            for (var alert : productAlerts) {
                 var filteredPrices = latestPrices.stream()
                         .filter(latest -> alert.getIsOutletAllowed()
                                 || latest.priceStamp().getCondition() != Condition.OUTLET)

@@ -97,7 +97,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
         given().contentType(JSON)
                 .auth()
                 .oauth2(mockToken.getTokenValue())
-                .queryParam("active", true)
+                .queryParam("isActive", true)
                 .when()
                 .get()
                 .then()
@@ -108,7 +108,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
         given().contentType(JSON)
                 .auth()
                 .oauth2(mockToken.getTokenValue())
-                .queryParam("active", false)
+                .queryParam("isActive", false)
                 .when()
                 .get()
                 .then()
@@ -207,7 +207,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .auth()
                 .oauth2(mockToken.getTokenValue())
                 .when()
-                .delete()
+                .delete("/inactive")
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value());
         assertThat(priceAlertRepository.count(), is(1L));
