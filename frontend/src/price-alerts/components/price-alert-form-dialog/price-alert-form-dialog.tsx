@@ -51,8 +51,10 @@ export const PriceAlertFormDialog = ({
   });
 
   const handleFormSubmit = (formValues: PriceAlertFormValues) => {
-    handleSubmit(formValues);
+    form.reset();
     dialogTriggerRef.current?.click();
+
+    handleSubmit(formValues);
   };
 
   return (
