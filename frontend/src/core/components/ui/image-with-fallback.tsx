@@ -32,7 +32,7 @@ export const ImageWithFallback = ({
         width: props.width,
       }}
       className={cn(
-        "relative flex max-w-[95svw] items-center justify-center overflow-hidden",
+        "relative flex max-w-full items-center justify-center overflow-hidden",
         containerClassName,
       )}
     >
