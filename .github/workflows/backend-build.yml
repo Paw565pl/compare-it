@@ -22,7 +22,7 @@ jobs:
           distribution: temurin
           cache: gradle
 
-      - run: chmod +x backend/gradlew
+      - run: chmod +x ./gradlew
 
       - name: Build Project
         run: ./gradlew build --no-daemon
