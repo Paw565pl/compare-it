@@ -74,7 +74,7 @@ class PriceAlertServiceTest {
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
-        priceAlertService.checkPriceAlerts(product);
+        priceAlertService.checkPriceAlerts(List.of(product));
 
         verify(emailService)
                 .sendPriceAlert(
@@ -111,8 +111,7 @@ class PriceAlertServiceTest {
         alert.setIsActive(true);
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
-
-        priceAlertService.checkPriceAlerts(product);
+        priceAlertService.checkPriceAlerts(List.of(product));
 
         verifyNoInteractions(emailService);
         verify(priceAlertRepository, never()).save(any(PriceAlert.class));
@@ -131,13 +130,13 @@ class PriceAlertServiceTest {
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
-        priceAlertService.checkPriceAlerts(product);
+        priceAlertService.checkPriceAlerts(List.of(product));
 
         verifyNoInteractions(emailService);
         verify(priceAlertRepository, never()).save(any(PriceAlert.class));
 
         alert.setIsOutletAllowed(true);
-        priceAlertService.checkPriceAlerts(product);
+        priceAlertService.checkPriceAlerts(List.of(product));
 
         verify(emailService)
                 .sendPriceAlert(
