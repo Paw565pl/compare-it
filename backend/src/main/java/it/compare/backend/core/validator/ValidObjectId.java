@@ -10,8 +10,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.bson.types.ObjectId;
 
-@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Constraint(validatedBy = ObjectIdValidator.class)
 public @interface ValidObjectId {
     String message() default "Invalid ObjectId format.";
