@@ -31,7 +31,8 @@ export const CategoriesList = () => {
 
   return (
     <div className="flex flex-col items-start">
-      <H2>Kategorie</H2>
+      <H2 className="lg:mt-1">Kategorie</H2>
+
       <Ul>
         <li
           className={cn(
