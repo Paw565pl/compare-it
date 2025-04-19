@@ -5,6 +5,7 @@ import { Checkbox } from "@/core/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -63,9 +64,13 @@ export const PriceAlertFormDialog = ({
         {dialogTrigger}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-106.25">
+      <DialogContent className="sm:max-w-110">
         <DialogHeader>
           <DialogTitle>{dialogHeader}</DialogTitle>
+          <DialogDescription>
+            Wypełnij informacje potrzebne, aby utworzyć lub zaktualizować alert
+            cenowy.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
