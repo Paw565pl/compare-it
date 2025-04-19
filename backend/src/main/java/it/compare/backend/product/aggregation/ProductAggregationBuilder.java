@@ -24,7 +24,6 @@ public class ProductAggregationBuilder {
     // Field constants to avoid duplication
     public static final String PRICE_FIELD = "lowestCurrentPrice";
     public static final String SHOP_OBJECT = "shopObject";
-    public static final String STRING_ID = "stringId";
     public static final String OFFERS = "offers";
     public static final String OFFER_PREFIX = "$$offer.";
     public static final String OFFERS_SHOP_FIELD = "offers.shop";
@@ -47,9 +46,9 @@ public class ProductAggregationBuilder {
     public static final String HAS_AVAILABLE_OFFERS = "hasAvailableOffers";
     public static final String ADD_FIELDS = "$addFields";
     public static final String MAP = "$map";
-    public static final String SORT_ARRAY = "$sortArray";
     public static final String MERGE_OBJECTS = "$mergeObjects";
     public static final String PRICE_HISTORY = "priceHistory";
+    public static final String MAIN_IMAGE_URL_FIELD = "mainImageUrl";
 
     // Search parameters
     private final String searchName;
@@ -70,9 +69,43 @@ public class ProductAggregationBuilder {
     }
 
     public TypedAggregation<Product> buildCountAggregation() {
-        var operations = createCommonAggregationOperations();
+        var operations = createInitialAggregationOperations();
 
-        operations.add(Aggregation.group("$_id").count().as("count"));
+        operations.add(Aggregation.addFields()
+                .addField(SHOP_OBJECT)
+                .withValue(OFFERS_SHOP)
+                .build());
+
+        operations.add(Aggregation.unwind("offers.priceHistory", true));
+
+        operations.add(
+                Aggregation.group(Fields.from(Fields.field("productId", "$" + ID), Fields.field("shop", OFFERS_SHOP)))
+                        .first("$offers.priceHistory.timestamp")
+                        .as(TIMESTAMP)
+                        .first("$offers.priceHistory.price")
+                        .as(PRICE));
+
+        if (isAvailable != null || minPrice != null || maxPrice != null) {
+            operations.add(Aggregation.addFields()
+                    .addField(IS_AVAILABLE)
+                    .withValue(ConditionalOperators.when(ComparisonOperators.Gte.valueOf("$" + TIMESTAMP)
+                                    .greaterThanEqualTo(
+                                            DateOperators.DateSubtract.subtractValue(AVAILABILITY_DAYS_THRESHOLD, "day")
+                                                    .fromDate(SystemVariable.NOW)))
+                            .then(true)
+                            .otherwise(false))
+                    .build());
+
+            if (minPrice != null || maxPrice != null) {
+                operations.add(createPriceRangeFilterOperation());
+            }
+
+            if (isAvailable != null) {
+                operations.add(Aggregation.match(Criteria.where(IS_AVAILABLE).is(isAvailable)));
+            }
+        }
+
+        operations.add(Aggregation.group("$_id.productId"));
         operations.add(Aggregation.group().count().as("count"));
 
         return Aggregation.newAggregation(Product.class, operations);
@@ -88,15 +121,17 @@ public class ProductAggregationBuilder {
         operations.addAll(createPriceFilterOperations());
         operations.addAll(createGroupingOperations());
 
-        if (isAvailable != null) {
+        if (isAvailable != null)
             operations.add(
                     Aggregation.match(Criteria.where(HAS_AVAILABLE_OFFERS).is(isAvailable)));
-        }
 
         return operations;
     }
 
-    public List<AggregationOperation> createBaseAggregationOperations() {
+    /**
+     * Creates initial operations common to all aggregations (extract latest price history)
+     */
+    private List<AggregationOperation> createInitialAggregationOperations() {
         var operations = new ArrayList<AggregationOperation>();
         operations.add(Aggregation.match(createBaseCriteria()));
 
@@ -117,18 +152,18 @@ public class ProductAggregationBuilder {
                                                                 new Document(
                                                                         PRICE_HISTORY,
                                                                         new Document(
-                                                                                SORT_ARRAY,
-                                                                                new Document(
-                                                                                                INPUT,
-                                                                                                OFFER_PREFIX
-                                                                                                        + PRICE_HISTORY)
-                                                                                        .append(
-                                                                                                "sortBy",
-                                                                                                new Document(
-                                                                                                        TIMESTAMP,
-                                                                                                        -1)))))))))));
+                                                                                "$arrayElemAt",
+                                                                                List.of(
+                                                                                        OFFER_PREFIX + PRICE_HISTORY,
+                                                                                        -1))))))))));
 
         operations.add(Aggregation.unwind(OFFERS, true));
+
+        return operations;
+    }
+
+    public List<AggregationOperation> createBaseAggregationOperations() {
+        var operations = createInitialAggregationOperations();
 
         operations.add(Aggregation.addFields()
                 .addField(SHOP_OBJECT)
@@ -142,16 +177,14 @@ public class ProductAggregationBuilder {
         // Group to ensure we only keep one price history item per shop (the most recent one)
         operations.add(
                 Aggregation.group(Fields.from(Fields.field("productId", "$" + ID), Fields.field("shop", OFFERS_SHOP)))
-                        .first("$" + STRING_ID)
-                        .as(STRING_ID)
                         .first("$" + NAME)
                         .as(NAME)
                         .first("$ean")
                         .as("ean")
                         .first("$" + CATEGORY)
                         .as(CATEGORY)
-                        .first("$" + IMAGES_FIELD)
-                        .as(IMAGES_FIELD)
+                        .first(ArrayOperators.First.firstOf(IMAGES_FIELD))
+                        .as(MAIN_IMAGE_URL_FIELD)
                         .first("$" + SHOP_OBJECT)
                         .as(SHOP_OBJECT)
                         .first("$shopHumanName")
@@ -187,9 +220,7 @@ public class ProductAggregationBuilder {
                         .otherwise(new Document()))
                 .build());
 
-        if (minPrice != null || maxPrice != null) {
-            operations.add(createPriceRangeFilterOperation());
-        }
+        if (minPrice != null || maxPrice != null) operations.add(createPriceRangeFilterOperation());
 
         return operations;
     }
@@ -201,16 +232,14 @@ public class ProductAggregationBuilder {
         var operations = new ArrayList<AggregationOperation>();
 
         operations.add(Aggregation.group("$_id.productId")
-                .first(STRING_ID)
-                .as(STRING_ID)
                 .first(NAME)
                 .as(NAME)
                 .first("ean")
                 .as("ean")
                 .first(CATEGORY)
                 .as(CATEGORY)
-                .first(IMAGES_FIELD)
-                .as(IMAGES_FIELD)
+                .first(MAIN_IMAGE_URL_FIELD)
+                .as(MAIN_IMAGE_URL_FIELD)
                 .push(new Document(SHOP_OBJECT, "$" + SHOP_OBJECT)
                         .append(SHOP_NAME, "$" + SHOP_NAME)
                         .append(PRICE, "$" + PRICE)
@@ -237,20 +266,13 @@ public class ProductAggregationBuilder {
                 .addField(LOWEST_OFFER)
                 .withValueOf(ConditionalOperators.when(ComparisonOperators.Gt.valueOf("$" + OFFERS_COUNT)
                                 .greaterThanValue(0))
-                        .then(ArrayOperators.ArrayElemAt.arrayOf(
-                                        ArrayOperators.SortArray.sortArrayOf(ArrayOperators.Filter.filter("$" + OFFERS)
-                                                        .as(OFFER)
-                                                        .by(ComparisonOperators.Eq.valueOf(OFFER_PREFIX + IS_AVAILABLE)
-                                                                .equalToValue(true)))
-                                                .by(Sort.by(Sort.Order.asc(PRICE), Sort.Order.desc(TIMESTAMP))))
-                                .elementAt(0))
+                        .then(ArrayOperators.First.firstOf(
+                                ArrayOperators.SortArray.sortArrayOf(ArrayOperators.Filter.filter("$" + OFFERS)
+                                                .as(OFFER)
+                                                .by(ComparisonOperators.Eq.valueOf(OFFER_PREFIX + IS_AVAILABLE)
+                                                        .equalToValue(true)))
+                                        .by(Sort.by(Sort.Order.asc(PRICE), Sort.Order.desc(TIMESTAMP)))))
                         .otherwise(new Document()))
-                .build());
-
-        operations.add(Aggregation.addFields()
-                .addField("mainImageUrl")
-                .withValueOf(
-                        ArrayOperators.ArrayElemAt.arrayOf("$" + IMAGES_FIELD).elementAt(0))
                 .build());
 
         return operations;
@@ -274,7 +296,7 @@ public class ProductAggregationBuilder {
                         .append(NAME, 1)
                         .append("ean", 1)
                         .append(CATEGORY, 1)
-                        .append("mainImageUrl", 1)
+                        .append(MAIN_IMAGE_URL_FIELD, 1)
                         .append(OFFERS_COUNT, 1)
                         .append(
                                 PRICE_FIELD,

@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class Offer {
+    @Indexed
     @Field("shop")
     @NonNull private Shop shop;
 

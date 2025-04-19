@@ -45,11 +45,12 @@ public class ProductService {
 
     public Page<ProductListResponse> findAll(ProductFiltersDto filters, Pageable pageable) {
         var aggregationBuilder = createAggregationBuilder(filters, pageable);
+        var total = executeCountAggregation(aggregationBuilder);
+
+        if (total == 0) return Page.empty(pageable);
 
         var results = mongoTemplate.aggregate(aggregationBuilder.buildSearchAggregation(), ProductListResponse.class);
         var productResponses = results.getMappedResults();
-
-        var total = executeCountAggregation(aggregationBuilder);
 
         return new PageImpl<>(productResponses, pageable, total);
     }
@@ -118,13 +119,40 @@ public class ProductService {
                                 .append("amount", AVAILABILITY_DAYS_THRESHOLD)))
                 .build());
 
-        // 4. Filter price history based on date range and calculate availability
+        // 4. Filter price history and calculate availability, add lastPrice
         operations.add(context -> {
             var offerMapDoc = createPriceHistoryFilterMapDocWithAvailability();
-            return new Document("$addFields", new Document(OFFERS, offerMapDoc));
+
+            // Add lastPrice to each offer using $arrayElemAt
+            var enrichedOffers = new Document(
+                    "$map",
+                    new Document(INPUT, offerMapDoc)
+                            .append("as", "offer")
+                            .append(
+                                    "in",
+                                    new Document(
+                                            "$mergeObjects",
+                                            List.of(
+                                                    "$$offer",
+                                                    new Document(
+                                                            "lastPrice",
+                                                            new Document(
+                                                                    "$arrayElemAt",
+                                                                    List.of("$$offer.priceHistory.price", -1)))))));
+
+            return new Document("$addFields", new Document(OFFERS, enrichedOffers));
         });
 
-        // 5. Final projection - map fields to match ProductDetailResponse structure
+        // 5. Sort offers by lastPrice ascending
+        operations.add(Aggregation.addFields()
+                .addFieldWithValue(
+                        OFFERS,
+                        new Document(
+                                "$sortArray",
+                                new Document(INPUT, "$" + OFFERS).append("sortBy", new Document("lastPrice", 1))))
+                .build());
+
+        // 6. Final projection - map fields to match ProductDetailResponse structure
         operations.add(Aggregation.project()
                 .and("_id")
                 .as("id")
@@ -139,7 +167,7 @@ public class ProductService {
                 .and(OFFERS)
                 .as(OFFERS));
 
-        // 6. Remove temporary fields
+        // 7. Remove general temp fields
         operations.add(Aggregation.project()
                 .andExclude(
                         "dateRangeStart",
