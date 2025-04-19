@@ -15,14 +15,8 @@ export const ProductPage = async ({ params }: ProductPageProps) => {
 
   const queryClient = getQueryClient();
 
-  await Promise.all([
-    await prefetchProduct(queryClient, productId),
-    await prefetchCommentPage(
-      queryClient,
-      productId,
-      session?.tokens?.accessToken,
-    ),
-  ]);
+  prefetchCommentPage(queryClient, productId, session?.tokens?.accessToken);
+  await prefetchProduct(queryClient, productId);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
