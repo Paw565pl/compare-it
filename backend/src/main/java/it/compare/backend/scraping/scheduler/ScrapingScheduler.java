@@ -11,7 +11,7 @@ public class ScrapingScheduler {
 
     private final ScrapingManager scrapingManager;
 
-    @Scheduled(cron = "0 0 */6 * * *")
+    @Scheduled(fixedDelay = 2000000000) // cron = "0 0 */6 * * *"
     public void startScraping() {
         scrapingManager.scrapeAll();
     }
