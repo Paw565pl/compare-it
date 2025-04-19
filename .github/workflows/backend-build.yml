@@ -1,0 +1,28 @@
+name: Backend Build
+run-name: ${{ github.actor }} is building backend
+on: [push]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: temurin
+          cache: gradle
+
+      - run: chmod +x backend/gradlew
+
+      - name: Build Project
+        run: ./gradlew build --no-daemon
