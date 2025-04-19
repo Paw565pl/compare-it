@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/shops")
 public class ShopController {
-    @GetMapping()
+
+    @GetMapping
     public List<String> getAllShops() {
         return Arrays.stream(Shop.values()).map(Shop::getHumanReadableName).toList();
     }
