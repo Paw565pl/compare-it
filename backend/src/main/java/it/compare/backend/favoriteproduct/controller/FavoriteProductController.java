@@ -6,6 +6,7 @@ import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
 import it.compare.backend.favoriteproduct.response.FavoriteProductStatusResponse;
 import it.compare.backend.favoriteproduct.service.FavoriteProductService;
 import it.compare.backend.product.response.ProductListResponse;
+import it.compare.backend.product.validator.ValidProductId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,8 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @IsAuthenticated
 @RequiredArgsConstructor
@@ -30,7 +33,7 @@ public class FavoriteProductController {
 
     @GetMapping("/{productId}/status")
     public FavoriteProductStatusResponse findFavoriteProductStatus(
-            @AuthenticationPrincipal Jwt jwt, @PathVariable String productId) {
+            @AuthenticationPrincipal Jwt jwt, @ValidProductId @PathVariable String productId) {
         return favoriteProductService.findFavoriteProductStatus(OAuthUserDetails.fromJwt(jwt), productId);
     }
 

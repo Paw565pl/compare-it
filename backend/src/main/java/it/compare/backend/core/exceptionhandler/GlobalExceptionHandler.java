@@ -1,5 +1,6 @@
 package it.compare.backend.core.exceptionhandler;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,10 +19,38 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         var errors = new HashMap<String, List<String>>();
-        e.getFieldErrors().forEach(f -> {
-            var fieldName = f.getField();
-            var errorMessage = f.getDefaultMessage();
+        e.getFieldErrors().forEach(fieldError -> {
+            var fieldName = fieldError.getField();
+            var errorMessage = fieldError.getDefaultMessage();
 
+            if (errorMessage == null) return;
+
+            if (errors.containsKey(fieldName)) {
+                errors.get(fieldName).add(errorMessage);
+            } else {
+                errors.put(fieldName, new ArrayList<>(List.of(errorMessage)));
+            }
+        });
+
+        var status = HttpStatus.BAD_REQUEST;
+        var response = new ErrorResponse(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        var errors = new HashMap<String, List<String>>();
+
+        e.getConstraintViolations().forEach(constraintViolation -> {
+            var propertyPathIterator = constraintViolation.getPropertyPath().iterator();
+
+            String fieldName = null;
+            while (propertyPathIterator.hasNext()) {
+                fieldName = propertyPathIterator.next().getName();
+            }
+
+            var errorMessage = constraintViolation.getMessage();
             if (errorMessage == null) return;
 
             if (errors.containsKey(fieldName)) {

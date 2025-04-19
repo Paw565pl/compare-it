@@ -1,5 +1,5 @@
 package it.compare.backend.favoriteproduct.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import it.compare.backend.product.validator.ValidProductId;
 
-public record FavoriteProductDto(@NotBlank(message = "productId cannot be empty.") String productId) {}
+public record FavoriteProductDto(@ValidProductId String productId) {}

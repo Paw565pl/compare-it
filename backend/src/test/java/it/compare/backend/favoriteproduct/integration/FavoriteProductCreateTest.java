@@ -35,6 +35,20 @@ class FavoriteProductCreateTest extends FavoriteProductTest {
     }
 
     @Test
+    void shouldReturnBadRequestIfProductIdIsNotValidObjectId() {
+        var body = new FavoriteProductDto("1");
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .body(body)
+                .when()
+                .post()
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
     void shouldReturnNotFoundIfProductDoesNotExist() {
         var body = new FavoriteProductDto(new ObjectId().toString());
 
