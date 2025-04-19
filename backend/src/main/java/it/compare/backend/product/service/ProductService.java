@@ -188,11 +188,9 @@ public class ProductService {
                 : MIN_PRICE_STAMP_RANGE_DAYS;
 
         addFieldsDoc.append("rangeDays", rangeDays);
-
         addFieldsDoc.append("isZeroDayFilter", false);
 
         var todayDatePartsDoc = createTodayDatePartsDoc();
-
         addFieldsDoc.append("startOfToday", new Document(DATE_FROM_PARTS, todayDatePartsDoc));
 
         var tomorrowDateDoc = createDateAddDocument(new Document(DATE_FROM_PARTS, todayDatePartsDoc));
