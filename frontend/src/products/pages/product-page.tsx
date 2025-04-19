@@ -26,9 +26,7 @@ export const ProductPage = async ({ params }: ProductPageProps) => {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="flex flex-col">
-        <ProductPageTop productId={productId} />
-      </div>
+      <ProductPageTop productId={productId} />
     </HydrationBoundary>
   );
 };
