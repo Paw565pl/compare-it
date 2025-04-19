@@ -2,6 +2,7 @@ package it.compare.backend.comment.integration;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -62,8 +63,9 @@ class CommentListTest extends CommentTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(3))
                 .body(
-                        String.format("content.findAll { it.author == '%s' }", user.getUsername()),
+                        String.format("content.findAll { it.author == \"%s\" }", user.getUsername()),
                         hasSize(NUMBER_OF_COMMENTS));
+        assertThat(commentRepository.count(), equalTo(3L));
     }
 
     @Test
