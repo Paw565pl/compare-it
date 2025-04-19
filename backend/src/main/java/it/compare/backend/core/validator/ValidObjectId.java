@@ -1,17 +1,18 @@
 package it.compare.backend.core.validator;
 
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.bson.types.ObjectId;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RUNTIME)
+@Target({FIELD, PARAMETER, ANNOTATION_TYPE})
 @Constraint(validatedBy = ObjectIdValidator.class)
 public @interface ValidObjectId {
     String message() default "Invalid ObjectId format.";
