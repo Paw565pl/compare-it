@@ -7,6 +7,7 @@ import { HttpStatusCode, isAxiosError } from "axios";
 
 const nonRetryableErrorCodes = new Set([
   HttpStatusCode.NotFound,
+  HttpStatusCode.Gone,
   HttpStatusCode.BadRequest,
   HttpStatusCode.Forbidden,
   HttpStatusCode.Unauthorized,
