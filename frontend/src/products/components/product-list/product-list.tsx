@@ -1,11 +1,6 @@
 "use client";
 
-import { H2 } from "@/core/components/ui/h2";
-import {
-  ProductPagination,
-  SingleProduct,
-  SortBar,
-} from "@/products/components/index";
+import { ProductPagination, SingleProduct } from "@/products/components";
 import { useFetchProductPage } from "@/products/hooks/client/use-fetch-product-page";
 import {
   productFiltersSearchParams,
@@ -14,34 +9,34 @@ import {
 import { useQueryStates } from "nuqs";
 
 export const ProductList = () => {
-  const [filters] = useQueryStates(productFiltersSearchParams);
-  const [pagination] = useQueryStates(productPaginationSearchParams, {
-    scroll: true,
-  });
+  const [productFilters] = useQueryStates(productFiltersSearchParams);
+  const [productPagination] = useQueryStates(productPaginationSearchParams);
 
   const {
     data: productsPage,
     isLoading,
     error,
-  } = useFetchProductPage(filters, {
-    ...pagination,
-    page: Math.max(0, pagination.page - 1),
+  } = useFetchProductPage(productFilters, {
+    ...productPagination,
+    page: Math.max(0, productPagination.page - 1),
   });
 
-  if (isLoading) return <div className="text-primary">Ładowanie...</div>;
+  if (isLoading) return <p className="text-primary pt-4">Ładowanie...</p>;
   if (error || !productsPage)
-    return <div className="text-red-600">Coś poszło nie tak!</div>;
+    return <p className="pt-4 text-red-600">Coś poszło nie tak!</p>;
+  if (productsPage.page.totalElements === 0)
+    return (
+      <p className="pt-4">
+        Ups! Wygląda na to, że nie mamy niczego, co by spełniało twoje
+        wymagania. Spróbuj rozszerzyć kryteria wyszukiwania.
+      </p>
+    );
 
   const hasNextPage =
     productsPage.page.number + 1 < productsPage.page.totalPages;
 
   return (
     <>
-      <div className="mb-1 flex justify-between">
-        <H2>Produkty</H2>
-        <SortBar />
-      </div>
-
       <ul className="space-y-2">
         {productsPage.content.map((product) => (
           <li key={product.id}>

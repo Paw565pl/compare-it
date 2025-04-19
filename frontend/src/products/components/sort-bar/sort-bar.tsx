@@ -1,59 +1,72 @@
 "use client";
 
-import { Button } from "@/core/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectOption,
+  SelectTrigger,
+  SelectValue,
+} from "@/core/components/ui/select";
 import { productPaginationSearchParams } from "@/products/search-params/product-search-params";
-import { ChevronDown } from "lucide-react";
 import { useQueryStates } from "nuqs";
-import { useState } from "react";
 
-const sortOptions = {
-  Domyślne: "default",
-  "Cena rosnąco": "lowestCurrentPrice",
-  "Cena malejąco": "lowestCurrentPrice,desc",
-  "Nazwa a-z": "name",
-  "Nazwa z-a": "name,desc",
-  "Liczba ofert rosnąco": "offersCount",
-  "Liczba ofert malejąco": "offersCount,desc",
-};
+const sortOptions: SelectOption[] = [
+  {
+    label: "Domyślne",
+    value: "default",
+  },
+  {
+    label: "Nazwa (A-Z)",
+    value: "name",
+  },
+  {
+    label: "Nazwa (Z-A)",
+    value: "name,desc",
+  },
+  {
+    label: "Cena (od najniższej)",
+    value: "lowestCurrentPrice",
+  },
+  {
+    label: "Cena (od najwyższej)",
+    value: "lowestCurrentPrice,desc",
+  },
+  {
+    label: "Liczba ofert (rosnąco)",
+    value: "offersCount",
+  },
+  {
+    label: "Liczba ofert (malejąco)",
+    value: "offersCount,desc",
+  },
+] as const;
 
-const SortBar = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [, setPagination] = useQueryStates(productPaginationSearchParams);
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev);
-  };
+export const SortSelect = () => {
+  const [{ sort }, setProductPagination] = useQueryStates(
+    productPaginationSearchParams,
+  );
 
   const handleSortChange = (sortValue: string) => {
-    const sort = sortValue !== "default" ? sortValue : null;
-
-    setPagination((prev) => ({ ...prev, page: 1, sort }));
-    setIsDropdownOpen(false);
+    const newSort = sortValue !== "default" ? sortValue : null;
+    setProductPagination((prev) => ({ ...prev, page: 1, sort: newSort }));
   };
 
   return (
-    <div className="text-md relative items-center">
-      <Button variant="sort" onClick={toggleDropdown}>
-        SORTUJ
-        <ChevronDown className="w-6" />
-      </Button>
-
-      {isDropdownOpen && (
-        <ul className="absolute left-0 mt-2 border bg-white shadow-lg">
-          {Object.entries(sortOptions).map(([sortLabel, sortValue], index) => (
-            <li key={index}>
-              <Button
-                variant="sortCategory"
-                onClick={() => handleSortChange(sortValue)}
-              >
-                {sortLabel}
-              </Button>
-            </li>
+    <Select value={sort ?? ""} onValueChange={handleSortChange}>
+      <SelectTrigger aria-label="Sortuj" className="xs:w-48 w-40">
+        <SelectValue placeholder="SORTUJ" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {sortOptions.map(({ label, value }, index) => (
+            <SelectItem key={index} value={value}>
+              {label}
+            </SelectItem>
           ))}
-        </ul>
-      )}
-    </div>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 };
-
-export { SortBar };

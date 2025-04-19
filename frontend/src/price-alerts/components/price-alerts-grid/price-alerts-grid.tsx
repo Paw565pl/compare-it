@@ -43,7 +43,7 @@ export const PriceAlertsGrid = () => {
         next={fetchNextPage}
         loader={null}
       >
-        <section className="flex flex-wrap justify-center gap-2 sm:justify-start">
+        <section className="flex flex-wrap justify-center gap-3 sm:justify-start">
           {priceAlertsPage?.pages.map(({ content }) =>
             content?.map((priceAlert) => (
               <PriceAlertCard key={priceAlert.id} priceAlert={priceAlert} />

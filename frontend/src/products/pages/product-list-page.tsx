@@ -1,5 +1,10 @@
 import { getQueryClient } from "@/core/libs/tanstack-query";
-import { CategoriesList, FiltersBar, ProductList } from "@/products/components";
+import {
+  CategoriesList,
+  FiltersBar,
+  ProductList,
+  ProductListPageHeader,
+} from "@/products/components";
 import { prefetchCategoriesList } from "@/products/hooks/server/prefetch-categories-list";
 import { prefetchProductPage } from "@/products/hooks/server/prefetch-product-page";
 import { prefetchShopsList } from "@/products/hooks/server/prefetch-shops-list";
@@ -35,23 +40,27 @@ export const ProductListPage = async ({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="bg-background flex w-auto flex-col p-0 lg:p-4">
-        <div className="flex flex-col lg:flex-row">
-          <div className="mr-0 w-full lg:mr-4 lg:w-1/5">
-            <Suspense>
-              <CategoriesList />
-            </Suspense>
-            <Suspense>
-              <FiltersBar />
-            </Suspense>
-          </div>
-          <div className="flex w-full flex-col">
-            <Suspense>
-              <ProductList />
-            </Suspense>
-          </div>
-        </div>
-      </div>
+      <section className="flex flex-col lg:flex-row xl:p-4">
+        <aside className="mr-0 w-full lg:mr-4 lg:w-1/5">
+          <Suspense>
+            <CategoriesList />
+          </Suspense>
+
+          <Suspense>
+            <FiltersBar />
+          </Suspense>
+        </aside>
+
+        <section className="flex w-full flex-col">
+          <Suspense>
+            <ProductListPageHeader />
+          </Suspense>
+
+          <Suspense>
+            <ProductList />
+          </Suspense>
+        </section>
+      </section>
     </HydrationBoundary>
   );
 };

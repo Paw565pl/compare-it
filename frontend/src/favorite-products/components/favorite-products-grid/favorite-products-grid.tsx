@@ -41,7 +41,7 @@ export const FavoriteProductsGrid = () => {
         next={fetchNextPage}
         loader={null}
       >
-        <section className="flex flex-wrap justify-center gap-2 sm:justify-start">
+        <section className="flex flex-wrap justify-center gap-3 sm:justify-start">
           {favoriteProductsPages?.pages.map(({ content }) =>
             content?.map((favoriteProduct) => (
               <FavoriteProductCard

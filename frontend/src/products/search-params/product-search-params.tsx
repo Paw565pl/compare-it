@@ -1,5 +1,6 @@
 import {
   createLoader,
+  parseAsBoolean,
   parseAsFloat,
   parseAsInteger,
   parseAsString,
@@ -10,6 +11,7 @@ export const productFiltersSearchParams = {
   category: parseAsString,
   minPrice: parseAsFloat,
   maxPrice: parseAsFloat,
+  isAvailable: parseAsBoolean,
   shop: parseAsString,
 } as const;
 
@@ -20,9 +22,7 @@ export const loadProductFiltersSearchParams = createLoader(
 export const productPaginationSearchParams = {
   page: parseAsInteger.withDefault(1),
   size: parseAsInteger.withDefault(20),
-  sort: parseAsString.withDefault("offersCount,desc").withOptions({
-    clearOnDefault: false,
-  }),
+  sort: parseAsString,
 } as const;
 
 export const loadProductPaginationSearchParams = createLoader(

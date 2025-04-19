@@ -1,10 +1,11 @@
-name: Frontend CI
-run-name: ${{ github.actor }} is building frontend project
+name: Frontend Build
+run-name: ${{ github.actor }} is building frontend
 on: [push]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ./frontend
@@ -15,13 +16,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         id: pnpm-install
         with:
-          package_json_file: './frontend/package.json'
+          package_json_file: "./frontend/package.json"
           run_install: false
 
       - name: Get pnpm store directory
@@ -30,7 +31,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
       - name: Setup pnpm cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -47,5 +48,4 @@ jobs:
         run: pnpm lint
 
       - name: Build project
-        run: pnpm build 
-        
+        run: pnpm build
