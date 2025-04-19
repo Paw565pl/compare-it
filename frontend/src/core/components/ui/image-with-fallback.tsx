@@ -9,6 +9,7 @@ interface ImageWithFallbackProps extends Omit<ImageProps, "src"> {
   readonly src: string | null;
   readonly containerClassName?: string;
   readonly skeletonClassName?: string;
+  readonly isLoadingStateEnabled?: boolean;
 }
 
 const NO_IMAGE_PLACEHOLDER_PATH = "/no-image-placeholder.svg";
@@ -19,6 +20,7 @@ export const ImageWithFallback = ({
   className,
   containerClassName,
   skeletonClassName,
+  isLoadingStateEnabled = true,
   ...props
 }: ImageWithFallbackProps) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +36,7 @@ export const ImageWithFallback = ({
         containerClassName,
       )}
     >
-      {isLoading && (
+      {isLoadingStateEnabled && isLoading && (
         <Skeleton
           className={cn("absolute inset-0 h-full w-full", skeletonClassName)}
         />

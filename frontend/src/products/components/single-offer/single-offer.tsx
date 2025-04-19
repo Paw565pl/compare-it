@@ -30,6 +30,7 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
           fill
           sizes="(max-width: 359px) 100vw, 320px"
           containerClassName="w-40 h-6.25"
+          isLoadingStateEnabled={false}
         />
       </Link>
 
