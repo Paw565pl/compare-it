@@ -17,12 +17,12 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
     lastPrice && lastCurrency ? formatCurrency(lastPrice, lastCurrency) : "-";
 
   return (
-    <div className="flex flex-col items-center justify-between bg-white p-4 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-y-3 bg-white p-4 sm:flex-row">
       <Link
         href={offer.url}
         target="_blank"
         rel="nofollow noopener"
-        className="bg-background mb-3 px-2 py-4 sm:mb-0"
+        className="bg-background px-2 py-4"
       >
         <ImageWithFallback
           src={getShopLogoUrl(offer.shop)}
@@ -34,22 +34,21 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
         />
       </Link>
 
-      <div className="flex items-center">
-        <div className="mr-4 flex flex-col items-center">
+      <div className="flex flex-col items-center gap-x-4 gap-y-3 sm:flex-row">
+        <div className="flex flex-row items-center gap-x-3 sm:flex-col">
           <span className="text-primary justify-center text-lg font-semibold">
             {formattedPrice}
           </span>
-          <div className="text-sm">
-            {offer.isAvailable ? (
-              <span className="font-semibold text-green-600">
-                Produkt dostępny
-              </span>
-            ) : (
-              <span className="font-semibold text-red-600">
-                Produkt niedostępny
-              </span>
-            )}
-          </div>
+
+          {offer.isAvailable ? (
+            <span className="text-sm font-semibold text-green-600">
+              Produkt dostępny
+            </span>
+          ) : (
+            <span className="text-sm font-semibold text-red-600">
+              Produkt niedostępny
+            </span>
+          )}
         </div>
 
         <Button
