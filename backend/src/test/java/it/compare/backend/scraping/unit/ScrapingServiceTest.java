@@ -3,7 +3,6 @@ package it.compare.backend.scraping.unit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.contains;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
@@ -98,7 +97,7 @@ class ScrapingServiceTest {
 
         verify(productRepository).findAllByEanIn(List.of());
         verify(productRepository).saveAll(productListCaptor.capture());
-        verify(priceAlertService, never()).checkPriceAlerts(any(Product.class));
+        verify(priceAlertService, never()).checkPriceAlerts(anyList());
 
         assertThat(productListCaptor.getValue(), (empty()));
     }
@@ -117,7 +116,7 @@ class ScrapingServiceTest {
 
         verify(productRepository).findAllByEanIn(eans);
         verify(productRepository).saveAll(productListCaptor.capture());
-        verify(priceAlertService, never()).checkPriceAlerts(any(Product.class));
+        verify(priceAlertService, never()).checkPriceAlerts(anyList());
 
         var savedProducts = productListCaptor.getValue();
         assertThat(savedProducts, (empty()));
@@ -141,7 +140,7 @@ class ScrapingServiceTest {
 
         verify(productRepository).findAllByEanIn(eans);
         verify(productRepository).saveAll(productListCaptor.capture());
-        verify(priceAlertService, never()).checkPriceAlerts(any(Product.class));
+        verify(priceAlertService, never()).checkPriceAlerts(anyList());
 
         var savedProducts = productListCaptor.getValue();
         assertThat(savedProducts, (empty()));
@@ -160,7 +159,7 @@ class ScrapingServiceTest {
 
         verify(productRepository).findAllByEanIn(eans);
         verify(productRepository).saveAll(productListCaptor.capture());
-        verify(priceAlertService, times(1)).checkPriceAlerts(any(Product.class));
+        verify(priceAlertService, times(1)).checkPriceAlerts(anyList());
 
         var savedProducts = productListCaptor.getValue();
         assertThat(savedProducts, hasSize(1));
@@ -186,7 +185,7 @@ class ScrapingServiceTest {
 
         verify(productRepository).findAllByEanIn(eans);
         verify(productRepository).saveAll(productListCaptor.capture());
-        verify(priceAlertService, times(1)).checkPriceAlerts(any(Product.class));
+        verify(priceAlertService, times(1)).checkPriceAlerts(anyList());
 
         var savedProducts = productListCaptor.getValue();
         assertThat(savedProducts, hasSize(1));
@@ -217,7 +216,7 @@ class ScrapingServiceTest {
 
         verify(productRepository).findAllByEanIn(eans);
         verify(productRepository).saveAll(productListCaptor.capture());
-        verify(priceAlertService, times(1)).checkPriceAlerts(any(Product.class));
+        verify(priceAlertService, times(1)).checkPriceAlerts(anyList());
 
         var savedProducts = productListCaptor.getValue();
         assertThat(savedProducts, hasSize(1));
@@ -255,7 +254,7 @@ class ScrapingServiceTest {
 
         verify(productRepository).findAllByEanIn(eans);
         verify(productRepository).saveAll(productListCaptor.capture());
-        verify(priceAlertService, times(2)).checkPriceAlerts(any(Product.class));
+        verify(priceAlertService).checkPriceAlerts(anyList());
 
         var savedOrUpdatedProducts = productListCaptor.getValue();
         assertThat(savedOrUpdatedProducts, hasSize(2));

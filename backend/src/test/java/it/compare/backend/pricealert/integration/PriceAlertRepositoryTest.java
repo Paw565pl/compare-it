@@ -44,8 +44,8 @@ class PriceAlertRepositoryTest extends PriceAlertTest {
 
         var pageable = PageRequest.of(0, 10);
 
-        var activeAlerts = priceAlertRepository.findAllByUserIdAndActive(user.getId(), true, pageable);
-        var inactiveAlerts = priceAlertRepository.findAllByUserIdAndActive(user.getId(), false, pageable);
+        var activeAlerts = priceAlertRepository.findAllByUserIdAndIsActive(user.getId(), true, pageable);
+        var inactiveAlerts = priceAlertRepository.findAllByUserIdAndIsActive(user.getId(), false, pageable);
 
         assertThat(activeAlerts.getContent(), hasSize(2));
         assertThat(
@@ -65,22 +65,85 @@ class PriceAlertRepositoryTest extends PriceAlertTest {
         var alert = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(user, product);
 
         assertThat(
-                priceAlertRepository.existsByUserIdAndProductIdAndActiveTrue(user.getId(), product.getId()), is(true));
+                priceAlertRepository.existsByUserIdAndProductIdAndIsActiveTrue(user.getId(), product.getId()),
+                is(true));
 
-        alert.setActive(false);
+        alert.setIsActive(false);
         priceAlertRepository.save(alert);
 
         assertThat(
-                priceAlertRepository.existsByUserIdAndProductIdAndActiveTrue(user.getId(), product.getId()), is(false));
+                priceAlertRepository.existsByUserIdAndProductIdAndIsActiveTrue(user.getId(), product.getId()),
+                is(false));
 
         var anotherUser = userTestDataFactory.createOne();
         priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(anotherUser, product);
 
         assertThat(
-                priceAlertRepository.existsByUserIdAndProductIdAndActiveTrue(user.getId(), product.getId()), is(false));
+                priceAlertRepository.existsByUserIdAndProductIdAndIsActiveTrue(user.getId(), product.getId()),
+                is(false));
 
         assertThat(
-                priceAlertRepository.existsByUserIdAndProductIdAndActiveTrue(anotherUser.getId(), product.getId()),
+                priceAlertRepository.existsByUserIdAndProductIdAndIsActiveTrue(anotherUser.getId(), product.getId()),
                 is(true));
+    }
+
+    @Test
+    void shouldDeleteAllByUserIdAndIsActiveFalse() {
+        var user = userTestDataFactory.createOne();
+
+        var activeAlert = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(user, true);
+        var inactiveAlert1 = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(user, false);
+        var inactiveAlert2 = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(user, false);
+
+        priceAlertRepository.deleteAllByUserIdAndIsActiveFalse(user.getId());
+
+        assertThat(priceAlertRepository.existsById(inactiveAlert1.getId()), is(false));
+        assertThat(priceAlertRepository.existsById(inactiveAlert2.getId()), is(false));
+        assertThat(priceAlertRepository.existsById(activeAlert.getId()), is(true));
+    }
+
+    @Test
+    void shouldReturnAllByUserIdAndProductId() {
+        var user = userTestDataFactory.createOne();
+        var product1 = productTestDataFactory.createOne();
+        var product2 = productTestDataFactory.createOne();
+
+        var alert1 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(user, product1);
+        priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(user, product2);
+
+        var pageable = PageRequest.of(0, 10);
+
+        var alerts = priceAlertRepository.findAllByUserIdAndProductId(user.getId(), product1.getId(), pageable);
+
+        assertThat(alerts.getContent(), hasSize(1));
+        assertThat(alerts.getContent().getFirst().getId(), is(alert1.getId()));
+    }
+
+    @Test
+    void shouldReturnAllByUserIdAndProductIdAndIsActive() {
+        var user = userTestDataFactory.createOne();
+        var product = productTestDataFactory.createOne();
+
+        var activeAlert1 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(user, product);
+        var activeAlert2 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(user, product);
+        var inactiveAlert = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(user, product);
+        inactiveAlert.setIsActive(false);
+        priceAlertRepository.save(inactiveAlert);
+
+        var pageable = PageRequest.of(0, 10);
+
+        var activeAlerts = priceAlertRepository.findAllByUserIdAndProductIdAndIsActive(
+                user.getId(), product.getId(), true, pageable);
+        var inactiveAlerts = priceAlertRepository.findAllByUserIdAndProductIdAndIsActive(
+                user.getId(), product.getId(), false, pageable);
+
+        assertThat(activeAlerts.getContent(), hasSize(2));
+        assertThat(
+                activeAlerts.getContent().stream().map(PriceAlert::getId).toList(),
+                containsInAnyOrder(activeAlert1.getId(), activeAlert2.getId()));
+
+        assertThat(inactiveAlerts.getContent(), hasSize(1));
+        assertThat(
+                inactiveAlerts.getContent().stream().map(PriceAlert::getId).toList(), contains(inactiveAlert.getId()));
     }
 }

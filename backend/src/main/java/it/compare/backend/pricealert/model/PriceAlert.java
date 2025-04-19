@@ -28,14 +28,15 @@ public class PriceAlert {
     @Field("product")
     @NonNull private Product product;
 
-    @Field("targetPrice")
+    @Field(value = "targetPrice", targetType = FieldType.DECIMAL128)
     @NonNull private BigDecimal targetPrice;
 
     @Field("isOutletAllowed")
     private Boolean isOutletAllowed = false;
 
+    @Indexed
     @Field("isActive")
-    private Boolean active = true;
+    private Boolean isActive = true;
 
     @Indexed
     @CreatedDate

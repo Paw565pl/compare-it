@@ -92,7 +92,7 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
 
     public PriceAlert createPriceAlertWithActiveStatus(User user, boolean active) {
         var alert = createPriceAlertForUser(user);
-        alert.setActive(active);
+        alert.setIsActive(active);
 
         return priceAlertRepository.save(alert);
     }

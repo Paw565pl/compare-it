@@ -69,12 +69,12 @@ class PriceAlertServiceTest {
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));
         alert.setUser(testUser);
         alert.setIsOutletAllowed(true);
-        alert.setActive(true);
+        alert.setIsActive(true);
         alert.setCreatedAt(LocalDateTime.now());
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
-        priceAlertService.checkPriceAlerts(product);
+        priceAlertService.checkPriceAlerts(List.of(product));
 
         verify(emailService)
                 .sendPriceAlert(
@@ -90,7 +90,7 @@ class PriceAlertServiceTest {
         verify(priceAlertRepository).save(alertCaptor.capture());
 
         var savedAlert = alertCaptor.getValue();
-        assertThat(savedAlert.getActive(), is(false));
+        assertThat(savedAlert.getIsActive(), is(false));
         assertThat(savedAlert.getLastNotificationSent(), notNullValue());
     }
 
@@ -108,15 +108,14 @@ class PriceAlertServiceTest {
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));
         alert.setUser(testUser);
         alert.setIsOutletAllowed(true);
-        alert.setActive(true);
+        alert.setIsActive(true);
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
-
-        priceAlertService.checkPriceAlerts(product);
+        priceAlertService.checkPriceAlerts(List.of(product));
 
         verifyNoInteractions(emailService);
         verify(priceAlertRepository, never()).save(any(PriceAlert.class));
-        assertThat(alert.getActive(), is(true));
+        assertThat(alert.getIsActive(), is(true));
     }
 
     @Test
@@ -126,18 +125,18 @@ class PriceAlertServiceTest {
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));
         alert.setUser(testUser);
         alert.setIsOutletAllowed(false);
-        alert.setActive(true);
+        alert.setIsActive(true);
         alert.setCreatedAt(LocalDateTime.now());
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
-        priceAlertService.checkPriceAlerts(product);
+        priceAlertService.checkPriceAlerts(List.of(product));
 
         verifyNoInteractions(emailService);
         verify(priceAlertRepository, never()).save(any(PriceAlert.class));
 
         alert.setIsOutletAllowed(true);
-        priceAlertService.checkPriceAlerts(product);
+        priceAlertService.checkPriceAlerts(List.of(product));
 
         verify(emailService)
                 .sendPriceAlert(
