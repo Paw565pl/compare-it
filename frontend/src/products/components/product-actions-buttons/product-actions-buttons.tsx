@@ -2,6 +2,7 @@ import { Button } from "@/core/components/ui/button";
 import { FavoriteProductDto } from "@/favorite-products/dto/favorite-product-dto";
 import { useAddFavoriteProduct } from "@/favorite-products/hooks/client/use-add-favorite-product";
 import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
+import { useFavoriteProductStatus } from "@/favorite-products/hooks/client/use-favorite-product-status";
 import { PriceAlertFormDialog } from "@/price-alerts/components";
 import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
 import { useCreatePriceAlert } from "@/price-alerts/hooks/client/use-create-price-alert";
@@ -19,11 +20,18 @@ export const ProductActionsButtons = ({
 }: ProductActionsButtonsProps) => {
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
+  const userId = session?.user?.id as string;
 
   const { mutate: createPriceAlert } = useCreatePriceAlert(accessToken);
   const { mutate: addFavoriteProduct } = useAddFavoriteProduct(accessToken);
   const { mutate: deleteFavoriteProduct } =
     useDeleteFavoriteProduct(accessToken);
+
+  const { data: favoriteProductStatus } = useFavoriteProductStatus(
+    accessToken,
+    productId,
+    userId,
+  );
 
   if (!session) return null;
 
@@ -63,25 +71,42 @@ export const ProductActionsButtons = ({
   };
 
   return (
-    <div className="mt-4 flex w-min flex-col gap-4">
+    <div className="mt-4 flex flex-col items-start gap-4 lg:mt-0">
+      {favoriteProductStatus?.isFavorite ? (
+        <Button
+          onClick={handleDeleteFavoriteProduct}
+          variant="priceAlert"
+          size={"noPadding"}
+        >
+          <span className="flex items-center gap-2">
+            <HeartOff />
+            USUŃ Z ULUBIONYCH
+          </span>
+        </Button>
+      ) : (
+        <Button
+          onClick={handleAddFavoriteProduct}
+          variant="priceAlert"
+          size={"noPadding"}
+        >
+          <span className="flex items-center gap-2">
+            <Heart />
+            POLUB
+          </span>
+        </Button>
+      )}
       <PriceAlertFormDialog
         dialogTrigger={
-          <Button variant="priceAlert">
-            <Notebook />
-            DODAJ ALERT CENOWY
+          <Button variant="priceAlert" size={"noPadding"}>
+            <span className="flex items-center gap-2">
+              <Notebook />
+              DODAJ ALERT CENOWY
+            </span>
           </Button>
         }
         dialogHeader={"Dodaj alert"}
         handleSubmit={handleCreatePriceAlert}
       />
-      <Button onClick={handleAddFavoriteProduct} variant="priceAlert">
-        <Heart />
-        POLUB
-      </Button>
-      <Button onClick={handleDeleteFavoriteProduct} variant="priceAlert">
-        <HeartOff />
-        USUŃ Z ULUBIONYCH
-      </Button>
     </div>
   );
 };

@@ -10,7 +10,7 @@ const fetchFavoriteProductStatus = async (
   productId: string,
 ) => {
   const { data } = await apiService.get<FavoriteProductStatusEntity>(
-    `/api/v1/favorite-products/${productId}/status/`,
+    `/api/v1/favorite-products/${productId}/status`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
