@@ -48,15 +48,13 @@ export const PriceAlertNotificationCard = ({
   return (
     <Card className="w-88">
       <CardHeader>
-        <div className="flex justify-center">
-          <ImageWithFallback
-            src={product?.images.at(0) || ""}
-            alt={priceAlert.productName}
-            fill
-            sizes="(max-width: 359px) 100vw, 320px"
-            containerClassName="w-70 xs:w-75 h-66.25 bg-white"
-          />
-        </div>
+        <ImageWithFallback
+          src={product?.images.at(0) || ""}
+          alt={priceAlert.productName}
+          fill
+          sizes="(max-width: 359px) 100vw, 320px"
+          containerClassName="w-70 xs:w-75 h-66.25 bg-white"
+        />
 
         <CardTitle className="text-2xl">
           <Link href={`/produkty/${priceAlert.productId}`}>

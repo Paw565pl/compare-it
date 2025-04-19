@@ -44,15 +44,13 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
   return (
     <Card className="w-88">
       <CardHeader>
-        <div className="flex justify-center">
-          <ImageWithFallback
-            src={product.mainImageUrl}
-            alt={product.name}
-            fill
-            sizes="(max-width: 359px) 100vw, 320px"
-            containerClassName="w-70 xs:w-75 h-66.25 bg-white"
-          />
-        </div>
+        <ImageWithFallback
+          src={product.mainImageUrl}
+          alt={product.name}
+          fill
+          sizes="(max-width: 359px) 100vw, 320px"
+          containerClassName="w-70 xs:w-75 h-66.25 bg-white"
+        />
 
         <CardTitle className="text-2xl">
           <Link href={`/produkty/${product.id}`}>{product.name}</Link>
