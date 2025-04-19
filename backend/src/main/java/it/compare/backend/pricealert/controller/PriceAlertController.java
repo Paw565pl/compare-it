@@ -5,6 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import it.compare.backend.auth.annotation.IsAuthenticated;
 import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
+import it.compare.backend.pricealert.dto.PriceAlertFiltersDto;
 import it.compare.backend.pricealert.response.PriceAlertResponse;
 import it.compare.backend.pricealert.service.PriceAlertService;
 import jakarta.validation.Valid;
@@ -28,12 +29,14 @@ public class PriceAlertController {
     @GetMapping("/price-alerts")
     public Page<PriceAlertResponse> findAllByUser(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(required = false) String productId,
             @RequestParam(required = false) Boolean active,
             @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
-        if (active != null) {
-            return priceAlertService.findAllByUserAndActive(OAuthUserDetails.fromJwt(jwt), active, pageable);
-        }
-        return priceAlertService.findAllByUser(OAuthUserDetails.fromJwt(jwt), pageable);
+
+        var userDetails = OAuthUserDetails.fromJwt(jwt);
+        var filters = new PriceAlertFiltersDto(productId, active);
+
+        return priceAlertService.findAllByUser(userDetails, filters, pageable);
     }
 
     @IsAuthenticated
@@ -49,6 +52,13 @@ public class PriceAlertController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePriceAlert(@AuthenticationPrincipal Jwt jwt, @PathVariable String alertId) {
         priceAlertService.deletePriceAlert(OAuthUserDetails.fromJwt(jwt), alertId);
+    }
+
+    @IsAuthenticated
+    @DeleteMapping("/price-alerts")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteInactivePriceAlerts(@AuthenticationPrincipal Jwt jwt) {
+        priceAlertService.deleteInactivePriceAlerts(OAuthUserDetails.fromJwt(jwt));
     }
 
     @IsAuthenticated

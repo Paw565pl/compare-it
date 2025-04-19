@@ -164,7 +164,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .body("productId", equalTo(product.getId()))
                 .body("targetPrice", equalTo(targetPrice.intValue()))
-                .body("outletAllowed", equalTo(outletAllowed));
+                .body("isOutletAllowed", equalTo(outletAllowed));
         assertThat(priceAlertRepository.count(), is(1L));
     }
 
@@ -198,6 +198,22 @@ class PriceAlertControllerTest extends PriceAlertTest {
     }
 
     @Test
+    void shouldReturnNoContentAfterDeletingAllInactivePriceAlerts() {
+        priceAlertTestDataFactory.createPriceAlertForUser(testUser);
+        priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
+        priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .when()
+                .delete()
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+        assertThat(priceAlertRepository.count(), is(1L));
+    }
+
+    @Test
     void shouldReturnForbiddenAfterUpdatingPriceAlertThatDoesNotBelongToUser() {
         priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var anotherUser = userTestDataFactory.createOne();
@@ -212,6 +228,21 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .put("/{alertId}", anotherAlert.getId())
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void shouldReturnBadRequestAfterUpdatingPriceAlertThatIsInactive() {
+        var alert = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
+        var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .body(alertDto)
+                .when()
+                .put("/{alertId}", alert.getId())
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @ParameterizedTest
@@ -230,6 +261,6 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("productId", equalTo(alert.getProduct().getId()))
                 .body("targetPrice", equalTo(targetPrice.intValue()))
-                .body("outletAllowed", equalTo(outletAllowed));
+                .body("isOutletAllowed", equalTo(outletAllowed));
     }
 }

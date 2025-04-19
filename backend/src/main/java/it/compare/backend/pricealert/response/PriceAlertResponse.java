@@ -15,8 +15,8 @@ public class PriceAlertResponse {
     private String productName;
     private BigDecimal targetPrice;
     private BigDecimal currentLowestPrice;
-    private Boolean outletAllowed;
-    private Boolean active;
+    private Boolean isOutletAllowed;
+    private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime lastNotificationSent;
 }

@@ -6,9 +6,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface PriceAlertRepository extends MongoRepository<PriceAlert, String> {
-    boolean existsByUserIdAndProductIdAndActiveTrue(String userId, String productId);
+    boolean existsByUserIdAndProductIdAndIsActiveTrue(String userId, String productId);
 
     Page<PriceAlert> findAllByUserId(String userId, Pageable pageable);
 
-    Page<PriceAlert> findAllByUserIdAndActive(String userId, boolean active, Pageable pageable);
+    Page<PriceAlert> findAllByUserIdAndProductId(String userId, String productId, Pageable pageable);
+
+    Page<PriceAlert> findAllByUserIdAndIsActive(String userId, boolean isActive, Pageable pageable);
+
+    Page<PriceAlert> findAllByUserIdAndProductIdAndIsActive(
+            String userId, String productId, boolean isActive, Pageable pageable);
+
+    void deleteAllByUserIdAndIsActiveFalse(String userId);
 }
