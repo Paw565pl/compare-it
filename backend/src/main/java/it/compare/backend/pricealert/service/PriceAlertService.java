@@ -12,10 +12,13 @@ import it.compare.backend.product.model.Condition;
 import it.compare.backend.product.model.PriceStamp;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.service.ProductService;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PriceAlertService {
@@ -131,15 +135,14 @@ public class PriceAlertService {
     }
 
     public void checkPriceAlerts(List<Product> products) {
-        var productIds = products.stream().map(Product::getId).toList();
+        var objectIds = products.stream().map(Product::getId).map(ObjectId::new).toList();
 
         var query = Query.query(new Criteria()
                 .andOperator(
-                        Criteria.where("product.$id").in(productIds),
-                        Criteria.where("active").is(true)));
+                        Criteria.where("product.$id").in(objectIds),
+                        Criteria.where("isActive").is(true)));
 
         var alerts = mongoTemplate.find(query, PriceAlert.class);
-
         var alertsByProductId = alerts.stream()
                 .collect(Collectors.groupingBy(alert -> alert.getProduct().getId()));
 
@@ -179,7 +182,7 @@ public class PriceAlertService {
                             lowestPriceData.shop(),
                             lowestPriceData.url());
 
-                    alert.setLastNotificationSent(alert.getCreatedAt());
+                    alert.setLastNotificationSent(LocalDateTime.now());
                     alert.setIsActive(false);
                     priceAlertRepository.save(alert);
                 }
