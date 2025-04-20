@@ -150,9 +150,9 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
     @ParameterizedTest
     @CsvSource({"100, true", "200, false", "300, true", "500, false"})
-    void shouldReturnCreatedAfterCreatingPriceAlert(BigDecimal targetPrice, boolean outletAllowed) {
+    void shouldReturnCreatedAfterCreatingPriceAlert(BigDecimal targetPrice, boolean isOutletAllowed) {
         var product = productTestDataFactory.createOne();
-        var alertDto = new PriceAlertDto(product.getId(), targetPrice, outletAllowed);
+        var alertDto = new PriceAlertDto(product.getId(), targetPrice, isOutletAllowed);
 
         given().contentType(JSON)
                 .auth()
@@ -164,7 +164,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .body("productId", equalTo(product.getId()))
                 .body("targetPrice", equalTo(targetPrice.intValue()))
-                .body("isOutletAllowed", equalTo(outletAllowed));
+                .body("isOutletAllowed", equalTo(isOutletAllowed));
         assertThat(priceAlertRepository.count(), is(1L));
     }
 

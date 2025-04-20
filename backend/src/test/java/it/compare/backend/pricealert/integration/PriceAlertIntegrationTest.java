@@ -9,12 +9,10 @@ import it.compare.backend.auth.model.User;
 import it.compare.backend.pricealert.model.PriceAlert;
 import it.compare.backend.pricealert.service.EmailService;
 import it.compare.backend.pricealert.service.PriceAlertService;
-import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Condition;
 import it.compare.backend.product.model.Offer;
 import it.compare.backend.product.model.PriceStamp;
 import it.compare.backend.product.model.Shop;
-import it.compare.backend.user.datafactory.UserTestDataFactory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,12 +26,6 @@ class PriceAlertIntegrationTest extends PriceAlertTest {
     @Autowired
     private PriceAlertService priceAlertService;
 
-    @Autowired
-    private UserTestDataFactory userFactory;
-
-    @Autowired
-    private ProductTestDataFactory productFactory;
-
     @MockitoBean
     private EmailService emailService;
 
@@ -41,12 +33,12 @@ class PriceAlertIntegrationTest extends PriceAlertTest {
 
     @BeforeEach
     void setup() {
-        testUser = userFactory.createOne();
+        testUser = userTestDataFactory.createOne();
     }
 
     @Test
     void shouldSendEmailAndDeactivateAlertWhenPriceReachesTheTarget() {
-        var product = productFactory.createOne();
+        var product = productTestDataFactory.createOne();
 
         var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
         var lowPrice = new PriceStamp(BigDecimal.valueOf(90), "PLN", Condition.NEW);
