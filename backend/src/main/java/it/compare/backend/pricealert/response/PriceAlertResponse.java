@@ -1,5 +1,6 @@
 package it.compare.backend.pricealert.response;
 
+import com.mongodb.lang.Nullable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -18,5 +19,6 @@ public class PriceAlertResponse {
     private Boolean isOutletAllowed;
     private Boolean isActive;
     private LocalDateTime createdAt;
-    private LocalDateTime lastNotificationSent;
+
+    @Nullable private LocalDateTime lastNotificationSent;
 }
