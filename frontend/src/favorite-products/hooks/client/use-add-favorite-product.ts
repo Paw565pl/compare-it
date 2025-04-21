@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-invalid-void-type */
 import { getQueryClient } from "@/core/libs/tanstack-query";
 import { apiService } from "@/core/services/api";
 import { ErrorResponse } from "@/core/services/api/types/error-response";
@@ -11,7 +10,7 @@ const addFavoriteProduct = async (
   accessToken: string,
   favoriteProductDto: FavoriteProductDto,
 ) => {
-  const { data } = await apiService.post<void>(
+  const { data } = await apiService.post<undefined>(
     "/api/v1/favorite-products",
     favoriteProductDto,
     {
@@ -24,7 +23,7 @@ const addFavoriteProduct = async (
 };
 
 export const useAddFavoriteProduct = (accessToken: string) =>
-  useMutation<void, AxiosError<ErrorResponse>, FavoriteProductDto>({
+  useMutation<undefined, AxiosError<ErrorResponse>, FavoriteProductDto>({
     mutationKey: [...favoriteProductsQueryKey, "add"] as const,
     mutationFn: (favoriteProductDto) =>
       addFavoriteProduct(accessToken, favoriteProductDto),

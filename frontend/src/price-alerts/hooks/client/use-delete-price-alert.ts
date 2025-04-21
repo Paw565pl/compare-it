@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-invalid-void-type */
 import { getQueryClient } from "@/core/libs/tanstack-query";
 import { apiService } from "@/core/services/api";
 import { ErrorResponse } from "@/core/services/api/types/error-response";
@@ -7,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 const deletePriceAlert = async (accessToken: string, priceAlertId: string) => {
-  const { data } = await apiService.delete<void>(
+  const { data } = await apiService.delete<undefined>(
     `/api/v1/price-alerts/${priceAlertId}`,
     {
       headers: {
@@ -22,7 +21,7 @@ export const useDeletePriceAlert = (
   accessToken: string,
   priceAlertId: string,
 ) =>
-  useMutation<void, AxiosError<ErrorResponse>, void>({
+  useMutation<undefined, AxiosError<ErrorResponse>>({
     mutationKey: [...priceAlertsQueryKey, priceAlertId, "delete"] as const,
     mutationFn: () => deletePriceAlert(accessToken, priceAlertId),
     onSettled: () => {
