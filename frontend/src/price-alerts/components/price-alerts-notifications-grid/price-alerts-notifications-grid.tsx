@@ -21,7 +21,7 @@ export const PriceAlertsNotificationsGrid = () => {
     fetchNextPage,
     isError,
   } = useFetchPriceAlertsPage(accessToken, userId, { isActive: false });
-  const { mutate: deleteInactivePriceAlerts, isPending } =
+  const { mutate: deleteInactivePriceAlerts } =
     useDeleteInactivePriceAlerts(accessToken);
 
   if (isError) return <span>Coś poszło nie tak!</span>;
