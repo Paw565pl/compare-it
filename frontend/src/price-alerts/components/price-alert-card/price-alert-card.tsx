@@ -94,7 +94,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
         <p>
           Czy outlet jest dozwolony:{" "}
           <span className="font-bold">
-            {priceAlert.outletAllowed ? "TAK" : "NIE"}
+            {priceAlert.isOutletAllowed ? "TAK" : "NIE"}
           </span>
         </p>
       </CardContent>
@@ -114,7 +114,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
           handleSubmit={handleUpdatePriceAlert}
           defaultValues={{
             targetPrice: priceAlert.targetPrice.toString(),
-            isOutletAllowed: priceAlert.outletAllowed,
+            isOutletAllowed: priceAlert.isOutletAllowed,
           }}
         />
       </CardFooter>

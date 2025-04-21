@@ -4,8 +4,8 @@ export interface PriceAlertEntity {
   readonly productName: string;
   readonly targetPrice: number;
   readonly currentLowestPrice: number;
-  readonly outletAllowed: boolean;
-  readonly active: boolean;
+  readonly isOutletAllowed: boolean;
+  readonly isActive: boolean;
   readonly createdAt: string;
-  readonly lastNotificationSent: string;
+  readonly lastNotificationSent: string | null;
 }
