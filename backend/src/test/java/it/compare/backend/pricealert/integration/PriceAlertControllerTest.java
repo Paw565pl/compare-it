@@ -12,7 +12,6 @@ import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
 import java.math.BigDecimal;
 import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,7 +67,6 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(0));
     }
-
 
     @Test
     void shouldReturnAllAlerts() {
@@ -155,6 +153,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .body("content", hasSize(3))
                 .body("content.id", containsInAnyOrder(alert1.getId(), alert2.getId(), alert3.getId()));
     }
+
     @Test
     void shouldReturnListOfAlertsForSpecificProductAndBasedOnIsActive() {
         var product = productTestDataFactory.createOne();
