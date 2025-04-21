@@ -1,3 +1,4 @@
 export interface PriceAlertFiltersDto {
-  active?: boolean | null;
+  productId?: string | null;
+  isActive?: boolean | null;
 }

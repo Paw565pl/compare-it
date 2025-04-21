@@ -17,7 +17,7 @@ export const PriceAlertsGrid = () => {
     hasNextPage,
     fetchNextPage,
     isError,
-  } = useFetchPriceAlertsPage(accessToken, userId, { active: true });
+  } = useFetchPriceAlertsPage(accessToken, userId, { isActive: true });
 
   if (isError) return <span>Coś poszło nie tak!</span>;
 
