@@ -26,7 +26,7 @@ public class PriceAlertController {
 
     private final PriceAlertService priceAlertService;
 
-    @GetMapping()
+    @GetMapping
     public Page<PriceAlertResponse> findAllByUser(
             @AuthenticationPrincipal Jwt jwt,
             PriceAlertFiltersDto filters,
@@ -35,7 +35,7 @@ public class PriceAlertController {
         return priceAlertService.findAllByUser(userDetails, filters, pageable);
     }
 
-    @PostMapping()
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PriceAlertResponse createPriceAlert(
             @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PriceAlertDto alertDto) {
