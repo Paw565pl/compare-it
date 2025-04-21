@@ -12,6 +12,8 @@ import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
 import java.math.BigDecimal;
 import java.util.List;
+
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,6 +55,20 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(0));
     }
+
+    @Test
+    void shouldReturnEmptyListWhenUserHasNoAlertsOnProduct() {
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .queryParam("productId", new ObjectId())
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(0));
+    }
+
 
     @Test
     void shouldReturnAllAlerts() {
@@ -115,6 +131,63 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(1))
                 .body("content.id", contains(alert3.getId()));
+    }
+
+    @Test
+    void shouldReturnListOfAlertsForSpecificProduct() {
+        var product = productTestDataFactory.createOne();
+        var alert1 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        var alert2 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        var alert3 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, productTestDataFactory.createOne());
+        alert2.setIsActive(false);
+        alert3.setIsActive(false);
+        priceAlertRepository.saveAll(List.of(alert1, alert2, alert3));
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .queryParam("productId", product.getId())
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(3))
+                .body("content.id", containsInAnyOrder(alert1.getId(), alert2.getId(), alert3.getId()));
+    }
+    @Test
+    void shouldReturnListOfAlertsForSpecificProductAndBasedOnIsActive() {
+        var product = productTestDataFactory.createOne();
+        var alert1 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        var alert2 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        var alert3 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        alert2.setIsActive(false);
+        alert3.setIsActive(false);
+        priceAlertRepository.saveAll(List.of(alert1, alert2, alert3));
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .queryParam("productId", product.getId())
+                .queryParam("isActive", true)
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(1))
+                .body("content.id", containsInAnyOrder(alert1.getId()));
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .queryParam("productId", product.getId())
+                .queryParam("isActive", false)
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(2))
+                .body("content.id", containsInAnyOrder(alert2.getId(), alert3.getId()));
     }
 
     @Test
