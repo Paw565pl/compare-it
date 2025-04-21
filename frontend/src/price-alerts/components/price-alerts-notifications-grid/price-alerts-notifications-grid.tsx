@@ -31,6 +31,7 @@ export const PriceAlertsNotificationsGrid = () => {
     <>
       <H1>Twoja historia alertów cenowych</H1>
 
+      {/* TODO: uncomment this and add handler */}
       {/* {!isEmpty && (
         <DeleteConfirmationAlertDialog
           alertDialogTriggerLabel={"Wyczyść całą historię powiadomień"}
