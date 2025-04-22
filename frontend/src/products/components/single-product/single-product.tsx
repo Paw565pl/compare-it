@@ -41,7 +41,7 @@ const SingleProduct = ({
       </div>
 
       <div className="flex w-full flex-col justify-center">
-        <H1 className="mb-2 text-xl font-bold">
+        <H1 className="mb-2 text-2xl! font-bold">
           <Link href={`/produkty/${id}`}>{name}</Link>
         </H1>
 
