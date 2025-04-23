@@ -31,7 +31,6 @@ public class MoreleScraperWorker implements ScraperWorker {
 
     private final RestClient restClient;
 
-    @Async
     @Override
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         var products = new ArrayList<Product>();

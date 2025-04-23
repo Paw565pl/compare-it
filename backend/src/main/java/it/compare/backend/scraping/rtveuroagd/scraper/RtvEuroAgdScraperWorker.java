@@ -30,7 +30,6 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
 
     private final RestClient restClient;
 
-    @Async
     @Override
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         final var PAGE_SIZE = 25;

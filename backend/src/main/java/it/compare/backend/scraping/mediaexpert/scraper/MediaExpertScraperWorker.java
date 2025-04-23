@@ -38,7 +38,6 @@ class MediaExpertScraperWorker implements ScraperWorker {
     private final ObjectMapper objectMapper;
     private final ObjectFactory<WebDriver> webDriverFactory;
 
-    @Async
     @Override
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         var webDriver = webDriverFactory.getObject();
