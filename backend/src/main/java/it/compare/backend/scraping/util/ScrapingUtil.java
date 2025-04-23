@@ -4,7 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public final class ScrapingUtil {
+public final class  ScrapingUtil {
 
     private ScrapingUtil() {
         throw new IllegalStateException("Attempted to instantiate utility class");

@@ -210,7 +210,7 @@ public class MoreleScraperWorker implements ScraperWorker {
         imageList.removeIf(String::isBlank);
 
         if (imageList.isEmpty()) {
-            var mainImage = productDocument.selectFirst("picture img");
+            var mainImage = productDocument.selectFirst("div.card-desktop picture img");
             if (mainImage != null) {
                 imageList.add(mainImage.attr("data-src"));
             }
