@@ -17,19 +17,23 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 
 class ProductListTest extends ProductTest {
 
-    @Test
-    void shouldReturnAllProducts() {
-        var productsCount = productTestDataFactory.createMany(3).size();
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 25, 125, 320, 1000})
+    void shouldReturnAllProducts(int numberOfProducts) {
+        var productsCount = productTestDataFactory.createMany(numberOfProducts).size();
         given().contentType(JSON)
                 .when()
                 .get()
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("page.totalElements", equalTo(productsCount));
+                .body("page.totalElements", equalTo(productsCount))
+                .body("page.size", equalTo(20))
+                .body("page.totalPages", equalTo((int) Math.ceil(productsCount / 20.0)));
     }
 
     static Stream<Arguments> categoryTestCases() {
