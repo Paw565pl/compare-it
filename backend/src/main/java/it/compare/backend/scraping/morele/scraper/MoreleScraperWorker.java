@@ -14,8 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.springframework.scheduling.annotation.Async;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
@@ -33,7 +32,7 @@ public class MoreleScraperWorker implements ScraperWorker {
 
     @Override
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
-        var products = new ArrayList<Product>();
+        var allProducts = new ArrayList<Product>();
 
         try {
             var initialUri = buildUri(categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/1");
@@ -42,7 +41,7 @@ public class MoreleScraperWorker implements ScraperWorker {
 
             for (var currentPage = 1; currentPage <= pagesCount; currentPage++) {
                 log.info("processing page {} for category {}", currentPage, category);
-                processCurrentPage(categoryLocator, currentPage, category, products);
+                allProducts.addAll(processCurrentPage(categoryLocator, currentPage, category));
             }
         } catch (HttpStatusCodeException e) {
             log.warn(
@@ -57,7 +56,7 @@ public class MoreleScraperWorker implements ScraperWorker {
                     e.getMessage());
         }
 
-        return CompletableFuture.completedFuture(products);
+        return CompletableFuture.completedFuture(allProducts);
     }
 
     @Override
@@ -65,15 +64,19 @@ public class MoreleScraperWorker implements ScraperWorker {
         return CURRENT_SHOP;
     }
 
-    private void processCurrentPage(
-            String categoryLocator, int currentPage, Category category, List<Product> products) {
+    private List<Product> processCurrentPage(String categoryLocator, int currentPage, Category category) {
         var currentPagePath = categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
         var uri = buildUri(currentPagePath);
+
+        var pageProducts = new ArrayList<Product>();
 
         try {
             var document = fetchDocument(uri);
             var productLinks = document.select("div.cat-product.card a.productLink");
-            scrapeProduct(productLinks, category, products);
+            for (var link : productLinks) {
+                var product = scrapeProduct(link, category);
+                if (product != null) pageProducts.add(product);
+            }
         } catch (HttpStatusCodeException e) {
             log.warn(
                     "http error has occurred while scraping category {} from uri {} - {}",
@@ -88,42 +91,42 @@ public class MoreleScraperWorker implements ScraperWorker {
                     uri,
                     e.getMessage());
         }
+        return pageProducts;
     }
 
-    private void scrapeProduct(Elements productLinks, Category category, List<Product> products) {
-        for (var link : productLinks) {
-            var href = BASE_URL + link.attr("href");
+    private Product scrapeProduct(Element link, Category category) {
+        var href = BASE_URL + link.attr("href");
 
-            try {
-                var productDocument = fetchDocument(href);
-                var product = createProductFromDocument(productDocument, category, href);
+        try {
+            var productDocument = fetchDocument(href);
+            var product = createProductFromDocument(productDocument, category, href);
 
-                if (product != null) {
-                    log.debug("product created: {}", product);
-                    products.add(product);
-                }
-
-                ScrapingUtil.sleep();
-            } catch (HttpStatusCodeException e) {
-                log.warn(
-                        "http error has occurred while scraping category {} at href {} - {}",
-                        category,
-                        href,
-                        e.getStatusCode().value());
-            } catch (Exception e) {
-                log.error(
-                        "unexpected error of class {} has occurred while scraping category {} at href {} - {}",
-                        e.getClass(),
-                        category,
-                        href,
-                        e.getMessage());
+            if (product != null) {
+                log.debug("product created: {}", product);
+                return product;
             }
+        } catch (HttpStatusCodeException e) {
+            log.warn(
+                    "http error has occurred while scraping category {} at href {} - {}",
+                    category,
+                    href,
+                    e.getStatusCode().value());
+        } catch (Exception e) {
+            log.error(
+                    "unexpected error of class {} has occurred while scraping category {} at href {} - {}",
+                    e.getClass(),
+                    category,
+                    href,
+                    e.getMessage());
+        } finally {
+            ScrapingUtil.sleep();
         }
+        return null;
     }
 
     private Product createProductFromDocument(Document productDocument, Category category, String href) {
         var ean = extractEan(productDocument);
-        if (ean.isEmpty() || !ean.matches("\\d+")) return null;
+        if (isValidEan(ean)) return null;
 
         var price = extractPrice(productDocument);
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) return null;
@@ -177,6 +180,10 @@ public class MoreleScraperWorker implements ScraperWorker {
                 .get(2)
                 .text()
                 .trim();
+    }
+
+    private boolean isValidEan(String ean) {
+        return ean != null && !ean.isBlank() && ean.matches("\\d+");
     }
 
     private String extractName(Document productDocument) {
