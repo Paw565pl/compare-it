@@ -4,7 +4,6 @@ import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.model.*;
 import it.compare.backend.scraping.scraper.ScraperWorker;
 import it.compare.backend.scraping.util.ScrapingUtil;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +35,10 @@ public class MoreleScraperWorker implements ScraperWorker {
 
         try {
             var initialUri = buildUri(categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/1");
-            var initialDocument = fetchDocument(initialUri);
-            var pagesCount = getPagesCount(initialDocument);
+            var initialDocumentOpt = fetchDocument(initialUri);
+            if (initialDocumentOpt.isEmpty()) return CompletableFuture.completedFuture(allProducts);
+
+            var pagesCount = getPagesCount(initialDocumentOpt.get());
 
             for (var currentPage = 1; currentPage <= pagesCount; currentPage++) {
                 log.info("processing page {} for category {}", currentPage, category);
@@ -71,8 +72,10 @@ public class MoreleScraperWorker implements ScraperWorker {
         var pageProducts = new ArrayList<Product>();
 
         try {
-            var document = fetchDocument(uri);
-            var productLinks = document.select("div.cat-product.card a.productLink");
+            var documentOpt = fetchDocument(uri);
+            if (documentOpt.isEmpty()) return pageProducts;
+
+            var productLinks = documentOpt.get().select("div.cat-product.card a.productLink");
             for (var link : productLinks) {
                 var product = scrapeProduct(link, category);
                 if (product != null) pageProducts.add(product);
@@ -98,8 +101,10 @@ public class MoreleScraperWorker implements ScraperWorker {
         var href = BASE_URL + link.attr("href");
 
         try {
-            var productDocument = fetchDocument(href);
-            var product = createProductFromDocument(productDocument, category, href);
+            var productDocumentOpt = fetchDocument(href);
+            if (productDocumentOpt.isEmpty()) return null;
+
+            var product = createProductFromDocument(productDocumentOpt.get(), category, href);
 
             if (product != null) {
                 log.debug("product created: {}", product);
@@ -126,7 +131,7 @@ public class MoreleScraperWorker implements ScraperWorker {
 
     private Product createProductFromDocument(Document productDocument, Category category, String href) {
         var ean = extractEan(productDocument);
-        if (isValidEan(ean)) return null;
+        if (!isValidEan(ean)) return null;
 
         var price = extractPrice(productDocument);
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) return null;
@@ -159,19 +164,26 @@ public class MoreleScraperWorker implements ScraperWorker {
                 document.select("div.pagination-btn-nolink-anchor").text().trim());
     }
 
-    private Document fetchDocument(String uri) throws IOException {
-        var response = restClient
-                .get()
-                .uri(uri)
-                .header("User-Agent", RandomUserAgentGenerator.getNext())
-                .header("Accept-Encoding", "gzip")
-                .retrieve()
-                .body(String.class);
+    private Optional<Document> fetchDocument(String uri) {
+        try {
+            var response = restClient
+                    .get()
+                    .uri(uri)
+                    .header("User-Agent", RandomUserAgentGenerator.getNext())
+                    .header("Accept-Encoding", "gzip")
+                    .retrieve()
+                    .body(String.class);
 
-        var responseBody = Optional.ofNullable(response)
-                .orElseThrow(() -> new IOException("response body is null for URI: " + uri));
+            if (response == null) {
+                log.warn("Response body is null for URI: {}", uri);
+                return Optional.empty();
+            }
 
-        return Jsoup.parse(responseBody);
+            return Optional.of(Jsoup.parse(response));
+        } catch (Exception e) {
+            log.error("Failed to fetch document from URI: {} due to {}", uri, e.getMessage());
+            return Optional.empty();
+        }
     }
 
     private String extractEan(Document productDocument) {
