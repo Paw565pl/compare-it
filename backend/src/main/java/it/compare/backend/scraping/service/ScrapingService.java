@@ -58,6 +58,6 @@ public class ScrapingService {
         var savedProducts = productRepository.saveAll(productsToSave);
         log.info("saved {} products", savedProducts.size());
 
-        savedProducts.forEach(priceAlertService::checkPriceAlerts);
+        if (!savedProducts.isEmpty()) priceAlertService.checkPriceAlerts(savedProducts);
     }
 }
