@@ -56,6 +56,7 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
                 Liczba ofert: {productData.offers.length}
               </p>
             </div>
+
             <ProductActionsButtons productId={productId} />
           </div>
         </div>
