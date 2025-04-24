@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 interface ProductFiltersFields {
   minPrice: string;
   maxPrice: string;
+  isAvailable: boolean;
   shop: string[];
 }
 
@@ -33,21 +34,22 @@ export const FiltersBar = () => {
   const [productFilters, setProductFilters] = useQueryStates(
     productFiltersSearchParams,
   );
-  const [, setPagination] = useQueryStates(productPaginationSearchParams);
+  const [, setProductPagination] = useQueryStates(
+    productPaginationSearchParams,
+  );
 
-  const defaultValues = useMemo(
+  const defaultValues = useMemo<ProductFiltersFields>(
     () =>
       ({
         minPrice: productFilters.minPrice?.toString() ?? "",
         maxPrice: productFilters.maxPrice?.toString() ?? "",
+        isAvailable:
+          productFilters.isAvailable !== null
+            ? !productFilters.isAvailable
+            : true,
         shop: productFilters.shop?.split(",") ?? shopList ?? [],
       }) as const,
-    [
-      productFilters.maxPrice,
-      productFilters.minPrice,
-      productFilters.shop,
-      shopList,
-    ],
+    [shopList, productFilters],
   );
   const form = useForm<ProductFiltersFields>({
     defaultValues,
@@ -55,22 +57,30 @@ export const FiltersBar = () => {
 
   useEffect(() => form.reset(defaultValues), [form, defaultValues]);
 
-  const handleSubmit = ({ minPrice, maxPrice, shop }: ProductFiltersFields) => {
+  const handleSubmit = ({
+    minPrice,
+    maxPrice,
+    isAvailable,
+    shop,
+  }: ProductFiltersFields) => {
     const parsedShop =
       shop.length === 0 || shop.length === shopList?.length
         ? null
         : shop.join(",");
-    const parsedFilters = {
-      shop: parsedShop,
+    const parsedIsAvailable = isAvailable === null ? null : !isAvailable;
+
+    const parsedFilters: Partial<typeof productFilters> = {
       minPrice: Number(minPrice) || null,
       maxPrice: Number(maxPrice) || null,
+      isAvailable: parsedIsAvailable,
+      shop: parsedShop,
     } as const;
 
     setProductFilters((prevFilters) => ({
       ...prevFilters,
       ...parsedFilters,
     }));
-    setPagination((prev) => ({ ...prev, page: 1 }));
+    setProductPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   return (
@@ -107,7 +117,6 @@ export const FiltersBar = () => {
                                         ),
                                       )
                                 }
-                                className="cursor-pointer"
                               />
                             </FormControl>
                             <FormLabel className="cursor-pointer sm:text-lg">
@@ -121,6 +130,30 @@ export const FiltersBar = () => {
                 </FormItem>
               )}
             />
+
+            <H3>Dostępność</H3>
+
+            <FormItem className="block w-full">
+              <FormField
+                control={form.control}
+                name="isAvailable"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="hover:bg-hover flex w-full cursor-pointer items-center px-4 py-3 transition-colors duration-200 hover:text-white">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="cursor-pointer sm:text-lg">
+                        Pokaż niedostępne
+                      </FormLabel>
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+            </FormItem>
 
             <H3>Cena</H3>
 

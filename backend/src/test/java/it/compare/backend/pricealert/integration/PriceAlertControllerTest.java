@@ -12,6 +12,7 @@ import it.compare.backend.core.mock.AuthMock;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
 import java.math.BigDecimal;
 import java.util.List;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,6 +48,19 @@ class PriceAlertControllerTest extends PriceAlertTest {
         given().contentType(JSON)
                 .auth()
                 .oauth2(mockToken.getTokenValue())
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(0));
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenUserHasNoAlertsOnProduct() {
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .queryParam("productId", new ObjectId())
                 .when()
                 .get()
                 .then()
@@ -97,7 +111,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
         given().contentType(JSON)
                 .auth()
                 .oauth2(mockToken.getTokenValue())
-                .queryParam("active", true)
+                .queryParam("isActive", true)
                 .when()
                 .get()
                 .then()
@@ -108,13 +122,71 @@ class PriceAlertControllerTest extends PriceAlertTest {
         given().contentType(JSON)
                 .auth()
                 .oauth2(mockToken.getTokenValue())
-                .queryParam("active", false)
+                .queryParam("isActive", false)
                 .when()
                 .get()
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("content", hasSize(1))
                 .body("content.id", contains(alert3.getId()));
+    }
+
+    @Test
+    void shouldReturnListOfAlertsForSpecificProduct() {
+        var product = productTestDataFactory.createOne();
+        var alert1 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        var alert2 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        var alert3 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, productTestDataFactory.createOne());
+        alert2.setIsActive(false);
+        alert3.setIsActive(false);
+        priceAlertRepository.saveAll(List.of(alert1, alert2, alert3));
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .queryParam("productId", product.getId())
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(3))
+                .body("content.id", containsInAnyOrder(alert1.getId(), alert2.getId(), alert3.getId()));
+    }
+
+    @Test
+    void shouldReturnListOfAlertsForSpecificProductAndBasedOnIsActive() {
+        var product = productTestDataFactory.createOne();
+        var alert1 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        var alert2 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        var alert3 = priceAlertTestDataFactory.createPriceAlertWithUserAndProduct(testUser, product);
+        alert2.setIsActive(false);
+        alert3.setIsActive(false);
+        priceAlertRepository.saveAll(List.of(alert1, alert2, alert3));
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .queryParam("productId", product.getId())
+                .queryParam("isActive", true)
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(1))
+                .body("content.id", containsInAnyOrder(alert1.getId()));
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .queryParam("productId", product.getId())
+                .queryParam("isActive", false)
+                .when()
+                .get()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", hasSize(2))
+                .body("content.id", containsInAnyOrder(alert2.getId(), alert3.getId()));
     }
 
     @Test
@@ -150,9 +222,9 @@ class PriceAlertControllerTest extends PriceAlertTest {
 
     @ParameterizedTest
     @CsvSource({"100, true", "200, false", "300, true", "500, false"})
-    void shouldReturnCreatedAfterCreatingPriceAlert(BigDecimal targetPrice, boolean outletAllowed) {
+    void shouldReturnCreatedAfterCreatingPriceAlert(BigDecimal targetPrice, boolean isOutletAllowed) {
         var product = productTestDataFactory.createOne();
-        var alertDto = new PriceAlertDto(product.getId(), targetPrice, outletAllowed);
+        var alertDto = new PriceAlertDto(product.getId(), targetPrice, isOutletAllowed);
 
         given().contentType(JSON)
                 .auth()
@@ -164,7 +236,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .body("productId", equalTo(product.getId()))
                 .body("targetPrice", equalTo(targetPrice.intValue()))
-                .body("outletAllowed", equalTo(outletAllowed));
+                .body("isOutletAllowed", equalTo(isOutletAllowed));
         assertThat(priceAlertRepository.count(), is(1L));
     }
 
@@ -198,6 +270,22 @@ class PriceAlertControllerTest extends PriceAlertTest {
     }
 
     @Test
+    void shouldReturnNoContentAfterDeletingAllInactivePriceAlerts() {
+        priceAlertTestDataFactory.createPriceAlertForUser(testUser);
+        priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
+        priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .when()
+                .delete("/inactive")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+        assertThat(priceAlertRepository.count(), is(1L));
+    }
+
+    @Test
     void shouldReturnForbiddenAfterUpdatingPriceAlertThatDoesNotBelongToUser() {
         priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var anotherUser = userTestDataFactory.createOne();
@@ -212,6 +300,21 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .put("/{alertId}", anotherAlert.getId())
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void shouldReturnBadRequestAfterUpdatingPriceAlertThatIsInactive() {
+        var alert = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
+        var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
+
+        given().contentType(JSON)
+                .auth()
+                .oauth2(mockToken.getTokenValue())
+                .body(alertDto)
+                .when()
+                .put("/{alertId}", alert.getId())
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @ParameterizedTest
@@ -230,6 +333,6 @@ class PriceAlertControllerTest extends PriceAlertTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("productId", equalTo(alert.getProduct().getId()))
                 .body("targetPrice", equalTo(targetPrice.intValue()))
-                .body("outletAllowed", equalTo(outletAllowed));
+                .body("isOutletAllowed", equalTo(outletAllowed));
     }
 }

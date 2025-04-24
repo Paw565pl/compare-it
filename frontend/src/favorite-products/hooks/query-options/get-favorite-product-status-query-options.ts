@@ -10,7 +10,7 @@ const fetchFavoriteProductStatus = async (
   productId: string,
 ) => {
   const { data } = await apiService.get<FavoriteProductStatusEntity>(
-    `/api/v1/favorite-products/${productId}/status/`,
+    `/api/v1/favorite-products/${productId}/status`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -35,4 +35,5 @@ export const getFavoriteProductStatusQueryOptions = (
     ] as const,
     queryFn: () => fetchFavoriteProductStatus(accessToken, productId),
     staleTime: 60 * 60 * 1000, // 60 minutes
+    enabled: !!accessToken && !!userId,
   });

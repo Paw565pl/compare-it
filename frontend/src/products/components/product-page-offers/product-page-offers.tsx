@@ -5,7 +5,7 @@ interface ProductPageOffersProps {
   readonly productId: string;
 }
 
-const ProductPageOffers = ({ productId }: ProductPageOffersProps) => {
+export const ProductPageOffers = ({ productId }: ProductPageOffersProps) => {
   const { data: productData, isLoading, error } = useFetchProduct(productId);
 
   if (isLoading) return <div className="text-primary">Ładowanie...</div>;
@@ -19,5 +19,3 @@ const ProductPageOffers = ({ productId }: ProductPageOffersProps) => {
     </div>
   );
 };
-
-export { ProductPageOffers };

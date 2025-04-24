@@ -5,6 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import it.compare.backend.auth.annotation.IsAuthenticated;
 import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.pricealert.dto.PriceAlertDto;
+import it.compare.backend.pricealert.dto.PriceAlertFiltersDto;
 import it.compare.backend.pricealert.response.PriceAlertResponse;
 import it.compare.backend.pricealert.service.PriceAlertService;
 import it.compare.backend.pricealert.validator.ValidPriceAlertId;
@@ -21,41 +22,42 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
+@IsAuthenticated
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/price-alerts")
 public class PriceAlertController {
 
     private final PriceAlertService priceAlertService;
 
-    @IsAuthenticated
-    @GetMapping("/price-alerts")
+    @GetMapping
     public Page<PriceAlertResponse> findAllByUser(
             @AuthenticationPrincipal Jwt jwt,
-            @RequestParam(required = false) Boolean active,
+            PriceAlertFiltersDto filters,
             @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
-        if (active != null) {
-            return priceAlertService.findAllByUserAndActive(OAuthUserDetails.fromJwt(jwt), active, pageable);
-        }
-        return priceAlertService.findAllByUser(OAuthUserDetails.fromJwt(jwt), pageable);
+        var userDetails = OAuthUserDetails.fromJwt(jwt);
+        return priceAlertService.findAllByUser(userDetails, filters, pageable);
     }
 
-    @IsAuthenticated
-    @PostMapping("/price-alerts")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PriceAlertResponse createPriceAlert(
             @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PriceAlertDto alertDto) {
         return priceAlertService.createPriceAlert(OAuthUserDetails.fromJwt(jwt), alertDto.productId(), alertDto);
     }
 
-    @IsAuthenticated
-    @DeleteMapping("/price-alerts/{alertId}")
+    @DeleteMapping("/{alertId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePriceAlert(@AuthenticationPrincipal Jwt jwt, @ValidPriceAlertId @PathVariable String alertId) {
         priceAlertService.deletePriceAlert(OAuthUserDetails.fromJwt(jwt), alertId);
     }
 
-    @IsAuthenticated
-    @PutMapping("/price-alerts/{alertId}")
+    @DeleteMapping("/inactive")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteInactivePriceAlerts(@AuthenticationPrincipal Jwt jwt) {
+        priceAlertService.deleteInactivePriceAlerts(OAuthUserDetails.fromJwt(jwt));
+    }
+
+    @PutMapping("/{alertId}")
     public PriceAlertResponse updatePriceAlert(
             @AuthenticationPrincipal Jwt jwt,
             @ValidPriceAlertId @PathVariable String alertId,

@@ -7,4 +7,4 @@ const baseUrl =
     ? serverEnv.API_BASE_URL
     : clientEnv.NEXT_PUBLIC_API_BASE_URL;
 
-export const apiService = axios.create({ baseURL: baseUrl });
+export const apiService = axios.create({ baseURL: baseUrl, adapter: "fetch" });

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import net.datafaker.Faker;
+import org.bson.types.ObjectId;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
 
@@ -34,6 +35,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         var product = new Product(
                 String.valueOf(faker.number().positive()), faker.commerce().productName(), Category.PROCESSORS);
         product.getOffers().add(offer);
+        product.setId(new ObjectId().toString());
 
         return product;
     }
