@@ -10,31 +10,34 @@ interface ProductPaginationProps {
 }
 
 export const ProductPagination = ({ hasNextPage }: ProductPaginationProps) => {
-  const [pagination, setPagination] = useQueryStates(
+  const [productPagination, setProductPagination] = useQueryStates(
     productPaginationSearchParams,
+    { scroll: true },
   );
 
   return (
     <div className="mt-6 flex items-center justify-between">
       <Button
         variant="pagination"
+        aria-label="Poprzednia strona"
         onClick={() =>
-          setPagination((prev) => ({
+          setProductPagination((prev) => ({
             ...prev,
             page: Math.max(prev.page - 1, 1),
           }))
         }
-        disabled={pagination.page === 1}
+        disabled={productPagination.page === 1}
       >
         <ChevronLeft />
       </Button>
 
-      <span className="text-gray-700">Strona {pagination.page}</span>
+      <span className="text-gray-700">Strona {productPagination.page}</span>
 
       <Button
         variant="pagination"
+        aria-label="Następna strona"
         onClick={() =>
-          setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+          setProductPagination((prev) => ({ ...prev, page: prev.page + 1 }))
         }
         disabled={!hasNextPage}
       >
