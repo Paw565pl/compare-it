@@ -6,7 +6,7 @@ import { priceAlertsQueryKey } from "@/price-alerts/hooks/query-options/price-al
 import { queryOptions } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
-const existsActivePriceAlertForProduct = async (
+const getActivePriceAlertForProduct = async (
   accessToken: string,
   productId: string,
 ) => {
@@ -24,22 +24,17 @@ const existsActivePriceAlertForProduct = async (
     },
   );
 
-  return data.page.totalElements === 1;
+  return data.content.at(0);
 };
 
-export const getExistsActivePriceAlertForProductQueryOptions = (
+export const getActivePriceAlertForProductQueryOptions = (
   accessToken: string,
   userId: string,
   productId: string,
 ) =>
-  queryOptions<boolean, AxiosError>({
+  queryOptions<PriceAlertEntity | undefined, AxiosError>({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
-    queryKey: [
-      ...priceAlertsQueryKey,
-      "existsForProduct",
-      userId,
-      productId,
-    ] as const,
-    queryFn: () => existsActivePriceAlertForProduct(accessToken, productId),
+    queryKey: [...priceAlertsQueryKey, userId, productId, "active"] as const,
+    queryFn: () => getActivePriceAlertForProduct(accessToken, productId),
     staleTime: 60 * 60 * 1000, // 60 minutes
   });
