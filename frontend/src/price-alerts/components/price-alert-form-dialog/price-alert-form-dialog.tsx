@@ -25,7 +25,7 @@ import {
   priceAlertSchema,
 } from "@/price-alerts/schemas/price-alert-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface PriceAlertFormDialogProps {
@@ -41,7 +41,7 @@ export const PriceAlertFormDialog = ({
   handleSubmit,
   defaultValues,
 }: PriceAlertFormDialogProps) => {
-  const dialogTriggerRef = useRef<HTMLButtonElement>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const form = useForm<PriceAlertFormValues>({
     resolver: zodResolver(priceAlertSchema),
@@ -53,16 +53,14 @@ export const PriceAlertFormDialog = ({
 
   const handleFormSubmit = (formValues: PriceAlertFormValues) => {
     form.reset();
-    dialogTriggerRef.current?.click();
+    setIsDialogOpen(false);
 
     handleSubmit(formValues);
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild ref={dialogTriggerRef}>
-        {dialogTrigger}
-      </DialogTrigger>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
 
       <DialogContent className="sm:max-w-110">
         <DialogHeader>
@@ -75,7 +73,6 @@ export const PriceAlertFormDialog = ({
 
         <Form {...form}>
           <form
-            // eslint-disable-next-line react-compiler/react-compiler
             onSubmit={form.handleSubmit(handleFormSubmit)}
             className="flex flex-col justify-end gap-4 py-4"
           >
