@@ -32,7 +32,7 @@ public class PriceAlertController {
     @GetMapping
     public Page<PriceAlertResponse> findAllByUser(
             @AuthenticationPrincipal Jwt jwt,
-            PriceAlertFiltersDto filters,
+            @Valid PriceAlertFiltersDto filters,
             @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
         var userDetails = OAuthUserDetails.fromJwt(jwt);
         return priceAlertService.findAllByUser(userDetails, filters, pageable);

@@ -7,6 +7,7 @@ import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.comment.dto.CommentDto;
 import it.compare.backend.comment.response.CommentResponse;
 import it.compare.backend.comment.service.CommentService;
+import it.compare.backend.comment.validator.ValidCommentId;
 import it.compare.backend.product.validator.ValidProductId;
 import jakarta.validation.Valid;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class CommentController {
     public CommentResponse findById(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
-            @PathVariable String commentId) {
+            @ValidCommentId @PathVariable String commentId) {
         var oAuthUserDetails =
                 Optional.ofNullable(jwt).map(OAuthUserDetails::fromJwt).orElse(null);
         return commentService.findById(oAuthUserDetails, productId, commentId);
@@ -63,7 +64,7 @@ public class CommentController {
     public CommentResponse update(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
-            @PathVariable String commentId,
+            @ValidCommentId @PathVariable String commentId,
             @Valid @RequestBody CommentDto commentDto) {
         return commentService.update(OAuthUserDetails.fromJwt(jwt), productId, commentId, commentDto);
     }
@@ -74,7 +75,7 @@ public class CommentController {
     public void deleteById(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
-            @PathVariable String commentId) {
+            @ValidCommentId @PathVariable String commentId) {
         commentService.deleteById(OAuthUserDetails.fromJwt(jwt), productId, commentId);
     }
 }
