@@ -22,8 +22,8 @@ const fetchFavoriteProductStatus = async (
 
 export const getFavoriteProductStatusQueryOptions = (
   accessToken: string,
-  productId: string,
   userId: string,
+  productId: string,
 ) =>
   queryOptions<FavoriteProductStatusEntity, AxiosError<ErrorResponse>>({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps

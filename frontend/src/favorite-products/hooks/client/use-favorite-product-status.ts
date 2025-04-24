@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 
 export const useFavoriteProductStatus = (
   accessToken: string,
-  productId: string,
   userId: string,
+  productId: string,
 ) =>
   useQuery(
-    getFavoriteProductStatusQueryOptions(accessToken, productId, userId),
+    getFavoriteProductStatusQueryOptions(accessToken, userId, productId),
   );

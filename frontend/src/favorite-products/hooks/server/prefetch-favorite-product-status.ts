@@ -4,9 +4,9 @@ import { QueryClient } from "@tanstack/react-query";
 export const prefetchFavoriteProductStatus = (
   queryClient: QueryClient,
   accessToken: string,
-  productId: string,
   userId: string,
+  productId: string,
 ) =>
   queryClient.prefetchQuery(
-    getFavoriteProductStatusQueryOptions(accessToken, productId, userId),
+    getFavoriteProductStatusQueryOptions(accessToken, userId, productId),
   );
