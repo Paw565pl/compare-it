@@ -36,5 +36,6 @@ export const getActivePriceAlertForProductQueryOptions = (
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [...priceAlertsQueryKey, userId, productId, "active"] as const,
     queryFn: () => getActivePriceAlertForProduct(accessToken, productId),
-    staleTime: 60 * 60 * 1000, // 60 minutes
+    staleTime: 60 * 60 * 1000, // 60 minutes,
+    enabled: !!accessToken && !!userId,
   });
