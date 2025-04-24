@@ -60,7 +60,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
         given().contentType(JSON)
                 .auth()
                 .oauth2(mockToken.getTokenValue())
-                .queryParam("productId", new ObjectId())
+                .queryParam("productId", new ObjectId().toHexString())
                 .when()
                 .get()
                 .then()
