@@ -35,4 +35,5 @@ export const getFavoriteProductStatusQueryOptions = (
     ] as const,
     queryFn: () => fetchFavoriteProductStatus(accessToken, productId),
     staleTime: 60 * 60 * 1000, // 60 minutes
+    enabled: !!accessToken && !!userId,
   });

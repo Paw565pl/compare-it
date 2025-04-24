@@ -35,7 +35,14 @@ export const SearchBar = () => {
       return;
     }
 
-    push(`/produkty?name=${name}`);
+    const paramsValues: Pick<
+      Record<keyof typeof productFilters, string>,
+      "name"
+    > = { name };
+    const params = new URLSearchParams(paramsValues);
+
+    const url = `/produkty?${params.toString()}`;
+    push(url);
   };
 
   return (
