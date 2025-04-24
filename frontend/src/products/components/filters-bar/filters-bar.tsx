@@ -147,7 +147,7 @@ export const FiltersBar = () => {
                         />
                       </FormControl>
                       <FormLabel className="cursor-pointer sm:text-lg">
-                        Wyświetl produkty niedostępne
+                        Pokaż niedostępne
                       </FormLabel>
                     </FormLabel>
                   </FormItem>
