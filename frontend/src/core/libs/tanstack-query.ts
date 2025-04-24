@@ -6,11 +6,12 @@ import {
 import { HttpStatusCode, isAxiosError } from "axios";
 
 const nonRetryableErrorCodes = new Set([
+  HttpStatusCode.Unauthorized,
+  HttpStatusCode.Forbidden,
   HttpStatusCode.NotFound,
   HttpStatusCode.Gone,
   HttpStatusCode.BadRequest,
-  HttpStatusCode.Forbidden,
-  HttpStatusCode.Unauthorized,
+  HttpStatusCode.TooManyRequests,
 ]);
 
 const MAX_RETRY_COUNT = 3;
