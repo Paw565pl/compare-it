@@ -1,3 +1,4 @@
+import { DeleteConfirmationAlertDialog } from "@/core/components";
 import { Button } from "@/core/components/ui/button";
 import { FavoriteProductDto } from "@/favorite-products/dto/favorite-product-dto";
 import { useAddFavoriteProduct } from "@/favorite-products/hooks/client/use-add-favorite-product";
@@ -6,8 +7,11 @@ import { useFavoriteProductStatus } from "@/favorite-products/hooks/client/use-f
 import { PriceAlertFormDialog } from "@/price-alerts/components";
 import { PriceAlertDto } from "@/price-alerts/dtos/price-alert-dto";
 import { useCreatePriceAlert } from "@/price-alerts/hooks/client/use-create-price-alert";
+import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
+import { useFetchActivePriceAlertForProduct } from "@/price-alerts/hooks/client/use-fetch-active-price-alert-for-product";
+import { useUpdatePriceAlert } from "@/price-alerts/hooks/client/use-update-price-alert";
 import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
-import { Heart, HeartOff, Notebook } from "lucide-react";
+import { Heart, HeartOff, Notebook, NotebookPen } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -22,31 +26,31 @@ export const ProductActionsButtons = ({
   const accessToken = session?.tokens?.accessToken as string;
   const userId = session?.user?.id as string;
 
-  const { mutate: createPriceAlert } = useCreatePriceAlert(accessToken);
+  const { data: favoriteProductStatus } = useFavoriteProductStatus(
+    accessToken,
+    userId,
+    productId,
+  );
+  const { data: activePriceAlert } = useFetchActivePriceAlertForProduct(
+    accessToken,
+    userId,
+    productId,
+  );
+
   const { mutate: addFavoriteProduct } = useAddFavoriteProduct(accessToken);
   const { mutate: deleteFavoriteProduct } =
     useDeleteFavoriteProduct(accessToken);
-
-  const { data: favoriteProductStatus } = useFavoriteProductStatus(
+  const { mutate: createPriceAlert } = useCreatePriceAlert(accessToken);
+  const { mutate: updatePriceAlert } = useUpdatePriceAlert(
     accessToken,
-    productId,
-    userId,
+    activePriceAlert?.id as string,
+  );
+  const { mutate: deletePriceAlert } = useDeletePriceAlert(
+    accessToken,
+    activePriceAlert?.id as string,
   );
 
   if (!session) return null;
-
-  const handleCreatePriceAlert = (formValues: PriceAlertFormValues) => {
-    const priceAlertDto: PriceAlertDto = {
-      productId,
-      targetPrice: Number(formValues.targetPrice),
-      isOutletAllowed: formValues.isOutletAllowed,
-    };
-
-    createPriceAlert(priceAlertDto, {
-      onSuccess: () => toast.success("Alert cenowy został utworzony."),
-      onError: () => toast.error("Coś poszło nie tak!"),
-    });
-  };
 
   const handleAddFavoriteProduct = () => {
     const favoriteProductDto: FavoriteProductDto = {
@@ -67,6 +71,39 @@ export const ProductActionsButtons = ({
     deleteFavoriteProduct(favoriteProductDto, {
       onSuccess: () => toast.success("Usunięto produkt z polubionych."),
       onError: () => toast.error("Ten produkt nie jest polubiony!"),
+    });
+  };
+
+  const handleCreatePriceAlert = (formValues: PriceAlertFormValues) => {
+    const priceAlertDto: PriceAlertDto = {
+      productId,
+      targetPrice: Number(formValues.targetPrice),
+      isOutletAllowed: formValues.isOutletAllowed,
+    };
+
+    createPriceAlert(priceAlertDto, {
+      onSuccess: () => toast.success("Alert cenowy został utworzony."),
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
+  };
+
+  const handleUpdatePriceAlert = (formValues: PriceAlertFormValues) => {
+    const priceAlertDto: PriceAlertDto = {
+      productId,
+      targetPrice: Number(formValues.targetPrice),
+      isOutletAllowed: formValues.isOutletAllowed,
+    };
+
+    updatePriceAlert(priceAlertDto, {
+      onSuccess: () => toast.success("Alert cenowy został zaktualizowany."),
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
+  };
+
+  const handleDeletePriceAlert = () => {
+    deletePriceAlert(undefined, {
+      onSuccess: () => toast.success("Alert cenowy został usunięty."),
+      onError: () => toast.error("Coś poszło nie tak!"),
     });
   };
 
@@ -95,18 +132,47 @@ export const ProductActionsButtons = ({
           </span>
         </Button>
       )}
-      <PriceAlertFormDialog
-        dialogTrigger={
-          <Button variant="priceAlert" size={"noPadding"}>
-            <span className="flex items-center gap-2">
-              <Notebook />
-              DODAJ ALERT CENOWY
-            </span>
-          </Button>
-        }
-        dialogHeader={"Dodaj alert"}
-        handleSubmit={handleCreatePriceAlert}
-      />
+
+      {activePriceAlert ? (
+        <>
+          <PriceAlertFormDialog
+            dialogTrigger={
+              <Button variant="priceAlert" size="noPadding">
+                <span className="flex items-center gap-2">
+                  <NotebookPen />
+                  EDYTUJ ALERT CENOWY
+                </span>
+              </Button>
+            }
+            dialogHeader="Edytuj alert"
+            handleSubmit={handleUpdatePriceAlert}
+            defaultValues={{
+              targetPrice: activePriceAlert.targetPrice.toString(),
+              isOutletAllowed: activePriceAlert.isOutletAllowed,
+            }}
+          />
+
+          <DeleteConfirmationAlertDialog
+            alertDialogTriggerLabel="USUŃ ALERT"
+            alertDialogTriggerVariant="priceAlert"
+            alertDialogTriggerSize="noPadding"
+            handleDelete={handleDeletePriceAlert}
+          />
+        </>
+      ) : (
+        <PriceAlertFormDialog
+          dialogTrigger={
+            <Button variant="priceAlert" size="noPadding">
+              <span className="flex items-center gap-2">
+                <Notebook />
+                DODAJ ALERT CENOWY
+              </span>
+            </Button>
+          }
+          dialogHeader="Dodaj alert"
+          handleSubmit={handleCreatePriceAlert}
+        />
+      )}
     </div>
   );
 };

@@ -24,7 +24,7 @@ const getActivePriceAlertForProduct = async (
     },
   );
 
-  return data.content.at(0);
+  return data.content.at(0) ?? null;
 };
 
 export const getActivePriceAlertForProductQueryOptions = (
@@ -32,7 +32,7 @@ export const getActivePriceAlertForProductQueryOptions = (
   userId: string,
   productId: string,
 ) =>
-  queryOptions<PriceAlertEntity | undefined, AxiosError>({
+  queryOptions<PriceAlertEntity | null, AxiosError>({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [...priceAlertsQueryKey, productId, userId, "active"] as const,
     queryFn: () => getActivePriceAlertForProduct(accessToken, productId),

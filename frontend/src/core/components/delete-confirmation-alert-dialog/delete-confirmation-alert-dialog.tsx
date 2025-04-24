@@ -11,25 +11,37 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/core/components/ui/alert-dialog";
-import { Button } from "@/core/components/ui/button";
+import { Button, buttonVariants } from "@/core/components/ui/button";
+import { VariantProps } from "class-variance-authority";
 import { Ban, Trash2 } from "lucide-react";
+import { ReactNode } from "react";
 
 interface DeleteConfirmationAlertDialogProps {
   alertDialogTriggerLabel?: string;
+  alertDialogTriggerIcon?: ReactNode;
   alertDialogTriggerClassName?: string;
+  alertDialogTriggerVariant?: VariantProps<typeof buttonVariants>["variant"];
+  alertDialogTriggerSize?: VariantProps<typeof buttonVariants>["size"];
   handleDelete: () => void;
 }
 
 export const DeleteConfirmationAlertDialog = ({
   alertDialogTriggerLabel,
+  alertDialogTriggerIcon,
   alertDialogTriggerClassName,
+  alertDialogTriggerVariant = "destructive",
+  alertDialogTriggerSize,
   handleDelete,
 }: DeleteConfirmationAlertDialogProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" className={alertDialogTriggerClassName}>
-          <Trash2 /> {alertDialogTriggerLabel}
+        <Button
+          variant={alertDialogTriggerVariant}
+          size={alertDialogTriggerSize}
+          className={alertDialogTriggerClassName}
+        >
+          {alertDialogTriggerIcon ?? <Trash2 />} {alertDialogTriggerLabel}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
