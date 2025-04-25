@@ -122,10 +122,6 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
         return CURRENT_SHOP;
     }
 
-    private String buildUri(String path) {
-        return UriComponentsBuilder.fromUriString(BASE_URL).path(path).build().toUriString();
-    }
-
     private BigDecimal getLowestPrice(RtvEuroAgdProduct.Prices prices, Optional<List<Long>> outletPrices) {
         var priceList = new ArrayList<Long>();
 
