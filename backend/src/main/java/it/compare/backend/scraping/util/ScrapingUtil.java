@@ -12,7 +12,7 @@ public final class ScrapingUtil {
 
     public static void sleep() {
         try {
-            Thread.sleep(ThreadLocalRandom.current().nextLong(200, 2000));
+            Thread.sleep(ThreadLocalRandom.current().nextLong(300, 1500));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error(e.getMessage());

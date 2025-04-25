@@ -6,6 +6,7 @@ import { prefetchActivePriceAlertForProduct } from "@/price-alerts/hooks/server/
 import { ProductPageTop } from "@/products/components/index";
 import { prefetchProduct } from "@/products/hooks/server/prefetch-product";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { notFound } from "next/navigation";
 
 export interface ProductPageProps {
   readonly params: Promise<{ id: string }>;

@@ -207,8 +207,6 @@ class ProductDetailsTest extends ProductTest {
                 .get("/{productId}", product.getId())
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .log()
-                .body()
                 .body("offers[0].shop", equalTo(expectedShops.get(0)))
                 .body("offers[1].shop", equalTo(expectedShops.get(1)))
                 .body("offers[2].shop", equalTo(expectedShops.get(2)));

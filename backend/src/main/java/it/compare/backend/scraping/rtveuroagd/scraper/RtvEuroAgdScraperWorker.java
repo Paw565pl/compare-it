@@ -14,9 +14,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,7 +30,6 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
 
     private final RestClient restClient;
 
-    @Async
     @Override
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
         final var PAGE_SIZE = 25;
@@ -60,15 +59,14 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                         || productResponses.results().isEmpty()) break;
 
                 productResponses.results().forEach(productResponse -> {
-                    if (productResponse.eanCodes().isEmpty()) return;
-
                     var outletPrices = productResponse
                             .outletDetails()
                             .map(outletDetails -> outletDetails.outletCategories().stream()
                                     .map(RtvEuroAgdProduct.OutletCategory::price)
                                     .toList());
                     var price = getLowestPrice(productResponse.prices(), outletPrices);
-                    if (price == null) return;
+
+                    if (productResponse.eanCodes().isEmpty() || price == null) return;
 
                     var promoCode = productResponse
                             .voucherDetails()
@@ -99,14 +97,22 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                 ScrapingUtil.sleep();
             } catch (HttpStatusCodeException e) {
                 log.warn(
-                        "http error has occurred while scraping products from category {} - {}",
+                        "http error has occurred while scraping category {} on page {}- {}",
                         category,
+                        currentStartFrom,
                         e.getStatusCode().value());
+            } catch (ResourceAccessException e) {
+                log.warn(
+                        "timeout occurred in Rtv Euro Agd scraper while scraping category {} on page {} - {}",
+                        category,
+                        currentStartFrom,
+                        e.getMessage());
             } catch (Exception e) {
                 log.error(
-                        "unexpected error of class {} has occurred while scraping products from category {} - {}",
+                        "unexpected error of class {} has occurred while scraping category {} on page {} - {}",
                         e.getClass(),
                         category,
+                        currentStartFrom,
                         e.getMessage());
             }
         }

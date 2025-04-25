@@ -6,6 +6,7 @@ import it.compare.backend.scraping.shopcategorymap.ShopCategoryMap;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +31,9 @@ public class ScrapingManager {
                 scraperWorkers.stream().collect(Collectors.toMap(ScraperWorker::getShop, Function.identity()));
     }
 
-    @Async
+    @SuppressWarnings("java:S6809")
     public void scrapeAll() {
-        shopCategoryMap.getValues().keySet().forEach(this::scrapeShop);
+        shopCategoryMap.getValues().keySet().forEach(shop -> CompletableFuture.runAsync(() -> this.scrapeShop(shop)));
     }
 
     @Async

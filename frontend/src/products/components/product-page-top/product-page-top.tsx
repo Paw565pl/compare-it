@@ -11,6 +11,8 @@ import {
   ProductPageOffers,
 } from "@/products/components/index";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
+import { HttpStatusCode } from "axios";
+import { notFound } from "next/navigation";
 import { useState } from "react";
 
 interface ProductPageTopProps {
@@ -25,6 +27,11 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
   const [activeSection, setActiveSection] = useState<Section>("oferty");
 
   if (isLoading) return <div className="text-primary">Ładowanie...</div>;
+  if (
+    error?.status === HttpStatusCode.NotFound ||
+    error?.status === HttpStatusCode.BadRequest
+  )
+    return notFound();
   if (error || !productData)
     return <div className="text-red-600">Coś poszło nie tak!</div>;
 
