@@ -109,7 +109,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
           handleDelete={handleDeletePriceAlert}
         />
         <PriceAlertFormDialog
-          dialogTrigger={
+          trigger={
             <Button variant={"primary"}>
               <Pen /> Edytuj
             </Button>

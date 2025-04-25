@@ -29,14 +29,14 @@ import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface PriceAlertFormDialogProps {
-  dialogTrigger: ReactNode;
+  trigger: ReactNode;
   dialogHeader: string;
   handleSubmit: (formValues: PriceAlertFormValues) => void;
   defaultValues?: PriceAlertFormValues;
 }
 
 export const PriceAlertFormDialog = ({
-  dialogTrigger,
+  trigger,
   dialogHeader,
   handleSubmit,
   defaultValues,
@@ -60,7 +60,7 @@ export const PriceAlertFormDialog = ({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent className="sm:max-w-110">
         <DialogHeader>

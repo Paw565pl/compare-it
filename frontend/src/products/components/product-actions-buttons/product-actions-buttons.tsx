@@ -138,7 +138,7 @@ export const ProductActionsButtons = ({
       {activePriceAlert ? (
         <>
           <PriceAlertFormDialog
-            dialogTrigger={
+            trigger={
               <Button variant="priceAlert" size="noPadding">
                 <span className="flex items-center gap-2">
                   <NotebookPen />
@@ -165,7 +165,7 @@ export const ProductActionsButtons = ({
         </>
       ) : (
         <PriceAlertFormDialog
-          dialogTrigger={
+          trigger={
             <Button variant="priceAlert" size="noPadding">
               <span className="flex items-center gap-2">
                 <Notebook />
