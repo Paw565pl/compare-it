@@ -1,6 +1,7 @@
 import { auth } from "@/auth/config/auth-config";
 import { prefetchCommentPage } from "@/comments/hooks/server/prefetch-comment-page";
 import { getQueryClient } from "@/core/libs/tanstack-query";
+import { getIsObjectIdValid } from "@/core/utils/get-is-object-id-valid";
 import { prefetchFavoriteProductStatus } from "@/favorite-products/hooks/server/prefetch-favorite-product-status";
 import { prefetchActivePriceAlertForProduct } from "@/price-alerts/hooks/server/prefetch-active-price-alert-for-product";
 import { ProductPageTop } from "@/products/components/index";
@@ -14,6 +15,9 @@ export interface ProductPageProps {
 
 export const ProductPage = async ({ params }: ProductPageProps) => {
   const productId = (await params).id;
+  const isProductIdValid = getIsObjectIdValid(productId);
+
+  if (!isProductIdValid) return notFound();
 
   const session = await auth();
   const accessToken = session?.tokens?.accessToken as string;
