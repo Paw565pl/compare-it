@@ -59,15 +59,14 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                         || productResponses.results().isEmpty()) break;
 
                 productResponses.results().forEach(productResponse -> {
-                    if (productResponse.eanCodes().isEmpty()) return;
-
                     var outletPrices = productResponse
                             .outletDetails()
                             .map(outletDetails -> outletDetails.outletCategories().stream()
                                     .map(RtvEuroAgdProduct.OutletCategory::price)
                                     .toList());
                     var price = getLowestPrice(productResponse.prices(), outletPrices);
-                    if (price == null) return;
+
+                    if (productResponse.eanCodes().isEmpty() || price == null) return;
 
                     var promoCode = productResponse
                             .voucherDetails()
@@ -102,7 +101,7 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                         category,
                         e.getStatusCode().value());
             } catch (ResourceAccessException e) {
-                log.warn("timeout occurred in RTV Euro Agd scraper: {}", e.getMessage());
+                log.warn("timeout occurred in Rtv Euro Agd scraper: {}", e.getMessage());
             } catch (Exception e) {
                 log.error(
                         "unexpected error of class {} has occurred while scraping products from category {} - {}",
