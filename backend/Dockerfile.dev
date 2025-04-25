@@ -2,7 +2,7 @@ FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
-RUN apk --no-cache add chromium chromium-chromedriver
+RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0
 
 COPY gradle gradle
 COPY gradlew build.gradle.kts settings.gradle.kts ./

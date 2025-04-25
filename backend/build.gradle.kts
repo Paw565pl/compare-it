@@ -65,7 +65,7 @@ val apacheHttpCoreVersion = "5.3.4"
 val randomUserAgentGeneratorVersion = "1.3"
 val dataFakerVersion = "2.4.2"
 val jsoupVersion = "1.19.1"
-val seleniumVersion = "4.30.0"
+val seleniumVersion = "4.31.0"
 val junitJupiterParamsVersion = "5.12.0"
 
 dependencies {

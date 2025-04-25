@@ -4,7 +4,6 @@ import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.model.*;
 import it.compare.backend.scraping.scraper.ScraperWorker;
 import it.compare.backend.scraping.util.ScrapingUtil;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.springframework.scheduling.annotation.Async;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -31,19 +30,20 @@ public class MoreleScraperWorker implements ScraperWorker {
 
     private final RestClient restClient;
 
-    @Async
     @Override
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
-        var products = new ArrayList<Product>();
+        var allProducts = new ArrayList<Product>();
 
         try {
             var initialUri = buildUri(categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/1");
-            var initialDocument = fetchDocument(initialUri);
-            var pagesCount = getPagesCount(initialDocument);
+            var initialDocumentOpt = fetchDocument(initialUri);
+            if (initialDocumentOpt.isEmpty()) return CompletableFuture.completedFuture(allProducts);
+
+            var pagesCount = getPagesCount(initialDocumentOpt.get());
 
             for (var currentPage = 1; currentPage <= pagesCount; currentPage++) {
                 log.info("processing page {} for category {}", currentPage, category);
-                processCurrentPage(categoryLocator, currentPage, category, products);
+                allProducts.addAll(processCurrentPage(categoryLocator, currentPage, category));
             }
         } catch (HttpStatusCodeException e) {
             log.warn(
@@ -58,7 +58,7 @@ public class MoreleScraperWorker implements ScraperWorker {
                     e.getMessage());
         }
 
-        return CompletableFuture.completedFuture(products);
+        return CompletableFuture.completedFuture(allProducts);
     }
 
     @Override
@@ -66,21 +66,33 @@ public class MoreleScraperWorker implements ScraperWorker {
         return CURRENT_SHOP;
     }
 
-    private void processCurrentPage(
-            String categoryLocator, int currentPage, Category category, List<Product> products) {
+    private List<Product> processCurrentPage(String categoryLocator, int currentPage, Category category) {
         var currentPagePath = categoryLocator + "/,,,,,,,,0,,,,,sprzedawca:m/" + currentPage;
         var uri = buildUri(currentPagePath);
 
+        var pageProducts = new ArrayList<Product>();
+
         try {
-            var document = fetchDocument(uri);
-            var productLinks = document.select("div.cat-product.card a.productLink");
-            scrapeProduct(productLinks, category, products);
+            var documentOpt = fetchDocument(uri);
+            if (documentOpt.isEmpty()) return pageProducts;
+
+            var productLinks = documentOpt.get().select("div.cat-product.card a.productLink");
+            for (var link : productLinks) {
+                var product = scrapeProduct(link, category);
+                if (product != null) pageProducts.add(product);
+            }
         } catch (HttpStatusCodeException e) {
             log.warn(
                     "http error has occurred while scraping category {} from uri {} - {}",
                     category,
                     uri,
                     e.getStatusCode().value());
+        } catch (ResourceAccessException e) {
+            log.warn(
+                    "timeout occurred in Morele scraper while scraping category {} from uri {} - {}",
+                    category,
+                    uri,
+                    e.getMessage());
         } catch (Exception e) {
             log.error(
                     "unexpected error of class {} has occurred while scraping category {} from uri {} - {}",
@@ -89,42 +101,44 @@ public class MoreleScraperWorker implements ScraperWorker {
                     uri,
                     e.getMessage());
         }
+        return pageProducts;
     }
 
-    private void scrapeProduct(Elements productLinks, Category category, List<Product> products) {
-        for (var link : productLinks) {
-            var href = BASE_URL + link.attr("href");
+    private Product scrapeProduct(Element link, Category category) {
+        var href = BASE_URL + link.attr("href");
 
-            try {
-                var productDocument = fetchDocument(href);
-                var product = createProductFromDocument(productDocument, category, href);
+        try {
+            var productDocumentOpt = fetchDocument(href);
+            if (productDocumentOpt.isEmpty()) return null;
 
-                if (product != null) {
-                    log.debug("product created: {}", product);
-                    products.add(product);
-                }
+            var product = createProductFromDocument(productDocumentOpt.get(), category, href);
 
-                ScrapingUtil.sleep();
-            } catch (HttpStatusCodeException e) {
-                log.warn(
-                        "http error has occurred while scraping category {} at href {} - {}",
-                        category,
-                        href,
-                        e.getStatusCode().value());
-            } catch (Exception e) {
-                log.error(
-                        "unexpected error of class {} has occurred while scraping category {} at href {} - {}",
-                        e.getClass(),
-                        category,
-                        href,
-                        e.getMessage());
+            if (product != null) {
+                log.debug("product created: {}", product);
+                return product;
             }
+        } catch (HttpStatusCodeException e) {
+            log.warn(
+                    "http error has occurred while scraping category {} at href {} - {}",
+                    category,
+                    href,
+                    e.getStatusCode().value());
+        } catch (Exception e) {
+            log.error(
+                    "unexpected error of class {} has occurred while scraping category {} at href {} - {}",
+                    e.getClass(),
+                    category,
+                    href,
+                    e.getMessage());
+        } finally {
+            ScrapingUtil.sleep();
         }
+        return null;
     }
 
     private Product createProductFromDocument(Document productDocument, Category category, String href) {
         var ean = extractEan(productDocument);
-        if (ean.isEmpty() || !ean.matches("\\d+")) return null;
+        if (!isValidEan(ean)) return null;
 
         var price = extractPrice(productDocument);
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) return null;
@@ -157,27 +171,38 @@ public class MoreleScraperWorker implements ScraperWorker {
                 document.select("div.pagination-btn-nolink-anchor").text().trim());
     }
 
-    private Document fetchDocument(String uri) throws IOException {
-        var response = restClient
-                .get()
-                .uri(uri)
-                .header("User-Agent", RandomUserAgentGenerator.getNext())
-                .header("Accept-Encoding", "gzip")
-                .retrieve()
-                .body(String.class);
+    private Optional<Document> fetchDocument(String uri) {
+        try {
+            var response = restClient
+                    .get()
+                    .uri(uri)
+                    .header("User-Agent", RandomUserAgentGenerator.getNext())
+                    .header("Accept-Encoding", "gzip")
+                    .retrieve()
+                    .body(String.class);
 
-        var responseBody = Optional.ofNullable(response)
-                .orElseThrow(() -> new IOException("response body is null for URI: " + uri));
+            if (response == null) {
+                log.warn("Response body is null for URI: {}", uri);
+                return Optional.empty();
+            }
 
-        return Jsoup.parse(responseBody);
+            return Optional.of(Jsoup.parse(response));
+        } catch (Exception e) {
+            log.error("Failed to fetch document from URI: {} due to {}", uri, e.getMessage());
+            return Optional.empty();
+        }
     }
 
     private String extractEan(Document productDocument) {
-        return productDocument
-                .select("div.product-specification__wrapper span.specification__value")
-                .get(2)
-                .text()
-                .trim();
+        return productDocument.select("div.product-specification__wrapper div.specification__row").stream()
+                .filter(row -> row.select("span.specification__name").text().equalsIgnoreCase("EAN"))
+                .map(row -> row.select("span.specification__value").text())
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean isValidEan(String ean) {
+        return ean != null && !ean.isBlank() && ean.matches("\\d+");
     }
 
     private String extractName(Document productDocument) {
@@ -208,6 +233,13 @@ public class MoreleScraperWorker implements ScraperWorker {
         }
 
         imageList.removeIf(String::isBlank);
+
+        if (imageList.isEmpty()) {
+            var mainImage = productDocument.selectFirst("div.card-desktop picture img");
+            if (mainImage != null) {
+                imageList.add(mainImage.attr("data-src"));
+            }
+        }
         return imageList;
     }
 
