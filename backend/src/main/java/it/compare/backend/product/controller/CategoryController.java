@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/categories")
 public class CategoryController {
-    @GetMapping()
+
+    @GetMapping
     public List<String> getAllCategories() {
         return Arrays.stream(Category.values())
                 .map(Category::getHumanReadableName)

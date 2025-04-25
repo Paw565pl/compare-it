@@ -3,6 +3,18 @@ import {
   isServer,
   QueryClient,
 } from "@tanstack/react-query";
+import { HttpStatusCode, isAxiosError } from "axios";
+
+const nonRetryableErrorCodes = new Set([
+  HttpStatusCode.Unauthorized,
+  HttpStatusCode.Forbidden,
+  HttpStatusCode.NotFound,
+  HttpStatusCode.Gone,
+  HttpStatusCode.BadRequest,
+  HttpStatusCode.TooManyRequests,
+]);
+
+const MAX_RETRY_COUNT = 3;
 
 const makeQueryClient = () => {
   return new QueryClient({
@@ -11,6 +23,16 @@ const makeQueryClient = () => {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid refetching immediately on the client
         staleTime: 60 * 1000, // 1 minute
+        retry: (failureCount, error) => {
+          if (
+            (isAxiosError(error) &&
+              nonRetryableErrorCodes.has(error.status ?? 0)) ||
+            failureCount > MAX_RETRY_COUNT
+          )
+            return false;
+
+          return true;
+        },
       },
       dehydrate: {
         // include pending queries in dehydration
