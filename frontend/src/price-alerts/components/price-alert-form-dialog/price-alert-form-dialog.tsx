@@ -5,6 +5,7 @@ import { Checkbox } from "@/core/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -51,8 +52,10 @@ export const PriceAlertFormDialog = ({
   });
 
   const handleFormSubmit = (formValues: PriceAlertFormValues) => {
-    handleSubmit(formValues);
+    form.reset();
     dialogTriggerRef.current?.click();
+
+    handleSubmit(formValues);
   };
 
   return (
@@ -61,9 +64,13 @@ export const PriceAlertFormDialog = ({
         {dialogTrigger}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-110">
         <DialogHeader>
           <DialogTitle>{dialogHeader}</DialogTitle>
+          <DialogDescription>
+            Wypełnij informacje potrzebne, aby utworzyć lub zaktualizować alert
+            cenowy.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -79,7 +86,7 @@ export const PriceAlertFormDialog = ({
                 <FormItem>
                   <FormLabel>Cena docelowa (PLN)</FormLabel>
                   <FormControl>
-                    <Input className="focus:border-primary" {...field} />
+                    <Input {...field} />
                   </FormControl>
 
                   <FormMessage />
@@ -97,10 +104,9 @@ export const PriceAlertFormDialog = ({
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                       />
                     </FormControl>
-                    <FormLabel className="mt-0!">
+                    <FormLabel className="cursor-pointer">
                       Uwzględnić produkty z outletu
                     </FormLabel>
                   </div>

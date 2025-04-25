@@ -27,20 +27,21 @@ const SingleProduct = ({
       : "-";
 
   return (
-    <div className="border-grey-100 text-primary mt-1 flex flex-col bg-white p-6 md:flex-row">
+    <div className="border-grey-100 text-primary mt-1 flex flex-col bg-white p-4 sm:p-6 md:flex-row">
       <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
         <Link href={`/produkty/${id}`}>
           <ImageWithFallback
-            name={name}
-            imageUrl={mainImageUrl}
-            width={200}
-            height={200}
+            src={mainImageUrl}
+            alt={name}
+            fill
+            sizes="(max-width: 359px) 100vw, 320px"
+            containerClassName="w-75 h-66.25 bg-white"
           />
         </Link>
       </div>
 
       <div className="flex w-full flex-col justify-center">
-        <H1 className="mb-2 text-xl font-bold">
+        <H1 className="mb-2 text-2xl! font-bold">
           <Link href={`/produkty/${id}`}>{name}</Link>
         </H1>
 
