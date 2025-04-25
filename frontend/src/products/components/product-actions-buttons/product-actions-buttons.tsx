@@ -1,3 +1,5 @@
+"use client";
+
 import { DeleteConfirmationAlertDialog } from "@/core/components";
 import { Button } from "@/core/components/ui/button";
 import { FavoriteProductDto } from "@/favorite-products/dto/favorite-product-dto";
