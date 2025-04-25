@@ -12,7 +12,7 @@ import { RatingDto } from "@/rating/dto/rating-dto";
 import { useCreateRating } from "@/rating/hooks/client/use-create-rating";
 import { useDeleteRating } from "@/rating/hooks/client/use-delete-rating";
 import { useUpdateRating } from "@/rating/hooks/client/use-update-rating";
-import { Frown, Smile } from "lucide-react";
+import { Frown, Smile, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -90,7 +90,14 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
           </div>
           {isAuthorOrAdmin && (
             <DeleteConfirmationAlertDialog
-              alertDialogTriggerClassName="bg-white text-red-500 shadow-none hover:bg-background"
+              trigger={
+                <Button
+                  variant="destructive"
+                  className="hover:bg-background bg-white text-red-500 shadow-none"
+                >
+                  <Trash2 />
+                </Button>
+              }
               handleDelete={handleDeleteComment}
             />
           )}

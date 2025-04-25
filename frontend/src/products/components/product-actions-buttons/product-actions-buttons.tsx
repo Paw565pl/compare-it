@@ -155,9 +155,11 @@ export const ProductActionsButtons = ({
           />
 
           <DeleteConfirmationAlertDialog
-            alertDialogTriggerLabel="USUŃ ALERT"
-            alertDialogTriggerVariant="priceAlert"
-            alertDialogTriggerSize="noPadding"
+            trigger={
+              <Button variant="priceAlert" size="noPadding">
+                USUŃ ALERT
+              </Button>
+            }
             handleDelete={handleDeletePriceAlert}
           />
         </>
