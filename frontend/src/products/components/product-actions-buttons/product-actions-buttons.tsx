@@ -13,7 +13,7 @@ import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-pric
 import { useFetchActivePriceAlertForProduct } from "@/price-alerts/hooks/client/use-fetch-active-price-alert-for-product";
 import { useUpdatePriceAlert } from "@/price-alerts/hooks/client/use-update-price-alert";
 import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
-import { Heart, HeartOff, Notebook, NotebookPen } from "lucide-react";
+import { Heart, HeartOff, Notebook, NotebookPen, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -157,7 +157,8 @@ export const ProductActionsButtons = ({
           <DeleteConfirmationAlertDialog
             trigger={
               <Button variant="priceAlert" size="noPadding">
-                USUŃ ALERT
+                <Trash2 />
+                <span>USUŃ ALERT</span>
               </Button>
             }
             handleDelete={handleDeletePriceAlert}
