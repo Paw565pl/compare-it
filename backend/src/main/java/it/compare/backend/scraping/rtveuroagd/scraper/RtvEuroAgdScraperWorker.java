@@ -37,16 +37,16 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
 
         var products = new ArrayList<Product>();
 
-        var uri = UriComponentsBuilder.fromUriString(BASE_URL)
-                .queryParam("numberOfItems", PAGE_SIZE)
-                .queryParam("startFrom", currentStartFrom)
-                .queryParam("category", categoryLocator)
-                .queryParam("developSearchMode", "false")
-                .build()
-                .toUri();
-
         while (true) {
             try {
+                var uri = UriComponentsBuilder.fromUriString(BASE_URL)
+                        .queryParam("numberOfItems", PAGE_SIZE)
+                        .queryParam("startFrom", currentStartFrom)
+                        .queryParam("category", categoryLocator)
+                        .queryParam("developSearchMode", "false")
+                        .build()
+                        .toUri();
+
                 var productResponses = this.restClient
                         .get()
                         .uri(uri)
@@ -97,18 +97,19 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                 ScrapingUtil.sleep();
             } catch (HttpStatusCodeException e) {
                 log.warn(
-                        "http error has occurred while scraping category {} from uri {} - {}",
+                        "http error has occurred while scraping products from category {} - {}",
                         category,
-                        uri,
                         e.getStatusCode().value());
             } catch (ResourceAccessException e) {
-                log.warn("timeout occurred in Rtv Euro Agd scraper while scraping category {} from uri {} - {}", category, uri, e.getMessage());
+                log.warn(
+                        "timeout occurred in Rtv Euro Agd scraper while scraping category {} - {}",
+                        category,
+                        e.getMessage());
             } catch (Exception e) {
                 log.error(
-                        "unexpected error of class {} has occurred while scraping category {} from uri {} - {}",
+                        "unexpected error of class {} has occurred while scraping products from category {} - {}",
                         e.getClass(),
                         category,
-                        uri,
                         e.getMessage());
             }
         }
@@ -121,6 +122,9 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
         return CURRENT_SHOP;
     }
 
+    private String buildUri(String path) {
+        return UriComponentsBuilder.fromUriString(BASE_URL).path(path).build().toUriString();
+    }
 
     private BigDecimal getLowestPrice(RtvEuroAgdProduct.Prices prices, Optional<List<Long>> outletPrices) {
         var priceList = new ArrayList<Long>();

@@ -88,7 +88,11 @@ public class MoreleScraperWorker implements ScraperWorker {
                     uri,
                     e.getStatusCode().value());
         } catch (ResourceAccessException e) {
-            log.warn("timeout occurred in Morele scraper while scraping category {} from uri {} - {}", category, uri, e.getMessage());
+            log.warn(
+                    "timeout occurred in Morele scraper while scraping category {} from uri {} - {}",
+                    category,
+                    uri,
+                    e.getMessage());
         } catch (Exception e) {
             log.error(
                     "unexpected error of class {} has occurred while scraping category {} from uri {} - {}",
