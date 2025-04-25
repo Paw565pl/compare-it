@@ -194,11 +194,11 @@ public class MoreleScraperWorker implements ScraperWorker {
     }
 
     private String extractEan(Document productDocument) {
-        return productDocument
-                .select("div.product-specification__wrapper span.specification__value")
-                .get(2)
-                .text()
-                .trim();
+        return productDocument.select("div.product-specification__wrapper div.specification__row").stream()
+                .filter(row -> row.select("span.specification__name").text().equalsIgnoreCase("EAN"))
+                .map(row -> row.select("span.specification__value").text())
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean isValidEan(String ean) {
