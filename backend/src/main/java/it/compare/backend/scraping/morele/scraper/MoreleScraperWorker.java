@@ -16,6 +16,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -86,6 +87,8 @@ public class MoreleScraperWorker implements ScraperWorker {
                     category,
                     uri,
                     e.getStatusCode().value());
+        } catch (ResourceAccessException e) {
+            log.warn("timeout occurred in Morele scraper: {}", e.getMessage());
         } catch (Exception e) {
             log.error(
                     "unexpected error of class {} has occurred while scraping category {} from uri {} - {}",

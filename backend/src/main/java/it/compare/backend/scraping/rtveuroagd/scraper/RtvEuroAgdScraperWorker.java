@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -100,6 +101,8 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                         "http error has occurred while scraping products from category {} - {}",
                         category,
                         e.getStatusCode().value());
+            } catch (ResourceAccessException e) {
+                log.warn("timeout occurred in RTV Euro Agd scraper: {}", e.getMessage());
             } catch (Exception e) {
                 log.error(
                         "unexpected error of class {} has occurred while scraping products from category {} - {}",
