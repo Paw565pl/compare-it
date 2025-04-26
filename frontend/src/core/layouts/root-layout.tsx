@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 import { Navbar } from "@/core/components";
 import { Toaster } from "@/core/components/ui/sonner";
-import Providers from "@/core/providers/providers";
+import { Providers } from "@/core/providers/providers";
 import type { Metadata } from "next";
 import { PublicEnvScript } from "next-runtime-env";
 import { Noto_Sans_Display } from "next/font/google";
