@@ -6,7 +6,6 @@ import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
 import { DeleteConfirmationAlertDialog } from "@/core/components/index";
 import { Button } from "@/core/components/ui/button";
-import { cn } from "@/core/utils/cn";
 import { formatDate } from "@/core/utils/format-date";
 import { RatingDto } from "@/rating/dto/rating-dto";
 import { useCreateRating } from "@/rating/hooks/client/use-create-rating";
@@ -53,6 +52,9 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
   };
 
   const handleMutateRating = (newIsPositive: boolean) => {
+    if (!session)
+      return toast.info("Musisz być zalogowany, aby ocenić komentarz.");
+
     const ratingDto: RatingDto = {
       isPositive: newIsPositive,
     };
@@ -106,39 +108,27 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
 
       <div>{comment.text}</div>
 
-      <div className="flex gap-4">
-        <div className="flex items-center">
+      <div className="mt-1 flex gap-4">
+        <div className="flex items-center gap-1">
           <Button
+            size="noPadding"
             disabled={isRatingButtonDisabled}
-            onClick={session ? () => handleMutateRating(true) : undefined}
-            className={cn(
-              "text-primary bg-white p-1 shadow-none hover:bg-white",
-              !session && "cursor-default",
-            )}
-            title={
-              session
-                ? "Oceń komentarz pozytywnie"
-                : "Zaloguj się, aby móc ocenić komentarz"
-            }
+            onClick={() => handleMutateRating(true)}
+            aria-label="Oceń komentarz pozytywnie"
+            className="text-primary hover:text-primary/70 h-fit bg-white shadow-none hover:bg-white"
           >
             <Smile />
           </Button>
           <span>{comment.positiveRatingsCount}</span>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-1">
           <Button
+            size="noPadding"
             disabled={isRatingButtonDisabled}
-            onClick={session ? () => handleMutateRating(false) : undefined}
-            className={cn(
-              "bg-white p-1 text-gray-500 shadow-none hover:bg-white",
-              !session && "cursor-default",
-            )}
-            title={
-              session
-                ? "Oceń komentarz negatywnie"
-                : "Zaloguj się, aby móc ocenić komentarz"
-            }
+            onClick={() => handleMutateRating(false)}
+            aria-label="Oceń komentarz negatywnie"
+            className="h-fit bg-white text-gray-500 shadow-none hover:bg-white hover:text-gray-500/70"
           >
             <Frown />
           </Button>
