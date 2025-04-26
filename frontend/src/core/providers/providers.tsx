@@ -12,14 +12,14 @@ interface ProvidersProps {
   readonly children: ReactNode;
 }
 
-const Providers = ({ children }: ProvidersProps) => {
-  const accessTokenLifetime = Number(
-    getClientEnv("NEXT_PUBLIC_ACCESS_TOKEN_LIFETIME"),
+export const Providers = ({ children }: ProvidersProps) => {
+  const sessionRefetchInterval = Number(
+    getClientEnv("NEXT_PUBLIC_SESSION_REFETCH_INTERVAL"),
   );
   const queryClient = getQueryClient();
 
   return (
-    <SessionProvider refetchInterval={accessTokenLifetime}>
+    <SessionProvider refetchInterval={sessionRefetchInterval}>
       <NuqsAdapter>
         <QueryClientProvider client={queryClient}>
           {children}
@@ -29,5 +29,3 @@ const Providers = ({ children }: ProvidersProps) => {
     </SessionProvider>
   );
 };
-
-export default Providers;
