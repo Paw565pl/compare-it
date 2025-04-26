@@ -17,7 +17,7 @@ const clientEnv = createEnv({
     NEXT_PUBLIC_SESSION_REFETCH_INTERVAL:
       process.env.NEXT_PUBLIC_SESSION_REFETCH_INTERVAL,
   },
-  skipValidation: process.env.CI ? true : false,
+  skipValidation: true,
 });
 
 type ClientEnvKey = keyof typeof clientEnv;
