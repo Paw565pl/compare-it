@@ -40,7 +40,6 @@ export const getPriceAlertsPageQueryOptions = (
     PaginatedData<PriceAlertEntity>,
     AxiosError<ErrorResponse>
   >({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       ...priceAlertsQueryKey,
       userId,
