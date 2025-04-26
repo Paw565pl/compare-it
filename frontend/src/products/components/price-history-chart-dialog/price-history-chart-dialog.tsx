@@ -209,6 +209,7 @@ export const PriceHistoryChartDialog = ({
                     stroke={chartConfig[shopKey]?.color}
                     strokeWidth={2}
                     activeDot={{ r: 5 }}
+                    dot
                   />
                 ))}
               <ChartLegend content={<ChartLegendContent />} />
