@@ -6,6 +6,7 @@ import { H1 } from "@/core/components/ui/h1";
 import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { cn } from "@/core/utils/cn";
 import {
+  PriceHistoryChartDialog,
   ProductActionsButtons,
   ProductPageImages,
   ProductPageOffers,
@@ -64,7 +65,10 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
               </p>
             </div>
 
-            <ProductActionsButtons productId={productId} />
+            <div className="mt-4 flex flex-col items-start gap-4 lg:mt-0">
+              <PriceHistoryChartDialog />
+              <ProductActionsButtons productId={productId} />
+            </div>
           </div>
         </div>
       </div>
