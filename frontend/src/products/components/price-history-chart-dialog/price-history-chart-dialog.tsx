@@ -24,16 +24,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/core/components/ui/select";
+import { Skeleton } from "@/core/components/ui/skeleton";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { formatDate } from "@/core/utils/format-date";
-import { OfferEntity } from "@/products/entities/offer-entity";
+import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { convertPriceDataToChartFormat } from "@/products/utils/convert-price-data-to-chart-format";
 import { ChartNoAxesCombined } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 interface PriceHistoryChartDialogProps {
-  readonly offers: OfferEntity[];
+  readonly productId: string;
 }
 
 type TimeRangeFilterValue = "7" | "30" | "90" | "180";
@@ -54,20 +55,22 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export const PriceHistoryChartDialog = ({
-  offers,
+  productId,
 }: PriceHistoryChartDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isChartVisible, setIsChartVisible] = useState(false);
   const [timeRangeFilter, setTimeRangeFilter] =
     useState<TimeRangeFilterValue>("7");
 
-  const shopKeys = Object.keys(chartConfig) as (keyof typeof chartConfig)[];
+  const { data: product, isLoading } = useFetchProduct(productId, {
+    priceStampRangeDays: timeRangeFilter,
+  });
+
   const chartData = useMemo(
-    () => convertPriceDataToChartFormat(offers),
-    [offers],
+    () => convertPriceDataToChartFormat(product?.offers ?? []),
+    [product?.offers],
   );
-  // TODO: implement filtering
-  const filteredChartData = useMemo(() => chartData, [chartData]);
+  const shopKeys = Object.keys(chartConfig) as (keyof typeof chartConfig)[];
 
   const handleOpenChange = (newIsOpen: boolean) => {
     setIsOpen(newIsOpen);
@@ -121,91 +124,95 @@ export const PriceHistoryChartDialog = ({
           </Select>
         </DialogHeader>
 
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-96 w-full"
-        >
-          <AreaChart data={filteredChartData}>
-            <defs>
-              {shopKeys.map((shopKey) => (
-                <linearGradient
-                  key={`fillDef${shopKey}`}
-                  id={`fill${shopKey.replace(/\s+/g, "")}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor={chartConfig[shopKey]?.color}
-                    stopOpacity={0.8}
+        {isLoading && <Skeleton className="aspect-auto h-96 w-full" />}
+
+        {!isLoading && (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-96 w-full"
+          >
+            <AreaChart data={chartData}>
+              <defs>
+                {shopKeys.map((shopKey) => (
+                  <linearGradient
+                    key={`fillDef${shopKey}`}
+                    id={`fill${shopKey.replace(/\s+/g, "")}`}
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor={chartConfig[shopKey]?.color}
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={chartConfig[shopKey]?.color}
+                      stopOpacity={0.1}
+                    />
+                  </linearGradient>
+                ))}
+              </defs>
+              <CartesianGrid vertical={false} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                allowDataOverflow={false}
+                tickMargin={8}
+                tickFormatter={(value) => `${value} zł`}
+                domain={([dataMin, dataMax]) => [
+                  Math.floor(dataMin / 50) * 50,
+                  Math.ceil(dataMax / 50) * 50,
+                ]}
+              />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                allowDataOverflow={false}
+                tickMargin={8}
+                tickFormatter={(value) =>
+                  formatDate(value, {
+                    month: "short",
+                    day: "numeric",
+                  })
+                }
+              />
+              <ChartTooltip
+                cursor={true}
+                content={
+                  <ChartTooltipContent
+                    indicator="dot"
+                    labelFormatter={(value) =>
+                      formatDate(value, {
+                        month: "long",
+                        day: "numeric",
+                      })
+                    }
+                    valueFormatter={(value) => {
+                      const escapedValue = Number(value.replace(/,/g, "."));
+                      return formatCurrency(escapedValue, "PLN");
+                    }}
                   />
-                  <stop
-                    offset="95%"
-                    stopColor={chartConfig[shopKey]?.color}
-                    stopOpacity={0.1}
+                }
+              />
+              {isChartVisible &&
+                shopKeys.map((shopKey) => (
+                  <Area
+                    key={shopKey}
+                    dataKey={shopKey}
+                    type="monotone"
+                    fill={`url(#fill${shopKey.replace(/\s+/g, "")})`}
+                    stroke={chartConfig[shopKey]?.color}
+                    strokeWidth={2}
                   />
-                </linearGradient>
-              ))}
-            </defs>
-            <CartesianGrid vertical={false} />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              allowDataOverflow={false}
-              tickMargin={8}
-              tickFormatter={(value) => `${value} zł`}
-              domain={([dataMin, dataMax]) => [
-                Math.floor(dataMin / 50) * 50,
-                Math.ceil(dataMax / 50) * 50,
-              ]}
-            />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              allowDataOverflow={false}
-              tickMargin={8}
-              tickFormatter={(value) =>
-                formatDate(value, {
-                  month: "short",
-                  day: "numeric",
-                })
-              }
-            />
-            <ChartTooltip
-              cursor={true}
-              content={
-                <ChartTooltipContent
-                  indicator="dot"
-                  labelFormatter={(value) =>
-                    formatDate(value, {
-                      month: "long",
-                      day: "numeric",
-                    })
-                  }
-                  valueFormatter={(value) => {
-                    const escapedValue = Number(value.replace(/,/g, "."));
-                    return formatCurrency(escapedValue, "PLN");
-                  }}
-                />
-              }
-            />
-            {isChartVisible &&
-              shopKeys.map((shopKey) => (
-                <Area
-                  key={shopKey}
-                  dataKey={shopKey}
-                  type="monotone"
-                  fill={`url(#fill${shopKey.replace(/\s+/g, "")})`}
-                  stroke={chartConfig[shopKey]?.color}
-                  strokeWidth={2}
-                />
-              ))}
-            <ChartLegend content={<ChartLegendContent />} />
-          </AreaChart>
-        </ChartContainer>
+                ))}
+              <ChartLegend content={<ChartLegendContent />} />
+            </AreaChart>
+          </ChartContainer>
+        )}
       </DialogContent>
     </Dialog>
   );

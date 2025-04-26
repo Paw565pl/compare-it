@@ -66,7 +66,7 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
             </div>
 
             <div className="mt-4 flex flex-col items-start gap-4 lg:mt-0">
-              <PriceHistoryChartDialog offers={productData.offers} />
+              <PriceHistoryChartDialog productId={productId} />
               <ProductActionsButtons productId={productId} />
             </div>
           </div>
