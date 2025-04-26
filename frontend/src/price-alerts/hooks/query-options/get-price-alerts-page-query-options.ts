@@ -44,7 +44,7 @@ export const getPriceAlertsPageQueryOptions = (
       ...priceAlertsQueryKey,
       userId,
       priceAlertFiltersDto,
-      paginationOptions
+      paginationOptions,
     ] as const,
     queryFn: ({ pageParam }) =>
       fetchPriceAlertsPage(
