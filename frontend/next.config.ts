@@ -1,5 +1,3 @@
-import "@/core/libs/env/client-env";
-import "@/core/libs/env/server-env";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
