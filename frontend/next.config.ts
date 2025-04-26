@@ -1,7 +1,10 @@
+import "@/core/libs/env/client-env";
+import "@/core/libs/env/server-env";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  transpilePackages: ["@t3-oss/env-nextjs", "@t3-oss/env-core"],
   images: {
     remotePatterns: [
       {
@@ -18,7 +21,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async redirects() {
+  redirects: async () => {
     return [
       {
         source: "/",
