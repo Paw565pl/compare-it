@@ -3,8 +3,7 @@ import { protectedRoutes } from "@/auth/config/protected-routes";
 import { hasRequiredRole } from "@/auth/utils/has-required-role";
 import { NextResponse } from "next/server";
 
-export const middleware = auth(async (req) => {
-  const { nextUrl, auth } = req;
+export const middleware = auth(async ({ nextUrl, auth }) => {
   const currentPathName = nextUrl.pathname;
 
   const isUserLoggedIn = !!auth;
