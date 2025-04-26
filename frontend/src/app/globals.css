@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-noto-sans-display);
+
   --breakpoint-xs: 22.5rem;
 
   --radius-lg: var(--radius);

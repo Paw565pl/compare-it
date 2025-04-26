@@ -3,11 +3,18 @@ import { Navbar } from "@/core/components";
 import { Toaster } from "@/core/components/ui/sonner";
 import Providers from "@/core/providers/providers";
 import type { Metadata } from "next";
+import { Noto_Sans_Display } from "next/font/google";
 import { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "compare.it",
 };
+
+const notoSansDisplay = Noto_Sans_Display({
+  subsets: ["latin-ext"],
+  display: "swap",
+  variable: "--font-noto-sans-display",
+});
 
 interface RootLayoutProps {
   readonly children: ReactNode;
@@ -15,7 +22,7 @@ interface RootLayoutProps {
 
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
-    <html lang="en">
+    <html lang="pl" className={notoSansDisplay.variable}>
       <body className="antialiased">
         <Providers>
           <Navbar />
