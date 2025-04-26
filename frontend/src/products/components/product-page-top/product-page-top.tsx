@@ -10,7 +10,7 @@ import {
   ProductActionsButtons,
   ProductPageImages,
   ProductPageOffers,
-} from "@/products/components/index";
+} from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { HttpStatusCode } from "axios";
 import { notFound } from "next/navigation";

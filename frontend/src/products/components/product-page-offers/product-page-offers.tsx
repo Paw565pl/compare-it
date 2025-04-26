@@ -1,4 +1,4 @@
-import { SingleOffer } from "@/products/components/index";
+import { SingleOffer } from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 
 interface ProductPageOffersProps {
