@@ -89,7 +89,7 @@ export const PriceHistoryChartDialog = ({
       <DialogTrigger asChild>
         <Button variant="invisible" size="noPadding">
           <ChartNoAxesCombined />
-          <span>Pokaż historię cen</span>
+          <span>POKAŻ HISTORIĘ CEN</span>
         </Button>
       </DialogTrigger>
 
