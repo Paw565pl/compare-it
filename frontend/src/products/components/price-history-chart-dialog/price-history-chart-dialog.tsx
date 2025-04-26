@@ -32,6 +32,7 @@ import { convertPriceDataToChartFormat } from "@/products/utils/convert-price-da
 import { ChartNoAxesCombined } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { AxisDomain } from "recharts/types/util/types";
 
 interface PriceHistoryChartDialogProps {
   readonly productId: string;
@@ -54,6 +55,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const domain: AxisDomain = ([dataMin, dataMax]) =>
+  [Math.floor(dataMin / 25) * 25, Math.ceil(dataMax / 25) * 25] as const;
+
 export const PriceHistoryChartDialog = ({
   productId,
 }: PriceHistoryChartDialogProps) => {
@@ -75,6 +79,7 @@ export const PriceHistoryChartDialog = ({
   const handleOpenChange = (newIsOpen: boolean) => {
     setIsOpen(newIsOpen);
 
+    // render chart after dialog is opened
     if (newIsOpen) setTimeout(() => setIsChartVisible(true), 0);
     else setIsChartVisible(false);
   };
@@ -88,8 +93,8 @@ export const PriceHistoryChartDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="min-w-3/4">
-        <DialogHeader className="flex items-center justify-between gap-2 py-4 sm:flex-row sm:items-start">
+      <DialogContent className="min-w-full lg:min-w-3/4">
+        <DialogHeader className="flex items-center justify-between gap-3 py-4 sm:flex-row sm:items-start md:py-6">
           <div className="w-3/5 space-y-2 text-center sm:text-left">
             <DialogTitle>Historia cen</DialogTitle>
             <DialogDescription>
@@ -108,16 +113,12 @@ export const PriceHistoryChartDialog = ({
               <SelectValue placeholder="Ostatnie 7 dni" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
-              <SelectItem value="7" className="rounded-lg">
-                Ostatnie 7 dni
-              </SelectItem>
-              <SelectItem value="30" className="rounded-lg">
-                Ostatnie 30 dni
-              </SelectItem>
-              <SelectItem value="90" className="rounded-lg">
+              <SelectItem value="7">Ostatnie 7 dni</SelectItem>
+              <SelectItem value="30">Ostatnie 30 dni</SelectItem>
+              <SelectItem value="90" className="hidden sm:block">
                 Ostatnie 3 miesiące
               </SelectItem>
-              <SelectItem value="180" className="rounded-lg">
+              <SelectItem value="180" className="hidden sm:block">
                 Ostatnie pół roku
               </SelectItem>
             </SelectContent>
@@ -129,7 +130,7 @@ export const PriceHistoryChartDialog = ({
         {!isLoading && (
           <ChartContainer
             config={chartConfig}
-            className="aspect-auto h-96 w-full"
+            className="aspect-auto h-96 w-full sm:h-120 xl:h-144"
           >
             <AreaChart data={chartData}>
               <defs>
@@ -157,20 +158,19 @@ export const PriceHistoryChartDialog = ({
               </defs>
               <CartesianGrid vertical={false} />
               <YAxis
+                tickCount={6}
                 tickLine={false}
                 axisLine={false}
                 allowDataOverflow={false}
                 tickMargin={8}
                 tickFormatter={(value) => `${value} zł`}
-                domain={([dataMin, dataMax]) => [
-                  Math.floor(dataMin / 50) * 50,
-                  Math.ceil(dataMax / 50) * 50,
-                ]}
+                domain={domain}
               />
               <XAxis
                 dataKey="date"
                 tickLine={false}
                 axisLine={false}
+                interval="preserveStartEnd"
                 allowDataOverflow={false}
                 tickMargin={8}
                 tickFormatter={(value) =>
@@ -191,10 +191,9 @@ export const PriceHistoryChartDialog = ({
                         day: "numeric",
                       })
                     }
-                    valueFormatter={(value) => {
-                      const escapedValue = Number(value.replace(/,/g, "."));
-                      return formatCurrency(escapedValue, "PLN");
-                    }}
+                    valueFormatter={(value) =>
+                      formatCurrency(Number(value.replace(/,/g, ".")), "PLN")
+                    }
                   />
                 }
               />
@@ -203,10 +202,11 @@ export const PriceHistoryChartDialog = ({
                   <Area
                     key={shopKey}
                     dataKey={shopKey}
-                    type="monotone"
+                    type="linear"
                     fill={`url(#fill${shopKey.replace(/\s+/g, "")})`}
                     stroke={chartConfig[shopKey]?.color}
                     strokeWidth={2}
+                    activeDot={{ r: 5 }}
                   />
                 ))}
               <ChartLegend content={<ChartLegendContent />} />
