@@ -27,10 +27,11 @@ import {
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { formatDate } from "@/core/utils/format-date";
+import { ShopEntity } from "@/products/entities/shop-entity";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { convertPriceDataToChartFormat } from "@/products/utils/convert-price-data-to-chart-format";
 import { ChartNoAxesCombined } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { AxisDomain } from "recharts/types/util/types";
 
@@ -40,7 +41,7 @@ interface PriceHistoryChartDialogProps {
 
 type TimeRangeFilterValue = "7" | "30" | "90" | "180";
 
-const chartConfig = {
+const chartConfig: Record<ShopEntity, { label: ReactNode; color: string }> = {
   "Media Expert": {
     label: "Media Expert",
     color: "var(--media-expert-brand)",
