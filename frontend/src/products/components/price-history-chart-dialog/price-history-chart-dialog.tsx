@@ -125,7 +125,9 @@ export const PriceHistoryChartDialog = ({
           </Select>
         </DialogHeader>
 
-        {isLoading && <Skeleton className="aspect-auto h-96 w-full" />}
+        {isLoading && (
+          <Skeleton className="aspect-auto h-96 w-full sm:h-120 xl:h-144" />
+        )}
 
         {!isLoading && (
           <ChartContainer
