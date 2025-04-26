@@ -30,7 +30,7 @@ export const convertPriceDataToChartFormat = (
     {},
   );
 
-  const allShopNames = Array.from(new Set(offers.map((offer) => offer.shop)));
+  const allShopNames = offers.map((offer) => offer.shop);
   const dates = Object.keys(shopLowestPriceByDate).toSorted(
     (a, b) => new Date(a).getTime() - new Date(b).getTime(),
   );
