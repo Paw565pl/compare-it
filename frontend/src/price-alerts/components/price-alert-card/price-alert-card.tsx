@@ -17,7 +17,7 @@ import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-pric
 import { useUpdatePriceAlert } from "@/price-alerts/hooks/client/use-update-price-alert";
 import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
-import { Pen } from "lucide-react";
+import { Pen, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -93,18 +93,23 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
         <p>
           Czy outlet jest dozwolony:{" "}
           <span className="font-bold">
-            {priceAlert.outletAllowed ? "TAK" : "NIE"}
+            {priceAlert.isOutletAllowed ? "TAK" : "NIE"}
           </span>
         </p>
       </CardContent>
 
       <CardFooter className="flex items-center justify-between">
         <DeleteConfirmationAlertDialog
-          alertDialogTriggerLabel="Usuń"
+          trigger={
+            <Button variant="destructive">
+              <Trash2 />
+              <span>Usuń</span>
+            </Button>
+          }
           handleDelete={handleDeletePriceAlert}
         />
         <PriceAlertFormDialog
-          dialogTrigger={
+          trigger={
             <Button variant={"primary"}>
               <Pen /> Edytuj
             </Button>
@@ -113,7 +118,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
           handleSubmit={handleUpdatePriceAlert}
           defaultValues={{
             targetPrice: priceAlert.targetPrice.toString(),
-            isOutletAllowed: priceAlert.outletAllowed,
+            isOutletAllowed: priceAlert.isOutletAllowed,
           }}
         />
       </CardFooter>

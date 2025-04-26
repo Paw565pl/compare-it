@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-invalid-void-type */
 import { getQueryClient } from "@/core/libs/tanstack-query";
 import { apiService } from "@/core/services/api";
 import { ErrorResponse } from "@/core/services/api/types/error-response";
@@ -11,17 +10,20 @@ const deleteFavoriteProduct = async (
   accessToken: string,
   favoriteProductDto: FavoriteProductDto,
 ) => {
-  const { data } = await apiService.delete<void>("/api/v1/favorite-products", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
+  const { data } = await apiService.delete<undefined>(
+    "/api/v1/favorite-products",
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      data: favoriteProductDto,
     },
-    data: favoriteProductDto,
-  });
+  );
   return data;
 };
 
 export const useDeleteFavoriteProduct = (accessToken: string) =>
-  useMutation<void, AxiosError<ErrorResponse>, FavoriteProductDto>({
+  useMutation<undefined, AxiosError<ErrorResponse>, FavoriteProductDto>({
     mutationKey: [...favoriteProductsQueryKey, "delete"] as const,
     mutationFn: (favoriteProductDto) =>
       deleteFavoriteProduct(accessToken, favoriteProductDto),

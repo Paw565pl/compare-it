@@ -1,10 +1,15 @@
 "use client";
 
+import { DeleteConfirmationAlertDialog } from "@/core/components";
+import { Button } from "@/core/components/ui/button";
 import { H1 } from "@/core/components/ui/h1";
 import { PriceAlertNotificationCard } from "@/price-alerts/components";
+import { useDeleteInactivePriceAlerts } from "@/price-alerts/hooks/client/use-delete-inactive-price-alerts";
 import { useFetchPriceAlertsPage } from "@/price-alerts/hooks/client/use-fetch-price-alerts-page";
+import { Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { toast } from "sonner";
 
 export const PriceAlertsNotificationsGrid = () => {
   const { data: session } = useSession();
@@ -17,7 +22,9 @@ export const PriceAlertsNotificationsGrid = () => {
     hasNextPage,
     fetchNextPage,
     isError,
-  } = useFetchPriceAlertsPage(accessToken, userId, { active: false });
+  } = useFetchPriceAlertsPage(accessToken, userId, { isActive: false });
+  const { mutate: deleteInactivePriceAlerts } =
+    useDeleteInactivePriceAlerts(accessToken);
 
   if (isError) return <span>Coś poszło nie tak!</span>;
 
@@ -27,19 +34,29 @@ export const PriceAlertsNotificationsGrid = () => {
     0,
   );
 
+  const handleDeleteInactivePriceAlerts = () => {
+    deleteInactivePriceAlerts(undefined, {
+      onSuccess: () =>
+        toast.success("Historia powiadomień cenowych została wyczyszczona."),
+      onError: () => toast.error("Coś poszło nie tak!"),
+    });
+  };
+
   return (
     <>
       <H1>Twoja historia alertów cenowych</H1>
 
-      {/* {!isEmpty && (
+      {!isEmpty && (
         <DeleteConfirmationAlertDialog
-          alertDialogTriggerLabel={"Wyczyść całą historię powiadomień"}
-          alertDialogTriggerClassName="mb-4"
-          handleDelete={() =>
-            console.log("delete price all alert notifications")
+          trigger={
+            <Button variant="destructive" className="mb-4">
+              <Trash2 />
+              <span>Wyczyść całą historię powiadomień</span>
+            </Button>
           }
+          handleDelete={handleDeleteInactivePriceAlerts}
         />
-      )} */}
+      )}
 
       {isEmpty && (
         <div className="text-center sm:text-left">

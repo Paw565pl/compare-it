@@ -11,27 +11,21 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/core/components/ui/alert-dialog";
-import { Button } from "@/core/components/ui/button";
 import { Ban, Trash2 } from "lucide-react";
+import { ReactNode } from "react";
 
 interface DeleteConfirmationAlertDialogProps {
-  alertDialogTriggerLabel?: string;
-  alertDialogTriggerClassName?: string;
+  trigger: ReactNode;
   handleDelete: () => void;
 }
 
 export const DeleteConfirmationAlertDialog = ({
-  alertDialogTriggerLabel,
-  alertDialogTriggerClassName,
+  trigger,
   handleDelete,
 }: DeleteConfirmationAlertDialogProps) => {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive" className={alertDialogTriggerClassName}>
-          <Trash2 /> {alertDialogTriggerLabel}
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Czy jesteś pewny?</AlertDialogTitle>

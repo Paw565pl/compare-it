@@ -14,9 +14,11 @@ export const ProfilePage = async () => {
 
   await Promise.all([
     prefetchFavoriteProductsPage(queryClient, accessToken, userId),
-    prefetchPriceAlertsPage(queryClient, accessToken, userId, { active: true }),
     prefetchPriceAlertsPage(queryClient, accessToken, userId, {
-      active: false,
+      isActive: true,
+    }),
+    prefetchPriceAlertsPage(queryClient, accessToken, userId, {
+      isActive: false,
     }),
   ]);
 

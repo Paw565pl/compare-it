@@ -1,4 +1,5 @@
 import { DeleteConfirmationAlertDialog } from "@/core/components";
+import { Button } from "@/core/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,6 +12,7 @@ import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
+import { Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -84,8 +86,12 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
 
       <CardFooter>
         <DeleteConfirmationAlertDialog
-          alertDialogTriggerLabel="Usuń z ulubionych"
-          alertDialogTriggerClassName="w-full"
+          trigger={
+            <Button variant="destructive" className="w-full">
+              <Trash2 />
+              <span>Usuń z ulubionych</span>
+            </Button>
+          }
           handleDelete={handleDeleteFavoriteProduct}
         />
       </CardFooter>

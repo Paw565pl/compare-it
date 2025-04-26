@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-invalid-void-type */
 import { commentsQueryKey } from "@/comments/hooks/query-options/comments-query-key";
 import { getQueryClient } from "@/core/libs/tanstack-query";
 import { apiService } from "@/core/services/api";
@@ -12,7 +11,7 @@ const deleteRating = async (
   productId: string,
   commentId: string,
 ) => {
-  const { data } = await apiService.delete<void>(
+  const { data } = await apiService.delete<undefined>(
     `/api/v1/products/${productId}/comments/${commentId}/rate`,
     {
       headers: {
@@ -28,7 +27,7 @@ export const useDeleteRating = (
   productId: string,
   commentId: string,
 ) =>
-  useMutation<void, AxiosError<ErrorResponse>, void>({
+  useMutation<undefined, AxiosError<ErrorResponse>>({
     mutationKey: [
       ...productsQueryKey,
       productId,

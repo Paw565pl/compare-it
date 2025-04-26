@@ -43,7 +43,9 @@ export const PriceAlertNotificationCard = ({
   };
 
   const formattedPrice = formatCurrency(priceAlert.currentLowestPrice, "PLN");
-  const formattedNotificationDate = formatDate(priceAlert.lastNotificationSent);
+  const formattedNotificationDate = priceAlert.lastNotificationSent
+    ? formatDate(priceAlert.lastNotificationSent)
+    : "-";
 
   return (
     <Card className="w-88">
