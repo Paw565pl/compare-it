@@ -16,7 +16,7 @@ interface RootLayoutProps {
   readonly children: ReactNode;
 }
 
-const RootLayout = ({ children }: RootLayoutProps) => {
+export const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html lang="pl" className={notoSansDisplay.variable}>
       {/* eslint-disable-next-line @next/next/no-head-element */}
@@ -35,5 +35,3 @@ const RootLayout = ({ children }: RootLayoutProps) => {
     </html>
   );
 };
-
-export default RootLayout;
