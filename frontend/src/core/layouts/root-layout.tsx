@@ -3,6 +3,7 @@ import { Navbar } from "@/core/components";
 import { Toaster } from "@/core/components/ui/sonner";
 import Providers from "@/core/providers/providers";
 import type { Metadata } from "next";
+import { PublicEnvScript } from "next-runtime-env";
 import { Noto_Sans_Display } from "next/font/google";
 import { ReactNode } from "react";
 
@@ -23,6 +24,10 @@ interface RootLayoutProps {
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html lang="pl" className={notoSansDisplay.variable}>
+      {/* eslint-disable-next-line @next/next/no-head-element */}
+      <head>
+        <PublicEnvScript />
+      </head>
       <body className="antialiased">
         <Providers>
           <Navbar />

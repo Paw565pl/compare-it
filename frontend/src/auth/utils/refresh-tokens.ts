@@ -1,7 +1,7 @@
 import { TokenRefreshResponse } from "@/auth/types/token-refresh-response";
 import { User } from "@/auth/types/user";
 import { createUser } from "@/auth/utils/create-user";
-import serverEnv from "@/core/libs/env/server-env";
+import { serverEnv } from "@/core/libs/env/server-env";
 import axios from "axios";
 import { decodeJwt } from "jose";
 import { JWT } from "next-auth/jwt";
