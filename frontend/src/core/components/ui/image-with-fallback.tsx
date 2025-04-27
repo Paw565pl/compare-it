@@ -2,6 +2,7 @@
 
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { cn } from "@/core/utils/cn";
+import noImagePlaceholder from "@public/no-image-placeholder.svg";
 import Image, { ImageProps } from "next/image";
 import { useState } from "react";
 
@@ -11,8 +12,6 @@ interface ImageWithFallbackProps extends Omit<ImageProps, "src"> {
   readonly skeletonClassName?: string;
   readonly isLoadingStateEnabled?: boolean;
 }
-
-const NO_IMAGE_PLACEHOLDER_PATH = "/no-image-placeholder.svg";
 
 export const ImageWithFallback = ({
   src,
@@ -43,7 +42,7 @@ export const ImageWithFallback = ({
       )}
       <Image
         {...props}
-        src={src || NO_IMAGE_PLACEHOLDER_PATH}
+        src={src || noImagePlaceholder}
         alt={alt}
         className={cn(
           "transition-opacity duration-300 ease-in-out",
@@ -53,7 +52,7 @@ export const ImageWithFallback = ({
         )}
         onLoad={() => setIsLoading(false)}
         onError={(e) => {
-          e.currentTarget.src = NO_IMAGE_PLACEHOLDER_PATH;
+          e.currentTarget.src = noImagePlaceholder;
           setIsLoading(false);
         }}
       />
