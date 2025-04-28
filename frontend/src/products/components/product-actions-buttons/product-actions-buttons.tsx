@@ -182,7 +182,7 @@ export const ProductActionsButtons = ({
         />
       ) : (
         <Button
-          variant="priceAlert"
+          variant="invisible"
           size="noPadding"
           onClick={() =>
             toast.info("Musisz być zalogowany, aby stworzyć alert cenowy.")
