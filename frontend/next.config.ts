@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  transpilePackages: ["@t3-oss/env-nextjs", "@t3-oss/env-core"],
+  experimental: {
+    reactCompiler: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -18,7 +22,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async redirects() {
+  redirects: async () => {
     return [
       {
         source: "/",

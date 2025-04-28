@@ -57,7 +57,7 @@ export const SearchBar = () => {
         className="w-full bg-white p-2 shadow-none focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
-      <Button variant="search" type="submit">
+      <Button variant="search" type="submit" aria-label="WYSZUKAJ">
         <Search className="text-lg" />
         <span className="hidden md:block">WYSZUKAJ</span>
       </Button>

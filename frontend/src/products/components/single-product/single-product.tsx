@@ -8,7 +8,7 @@ interface SingleProductProps {
   readonly product: ProductListEntity;
 }
 
-const SingleProduct = ({
+export const SingleProduct = ({
   product: {
     id,
     name,
@@ -81,5 +81,3 @@ const SingleProduct = ({
     </div>
   );
 };
-
-export { SingleProduct };

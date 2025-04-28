@@ -1,21 +1,28 @@
 import "@/app/globals.css";
 import { Navbar } from "@/core/components";
 import { Toaster } from "@/core/components/ui/sonner";
-import Providers from "@/core/providers/providers";
-import type { Metadata } from "next";
+import { Providers } from "@/core/providers/providers";
+import { PublicEnvScript } from "next-runtime-env";
+import { Noto_Sans_Display } from "next/font/google";
 import { ReactNode } from "react";
 
-export const metadata: Metadata = {
-  title: "compare.it",
-};
+const notoSansDisplay = Noto_Sans_Display({
+  subsets: ["latin-ext"],
+  display: "swap",
+  variable: "--font-noto-sans-display",
+});
 
 interface RootLayoutProps {
   readonly children: ReactNode;
 }
 
-const RootLayout = ({ children }: RootLayoutProps) => {
+export const RootLayout = ({ children }: RootLayoutProps) => {
   return (
-    <html lang="en">
+    <html lang="pl" className={notoSansDisplay.variable}>
+      {/* eslint-disable-next-line @next/next/no-head-element */}
+      <head>
+        <PublicEnvScript />
+      </head>
       <body className="antialiased">
         <Providers>
           <Navbar />
@@ -28,5 +35,3 @@ const RootLayout = ({ children }: RootLayoutProps) => {
     </html>
   );
 };
-
-export default RootLayout;

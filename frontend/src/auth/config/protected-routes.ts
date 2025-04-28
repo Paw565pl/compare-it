@@ -5,4 +5,4 @@ import {
 
 export const protectedRoutes: ProtectedRoutePattern[] = [
   createProtectedRoutePattern.withChildren("/profil"),
-];
+] as const;

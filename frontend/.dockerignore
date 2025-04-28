@@ -30,7 +30,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-.env.example
+# env files (can opt-in for committing if needed)
+.env*
 
 # vercel
 .vercel
@@ -38,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDEs settings
+.idea
+.vscode
+
+README.md
+
+# docker
+Dockerfile.*
+.dockerignore
+
+# git
+.gitignore

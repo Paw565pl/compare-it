@@ -52,9 +52,12 @@ export const ProductActionsButtons = ({
     activePriceAlert?.id as string,
   );
 
-  if (!session) return null;
-
   const handleAddFavoriteProduct = () => {
+    if (!session)
+      return toast.info(
+        "Musisz być zalogowany, aby dodać produkt do ulubionych.",
+      );
+
     const favoriteProductDto: FavoriteProductDto = {
       productId,
     };
@@ -164,7 +167,7 @@ export const ProductActionsButtons = ({
             handleDelete={handleDeletePriceAlert}
           />
         </>
-      ) : (
+      ) : session ? (
         <PriceAlertFormDialog
           trigger={
             <Button variant="invisible" size="noPadding">
@@ -177,6 +180,19 @@ export const ProductActionsButtons = ({
           dialogHeader="Dodaj alert"
           handleSubmit={handleCreatePriceAlert}
         />
+      ) : (
+        <Button
+          variant="invisible"
+          size="noPadding"
+          onClick={() =>
+            toast.info("Musisz być zalogowany, aby stworzyć alert cenowy.")
+          }
+        >
+          <span className="flex items-center gap-2">
+            <Notebook />
+            DODAJ ALERT CENOWY
+          </span>
+        </Button>
       )}
     </>
   );

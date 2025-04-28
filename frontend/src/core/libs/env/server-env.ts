@@ -1,20 +1,19 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-const serverEnv = createEnv({
+export const serverEnv = createEnv({
   server: {
-    API_BASE_URL: z.string().url(),
+    API_BASE_URL: z.string().trim().url(),
     AUTH_SECRET: z
       .string()
+      .trim()
       .min(32, "Auth secret must be at least 32 characters long."),
-    AUTH_TRUST_HOST: z.enum(["true", "false"]),
-    AUTH_URL: z.string().url(),
-    AUTH_AUTH0_ISSUER: z.string().url(),
-    AUTH_AUTH0_ID: z.string(),
-    AUTH_AUTH0_SECRET: z.string(),
+    AUTH_TRUST_HOST: z.coerce.boolean(),
+    AUTH_URL: z.string().trim().url(),
+    AUTH_AUTH0_ISSUER: z.string().trim().url(),
+    AUTH_AUTH0_ID: z.string().trim(),
+    AUTH_AUTH0_SECRET: z.string().trim(),
   },
   experimental__runtimeEnv: process.env,
   skipValidation: process.env.CI ? true : false,
 });
-
-export default serverEnv;
