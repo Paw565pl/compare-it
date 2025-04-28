@@ -4,7 +4,7 @@ import { getQueryClient } from "@/core/libs/tanstack-query";
 import { getIsObjectIdValid } from "@/core/utils/get-is-object-id-valid";
 import { prefetchFavoriteProductStatus } from "@/favorite-products/hooks/server/prefetch-favorite-product-status";
 import { prefetchActivePriceAlertForProduct } from "@/price-alerts/hooks/server/prefetch-active-price-alert-for-product";
-import { ProductPageTop } from "@/products/components/index";
+import { ProductPageTop } from "@/products/components";
 import { prefetchProduct } from "@/products/hooks/server/prefetch-product";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound } from "next/navigation";

@@ -6,10 +6,11 @@ import { H1 } from "@/core/components/ui/h1";
 import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { cn } from "@/core/utils/cn";
 import {
+  PriceHistoryChartDialog,
   ProductActionsButtons,
   ProductPageImages,
   ProductPageOffers,
-} from "@/products/components/index";
+} from "@/products/components";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { HttpStatusCode } from "axios";
 import { notFound } from "next/navigation";
@@ -64,7 +65,10 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
               </p>
             </div>
 
-            <ProductActionsButtons productId={productId} />
+            <div className="mt-4 flex flex-col items-start gap-4 lg:mt-0">
+              <PriceHistoryChartDialog productId={productId} />
+              <ProductActionsButtons productId={productId} />
+            </div>
           </div>
         </div>
       </div>

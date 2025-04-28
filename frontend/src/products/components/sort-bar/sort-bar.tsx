@@ -3,7 +3,6 @@
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectOption,
   SelectTrigger,
@@ -59,13 +58,11 @@ export const SortSelect = () => {
         <SelectValue placeholder="SORTUJ" />
       </SelectTrigger>
       <SelectContent>
-        <SelectGroup>
-          {sortOptions.map(({ label, value }, index) => (
-            <SelectItem key={index} value={value}>
-              {label}
-            </SelectItem>
-          ))}
-        </SelectGroup>
+        {sortOptions.map(({ label, value }, index) => (
+          <SelectItem key={index} value={value}>
+            {label}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

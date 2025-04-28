@@ -4,7 +4,7 @@ import { Role } from "@/auth/types/role";
 import { hasRequiredRole } from "@/auth/utils/has-required-role";
 import { CommentEntity } from "@/comments/entities/comment-entity";
 import { useDeleteComment } from "@/comments/hooks/client/use-delete-comment";
-import { DeleteConfirmationAlertDialog } from "@/core/components/index";
+import { DeleteConfirmationAlertDialog } from "@/core/components";
 import { Button } from "@/core/components/ui/button";
 import { formatDate } from "@/core/utils/format-date";
 import { RatingDto } from "@/rating/dto/rating-dto";
