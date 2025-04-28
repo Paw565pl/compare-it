@@ -110,11 +110,11 @@ export const ProductActionsButtons = ({
   };
 
   return (
-    <div className="mt-4 flex flex-col items-start gap-4 lg:mt-0">
+    <>
       {favoriteProductStatus?.isFavorite ? (
         <Button
           onClick={handleDeleteFavoriteProduct}
-          variant="priceAlert"
+          variant="invisible"
           size={"noPadding"}
         >
           <span className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export const ProductActionsButtons = ({
       ) : (
         <Button
           onClick={handleAddFavoriteProduct}
-          variant="priceAlert"
+          variant="invisible"
           size={"noPadding"}
         >
           <span className="flex items-center gap-2">
@@ -139,7 +139,7 @@ export const ProductActionsButtons = ({
         <>
           <PriceAlertFormDialog
             trigger={
-              <Button variant="priceAlert" size="noPadding">
+              <Button variant="invisible" size="noPadding">
                 <span className="flex items-center gap-2">
                   <NotebookPen />
                   EDYTUJ ALERT CENOWY
@@ -156,7 +156,7 @@ export const ProductActionsButtons = ({
 
           <DeleteConfirmationAlertDialog
             trigger={
-              <Button variant="priceAlert" size="noPadding">
+              <Button variant="invisible" size="noPadding">
                 <Trash2 />
                 <span>USUŃ ALERT</span>
               </Button>
@@ -167,7 +167,7 @@ export const ProductActionsButtons = ({
       ) : (
         <PriceAlertFormDialog
           trigger={
-            <Button variant="priceAlert" size="noPadding">
+            <Button variant="invisible" size="noPadding">
               <span className="flex items-center gap-2">
                 <Notebook />
                 DODAJ ALERT CENOWY
@@ -178,6 +178,6 @@ export const ProductActionsButtons = ({
           handleSubmit={handleCreatePriceAlert}
         />
       )}
-    </div>
+    </>
   );
 };
