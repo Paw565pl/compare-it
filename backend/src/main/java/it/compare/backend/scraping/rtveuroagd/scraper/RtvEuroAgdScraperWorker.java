@@ -98,19 +98,19 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                     .body(RtvEuroAgdResponse.class);
         } catch (HttpStatusCodeException e) {
             log.warn(
-                    "http error has occurred while scraping category {} on page {} - {}",
+                    "http error has occurred while scraping category {} on page start index {} - {}",
                     category,
                     currentStartFrom,
                     e.getStatusCode().value());
         } catch (ResourceAccessException e) {
             log.warn(
-                    "timeout occurred while scraping category {} on page {} - {}",
+                    "timeout occurred while scraping category {} on page start index {} - {}",
                     category,
                     currentStartFrom,
                     e.getMessage());
         } catch (Exception e) {
             log.error(
-                    "unexpected error of class {} has occurred while scraping category {} on page {} - {}",
+                    "unexpected error of class {} has occurred while scraping category {} on page start index {} - {}",
                     e.getClass(),
                     category,
                     currentStartFrom,
