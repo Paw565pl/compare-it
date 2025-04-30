@@ -1,0 +1,24 @@
+localhost {
+    tls internal
+
+    @auth path /api/auth/*
+    reverse_proxy @auth frontend:3000
+
+    @backendApi path /api/*
+    reverse_proxy @backendApi backend:8080
+
+    reverse_proxy frontend:3000
+}
+
+localhost:8080 {
+    reverse_proxy backend:8080
+}
+
+localhost:9090 {
+
+    basicauth {
+        {$PROMETHEUS_USER} {$PROMETHEUS_PASS_HASH}
+    }
+
+    reverse_proxy prometheus:9090
+}

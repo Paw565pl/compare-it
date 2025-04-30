@@ -1,7 +1,7 @@
 services:
   mongodb:
     image: mongo:8-noble
-    restart: always
+    restart: on-failure
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=password
@@ -11,7 +11,7 @@ services:
 
   smtp4dev:
     image: rnwood/smtp4dev
-    restart: always
+    restart: on-failure
     ports:
       - "5000:80"
       - "2525:25"
@@ -20,27 +20,61 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
-    restart: always
-    ports:
-      - "8080:8080"
+    restart: on-failure
     depends_on:
       - mongodb
       - smtp4dev
     environment:
-      - CORS_ALLOWED_ORIGINS=http://localhost:3000
+      - CORS_ALLOWED_ORIGINS=https://localhost
       - SPRING_DATA_MONGODB_URI=mongodb://root:password@mongodb:27017/compare-it?authSource=admin
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+      - MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED=true
+      - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
-    restart: always
-    ports:
-      - "3000:3000"
+    restart: on-failure
     depends_on:
       - backend
     env_file:
       - ./frontend/.env.production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  prometheus:
+    build:
+      context: ./prometheus
+      dockerfile: Dockerfile
+    restart: on-failure
+    depends_on:
+      - backend
+
+  caddy:
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
+    restart: on-failure
+    env_file:
+      - ./caddy/.env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+      - "9090:9090"
+    depends_on:
+      - frontend
+      - backend
+      - prometheus
 
 volumes:
   mongodb-data:

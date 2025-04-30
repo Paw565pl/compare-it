@@ -1,7 +1,7 @@
 services:
   mongodb:
     image: mongo:8-noble
-    restart: always
+    restart: on-failure
     ports:
       - "27017:27017"
     environment:
@@ -13,7 +13,7 @@ services:
 
   smtp4dev:
     image: rnwood/smtp4dev
-    restart: always
+    restart: on-failure
     ports:
       - "5000:80"
       - "2525:25"
@@ -22,7 +22,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
-    restart: always
+    restart: on-failure
     ports:
       - "8080:8080"
     depends_on:
@@ -43,7 +43,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    restart: always
+    restart: on-failure
     ports:
       - "3000:3000"
     depends_on:

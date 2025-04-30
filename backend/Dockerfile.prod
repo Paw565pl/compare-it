@@ -15,7 +15,7 @@ FROM eclipse-temurin:21-jre-alpine
 
 ENV SPRING_PROFILES_ACTIVE=prod
 
-RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0
+RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0 && apk add --no-cache curl
 
 RUN addgroup -S spring && adduser -S spring -G spring
 
