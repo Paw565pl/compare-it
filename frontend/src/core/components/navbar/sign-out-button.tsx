@@ -5,14 +5,14 @@ import { signOut } from "next-auth/react";
 
 export const SignOutButton = () => {
   const handleSignOut = async () => {
-    const returnTo = window.location.origin; 
+    const returnTo = window.location.origin;
 
     await signOut({
-      redirect: false, 
+      redirect: false,
     });
 
     const signOutUrl = `${getClientEnv("NEXT_PUBLIC_AUTH_AUTH0_ISSUER")}/v2/logout?federated&client_id=${getClientEnv("NEXT_PUBLIC_AUTH_AUTH0_ID")}&returnTo=${encodeURIComponent(returnTo)}`;
-    
+
     window.location.href = signOutUrl;
   };
 

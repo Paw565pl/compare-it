@@ -173,7 +173,7 @@ export const FiltersBar = () => {
                         type="text"
                         inputMode="numeric"
                         placeholder="od"
-                        className="bg-background w-full border-0 p-2 text-sm focus:outline-hidden"
+                        className="bg-background focus:outline-hidden w-full border-0 p-2 text-sm"
                       />
                     </FormControl>
                   </FormItem>
@@ -194,7 +194,7 @@ export const FiltersBar = () => {
                         type="text"
                         inputMode="numeric"
                         placeholder="do"
-                        className="bg-background w-full border-0 p-2 text-sm focus:outline-hidden"
+                        className="bg-background focus:outline-hidden w-full border-0 p-2 text-sm"
                       />
                     </FormControl>
                   </FormItem>

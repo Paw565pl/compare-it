@@ -28,7 +28,7 @@ export const SingleProduct = ({
 
   return (
     <div className="border-grey-100 text-primary mt-1 flex flex-col bg-white p-4 sm:p-6 md:flex-row">
-      <div className="mb-4 shrink-0 self-center md:mr-6 md:mb-0">
+      <div className="mb-4 shrink-0 self-center md:mb-0 md:mr-6">
         <Link href={`/produkty/${id}`}>
           <ImageWithFallback
             src={mainImageUrl}
@@ -41,7 +41,7 @@ export const SingleProduct = ({
       </div>
 
       <div className="flex w-full flex-col justify-center">
-        <H1 className="mb-2 text-2xl! font-bold">
+        <H1 className="text-2xl! mb-2 font-bold">
           <Link href={`/produkty/${id}`}>{name}</Link>
         </H1>
 
