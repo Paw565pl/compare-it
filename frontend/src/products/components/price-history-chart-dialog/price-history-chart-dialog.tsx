@@ -94,7 +94,7 @@ export const PriceHistoryChartDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="lg:min-w-3/4 min-w-full">
+      <DialogContent className="min-w-full lg:min-w-3/4">
         <DialogHeader className="flex items-center justify-between gap-3 py-4 sm:flex-row sm:items-start md:py-6">
           <div className="w-3/5 space-y-2 text-center sm:text-left">
             <DialogTitle>Historia cen</DialogTitle>
@@ -127,13 +127,13 @@ export const PriceHistoryChartDialog = ({
         </DialogHeader>
 
         {isLoading && (
-          <Skeleton className="sm:h-120 xl:h-144 aspect-auto h-96 w-full" />
+          <Skeleton className="aspect-auto h-96 w-full sm:h-120 xl:h-144" />
         )}
 
         {!isLoading && (
           <ChartContainer
             config={chartConfig}
-            className="sm:h-120 xl:h-144 aspect-auto h-96 w-full"
+            className="aspect-auto h-96 w-full sm:h-120 xl:h-144"
           >
             <AreaChart data={chartData}>
               <defs>

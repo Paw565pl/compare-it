@@ -54,7 +54,7 @@ export const SearchBar = () => {
         type="text"
         ref={inputRef}
         defaultValue={productFilters.name?.trim() || ""}
-        className="focus:outline-hidden w-full bg-white p-2 shadow-none md:w-1/3"
+        className="w-full bg-white p-2 shadow-none focus:outline-hidden md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
       <Button variant="search" type="submit" aria-label="WYSZUKAJ">
