@@ -1,5 +1,6 @@
 package it.compare.backend.scraping.config;
 
+import java.io.File;
 import java.util.Map;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
@@ -14,6 +15,7 @@ public class SeleniumConfig {
 
     @Bean
     @Scope("prototype")
+    @SuppressWarnings("java:S1075")
     public WebDriver webDriver() {
         var options = new ChromeOptions();
 
@@ -26,6 +28,9 @@ public class SeleniumConfig {
         options.addArguments("--blink-settings=imagesEnabled=false");
         options.addArguments("--disable-blink-features=AutomationControlled");
         options.addArguments("--log-level=3");
+
+        var ublockOriginLiteCrx = new File("/app/ublockOriginLite.crx");
+        options.addExtensions(ublockOriginLiteCrx);
 
         var userAgent =
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36";
