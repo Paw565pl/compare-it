@@ -10,10 +10,6 @@ localhost {
     reverse_proxy frontend:3000
 }
 
-localhost:8080 {
-    reverse_proxy backend:8080
-}
-
 localhost:9090 {
 
     basicauth {

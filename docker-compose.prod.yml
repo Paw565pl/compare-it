@@ -8,6 +8,12 @@ services:
       - MONGO_INITDB_DATABASE=compare-it
     volumes:
       - mongodb-data:/data/db
+    healthcheck:
+      test: mongosh --eval 'db.adminCommand("ping").ok' mongodb://root:password@localhost:27017/admin --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   smtp4dev:
     image: rnwood/smtp4dev
@@ -69,7 +75,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
       - "9090:9090"
     depends_on:
       - frontend

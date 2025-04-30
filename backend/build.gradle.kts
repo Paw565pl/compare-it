@@ -72,7 +72,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -100,6 +99,7 @@ dependencies {
     testImplementation("net.datafaker:datafaker:${dataFakerVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter-params:${junitJupiterParamsVersion}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:7.30.1.34514")
 }
 
