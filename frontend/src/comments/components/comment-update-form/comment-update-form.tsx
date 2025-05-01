@@ -132,7 +132,7 @@ export const CommentUpdateForm = ({
             </AlertDialogContent>
           </AlertDialog>
 
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" disabled={isPending || !form.formState.isDirty}>
             ZAPISZ
           </Button>
         </div>
