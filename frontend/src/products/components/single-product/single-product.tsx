@@ -48,11 +48,11 @@ export const SingleProduct = ({
         <p className="text-secondary mb-4 text-sm">Kategoria: {category}</p>
 
         <p className="text-secondary mb-1 text-sm">
-          Liczba ofert: {offersCount}
+          Sklep: {lowestPriceShop || "-"}
         </p>
 
         <p className="text-secondary mb-1 text-sm">
-          Sklep: {lowestPriceShop || "-"}
+          Liczba dostępnych ofert: {offersCount}
         </p>
 
         <div className="mb-4 text-sm">
