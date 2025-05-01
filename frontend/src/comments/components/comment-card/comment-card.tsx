@@ -85,44 +85,44 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
 
   return (
     <div className="bg-white p-4">
-      <div className="flex items-center gap-4">
-        <div className="text-primary text-xl font-semibold">
-          {comment.author}
-        </div>
-        <div className="flex w-full items-center justify-between">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="text-primary text-xl font-semibold">
+            {comment.author}
+          </div>
           <div className="text-primary text-center text-sm">
             {formattedCreatedAtDate}
           </div>
-
-          {!isEditModeEnabled && (
-            <div className="flex items-center gap-1">
-              {isAuthor && (
-                <Button
-                  variant="commentAction"
-                  className="text-gray-500"
-                  aria-label="Edytuj komentarz"
-                  onClick={() => setIsEditModeEnabled(true)}
-                >
-                  <Pencil />
-                </Button>
-              )}
-              {isAuthorOrAdmin && (
-                <DeleteConfirmationAlertDialog
-                  trigger={
-                    <Button
-                      variant="commentAction"
-                      className="text-red-500"
-                      aria-label="Usuń komentarz"
-                    >
-                      <Trash2 />
-                    </Button>
-                  }
-                  handleDelete={handleDeleteComment}
-                />
-              )}
-            </div>
-          )}
         </div>
+
+        {!isEditModeEnabled && (
+          <div className="flex items-center gap-1">
+            {isAuthor && (
+              <Button
+                variant="commentAction"
+                className="text-gray-500"
+                aria-label="Edytuj komentarz"
+                onClick={() => setIsEditModeEnabled(true)}
+              >
+                <Pencil />
+              </Button>
+            )}
+            {isAuthorOrAdmin && (
+              <DeleteConfirmationAlertDialog
+                trigger={
+                  <Button
+                    variant="commentAction"
+                    className="text-red-500"
+                    aria-label="Usuń komentarz"
+                  >
+                    <Trash2 />
+                  </Button>
+                }
+                handleDelete={handleDeleteComment}
+              />
+            )}
+          </div>
+        )}
       </div>
 
       {isEditModeEnabled ? (
