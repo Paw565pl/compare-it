@@ -28,7 +28,10 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
-  const { mutate: createComment } = useCreateComment(accessToken, productId);
+  const { mutate: createComment, isPending } = useCreateComment(
+    accessToken,
+    productId,
+  );
   const form = useForm<CommentFormValues>({
     resolver: zodResolver(commentSchema),
     defaultValues: {
@@ -56,7 +59,7 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
           name="text"
           control={form.control}
           render={({ field }) => (
-            <FormItem className="bg-white p-4">
+            <FormItem className="p-4">
               <FormLabel className="text-primary text-xl font-semibold">
                 Dodaj Komentarz
               </FormLabel>
@@ -78,7 +81,7 @@ export const CommentForm = ({ productId }: CommentFormProps) => {
           )}
         />
         <Button
-          disabled={!session}
+          disabled={!session || isPending}
           type="submit"
           className="bg-primary hover:bg-hover mt-2 w-full font-semibold shadow-none transition-colors duration-200"
         >
