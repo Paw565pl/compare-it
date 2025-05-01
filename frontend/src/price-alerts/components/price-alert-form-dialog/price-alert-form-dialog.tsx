@@ -115,7 +115,7 @@ export const PriceAlertFormDialog = ({
 
             <DialogFooter>
               <Button type="submit" variant="primary">
-                Zapisz
+                ZAPISZ
               </Button>
             </DialogFooter>
           </form>

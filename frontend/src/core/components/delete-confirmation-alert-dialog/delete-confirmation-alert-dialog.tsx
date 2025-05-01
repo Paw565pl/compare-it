@@ -35,10 +35,10 @@ export const DeleteConfirmationAlertDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>
-            <Ban /> Anuluj
+            <Ban /> ANULUJ
           </AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={handleDelete}>
-            <Trash2 /> Usuń
+            <Trash2 /> USUŃ
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
