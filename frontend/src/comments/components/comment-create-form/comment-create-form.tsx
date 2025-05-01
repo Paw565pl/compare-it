@@ -24,7 +24,7 @@ interface CommentFormProps {
   readonly productId: string;
 }
 
-export const CommentForm = ({ productId }: CommentFormProps) => {
+export const CommentCreateForm = ({ productId }: CommentFormProps) => {
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
