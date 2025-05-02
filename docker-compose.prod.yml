@@ -33,9 +33,6 @@ services:
     environment:
       - CORS_ALLOWED_ORIGINS=https://localhost
       - SPRING_DATA_MONGODB_URI=mongodb://root:password@mongodb:27017/compare-it?authSource=admin
-      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
-      - MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED=true
-      - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -59,27 +56,36 @@ services:
   
   prometheus:
     build:
-      context: ./prometheus
+      context: infra-services/prometheus
       dockerfile: Dockerfile
     restart: on-failure
     depends_on:
       - backend
+  grafana:
+    build:
+      context: infra-services/grafana
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - "4000:3000"
+    depends_on:
+      - prometheus
+    env_file:
+      - infra-services/grafana/.env
+    volumes:
+      - grafana-data:/var/lib/grafana
 
   caddy:
     build:
-      context: ./caddy
+      context: infra-services/caddy
       dockerfile: Dockerfile
     restart: on-failure
-    env_file:
-      - ./caddy/.env
     ports:
       - "80:80"
       - "443:443"
-      - "9090:9090"
     depends_on:
       - frontend
-      - backend
-      - prometheus
 
 volumes:
   mongodb-data:
+  grafana-data:

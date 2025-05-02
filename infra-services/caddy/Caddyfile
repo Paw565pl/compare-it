@@ -9,12 +9,3 @@ localhost {
 
     reverse_proxy frontend:3000
 }
-
-localhost:9090 {
-
-    basicauth {
-        {$PROMETHEUS_USER} {$PROMETHEUS_PASS_HASH}
-    }
-
-    reverse_proxy prometheus:9090
-}
