@@ -12,7 +12,7 @@ import { CategoriesList, FiltersBar, SortSelect } from "@/products/components";
 
 export const ProductListPageHeader = () => {
   return (
-    <header className="mt-5 mb-1 flex justify-between lg:mt-0">
+    <header className="mt-5 mb-2 flex justify-between sm:mb-1 lg:mt-0">
       <H1 className="text-primary mb-0">Produkty</H1>
 
       <Dialog>
