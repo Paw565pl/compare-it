@@ -33,7 +33,7 @@ export const ProductListPageHeader = () => {
         </DialogContent>
       </Dialog>
 
-      <SortSelect triggerClassName="hidden lg:block" />
+      <SortSelect triggerClassName="hidden lg:flex" />
     </header>
   );
 };
