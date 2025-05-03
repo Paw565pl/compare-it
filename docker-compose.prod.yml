@@ -9,7 +9,6 @@ services:
     volumes:
       - mongodb-data:/data/db
     healthcheck:
-      # test: mongosh --eval 'db.adminCommand("ping").ok' mongodb://root:password@localhost:27017/admin --quiet
       test: mongosh --eval 'db.adminCommand("ping").ok' mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/admin --quiet
       interval: 30s
       timeout: 5s
