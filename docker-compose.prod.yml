@@ -9,11 +9,12 @@ services:
     volumes:
       - mongodb-data:/data/db
     healthcheck:
-      test: mongosh --eval 'db.adminCommand("ping").ok' mongodb://root:password@localhost:27017/admin --quiet
-      interval: 10s
+      # test: mongosh --eval 'db.adminCommand("ping").ok' mongodb://root:password@localhost:27017/admin --quiet
+      test: mongosh --eval 'db.adminCommand("ping").ok' mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/admin --quiet
+      interval: 30s
       timeout: 5s
       retries: 5
-      start_period: 40s
+      start_period: 60s
 
   smtp4dev:
     image: rnwood/smtp4dev
@@ -38,6 +39,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
 
   frontend:
     build:
@@ -53,6 +55,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
   
   prometheus:
     build:
