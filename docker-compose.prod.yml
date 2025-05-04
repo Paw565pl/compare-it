@@ -68,12 +68,11 @@ services:
       context: infra-services/grafana
       dockerfile: Dockerfile
     restart: on-failure
-    ports:
-      - "4000:3000"
     depends_on:
       - prometheus
-    env_file:
-      - infra-services/grafana/.env
+    environment:
+      - GF_SERVER_ROOT_URL=https://localhost/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     volumes:
       - grafana-data:/var/lib/grafana
 
@@ -87,6 +86,7 @@ services:
       - "443:443"
     depends_on:
       - frontend
+      - grafana
 
 volumes:
   mongodb-data:

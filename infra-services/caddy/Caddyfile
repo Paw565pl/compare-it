@@ -1,11 +1,19 @@
 localhost {
     tls internal
 
-    @auth path /api/auth/*
-    reverse_proxy @auth frontend:3000
+    handle /grafana* {
+        reverse_proxy grafana:3000
+    }
 
-    @backendApi path /api/*
-    reverse_proxy @backendApi backend:8080
+    handle /api/auth/* {
+        reverse_proxy frontend:3000
+    }
 
-    reverse_proxy frontend:3000
+    handle /api/* {
+        reverse_proxy backend:8080
+    }
+
+    handle {
+        reverse_proxy frontend:3000
+    }
 }
