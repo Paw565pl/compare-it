@@ -13,6 +13,7 @@ export const CommentsSection = ({ productId }: CommentsSectionProps) => {
   const { data: session } = useSession();
   const {
     data: commentPages,
+    isFetching: isFetchingComments,
     hasNextPage,
     fetchNextPage,
   } = useFetchCommentPage(productId, session?.tokens?.accessToken);
@@ -36,9 +37,10 @@ export const CommentsSection = ({ productId }: CommentsSectionProps) => {
         {commentPages?.pages.map((page) =>
           page.content.map((comment, commentIndex) => (
             <CommentCard
+              key={commentIndex}
               comment={comment}
               productId={productId}
-              key={commentIndex}
+              isFetchingComments={isFetchingComments}
             />
           )),
         )}

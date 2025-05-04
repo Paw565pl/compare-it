@@ -16,11 +16,16 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 interface CommentCardProps {
-  comment: CommentEntity;
-  productId: string;
+  readonly comment: CommentEntity;
+  readonly productId: string;
+  readonly isFetchingComments: boolean;
 }
 
-export const CommentCard = ({ comment, productId }: CommentCardProps) => {
+export const CommentCard = ({
+  comment,
+  productId,
+  isFetchingComments,
+}: CommentCardProps) => {
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
@@ -54,6 +59,8 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
   const handleMutateRating = (newIsPositive: boolean) => {
     if (!session)
       return toast.info("Musisz być zalogowany, aby ocenić komentarz.");
+
+    if (isFetchingComments) return;
 
     const ratingDto: RatingDto = {
       isPositive: newIsPositive,
