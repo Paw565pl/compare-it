@@ -29,11 +29,8 @@ export const CommentCard = ({
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
-  const { mutate: deleteComment } = useDeleteComment(
-    accessToken,
-    productId,
-    comment.id,
-  );
+  const { mutateAsync: deleteComment, isPending: isDeleteCommentPending } =
+    useDeleteComment(accessToken, productId, comment.id);
 
   const { mutate: createRating, isPending: isCreateRatingPending } =
     useCreateRating(accessToken, productId, comment.id);
@@ -49,12 +46,7 @@ export const CommentCard = ({
     session?.user?.username === comment.author ||
     hasRequiredRole(session, Role.ADMIN);
 
-  const handleDeleteComment = () => {
-    deleteComment(undefined, {
-      onSuccess: () => toast.success("Komentarz został usunięty."),
-      onError: () => toast.error("Coś poszło nie tak!"),
-    });
-  };
+  const handleDeleteComment = () => deleteComment(undefined);
 
   const handleMutateRating = (newIsPositive: boolean) => {
     if (!session)
@@ -101,6 +93,7 @@ export const CommentCard = ({
             <DeleteConfirmationAlertDialog
               trigger={
                 <Button
+                  disabled={isDeleteCommentPending}
                   variant="destructive"
                   className="hover:bg-background bg-white text-red-500 shadow-none"
                 >
