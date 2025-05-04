@@ -27,7 +27,7 @@ export const useDeleteRating = (
   productId: string,
   commentId: string,
 ) =>
-  useMutation<undefined, AxiosError<ErrorResponse>>({
+  useMutation<undefined, AxiosError<ErrorResponse>, undefined>({
     mutationKey: [
       ...productsQueryKey,
       productId,
