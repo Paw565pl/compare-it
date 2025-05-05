@@ -94,7 +94,7 @@ export const PriceHistoryChartDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="min-w-full lg:min-w-3/4">
+      <DialogContent className="min-w-full lg:min-w-5/6 xl:min-w-3/4">
         <DialogHeader className="flex items-center justify-between gap-3 py-4 sm:flex-row sm:items-start md:py-6">
           <div className="w-3/5 space-y-2 text-center sm:text-left">
             <DialogTitle>Historia cen</DialogTitle>
