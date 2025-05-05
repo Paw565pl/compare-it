@@ -238,7 +238,7 @@ function ChartTooltipContent({
                     {item.value && (
                       <span className="text-foreground font-mono font-medium tabular-nums">
                         {valueFormatter
-                          ? valueFormatter(item.value.toLocaleString())
+                          ? valueFormatter(item.value.toString())
                           : item.value.toLocaleString()}
                       </span>
                     )}

@@ -2,6 +2,7 @@ package it.compare.backend;
 
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
+import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.scraping.scraper.ScrapingManager;
 import org.springframework.boot.CommandLineRunner;
@@ -31,6 +32,9 @@ public class Application {
     @Profile("!test")
     public CommandLineRunner commandLineRunner(ProductRepository productRepository, ScrapingManager scrapingManager) {
         return args -> {
+            // initialize random user agent generator
+            RandomUserAgentGenerator.getNext();
+
             if (productRepository.count() == 0) scrapingManager.scrapeAll();
         };
     }

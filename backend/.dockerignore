@@ -42,6 +42,7 @@ Dockerfile.*
 .dockerignore
 
 .gitignore
+.gitattributes
 .editorconfig
 
 bruno/
