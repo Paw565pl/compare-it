@@ -22,6 +22,7 @@ export const ImageWithFallback = ({
   isLoadingStateEnabled = true,
   ...props
 }: ImageWithFallbackProps) => {
+  const [imageSrc, setImageSrc] = useState(src || noImagePlaceholder);
   const [isLoading, setIsLoading] = useState(true);
 
   return (
@@ -42,7 +43,7 @@ export const ImageWithFallback = ({
       )}
       <Image
         {...props}
-        src={src || noImagePlaceholder}
+        src={imageSrc}
         alt={alt}
         className={cn(
           "transition-opacity duration-300 ease-in-out",
@@ -51,8 +52,8 @@ export const ImageWithFallback = ({
           className,
         )}
         onLoad={() => setIsLoading(false)}
-        onError={(e) => {
-          e.currentTarget.src = noImagePlaceholder;
+        onError={() => {
+          setImageSrc(noImagePlaceholder);
           setIsLoading(false);
         }}
       />
