@@ -26,3 +26,12 @@ springdoc:
 logging:
   level:
     root: error
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      access: unrestricted

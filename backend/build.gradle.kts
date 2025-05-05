@@ -99,6 +99,7 @@ dependencies {
     testImplementation("net.datafaker:datafaker:${dataFakerVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter-params:${junitJupiterParamsVersion}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     sonarlintPlugins("org.sonarsource.java:sonar-java-plugin:7.30.1.34514")
 }
 

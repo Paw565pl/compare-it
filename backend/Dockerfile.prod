@@ -17,7 +17,7 @@ ENV SPRING_PROFILES_ACTIVE=prod
 
 WORKDIR /app
 
-RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0
+RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0 curl
 
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
