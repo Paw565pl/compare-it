@@ -1,5 +1,5 @@
 import { cn } from "@/core/utils/cn";
-import { ComponentProps } from "react";
+import { ComponentProps, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 
 interface TextareaProps extends ComponentProps<"textarea"> {
@@ -15,6 +15,12 @@ export const Textarea = ({
 }: TextareaProps) => {
   const [wordCount, setWordCount] = useDebounce(initialWordCount ?? 0, 100);
 
+  useEffect(() => {
+    const value = props.value;
+    if (maxWordCount && typeof value === "string")
+      setWordCount(value.trim().length);
+  }, [props.value, maxWordCount, setWordCount]);
+
   return (
     <div className="space-y-2">
       <textarea
@@ -24,10 +30,6 @@ export const Textarea = ({
           className,
         )}
         {...props}
-        onChange={(e) => {
-          props.onChange?.(e);
-          if (maxWordCount) setWordCount(e.target.value.trim().length);
-        }}
       />
       {maxWordCount && (
         <div className="w-full text-right text-sm text-gray-500">
