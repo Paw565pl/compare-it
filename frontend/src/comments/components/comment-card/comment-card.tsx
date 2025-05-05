@@ -33,7 +33,7 @@ export const CommentCard = ({
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
-  const { mutateAsync: deleteComment, isPending: isDeleteCommentPending } =
+  const { mutate: deleteComment, isPending: isDeleteCommentPending } =
     useDeleteComment(accessToken, productId, comment.id);
 
   const { mutate: createRating, isPending: isCreateRatingPending } =
