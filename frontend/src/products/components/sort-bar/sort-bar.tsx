@@ -8,8 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/core/components/ui/select";
+import { cn } from "@/core/utils/cn";
 import { productPaginationSearchParams } from "@/products/search-params/product-search-params";
 import { useQueryStates } from "nuqs";
+
+interface SortSelectProps {
+  readonly triggerClassName?: string;
+}
 
 const sortOptions: SelectOption[] = [
   {
@@ -42,7 +47,7 @@ const sortOptions: SelectOption[] = [
   },
 ] as const;
 
-export const SortSelect = () => {
+export const SortSelect = ({ triggerClassName }: SortSelectProps) => {
   const [{ sort }, setProductPagination] = useQueryStates(
     productPaginationSearchParams,
   );
@@ -54,7 +59,10 @@ export const SortSelect = () => {
 
   return (
     <Select value={sort ?? ""} onValueChange={handleSortChange}>
-      <SelectTrigger aria-label="Sortuj" className="xs:w-48 w-40">
+      <SelectTrigger
+        aria-label="Sortuj"
+        className={cn("xs:w-48 w-40", triggerClassName)}
+      >
         <SelectValue placeholder="SORTUJ" />
       </SelectTrigger>
       <SelectContent>

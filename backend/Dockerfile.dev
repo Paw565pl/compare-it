@@ -3,6 +3,7 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0
+ADD https://clients2.google.com/service/update2/crx?response=redirect&prodversion=135.0.7049.95-r0&acceptformat=crx2,crx3&x=id%3Dddkjiahejlhfcafbddmgiahcphecmpfh%26uc ublockOriginLite.crx
 
 COPY gradle gradle
 COPY gradlew build.gradle.kts settings.gradle.kts ./

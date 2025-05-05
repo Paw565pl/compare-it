@@ -60,6 +60,7 @@ export const Profile = () => {
             variant={activeButtonIndex === index ? "primary" : "outline"}
             size="icon"
             title={title}
+            aria-label={title}
             className="w-full p-6 sm:p-8"
           >
             {icon}

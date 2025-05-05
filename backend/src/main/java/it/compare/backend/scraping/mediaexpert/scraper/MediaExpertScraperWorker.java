@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -23,6 +24,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -36,13 +38,23 @@ class MediaExpertScraperWorker implements ScraperWorker {
 
     private final ObjectMapper objectMapper;
     private final ObjectFactory<WebDriver> webDriverFactory;
+    private final Semaphore mediaExpertSemaphore;
 
+    @Async
     @Override
     public CompletableFuture<List<Product>> scrapeCategory(Category category, String categoryLocator) {
-        var webDriver = webDriverFactory.getObject();
-        var productUrls = new ArrayList<String>();
+        var isSemaphorePermitAcquired = false;
+        WebDriver webDriverInstance = null;
 
         try {
+            mediaExpertSemaphore.acquire();
+            isSemaphorePermitAcquired = true;
+
+            var webDriver = webDriverFactory.getObject();
+            webDriverInstance = webDriver;
+
+            var productUrls = new ArrayList<String>();
+
             var numberOfPages = getNumberOfPages(webDriver, categoryLocator);
             log.debug("available pages: {} - category {}", numberOfPages, category);
 
@@ -82,8 +94,14 @@ class MediaExpertScraperWorker implements ScraperWorker {
                     .filter(Objects::nonNull)
                     .toList();
             return CompletableFuture.completedFuture(products);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("thread was interrupted while acquiring semaphore for scraping category {}", category);
+
+            return CompletableFuture.failedFuture(e);
         } finally {
-            webDriver.quit();
+            if (webDriverInstance != null) webDriverInstance.quit();
+            if (isSemaphorePermitAcquired) mediaExpertSemaphore.release();
         }
     }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { CommentCard, CommentForm } from "@/comments/components";
+import { CommentCard, CommentCreateForm } from "@/comments/components";
 import { useFetchCommentPage } from "@/comments/hooks/client/use-fetch-comment-page";
 import { useSession } from "next-auth/react";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -25,7 +25,7 @@ export const CommentsSection = ({ productId }: CommentsSectionProps) => {
 
   return (
     <section className="mt-4 flex flex-col gap-2">
-      <CommentForm productId={productId} />
+      <CommentCreateForm productId={productId} />
 
       <InfiniteScroll
         dataLength={fetchedCommentsCount || 0}

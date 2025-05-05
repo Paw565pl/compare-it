@@ -15,14 +15,15 @@ FROM eclipse-temurin:21-jre-alpine
 
 ENV SPRING_PROFILES_ACTIVE=prod
 
-RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0
-
-RUN addgroup -S spring && adduser -S spring -G spring
-
-USER spring:spring
-
 WORKDIR /app
 
-COPY --from=builder /app/build/libs/*.jar /app/app.jar
+RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0 curl
+
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
+ADD --chown=spring https://clients2.google.com/service/update2/crx?response=redirect&prodversion=135.0.7049.95-r0&acceptformat=crx2,crx3&x=id%3Dddkjiahejlhfcafbddmgiahcphecmpfh%26uc ublockOriginLite.crx
+
+COPY --from=builder --chown=spring /app/build/libs/*.jar /app/app.jar
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

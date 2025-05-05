@@ -2,7 +2,6 @@ import { AuthSection } from "@/core/components/navbar/auth-section";
 import { Logo } from "@/core/components/navbar/logo";
 import { SearchBar } from "@/core/components/navbar/search-bar";
 import Link from "next/link";
-import { Suspense } from "react";
 
 export const Navbar = () => {
   return (
@@ -22,9 +21,7 @@ export const Navbar = () => {
         </div>
       </div>
       <search className="w-full p-4 pb-0 sm:mt-0 sm:p-0">
-        <Suspense>
-          <SearchBar />
-        </Suspense>
+        <SearchBar />
       </search>
       {/* Mobile View Auth Section */}
       <div className="hidden pl-2 sm:block">
