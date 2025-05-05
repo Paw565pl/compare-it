@@ -110,7 +110,7 @@ export const CommentCard = ({
               <DeleteConfirmationAlertDialog
                 trigger={
                   <Button
-                  disabled={isDeleteCommentPending}
+                    disabled={isDeleteCommentPending}
                     variant="commentAction"
                     className="text-red-500"
                     aria-label="Usuń komentarz"
