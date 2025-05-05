@@ -1,6 +1,7 @@
 import { Button } from "@/core/components/ui/button";
 import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
+import { CopyPastePromoCode } from "@/products/components/single-offer/copy-paste-promo-code";
 import { OfferEntity } from "@/products/entities/offer-entity";
 import { getShopLogoUrl } from "@/products/utils/get-shop-logo-url";
 import Link from "next/link";
@@ -10,8 +11,10 @@ interface SingleOfferProps {
 }
 
 export const SingleOffer = ({ offer }: SingleOfferProps) => {
-  const lastPrice = offer.priceHistory.at(-1)?.price;
-  const lastCurrency = offer.priceHistory.at(-1)?.currency;
+  const lastPriceStamp = offer.priceHistory.at(-1);
+
+  const lastPrice = lastPriceStamp?.price;
+  const lastCurrency = lastPriceStamp?.currency;
 
   const formattedPrice =
     lastPrice && lastCurrency ? formatCurrency(lastPrice, lastCurrency) : "-";
@@ -35,10 +38,14 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
       </Link>
 
       <div className="flex flex-col items-center gap-x-4 gap-y-3 sm:flex-row">
-        <div className="flex flex-row items-center gap-x-3 sm:flex-col">
-          <span className="text-primary justify-center text-lg font-semibold">
-            {formattedPrice}
-          </span>
+        <div>
+          <div className="flex flex-col items-center justify-center">
+            <span className="text-primary justify-center text-lg font-semibold">
+              {formattedPrice}
+            </span>
+
+            <CopyPastePromoCode promoCode={lastPriceStamp?.promoCode ?? null} />
+          </div>
 
           {offer.isAvailable ? (
             <span className="text-sm font-semibold text-green-600">

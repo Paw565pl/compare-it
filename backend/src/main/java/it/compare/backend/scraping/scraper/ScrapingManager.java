@@ -33,7 +33,7 @@ public class ScrapingManager {
 
     @SuppressWarnings("java:S6809")
     public void scrapeAll() {
-        shopCategoryMap.getValues().keySet().forEach(shop -> CompletableFuture.runAsync(() -> this.scrapeShop(shop)));
+        shopCategoryMap.getValues().keySet().forEach(shop -> CompletableFuture.runAsync(() -> scrapeShop(shop)));
     }
 
     @Async
@@ -57,7 +57,12 @@ public class ScrapingManager {
                     .thenAccept(scrapingService::createProductsOrAddPriceStamp)
                     .thenRun(() -> log.info("finished scraping category {} for shop {}", category, shop))
                     .exceptionally(e -> {
-                        log.error("error while scraping category {} for shop {} - {}", category, shop, e.getMessage());
+                        log.error(
+                                "error of class {} while scraping category {} for shop {} - {}",
+                                e.getClass(),
+                                category,
+                                shop,
+                                e.getMessage());
                         return null;
                     });
         });

@@ -54,10 +54,10 @@ export const SearchBar = () => {
         type="text"
         ref={inputRef}
         defaultValue={productFilters.name?.trim() || ""}
-        className="w-full bg-white p-2 shadow-none focus:outline-hidden md:w-1/3"
+        className="w-full bg-white md:w-1/3"
         placeholder="Wyszukaj produkt"
       />
-      <Button variant="search" type="submit" aria-label="WYSZUKAJ">
+      <Button variant="search" type="submit" aria-label="Wyszukaj produkty">
         <Search className="text-lg" />
         <span className="hidden md:block">WYSZUKAJ</span>
       </Button>

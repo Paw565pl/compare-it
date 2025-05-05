@@ -14,7 +14,6 @@ import {
 } from "@/products/search-params/product-search-params";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { SearchParams } from "nuqs";
-import { Suspense } from "react";
 
 interface ProductListPageProps {
   readonly searchParams: Promise<SearchParams>;
@@ -41,24 +40,14 @@ export const ProductListPage = async ({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <section className="flex flex-col lg:flex-row xl:p-4">
-        <aside className="mr-0 w-full lg:mr-4 lg:w-1/5">
-          <Suspense>
-            <CategoriesList />
-          </Suspense>
-
-          <Suspense>
-            <FiltersBar />
-          </Suspense>
+        <aside className="mr-0 hidden w-full lg:mr-4 lg:block lg:w-1/5">
+          <CategoriesList />
+          <FiltersBar />
         </aside>
 
         <section className="flex w-full flex-col">
-          <Suspense>
-            <ProductListPageHeader />
-          </Suspense>
-
-          <Suspense>
-            <ProductList />
-          </Suspense>
+          <ProductListPageHeader />
+          <ProductList />
         </section>
       </section>
     </HydrationBoundary>
