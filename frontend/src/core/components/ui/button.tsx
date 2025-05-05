@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/85",
         destructive:
           "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/85",
         outline:
@@ -25,7 +25,8 @@ const buttonVariants = cva(
           "bg-primary hover:bg-hover m-4 mt-0 px-4 py-2 text-white disabled:bg-gray-500 sm:m-0",
         invisible: "text-primary shadow-none",
         search:
-          "bg-primary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors duration-300",
+          "bg-primary hover:bg-hover flex items-center p-2 font-medium text-white transition-colors",
+        commentAction: "hover:bg-background bg-white shadow-none",
       },
       size: {
         default: "h-9 px-4 py-2",
