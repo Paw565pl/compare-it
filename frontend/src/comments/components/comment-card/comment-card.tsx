@@ -20,19 +20,21 @@ import { toast } from "sonner";
 interface CommentCardProps {
   readonly comment: CommentEntity;
   readonly productId: string;
+  readonly isFetchingComments: boolean;
 }
 
-export const CommentCard = ({ comment, productId }: CommentCardProps) => {
+export const CommentCard = ({
+  comment,
+  productId,
+  isFetchingComments,
+}: CommentCardProps) => {
   const [isEditModeEnabled, setIsEditModeEnabled] = useState(false);
 
   const { data: session } = useSession();
   const accessToken = session?.tokens?.accessToken as string;
 
-  const { mutate: deleteComment } = useDeleteComment(
-    accessToken,
-    productId,
-    comment.id,
-  );
+  const { mutate: deleteComment, isPending: isDeleteCommentPending } =
+    useDeleteComment(accessToken, productId, comment.id);
 
   const { mutate: createRating, isPending: isCreateRatingPending } =
     useCreateRating(accessToken, productId, comment.id);
@@ -47,22 +49,18 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
   const isAuthor = session?.user?.username === comment.author;
   const isAuthorOrAdmin = isAuthor || hasRequiredRole(session, Role.ADMIN);
 
-  const handleDeleteComment = () => {
-    deleteComment(undefined, {
-      onSuccess: () => toast.success("Komentarz został usunięty."),
-      onError: () => toast.error("Coś poszło nie tak!"),
-    });
-  };
+  const handleDeleteComment = () => deleteComment(undefined);
 
   const handleMutateRating = (newIsPositive: boolean) => {
     if (!session)
       return toast.info("Musisz być zalogowany, aby ocenić komentarz.");
 
+    if (isFetchingComments) return;
+
     const ratingDto: RatingDto = {
       isPositive: newIsPositive,
     };
-
-    const errorText = "Wystąpił nieoczekiwany błąd! Spróbuj ponownie poźniej.";
+    const errorText = "Coś poszło nie tak!";
 
     if (comment.isRatingPositive === null)
       createRating(ratingDto, {
@@ -111,6 +109,7 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
               <DeleteConfirmationAlertDialog
                 trigger={
                   <Button
+                    disabled={isDeleteCommentPending}
                     variant="commentAction"
                     className="text-red-500"
                     aria-label="Usuń komentarz"
@@ -140,10 +139,10 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
           <div className="flex items-center gap-1">
             <Button
               size="noPadding"
-              disabled={isRatingButtonDisabled}
-              onClick={() => handleMutateRating(true)}
               aria-label="Oceń komentarz pozytywnie"
               className="text-primary hover:text-primary/70 h-fit bg-white shadow-none hover:bg-white"
+              disabled={isRatingButtonDisabled}
+              onClick={() => handleMutateRating(true)}
             >
               <Smile />
             </Button>
@@ -153,10 +152,10 @@ export const CommentCard = ({ comment, productId }: CommentCardProps) => {
           <div className="flex items-center gap-1">
             <Button
               size="noPadding"
-              disabled={isRatingButtonDisabled}
-              onClick={() => handleMutateRating(false)}
               aria-label="Oceń komentarz negatywnie"
               className="h-fit bg-white text-gray-500 shadow-none hover:bg-white hover:text-gray-500/70"
+              disabled={isRatingButtonDisabled}
+              onClick={() => handleMutateRating(false)}
             >
               <Frown />
             </Button>
