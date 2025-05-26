@@ -3,7 +3,7 @@ import com.diffplug.spotless.LineEnding
 plugins {
     java
     idea
-    id("org.springframework.boot") version "3.4.5"
+    id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.diffplug.spotless") version "7.0.3"
     id("se.solrike.sonarlint") version "2.2.0"
@@ -57,14 +57,14 @@ repositories {
     mavenCentral()
 }
 
-val springdocVersion = "2.8.6"
-val modelMapperVersion = "3.2.2"
+val springdocVersion = "2.8.8"
+val modelMapperVersion = "3.2.3"
 val modelMapperRecordVersion = "1.0.0"
-val apacheHttpClientVersion = "5.4.4"
+val apacheHttpClientVersion = "5.5"
 val apacheHttpCoreVersion = "5.3.4"
 val randomUserAgentGeneratorVersion = "1.3"
-val jsoupVersion = "1.19.1"
-val seleniumVersion = "4.31.0"
+val jsoupVersion = "1.20.1"
+val seleniumVersion = "4.33.0"
 val dataFakerVersion = "2.4.3"
 val junitJupiterParamsVersion = "5.12.2"
 
