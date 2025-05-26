@@ -35,6 +35,7 @@ class MediaExpertScraperWorker implements ScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.MEDIA_EXPERT;
     private static final String BASE_URL = "https://www.mediaexpert.pl";
+    private static final int LIMIT = 50;
 
     private final ObjectMapper objectMapper;
     private final ObjectFactory<WebDriver> webDriverFactory;
@@ -62,7 +63,7 @@ class MediaExpertScraperWorker implements ScraperWorker {
                 var uri = UriComponentsBuilder.fromUriString(BASE_URL)
                         .path(categoryLocator)
                         .queryParam("page", currentPage)
-                        .queryParam("limit", 50)
+                        .queryParam("limit", LIMIT)
                         .build()
                         .toUri();
                 log.debug("scraping page {} - category {}", currentPage, category);
@@ -113,6 +114,7 @@ class MediaExpertScraperWorker implements ScraperWorker {
     private int getNumberOfPages(WebDriver webDriver, String categoryLocator) {
         var uri = UriComponentsBuilder.fromUriString(BASE_URL)
                 .path(categoryLocator)
+                .queryParam("limit", LIMIT)
                 .build()
                 .toUri();
 
