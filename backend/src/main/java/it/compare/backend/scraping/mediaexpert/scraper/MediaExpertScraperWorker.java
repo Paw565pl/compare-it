@@ -19,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.By.ByClassName;
+import org.openqa.selenium.By.ByCssSelector;
+import org.openqa.selenium.By.ByXPath;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -120,21 +122,19 @@ class MediaExpertScraperWorker implements ScraperWorker {
 
         try {
             webDriver.get(uri.toString());
-            new WebDriverWait(webDriver, Duration.ofSeconds(30))
-                    .until(ExpectedConditions.visibilityOfElementLocated(new ByClassName("lastpage-button")));
+            var lastPageElement = new WebDriverWait(webDriver, Duration.ofSeconds(20))
+                    .until(ExpectedConditions.visibilityOfElementLocated(new ByCssSelector(".pagination .from")));
 
-            var pageSource = webDriver.getPageSource();
-            if (pageSource == null) return 1;
-
-            var document = Jsoup.parse(pageSource);
-
-            var lastPageButton = Optional.ofNullable(document.selectFirst(".lastpage-button"));
-            return lastPageButton
-                    .map(element -> Integer.parseInt(element.text().trim()))
+            return Optional.of(lastPageElement.getText())
+                    .map(text -> text.trim().replaceAll("\\D", ""))
+                    .filter(text -> !text.isBlank())
+                    .map(Integer::parseInt)
                     .orElse(1);
+        } catch (TimeoutException e) {
+            log.warn("timeout while waiting for total pages element to be visible at uri {}", uri);
         } catch (Exception e) {
             log.error(
-                    "unexpected error of class {} has occurred while getting number of pages from uri {} - {}",
+                    "unexpected error of {} has occurred while getting number of pages from uri {} - {}",
                     e.getClass(),
                     uri,
                     e.getMessage());
@@ -157,14 +157,22 @@ class MediaExpertScraperWorker implements ScraperWorker {
 
             var document = Jsoup.parse(pageSource);
 
-            var sparkId = document.selectXpath("//*[@id=\"state\"]")
-                    .dataNodes()
-                    .getFirst()
-                    .toString()
-                    .trim();
+            var sparkScriptXpath = "//*[@id=\"state\"]";
+            new WebDriverWait(webDriver, Duration.ofSeconds(5))
+                    .until(ExpectedConditions.presenceOfElementLocated(new ByXPath(sparkScriptXpath)));
+
+            var sparkScriptElement = document.selectXpath(sparkScriptXpath);
+            var sparkId = !sparkScriptElement.dataNodes().isEmpty()
+                    ? sparkScriptElement.dataNodes().getFirst().getWholeData().trim()
+                    : null;
+            if (sparkId == null || sparkId.isBlank()) {
+                log.debug("spark id is null or empty for product uri: {}", uri);
+                return null;
+            }
+
             var ean = getEan(webDriver, sparkId);
-            if (ean == null) {
-                log.debug("ean is null for product url: {}", uri);
+            if (ean == null || ean.isBlank()) {
+                log.debug("ean is null or empty for product uri: {}", uri);
                 return null;
             }
 
@@ -207,15 +215,21 @@ class MediaExpertScraperWorker implements ScraperWorker {
             ScrapingUtil.sleep();
 
             return product;
+        } catch (TimeoutException e) {
+            log.warn(
+                    "timeout while waiting for spark script element to be present in category {} at uri {}",
+                    category,
+                    uri);
         } catch (Exception e) {
             log.error(
-                    "unexpected error of class {} has occurred while scraping single product from category {} from uri {} - {}",
+                    "unexpected error of {} has occurred while scraping single product from category {} from uri {} - {}",
                     e.getClass(),
                     category,
                     uri,
                     e.getMessage());
-            return null;
         }
+
+        return null;
     }
 
     private String getEan(WebDriver webDriver, String sparkId) {
