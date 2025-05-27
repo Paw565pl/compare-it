@@ -43,10 +43,9 @@ export const FiltersBar = () => {
       ({
         minPrice: productFilters.minPrice?.toString() ?? "",
         maxPrice: productFilters.maxPrice?.toString() ?? "",
-        isAvailable:
-          productFilters.isAvailable !== null
-            ? !productFilters.isAvailable
-            : true,
+        isAvailable: productFilters.isAvailable
+          ? !productFilters.isAvailable
+          : true,
         shop: productFilters.shop?.split(",") ?? shopList ?? [],
       }) as const,
     [shopList, productFilters],
@@ -67,7 +66,7 @@ export const FiltersBar = () => {
       shop.length === 0 || shop.length === shopList?.length
         ? null
         : shop.join(",");
-    const parsedIsAvailable = isAvailable === null ? null : !isAvailable;
+    const parsedIsAvailable = isAvailable ? null : true;
 
     const parsedFilters: Partial<typeof productFilters> = {
       minPrice: Number(minPrice) || null,
