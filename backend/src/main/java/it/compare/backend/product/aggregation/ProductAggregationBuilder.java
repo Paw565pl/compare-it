@@ -383,6 +383,7 @@ public class ProductAggregationBuilder {
     }
 
     private TextCriteria createTextCriteria() {
-        return TextCriteria.forDefaultLanguage().matching(searchName).caseSensitive(false);
+        var phraseSearchName = "\"" + searchName + "\"";
+        return TextCriteria.forDefaultLanguage().matching(phraseSearchName).caseSensitive(false);
     }
 }
