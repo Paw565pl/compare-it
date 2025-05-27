@@ -110,7 +110,7 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                     e.getMessage());
         } catch (Exception e) {
             log.error(
-                    "unexpected error of class {} has occurred while scraping category {} on page start index {} - {}",
+                    "unexpected error of {} has occurred while scraping category {} on page start index {} - {}",
                     e.getClass(),
                     category,
                     currentStartFrom,

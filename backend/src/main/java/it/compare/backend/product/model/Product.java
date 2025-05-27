@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -25,7 +26,7 @@ public class Product {
     @Field("ean")
     @NonNull private String ean;
 
-    @Indexed
+    @TextIndexed
     @Field("name")
     @NonNull private String name;
 

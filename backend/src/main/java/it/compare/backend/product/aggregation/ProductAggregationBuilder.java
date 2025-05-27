@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 
 @Getter
 @Builder
@@ -133,6 +134,8 @@ public class ProductAggregationBuilder {
      */
     private List<AggregationOperation> createInitialAggregationOperations() {
         var operations = new ArrayList<AggregationOperation>();
+
+        if (searchName != null && !searchName.isEmpty()) operations.add(Aggregation.match(createTextCriteria()));
         operations.add(Aggregation.match(createBaseCriteria()));
 
         operations.add(context -> new Document(
@@ -328,13 +331,8 @@ public class ProductAggregationBuilder {
 
         var priceCriteria = Criteria.where(PRICE);
 
-        if (minPriceValue != null) {
-            priceCriteria = priceCriteria.gte(minPriceValue);
-        }
-
-        if (maxPriceValue != null) {
-            priceCriteria = priceCriteria.lte(maxPriceValue);
-        }
+        if (minPriceValue != null) priceCriteria = priceCriteria.gte(minPriceValue);
+        if (maxPriceValue != null) priceCriteria = priceCriteria.lte(maxPriceValue);
 
         return Aggregation.match(priceCriteria);
     }
@@ -351,17 +349,16 @@ public class ProductAggregationBuilder {
                 else sortDoc.append(field, direction);
             }
 
+            if (searchName != null && !searchName.isEmpty())
+                sortDoc.append("score", new Document("$meta", "textScore"));
+
             sortDoc.append("_id", 1);
             return new Document("$sort", sortDoc);
         };
     }
 
-    public Criteria createBaseCriteria() {
+    private Criteria createBaseCriteria() {
         var criteria = new Criteria();
-
-        if (searchName != null && !searchName.isEmpty()) {
-            criteria.and(NAME).regex(searchName, "i");
-        }
 
         if (searchCategory != null && !searchCategory.isEmpty()) {
             var matchingCategory = Arrays.stream(Category.values())
@@ -378,13 +375,15 @@ public class ProductAggregationBuilder {
                             .anyMatch(singleShop -> s.getHumanReadableName().equalsIgnoreCase(singleShop)))
                     .toList();
 
-            if (!matchingShops.isEmpty()) {
-                criteria.and(OFFERS_SHOP_FIELD).in(matchingShops);
-            } else {
-                criteria.and(OFFERS_SHOP_FIELD).in(List.of("NON_EXISTENT_SHOP"));
-            }
+            if (!matchingShops.isEmpty()) criteria.and(OFFERS_SHOP_FIELD).in(matchingShops);
+            else criteria.and(OFFERS_SHOP_FIELD).in(List.of("NON_EXISTENT_SHOP"));
         }
 
         return criteria;
+    }
+
+    private TextCriteria createTextCriteria() {
+        var phraseSearchName = "\"" + searchName + "\"";
+        return TextCriteria.forDefaultLanguage().matching(phraseSearchName).caseSensitive(false);
     }
 }

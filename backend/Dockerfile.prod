@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM bellsoft/liberica-openjdk-debian:21 AS builder
 
 WORKDIR /app
 
@@ -11,19 +11,36 @@ COPY . .
 
 RUN ./gradlew --no-daemon clean bootJar
 
-FROM eclipse-temurin:21-jre-alpine
+FROM bellsoft/liberica-openjdk-debian:21
 
+ARG CHROME_VERSION=136.0.7103.113
+
+ENV CHROME_VERSION=$CHROME_VERSION
 ENV SPRING_PROFILES_ACTIVE=prod
 
 WORKDIR /app
 
-RUN apk update && apk --no-cache add chromium=135.0.7049.95-r0 chromium-chromedriver=135.0.7049.95-r0 curl
+ADD https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip chrome.zip
+ADD https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chromedriver-linux64.zip chromedriver.zip
 
-RUN addgroup -S spring && adduser -S spring -G spring
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends unzip && \
+    unzip chrome.zip -d /opt && \
+    sh -c 'while read pkg; do apt-get satisfy -y --no-install-recommends "${pkg}"; done < /opt/chrome-linux64/deb.deps;' && \
+    ln -s /opt/chrome-linux64/chrome /usr/bin/chrome && \
+    unzip -j chromedriver.zip chromedriver-linux64/chromedriver -d /usr/bin && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* chrome.zip chromedriver.zip
+
+RUN addgroup --system spring && \
+    adduser --system --disabled-password --ingroup spring spring
+
 USER spring:spring
 
-ADD --chown=spring https://clients2.google.com/service/update2/crx?response=redirect&prodversion=135.0.7049.95-r0&acceptformat=crx2,crx3&x=id%3Dddkjiahejlhfcafbddmgiahcphecmpfh%26uc ublockOriginLite.crx
+ADD --chown=spring https://clients2.google.com/service/update2/crx?response=redirect&prodversion=${CHROME_VERSION}&acceptformat=crx2,crx3&x=id%3Dddkjiahejlhfcafbddmgiahcphecmpfh%26uc ublockOriginLite.crx
 
 COPY --from=builder --chown=spring /app/build/libs/*.jar /app/app.jar
+
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
