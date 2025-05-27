@@ -25,7 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MoreleScraperWorker implements ScraperWorker {
+class MoreleScraperWorker implements ScraperWorker {
 
     private static final Shop CURRENT_SHOP = Shop.MORELE_NET;
     private static final String BASE_URL = "https://www.morele.net";
@@ -165,7 +165,7 @@ public class MoreleScraperWorker implements ScraperWorker {
             log.warn("timeout occurred while scraping category {} from uri {} - {}", category, uri, e.getMessage());
         } catch (Exception e) {
             log.error(
-                    "unexpected error of class {} has occurred while scraping category {} from uri {} - {}",
+                    "unexpected error of {} has occurred while scraping category {} from uri {} - {}",
                     e.getClass(),
                     category,
                     uri,

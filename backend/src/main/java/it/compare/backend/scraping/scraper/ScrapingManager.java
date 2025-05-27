@@ -58,7 +58,7 @@ public class ScrapingManager {
                     .thenRun(() -> log.info("finished scraping category {} for shop {}", category, shop))
                     .exceptionally(e -> {
                         log.error(
-                                "error of class {} while scraping category {} for shop {} - {}",
+                                "error of {} while scraping category {} for shop {} - {}",
                                 e.getClass(),
                                 category,
                                 shop,
