@@ -48,3 +48,8 @@ Dockerfile.*
 bruno/
 
 performance_tests/
+
+# git
+.git
+.gitattributes
+.gitignore
