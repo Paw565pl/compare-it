@@ -1,10 +1,11 @@
 package it.compare.backend.scraping.service;
 
 import it.compare.backend.pricealert.service.PriceAlertService;
+import it.compare.backend.product.model.ComputedState;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -22,42 +23,51 @@ public class ScrapingService {
 
     @Transactional
     public void createProductsOrAddPriceStamp(List<Product> scrapedProducts) {
-        var productsToSave = new ArrayList<Product>();
-
         var eanList = scrapedProducts.stream().map(Product::getEan).toList();
-        var existingProductsMap = productRepository.findAllByEanIn(eanList).stream()
+        var existingProductsEanMap = productRepository.findAllByEanIn(eanList).stream()
                 .collect(Collectors.toMap(Product::getEan, Function.identity()));
 
-        scrapedProducts.forEach(scrapedProduct -> {
-            var existingProduct = existingProductsMap.get(scrapedProduct.getEan());
+        var products = scrapedProducts.stream()
+                .map(scrapedProduct -> {
+                    var existingProduct = existingProductsEanMap.get(scrapedProduct.getEan());
 
-            // new product - immediately save it
-            if (existingProduct == null) {
-                productsToSave.add(scrapedProduct);
-                return;
-            }
+                    // new product - immediately save it
+                    if (existingProduct == null) {
+                        var computedState = ComputedState.fromProduct(scrapedProduct);
+                        scrapedProduct.setComputedState(computedState);
 
-            if (scrapedProduct.getOffers().isEmpty()) return;
-            var newOffer = scrapedProduct.getOffers().getFirst();
+                        return scrapedProduct;
+                    }
 
-            if (newOffer.getPriceHistory().isEmpty()) return;
-            var newPriceStamp = newOffer.getPriceHistory().getFirst();
+                    if (scrapedProduct.getOffers().isEmpty()) return null;
+                    var newOffer = scrapedProduct.getOffers().getFirst();
 
-            var offers = existingProduct.getOffers();
+                    if (newOffer.getPriceHistory().isEmpty()) return null;
+                    var newPriceStamp = newOffer.getPriceHistory().getFirst();
 
-            // check if there is an existing offer from the scraped shop
-            var offerFromExistingShop = offers.stream()
-                    .filter(o -> o.getShop().equals(newOffer.getShop()))
-                    .findFirst();
+                    var offers = existingProduct.getOffers();
 
-            offerFromExistingShop.ifPresentOrElse(
-                    offer -> offer.getPriceHistory().add(newPriceStamp), () -> offers.add(newOffer));
-            productsToSave.add(existingProduct);
-        });
+                    // check if there is an existing offer from the scraped shop
+                    var offerFromExistingShop = offers.stream()
+                            .filter(o -> o.getShop().equals(newOffer.getShop()))
+                            .findFirst();
 
-        var savedProducts = productRepository.saveAll(productsToSave);
-        log.info("saved {} products", savedProducts.size());
+                    offerFromExistingShop.ifPresentOrElse(
+                            offer -> offer.getPriceHistory().add(newPriceStamp), () -> offers.add(newOffer));
 
-        if (!savedProducts.isEmpty()) priceAlertService.checkPriceAlerts(savedProducts);
+                    var computedState = ComputedState.fromProduct(existingProduct);
+                    existingProduct.setComputedState(computedState);
+
+                    return existingProduct;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (!products.isEmpty()) {
+            productRepository.saveAll(products);
+            priceAlertService.checkPriceAlerts(products);
+        }
+
+        log.info("saved {} products", products.size());
     }
 }
