@@ -139,7 +139,7 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                 .map(outletDetails -> Condition.OUTLET)
                 .orElse(Condition.NEW);
 
-        var priceStamp = new PriceStamp(price, "PLN", condition);
+        var priceStamp = new PriceStamp(price, Currency.PLN, condition);
         priceStamp.setPromoCode(promoCode);
 
         var offer = new Offer(CURRENT_SHOP, getProductUrl(productResponse.identifiers()));

@@ -115,7 +115,7 @@ class MoreleScraperWorker implements ScraperWorker {
         var images = extractImages(productDocument);
 
         var condition = extractCondition(productDocument);
-        var priceStamp = new PriceStamp(price, "PLN", condition);
+        var priceStamp = new PriceStamp(price, Currency.PLN, condition);
 
         var promoCodeElement = extractPromoCode(productDocument);
         promoCodeElement.ifPresent(priceStamp::setPromoCode);
