@@ -1,23 +1,20 @@
 package it.compare.backend.rating.mapper;
 
-import it.compare.backend.rating.dto.RatingDto;
+import it.compare.backend.rating.dto.RatingRequestDto;
+import it.compare.backend.rating.dto.RatingResponseDto;
 import it.compare.backend.rating.model.Rating;
-import it.compare.backend.rating.response.RatingResponse;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 
-@Component
-@RequiredArgsConstructor
-public class RatingMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface RatingMapper {
 
-    private final ModelMapper modelMapper;
+    RatingResponseDto toResponseDto(Rating rating);
 
-    public RatingResponse toResponse(Rating rating) {
-        return modelMapper.map(rating, RatingResponse.class);
-    }
-
-    public Rating toEntity(RatingDto ratingDto) {
-        return modelMapper.map(ratingDto, Rating.class);
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "author", ignore = true)
+    @Mapping(target = "comment", ignore = true)
+    Rating toEntity(RatingRequestDto ratingRequestDto);
 }

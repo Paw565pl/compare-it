@@ -58,8 +58,7 @@ repositories {
 }
 
 val springdocVersion = "2.8.8"
-val modelMapperVersion = "3.2.3"
-val modelMapperRecordVersion = "1.0.0"
+val mapstructVersion = "1.6.3"
 val apacheHttpClientVersion = "5.5"
 val apacheHttpCoreVersion = "5.3.4"
 val randomUserAgentGeneratorVersion = "1.3"
@@ -78,8 +77,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("org.modelmapper:modelmapper:${modelMapperVersion}")
-    implementation("org.modelmapper:modelmapper-module-record:${modelMapperRecordVersion}")
+    implementation("org.mapstruct:mapstruct:${mapstructVersion}")
     implementation("org.apache.httpcomponents.client5:httpclient5:${apacheHttpClientVersion}")
     implementation("org.apache.httpcomponents.core5:httpcore5:${apacheHttpCoreVersion}")
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:${apacheHttpCoreVersion}")
@@ -90,6 +88,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
