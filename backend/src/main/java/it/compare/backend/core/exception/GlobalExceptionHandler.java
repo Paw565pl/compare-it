@@ -1,4 +1,4 @@
-package it.compare.backend.core.exceptionhandler;
+package it.compare.backend.core.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         var errors = new HashMap<String, List<String>>();
         e.getFieldErrors().forEach(fieldError -> {
             var fieldName = fieldError.getField();
@@ -25,21 +25,18 @@ public class GlobalExceptionHandler {
 
             if (errorMessage == null) return;
 
-            if (errors.containsKey(fieldName)) {
-                errors.get(fieldName).add(errorMessage);
-            } else {
-                errors.put(fieldName, new ArrayList<>(List.of(errorMessage)));
-            }
+            if (errors.containsKey(fieldName)) errors.get(fieldName).add(errorMessage);
+            else errors.put(fieldName, new ArrayList<>(List.of(errorMessage)));
         });
 
         var status = HttpStatus.BAD_REQUEST;
-        var response = new ErrorResponse(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
+        var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
 
         return ResponseEntity.status(status).body(response);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+    public ResponseEntity<ErrorResponseDto> handleConstraintViolationException(ConstraintViolationException e) {
         var errors = new HashMap<String, List<String>>();
 
         e.getConstraintViolations().forEach(constraintViolation -> {
@@ -53,40 +50,38 @@ public class GlobalExceptionHandler {
             var errorMessage = constraintViolation.getMessage();
             if (errorMessage == null) return;
 
-            if (errors.containsKey(fieldName)) {
-                errors.get(fieldName).add(errorMessage);
-            } else {
-                errors.put(fieldName, new ArrayList<>(List.of(errorMessage)));
-            }
+            if (errors.containsKey(fieldName)) errors.get(fieldName).add(errorMessage);
+            else errors.put(fieldName, new ArrayList<>(List.of(errorMessage)));
         });
 
         var status = HttpStatus.BAD_REQUEST;
-        var response = new ErrorResponse(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
+        var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
 
         return ResponseEntity.status(status).body(response);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+    public ResponseEntity<ErrorResponseDto> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException ignored) {
         var status = HttpStatus.BAD_REQUEST;
-        var response = new ErrorResponse(status.value(), status.getReasonPhrase(), "Required request body is missing.");
+        var response =
+                new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Required request body is missing.");
 
         return ResponseEntity.status(status).body(response);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(DataIntegrityViolationException e) {
+    public ResponseEntity<ErrorResponseDto> handleIllegalArgumentException(DataIntegrityViolationException e) {
         var status = HttpStatus.CONFLICT;
-        var response = new ErrorResponse(status.value(), status.getReasonPhrase(), e.getMessage());
+        var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), e.getMessage());
 
         return ResponseEntity.status(status).body(response);
     }
 
     @ExceptionHandler(PropertyReferenceException.class)
-    public ResponseEntity<ErrorResponse> handlePropertyReferenceException(PropertyReferenceException e) {
+    public ResponseEntity<ErrorResponseDto> handlePropertyReferenceException(PropertyReferenceException e) {
         var status = HttpStatus.BAD_REQUEST;
-        var response = new ErrorResponse(status.value(), status.getReasonPhrase(), e.getMessage());
+        var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), e.getMessage());
 
         return ResponseEntity.status(status).body(response);
     }

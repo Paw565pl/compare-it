@@ -1,35 +1,37 @@
-package it.compare.backend.core.exceptionhandler;
+package it.compare.backend.core.exception;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @JsonInclude(NON_NULL)
-public class ErrorResponse {
+public class ErrorResponseDto {
 
-    private LocalDateTime timestamp;
+    private Instant timestamp;
     private Integer status;
     private String error;
     private String message;
     private Map<String, List<String>> errors;
 
-    public ErrorResponse(Integer status, String error, String message, Map<String, List<String>> errors) {
-        this.timestamp = LocalDateTime.now();
+    public ErrorResponseDto(Integer status, String error, String message, Map<String, List<String>> errors) {
+        this.timestamp = Instant.now();
         this.status = status;
         this.error = error;
         this.message = message;
         this.errors = errors;
     }
 
-    public ErrorResponse(Integer status, String error, String message) {
-        this.timestamp = LocalDateTime.now();
+    public ErrorResponseDto(Integer status, String error, String message) {
+        this.timestamp = Instant.now();
         this.status = status;
         this.error = error;
         this.message = message;
