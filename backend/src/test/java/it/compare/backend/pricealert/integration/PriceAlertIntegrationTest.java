@@ -9,12 +9,9 @@ import it.compare.backend.auth.model.User;
 import it.compare.backend.pricealert.model.PriceAlert;
 import it.compare.backend.pricealert.service.EmailService;
 import it.compare.backend.pricealert.service.PriceAlertService;
-import it.compare.backend.product.model.Condition;
-import it.compare.backend.product.model.Offer;
-import it.compare.backend.product.model.PriceStamp;
-import it.compare.backend.product.model.Shop;
+import it.compare.backend.product.model.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,8 +38,8 @@ class PriceAlertIntegrationTest extends PriceAlertTest {
         var product = productTestDataFactory.createOne();
 
         var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
-        var lowPrice = new PriceStamp(BigDecimal.valueOf(90), "PLN", Condition.NEW);
-        lowPrice.setTimestamp(LocalDateTime.now());
+        var lowPrice = new PriceStamp(BigDecimal.valueOf(90), Currency.PLN, Condition.NEW);
+        lowPrice.setTimestamp(Instant.now());
         offer.getPriceHistory().add(lowPrice);
         product.getOffers().add(offer);
 
@@ -50,7 +47,7 @@ class PriceAlertIntegrationTest extends PriceAlertTest {
         alert.setUser(testUser);
         alert.setIsOutletAllowed(true);
         alert.setIsActive(true);
-        alert.setCreatedAt(LocalDateTime.now());
+        alert.setCreatedAt(Instant.now());
 
         priceAlertRepository.save(alert);
 

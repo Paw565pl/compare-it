@@ -11,7 +11,8 @@ import it.compare.backend.product.model.*;
 import it.compare.backend.product.repository.ProductRepository;
 import it.compare.backend.scraping.service.ScrapingService;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,11 +59,13 @@ class ScrapingServiceTest {
 
     @BeforeEach
     void setUp() {
-        existingPriceStamp1 = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), "PLN", Condition.NEW);
-        existingPriceStamp1.setTimestamp(LocalDateTime.now().minusDays(2));
+        existingPriceStamp1 =
+                new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
+        existingPriceStamp1.setTimestamp(Instant.now().minus(Duration.ofDays(2)));
 
-        existingPriceStamp2 = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), "PLN", Condition.NEW);
-        existingPriceStamp2.setTimestamp(LocalDateTime.now().minusDays(3));
+        existingPriceStamp2 =
+                new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
+        existingPriceStamp2.setTimestamp(Instant.now().minus(Duration.ofDays(3)));
 
         existingOfferFromShopA = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
         existingOfferFromShopA.getPriceHistory().add(existingPriceStamp1);
@@ -73,7 +76,7 @@ class ScrapingServiceTest {
         existingProduct = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSOR);
         existingProduct.getOffers().addAll(List.of(existingOfferFromShopA, existingOfferFromShopB));
 
-        newPriceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), "PLN", Condition.NEW);
+        newPriceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
 
         newOfferFromShopA = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
         newOfferFromShopA.getPriceHistory().add(newPriceStamp);

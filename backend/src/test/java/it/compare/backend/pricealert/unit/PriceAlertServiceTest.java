@@ -16,7 +16,7 @@ import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.*;
 import it.compare.backend.user.datafactory.UserTestDataFactory;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,8 +60,8 @@ class PriceAlertServiceTest {
         var product = productFactory.generate();
 
         product.getOffers().clear();
-        var lowPriceStamp = new PriceStamp(BigDecimal.valueOf(90), "PLN", Condition.NEW);
-        lowPriceStamp.setTimestamp(LocalDateTime.now());
+        var lowPriceStamp = new PriceStamp(BigDecimal.valueOf(90), Currency.PLN, Condition.NEW);
+        lowPriceStamp.setTimestamp(Instant.now());
         var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
         offer.getPriceHistory().add(lowPriceStamp);
         product.getOffers().add(offer);
@@ -70,7 +70,7 @@ class PriceAlertServiceTest {
         alert.setUser(testUser);
         alert.setIsOutletAllowed(true);
         alert.setIsActive(true);
-        alert.setCreatedAt(LocalDateTime.now());
+        alert.setCreatedAt(Instant.now());
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
@@ -99,8 +99,8 @@ class PriceAlertServiceTest {
         var product = productFactory.generate();
 
         product.getOffers().clear();
-        var highPriceStamp = new PriceStamp(BigDecimal.valueOf(150), "PLN", Condition.NEW);
-        highPriceStamp.setTimestamp(LocalDateTime.now());
+        var highPriceStamp = new PriceStamp(BigDecimal.valueOf(150), Currency.PLN, Condition.NEW);
+        highPriceStamp.setTimestamp(Instant.now());
         var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
         offer.getPriceHistory().add(highPriceStamp);
         product.getOffers().add(offer);
@@ -126,7 +126,7 @@ class PriceAlertServiceTest {
         alert.setUser(testUser);
         alert.setIsOutletAllowed(false);
         alert.setIsActive(true);
-        alert.setCreatedAt(LocalDateTime.now());
+        alert.setCreatedAt(Instant.now());
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
@@ -154,14 +154,14 @@ class PriceAlertServiceTest {
         var product = productFactory.generate();
         product.getOffers().clear();
 
-        var outletPriceStamp = new PriceStamp(outletPrice, "PLN", Condition.OUTLET);
-        outletPriceStamp.setTimestamp(LocalDateTime.now());
+        var outletPriceStamp = new PriceStamp(outletPrice, Currency.PLN, Condition.OUTLET);
+        outletPriceStamp.setTimestamp(Instant.now());
         var outletOffer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/outlet");
         outletOffer.getPriceHistory().add(outletPriceStamp);
         product.getOffers().add(outletOffer);
 
-        var newPriceStamp = new PriceStamp(newPrice, "PLN", Condition.NEW);
-        newPriceStamp.setTimestamp(LocalDateTime.now());
+        var newPriceStamp = new PriceStamp(newPrice, Currency.PLN, Condition.NEW);
+        newPriceStamp.setTimestamp(Instant.now());
         var newOffer = new Offer(Shop.MEDIA_EXPERT, "https://example.com/new");
         newOffer.getPriceHistory().add(newPriceStamp);
         product.getOffers().add(newOffer);

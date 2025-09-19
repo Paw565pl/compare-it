@@ -5,7 +5,7 @@ import it.compare.backend.core.datafactory.TestDataFactory;
 import it.compare.backend.product.model.*;
 import it.compare.backend.product.repository.ProductRepository;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import net.datafaker.Faker;
@@ -27,8 +27,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
 
     @Override
     public Product generate() {
-        var priceStamp = new PriceStamp(
-                BigDecimal.valueOf(faker.number().positive()), faker.money().currency(), Condition.NEW);
+        var priceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
         var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
         offer.getPriceHistory().add(priceStamp);
 
@@ -66,11 +65,11 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         productRepository.save(product);
     }
 
-    public void createProductWithPriceStamp(BigDecimal price, String currency, Condition condition) {
+    public void createProductWithPriceStamp(BigDecimal price, Currency currency, Condition condition) {
         var product = generate();
 
         var customPriceStamp = new PriceStamp(price, currency, condition);
-        customPriceStamp.setTimestamp(LocalDateTime.now());
+        customPriceStamp.setTimestamp(Instant.now());
         product.getOffers().clear();
 
         var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
@@ -85,7 +84,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         product.getOffers().clear();
         var offer = new Offer(shop, faker.internet().url());
 
-        var priceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), "PLN", Condition.NEW);
+        var priceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
         offer.getPriceHistory().add(priceStamp);
 
         product.getOffers().add(offer);
@@ -98,14 +97,14 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         productRepository.save(product);
     }
 
-    public record OfferPriceStamp(Shop shop, BigDecimal price, LocalDateTime timestamp) {}
+    public record OfferPriceStamp(Shop shop, BigDecimal price, Instant timestamp) {}
 
     public Product createProductWithOffers(List<OfferPriceStamp> offerPriceStamps) {
         var product = generate();
         product.getOffers().clear();
 
         offerPriceStamps.forEach(offerPriceStamp -> {
-            var priceStamp = new PriceStamp(offerPriceStamp.price(), "PLN", Condition.NEW);
+            var priceStamp = new PriceStamp(offerPriceStamp.price(), Currency.PLN, Condition.NEW);
             priceStamp.setTimestamp(offerPriceStamp.timestamp());
 
             var offer = product.getOffers().stream()

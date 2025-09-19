@@ -8,7 +8,9 @@ import static org.hamcrest.Matchers.hasSize;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Stream;
 import org.bson.types.ObjectId;
@@ -43,12 +45,12 @@ class ProductDetailsTest extends ProductTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(product.getId()))
                 .body("name", equalTo(product.getName()))
-                .body("category", equalTo(product.getCategory().getHumanReadableName()))
+                .body("category", equalTo(product.getCategory().name()))
                 .body("offers", hasSize(1));
 
-        var now = LocalDateTime.now();
-        var twoDaysAgo = LocalDateTime.now().minusDays(2);
-        var fiveDaysAgo = LocalDateTime.now().minusDays(5);
+        var now = Instant.now();
+        var twoDaysAgo = Instant.now().minus(Duration.ofDays(2));
+        var fiveDaysAgo = Instant.now().minus(Duration.ofDays(5));
 
         var productWithMultipleOffers = productTestDataFactory.createProductWithOffers(List.of(
                 new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), now),
@@ -94,13 +96,13 @@ class ProductDetailsTest extends ProductTest {
     void shouldReturnOffersFilteredByPriceStampRangeDays(
             int rangeDays, int mediaExpertHistorySize, int rtvEuroAgdHistorySize, int moreleNetHistorySize) {
 
-        var now = LocalDateTime.now();
-        var twoDaysAgo = LocalDateTime.now().minusDays(2);
-        var fiveDaysAgo = LocalDateTime.now().minusDays(5);
-        var yearAgo = LocalDateTime.now().minusYears(1);
-        var weekAgo = LocalDateTime.now().minusWeeks(1);
-        var eightyNineDaysAgo = LocalDateTime.now().minusDays(89);
-        var ninetyOneDaysAgo = LocalDateTime.now().minusDays(91);
+        var now = Instant.now();
+        var twoDaysAgo = Instant.now().minus(Duration.ofDays(2));
+        var fiveDaysAgo = Instant.now().minus(Duration.ofDays(5));
+        var yearAgo = Instant.now().minus(Duration.of(1, ChronoUnit.YEARS));
+        var weekAgo = Instant.now().minus(Duration.ofDays(7));
+        var eightyNineDaysAgo = Instant.now().minus(Duration.ofDays(89));
+        var ninetyOneDaysAgo = Instant.now().minus(Duration.ofDays(91));
 
         var product = productTestDataFactory.createProductWithOffers(List.of(
                 new ProductTestDataFactory.OfferPriceStamp(Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), now),
@@ -146,9 +148,9 @@ class ProductDetailsTest extends ProductTest {
     }
 
     static Stream<Arguments> sortOffersByLowestPriceTestCases() {
-        var now = LocalDateTime.now();
-        var twoDaysAgo = LocalDateTime.now().minusDays(2);
-        var fiveDaysAgo = LocalDateTime.now().minusDays(5);
+        var now = Instant.now();
+        var twoDaysAgo = Instant.now().minus(Duration.ofDays(2));
+        var fiveDaysAgo = Instant.now().minus(Duration.ofDays(5));
         return Stream.of(
                 Arguments.of(
                         List.of(

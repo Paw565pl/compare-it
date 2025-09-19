@@ -7,7 +7,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import it.compare.backend.core.mock.AuthMock;
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,7 +78,7 @@ class FavoriteProductListTest extends FavoriteProductTest {
         var favoriteProducts = favoriteProductTestDataFactory.createMany(3, user);
 
         favoriteProducts.forEach(favoriteProduct -> favoriteProduct.setCreatedAt(
-                LocalDateTime.now().minusDays(favoriteProducts.indexOf(favoriteProduct) + 1)));
+                Instant.now().minus(Duration.ofDays(favoriteProducts.indexOf(favoriteProduct) + 1))));
         favoriteProductRepository.saveAll(favoriteProducts);
 
         var mockToken = AuthMock.getToken(user.getId(), user.getUsername(), user.getEmail(), List.of());

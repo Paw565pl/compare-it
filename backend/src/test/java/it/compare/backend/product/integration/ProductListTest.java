@@ -7,9 +7,11 @@ import static org.hamcrest.Matchers.equalTo;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.Category;
 import it.compare.backend.product.model.Condition;
+import it.compare.backend.product.model.Currency;
 import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -66,11 +68,11 @@ class ProductListTest extends ProductTest {
     @ParameterizedTest
     @CsvSource({"1000, 5000, 5", "1000, 3000, 3", "3000, 4000, 2", "4000, 5000, 2", "5000, 6000, 1", "6000, 7000, 0"})
     void shouldReturnFilteredProductsByPrice(int minPrice, int maxPrice, int expectedCount) {
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(1000), "PLN", Condition.NEW);
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(2000), "PLN", Condition.NEW);
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(3000), "PLN", Condition.NEW);
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(4000), "PLN", Condition.NEW);
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(5000), "PLN", Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(1000), Currency.PLN, Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(2000), Currency.PLN, Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(3000), Currency.PLN, Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(4000), Currency.PLN, Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(5000), Currency.PLN, Condition.NEW);
 
         given().contentType(JSON)
                 .param("minPrice", minPrice)
@@ -130,11 +132,11 @@ class ProductListTest extends ProductTest {
     @Test
     void shouldReturnSortedProductsByLowestCurrentPrice() {
         // One offer
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(1000), "PLN", Condition.NEW);
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(2000), "PLN", Condition.NEW);
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(3000), "PLN", Condition.NEW);
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(4000), "PLN", Condition.NEW);
-        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(5000), "PLN", Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(1000), Currency.PLN, Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(2000), Currency.PLN, Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(3000), Currency.PLN, Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(4000), Currency.PLN, Condition.NEW);
+        productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(5000), Currency.PLN, Condition.NEW);
 
         given().contentType(JSON)
                 .param("sort", "lowestCurrentPrice,asc")
@@ -162,10 +164,10 @@ class ProductListTest extends ProductTest {
 
         productTestDataFactory.clear();
 
-        var today = LocalDateTime.now();
-        var todayEarly = LocalDateTime.now().minusHours(1);
-        var yesterday = LocalDateTime.now().minusDays(1);
-        var fiveDaysAgo = LocalDateTime.now().minusDays(5);
+        var today = Instant.now();
+        var todayEarly = Instant.now().minus(Duration.ofHours(1));
+        var yesterday = Instant.now().minus(Duration.ofDays(1));
+        var fiveDaysAgo = Instant.now().minus(Duration.ofDays(5));
 
         productTestDataFactory.createProductWithOffers(List.of(
                 new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(1000), today),
@@ -204,9 +206,9 @@ class ProductListTest extends ProductTest {
 
     @Test
     void shouldReturnSortedProductsByOffersCount() {
-        var now = LocalDateTime.now();
-        var yesterday = LocalDateTime.now().minusDays(1);
-        var fiveDaysAgo = LocalDateTime.now().minusDays(5);
+        var now = Instant.now();
+        var yesterday = Instant.now().minus(Duration.ofDays(1));
+        var fiveDaysAgo = Instant.now().minus(Duration.ofDays(5));
 
         productTestDataFactory.createProductWithOffers(List.of(
                 new ProductTestDataFactory.OfferPriceStamp(Shop.RTV_EURO_AGD, BigDecimal.valueOf(100), now),
@@ -261,11 +263,11 @@ class ProductListTest extends ProductTest {
     }
 
     static Stream<Arguments> productLowestCurrentPriceAndOffersCountTestCases() {
-        var now = LocalDateTime.now();
-        var twoDaysAgo = LocalDateTime.now().minusDays(2);
-        var todayEarly = LocalDateTime.now().minusHours(1);
-        var yesterday = LocalDateTime.now().minusDays(1);
-        var fiveDaysAgo = LocalDateTime.now().minusDays(5);
+        var now = Instant.now();
+        var twoDaysAgo = Instant.now().minus(Duration.ofDays(2));
+        var todayEarly = Instant.now().minus(Duration.ofHours(1));
+        var yesterday = Instant.now().minus(Duration.ofDays(1));
+        var fiveDaysAgo = Instant.now().minus(Duration.ofDays(5));
 
         return Stream.of(
                 Arguments.of(
@@ -280,7 +282,7 @@ class ProductListTest extends ProductTest {
                                         Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo)),
                         110,
                         Shop.RTV_EURO_AGD.getHumanReadableName(),
-                        "PLN",
+                        Currency.PLN,
                         2),
                 Arguments.of(
                         List.of(
@@ -296,7 +298,7 @@ class ProductListTest extends ProductTest {
                                         Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo)),
                         90,
                         Shop.MORELE_NET.getHumanReadableName(),
-                        "PLN",
+                        Currency.PLN,
                         3),
                 Arguments.of(
                         List.of(
@@ -308,7 +310,7 @@ class ProductListTest extends ProductTest {
                                         Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo)),
                         90,
                         Shop.MORELE_NET.getHumanReadableName(),
-                        "PLN",
+                        Currency.PLN,
                         1),
                 Arguments.of(
                         List.of(
