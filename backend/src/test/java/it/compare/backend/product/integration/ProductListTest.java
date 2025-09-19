@@ -38,10 +38,10 @@ class ProductListTest extends ProductTest {
 
     static Stream<Arguments> categoryTestCases() {
         return Stream.of(
-                Arguments.of(Category.PROCESSORS.getHumanReadableName(), 3),
-                Arguments.of(Category.GRAPHICS_CARDS.getHumanReadableName(), 2),
-                Arguments.of(Category.MOTHERBOARDS.getHumanReadableName(), 1),
-                Arguments.of(Category.RAM_MEMORY.getHumanReadableName(), 0));
+                Arguments.of(Category.PROCESSORS.name(), 3),
+                Arguments.of(Category.GRAPHICS_CARDS.name(), 2),
+                Arguments.of(Category.MOTHERBOARDS.name(), 1),
+                Arguments.of(Category.RAM_MEMORY.name(), 0));
     }
 
     @ParameterizedTest

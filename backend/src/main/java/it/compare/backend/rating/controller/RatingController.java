@@ -4,8 +4,8 @@ import it.compare.backend.auth.annotation.IsAuthenticated;
 import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.comment.validator.ValidCommentId;
 import it.compare.backend.product.validator.ValidProductId;
-import it.compare.backend.rating.dto.RatingDto;
-import it.compare.backend.rating.response.RatingResponse;
+import it.compare.backend.rating.dto.RatingRequestDto;
+import it.compare.backend.rating.dto.RatingResponseDto;
 import it.compare.backend.rating.service.RatingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class RatingController {
     private final RatingService ratingService;
 
     @GetMapping
-    public RatingResponse findByAuthorIdAndCommentId(
+    public RatingResponseDto findByAuthorIdAndCommentId(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
             @ValidCommentId @PathVariable String commentId) {
@@ -34,21 +34,21 @@ public class RatingController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RatingResponse create(
+    public RatingResponseDto create(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
             @ValidCommentId @PathVariable String commentId,
-            @Valid @RequestBody RatingDto ratingDto) {
-        return ratingService.create(OAuthUserDetails.fromJwt(jwt), productId, commentId, ratingDto);
+            @Valid @RequestBody RatingRequestDto ratingRequestDto) {
+        return ratingService.create(OAuthUserDetails.fromJwt(jwt), productId, commentId, ratingRequestDto);
     }
 
     @PutMapping
-    public RatingResponse update(
+    public RatingResponseDto update(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
             @ValidCommentId @PathVariable String commentId,
-            @Valid @RequestBody RatingDto ratingDto) {
-        return ratingService.update(OAuthUserDetails.fromJwt(jwt), productId, commentId, ratingDto);
+            @Valid @RequestBody RatingRequestDto ratingRequestDto) {
+        return ratingService.update(OAuthUserDetails.fromJwt(jwt), productId, commentId, ratingRequestDto);
     }
 
     @DeleteMapping

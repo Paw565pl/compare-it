@@ -5,7 +5,7 @@ import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import it.compare.backend.comment.dto.CommentDto;
+import it.compare.backend.comment.dto.CommentRequestDto;
 import java.util.stream.Stream;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ class CommentCreateTest extends CommentTest {
 
     @Test
     void shouldReturnUnauthorized() {
-        var body = new CommentDto("test comment");
+        var body = new CommentRequestDto("test comment");
 
         given().contentType(JSON)
                 .body(body)
@@ -31,7 +31,7 @@ class CommentCreateTest extends CommentTest {
 
     @Test
     void shouldReturnNotFoundIfProductDoesNotExist() {
-        var body = new CommentDto("test comment");
+        var body = new CommentRequestDto("test comment");
 
         given().contentType(JSON)
                 .auth()
@@ -53,7 +53,7 @@ class CommentCreateTest extends CommentTest {
     @MethodSource("invalidCommentTextProvider")
     void shouldReturnValidationErrorForInvalidCommentLength(String commentText) {
         var product = productTestDataFactory.createOne();
-        var body = new CommentDto(commentText);
+        var body = new CommentRequestDto(commentText);
 
         given().contentType(JSON)
                 .auth()
@@ -71,7 +71,7 @@ class CommentCreateTest extends CommentTest {
     void shouldReturnCreatedAfterCreatingComment() {
         var product = productTestDataFactory.createOne();
         var commentText = "test comment";
-        var body = new CommentDto(commentText);
+        var body = new CommentRequestDto(commentText);
 
         given().contentType(JSON)
                 .auth()

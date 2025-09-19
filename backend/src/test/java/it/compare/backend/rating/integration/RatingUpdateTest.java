@@ -5,7 +5,7 @@ import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import it.compare.backend.rating.dto.RatingDto;
+import it.compare.backend.rating.dto.RatingRequestDto;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ class RatingUpdateTest extends RatingTest {
 
     @Test
     void shouldReturnUnauthorized() {
-        var body = new RatingDto(false);
+        var body = new RatingRequestDto(false);
 
         given().contentType(JSON)
                 .body(body)
@@ -34,7 +34,7 @@ class RatingUpdateTest extends RatingTest {
 
     @Test
     void shouldReturnNotFoundIfProductDoesNotExist() {
-        var body = new RatingDto(false);
+        var body = new RatingRequestDto(false);
 
         given().contentType(JSON)
                 .auth()
@@ -50,7 +50,7 @@ class RatingUpdateTest extends RatingTest {
 
     @Test
     void shouldReturnNotFoundIfCommentDoesNotExist() {
-        var body = new RatingDto(false);
+        var body = new RatingRequestDto(false);
 
         given().contentType(JSON)
                 .auth()
@@ -66,7 +66,7 @@ class RatingUpdateTest extends RatingTest {
 
     @Test
     void shouldReturnBadRequestIfIsPositiveIsNull() {
-        var body = new RatingDto(null);
+        var body = new RatingRequestDto(null);
 
         given().contentType(JSON)
                 .auth()
@@ -83,7 +83,7 @@ class RatingUpdateTest extends RatingTest {
     @Test
     void shouldReturnNotFoundIfRatingDoesNotExist() {
         var newComment = commentTestDataFactory.createCommentForProduct(testProduct);
-        var body = new RatingDto(false);
+        var body = new RatingRequestDto(false);
 
         given().contentType(JSON)
                 .auth()
@@ -99,7 +99,7 @@ class RatingUpdateTest extends RatingTest {
 
     @Test
     void shouldSuccessfullyUpdateRatingFromPositiveToNegative() {
-        var body = new RatingDto(false);
+        var body = new RatingRequestDto(false);
 
         given().contentType(JSON)
                 .auth()
@@ -116,7 +116,7 @@ class RatingUpdateTest extends RatingTest {
 
     @Test
     void shouldSuccessfullyUpdateRatingToSameValue() {
-        var body = new RatingDto(true);
+        var body = new RatingRequestDto(true);
 
         given().contentType(JSON)
                 .auth()

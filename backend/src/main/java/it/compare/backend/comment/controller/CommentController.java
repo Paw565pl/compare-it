@@ -4,8 +4,8 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import it.compare.backend.auth.annotation.IsAuthenticated;
 import it.compare.backend.auth.details.OAuthUserDetails;
-import it.compare.backend.comment.dto.CommentDto;
-import it.compare.backend.comment.response.CommentResponse;
+import it.compare.backend.comment.dto.CommentRequestDto;
+import it.compare.backend.comment.dto.CommentResponseDto;
 import it.compare.backend.comment.service.CommentService;
 import it.compare.backend.comment.validator.ValidCommentId;
 import it.compare.backend.product.validator.ValidProductId;
@@ -30,7 +30,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping
-    public Page<CommentResponse> findAllByProductId(
+    public Page<CommentResponseDto> findAllByProductId(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
             @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
@@ -40,7 +40,7 @@ public class CommentController {
     }
 
     @GetMapping("/{commentId}")
-    public CommentResponse findById(
+    public CommentResponseDto findById(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
             @ValidCommentId @PathVariable String commentId) {
@@ -52,21 +52,21 @@ public class CommentController {
     @IsAuthenticated
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentResponse create(
+    public CommentResponseDto create(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
-            @Valid @RequestBody CommentDto commentDto) {
-        return commentService.create(OAuthUserDetails.fromJwt(jwt), productId, commentDto);
+            @Valid @RequestBody CommentRequestDto commentRequestDto) {
+        return commentService.create(OAuthUserDetails.fromJwt(jwt), productId, commentRequestDto);
     }
 
     @IsAuthenticated
     @PutMapping("/{commentId}")
-    public CommentResponse update(
+    public CommentResponseDto update(
             @AuthenticationPrincipal Jwt jwt,
             @ValidProductId @PathVariable String productId,
             @ValidCommentId @PathVariable String commentId,
-            @Valid @RequestBody CommentDto commentDto) {
-        return commentService.update(OAuthUserDetails.fromJwt(jwt), productId, commentId, commentDto);
+            @Valid @RequestBody CommentRequestDto commentRequestDto) {
+        return commentService.update(OAuthUserDetails.fromJwt(jwt), productId, commentId, commentRequestDto);
     }
 
     @IsAuthenticated

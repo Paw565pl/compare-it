@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
+import it.compare.backend.favoriteproduct.dto.FavoriteProductRequestDto;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,14 +29,14 @@ class FavoriteProductCreateTest extends FavoriteProductTest {
 
     @Test
     void shouldReturnUnauthorized() {
-        var body = new FavoriteProductDto(new ObjectId().toString());
+        var body = new FavoriteProductRequestDto(new ObjectId().toString());
 
         given().contentType(JSON).body(body).when().post().then().statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
     void shouldReturnBadRequestIfProductIdIsNotValidObjectId() {
-        var body = new FavoriteProductDto("1");
+        var body = new FavoriteProductRequestDto("1");
 
         given().contentType(JSON)
                 .auth()
@@ -50,7 +50,7 @@ class FavoriteProductCreateTest extends FavoriteProductTest {
 
     @Test
     void shouldReturnNotFoundIfProductDoesNotExist() {
-        var body = new FavoriteProductDto(new ObjectId().toString());
+        var body = new FavoriteProductRequestDto(new ObjectId().toString());
 
         given().contentType(JSON)
                 .auth()
@@ -65,7 +65,7 @@ class FavoriteProductCreateTest extends FavoriteProductTest {
     @Test
     void shouldCreateFavoriteProduct() {
         var product = productTestDataFactory.createOne();
-        var body = new FavoriteProductDto(product.getId());
+        var body = new FavoriteProductRequestDto(product.getId());
 
         given().contentType(JSON)
                 .auth()

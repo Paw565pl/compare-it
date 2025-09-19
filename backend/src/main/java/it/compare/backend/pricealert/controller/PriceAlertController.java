@@ -4,9 +4,9 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import it.compare.backend.auth.annotation.IsAuthenticated;
 import it.compare.backend.auth.details.OAuthUserDetails;
-import it.compare.backend.pricealert.dto.PriceAlertDto;
-import it.compare.backend.pricealert.dto.PriceAlertFiltersDto;
-import it.compare.backend.pricealert.response.PriceAlertResponse;
+import it.compare.backend.pricealert.dto.PriceAlertFilterDto;
+import it.compare.backend.pricealert.dto.PriceAlertRequestDto;
+import it.compare.backend.pricealert.dto.PriceAlertResponseDto;
 import it.compare.backend.pricealert.service.PriceAlertService;
 import it.compare.backend.pricealert.validator.ValidPriceAlertId;
 import jakarta.validation.Valid;
@@ -30,9 +30,9 @@ public class PriceAlertController {
     private final PriceAlertService priceAlertService;
 
     @GetMapping
-    public Page<PriceAlertResponse> findAllByUser(
+    public Page<PriceAlertResponseDto> findAllByUser(
             @AuthenticationPrincipal Jwt jwt,
-            @Valid PriceAlertFiltersDto filters,
+            @Valid PriceAlertFilterDto filters,
             @PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
         var userDetails = OAuthUserDetails.fromJwt(jwt);
         return priceAlertService.findAllByUser(userDetails, filters, pageable);
@@ -40,8 +40,8 @@ public class PriceAlertController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PriceAlertResponse createPriceAlert(
-            @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PriceAlertDto alertDto) {
+    public PriceAlertResponseDto createPriceAlert(
+            @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PriceAlertRequestDto alertDto) {
         return priceAlertService.createPriceAlert(OAuthUserDetails.fromJwt(jwt), alertDto.productId(), alertDto);
     }
 
@@ -58,10 +58,10 @@ public class PriceAlertController {
     }
 
     @PutMapping("/{alertId}")
-    public PriceAlertResponse updatePriceAlert(
+    public PriceAlertResponseDto updatePriceAlert(
             @AuthenticationPrincipal Jwt jwt,
             @ValidPriceAlertId @PathVariable String alertId,
-            @Valid @RequestBody PriceAlertDto alertDto) {
+            @Valid @RequestBody PriceAlertRequestDto alertDto) {
         return priceAlertService.updatePriceAlert(OAuthUserDetails.fromJwt(jwt), alertId, alertDto);
     }
 }
