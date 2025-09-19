@@ -4,15 +4,14 @@ import it.compare.backend.core.config.FakerConfig;
 import it.compare.backend.core.datafactory.TestDataFactory;
 import it.compare.backend.product.model.*;
 import it.compare.backend.product.repository.ProductRepository;
-import net.datafaker.Faker;
-import org.bson.types.ObjectId;
-import org.springframework.boot.test.context.TestComponent;
-import org.springframework.context.annotation.Import;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import net.datafaker.Faker;
+import org.bson.types.ObjectId;
+import org.springframework.boot.test.context.TestComponent;
+import org.springframework.context.annotation.Import;
 
 @TestComponent
 @Import(FakerConfig.class)
@@ -109,8 +108,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         productRepository.save(product);
     }
 
-    public record OfferPriceStamp(Shop shop, BigDecimal price, Instant timestamp) {
-    }
+    public record OfferPriceStamp(Shop shop, BigDecimal price, Instant timestamp) {}
 
     public Product createProductWithOffers(List<OfferPriceStamp> offerPriceStamps) {
         var product = generate();
