@@ -11,7 +11,7 @@ COPY . .
 
 RUN ./gradlew --no-daemon clean bootJar
 
-FROM bellsoft/liberica-openjdk-debian:21
+FROM bellsoft/liberica-openjre-debian:21-cds
 
 ARG CHROME_VERSION=140.0.7339.201
 
@@ -30,9 +30,8 @@ RUN apt-get update && \
     ln -s /opt/chrome-linux64/chrome /usr/bin/chrome && \
     unzip -j chromedriver.zip chromedriver-linux64/chromedriver -d /usr/bin && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* chrome.zip chromedriver.zip
-
-RUN addgroup --system spring && \
+    rm -rf /var/lib/apt/lists/* chrome.zip chromedriver.zip && \
+    addgroup --system spring && \
     adduser --system --disabled-password --ingroup spring --home /home/spring spring
 
 USER spring:spring
