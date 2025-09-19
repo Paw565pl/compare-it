@@ -49,7 +49,7 @@ class CommentCreateTest extends CommentTest {
         return Stream.of("", "yes", "text", "a".repeat(2001), "a".repeat(2000) + "b");
     }
 
-    @ParameterizedTest()
+    @ParameterizedTest
     @MethodSource("invalidCommentTextProvider")
     void shouldReturnValidationErrorForInvalidCommentLength(String commentText) {
         var product = productTestDataFactory.createOne();
