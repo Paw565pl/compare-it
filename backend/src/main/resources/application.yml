@@ -30,11 +30,7 @@ springdoc:
     path: /api/docs
 
   swagger-ui:
-    path: /api/docs/swagger-ui.html
-
-server:
-  compression:
-    enabled: true
+    path: /swagger-ui.html
 
   error:
     include-message: always
