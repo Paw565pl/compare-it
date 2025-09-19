@@ -70,7 +70,7 @@ class ScrapingServiceTest {
         existingOfferFromShopB = new Offer(Shop.MORELE_NET, faker.internet().url());
         existingOfferFromShopB.getPriceHistory().add(existingPriceStamp2);
 
-        existingProduct = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSORS);
+        existingProduct = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSOR);
         existingProduct.getOffers().addAll(List.of(existingOfferFromShopA, existingOfferFromShopB));
 
         newPriceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), "PLN", Condition.NEW);
@@ -78,13 +78,13 @@ class ScrapingServiceTest {
         newOfferFromShopA = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
         newOfferFromShopA.getPriceHistory().add(newPriceStamp);
 
-        newProduct1 = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSORS);
+        newProduct1 = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSOR);
         newProduct1.getOffers().add(newOfferFromShopA);
 
         newOfferFromShopC = new Offer(Shop.MEDIA_EXPERT, faker.internet().url());
         newOfferFromShopC.getPriceHistory().add(newPriceStamp);
 
-        newProduct2 = new Product(PRODUCT_2_EAN, faker.commerce().productName(), Category.MOTHERBOARDS);
+        newProduct2 = new Product(PRODUCT_2_EAN, faker.commerce().productName(), Category.MOTHERBOARD);
         newProduct2.getOffers().add(newOfferFromShopC);
     }
 
@@ -104,7 +104,7 @@ class ScrapingServiceTest {
 
     @Test
     void shouldNotSaveIfProductHasNoOffers() {
-        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSORS);
+        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSOR);
 
         var scrapedProducts = List.of(product);
         var eans = List.of(PRODUCT_1_EAN);
@@ -127,7 +127,7 @@ class ScrapingServiceTest {
     void shouldNotSaveIfOfferHasNoPriceStamps() {
         var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
 
-        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSORS);
+        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSOR);
         product.getOffers().add(offer);
 
         var scrapedProducts = List.of(product);
@@ -172,7 +172,7 @@ class ScrapingServiceTest {
         var offer = new Offer(Shop.MEDIA_EXPERT, faker.internet().url());
         offer.getPriceHistory().add(newPriceStamp);
 
-        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSORS);
+        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.PROCESSOR);
         product.getOffers().add(offer);
 
         var scrapedProducts = List.of(product);

@@ -38,21 +38,21 @@ class ProductListTest extends ProductTest {
 
     static Stream<Arguments> categoryTestCases() {
         return Stream.of(
-                Arguments.of(Category.PROCESSORS.name(), 3),
-                Arguments.of(Category.GRAPHICS_CARDS.name(), 2),
-                Arguments.of(Category.MOTHERBOARDS.name(), 1),
+                Arguments.of(Category.PROCESSOR.name(), 3),
+                Arguments.of(Category.GRAPHICS_CARD.name(), 2),
+                Arguments.of(Category.MOTHERBOARD.name(), 1),
                 Arguments.of(Category.RAM_MEMORY.name(), 0));
     }
 
     @ParameterizedTest
     @MethodSource("categoryTestCases")
     void shouldReturnFilteredProductsByCategory(String categoryName, int expectedCount) {
-        productTestDataFactory.createProductWithCategory(Category.PROCESSORS);
-        productTestDataFactory.createProductWithCategory(Category.PROCESSORS);
-        productTestDataFactory.createProductWithCategory(Category.PROCESSORS);
-        productTestDataFactory.createProductWithCategory(Category.GRAPHICS_CARDS);
-        productTestDataFactory.createProductWithCategory(Category.GRAPHICS_CARDS);
-        productTestDataFactory.createProductWithCategory(Category.MOTHERBOARDS);
+        productTestDataFactory.createProductWithCategory(Category.PROCESSOR);
+        productTestDataFactory.createProductWithCategory(Category.PROCESSOR);
+        productTestDataFactory.createProductWithCategory(Category.PROCESSOR);
+        productTestDataFactory.createProductWithCategory(Category.GRAPHICS_CARD);
+        productTestDataFactory.createProductWithCategory(Category.GRAPHICS_CARD);
+        productTestDataFactory.createProductWithCategory(Category.MOTHERBOARD);
 
         given().contentType(JSON)
                 .param("category", categoryName)
