@@ -22,7 +22,7 @@ import org.springframework.data.mongodb.core.mapping.*;
 public class FavoriteProduct {
 
     @MongoId
-    @Field(value = "_id", targetType = FieldType.OBJECT_ID)
+    @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
     @DBRef(lazy = true)

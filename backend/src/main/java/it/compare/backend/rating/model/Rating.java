@@ -2,7 +2,7 @@ package it.compare.backend.rating.model;
 
 import it.compare.backend.auth.model.User;
 import it.compare.backend.comment.model.Comment;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -23,7 +23,7 @@ import org.springframework.data.mongodb.core.mapping.*;
 public class Rating {
 
     @MongoId
-    @Field(value = "_id", targetType = FieldType.OBJECT_ID)
+    @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
     @DBRef(lazy = true)
@@ -36,7 +36,7 @@ public class Rating {
     @Indexed
     @CreatedDate
     @Field("createdAt")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @DBRef(lazy = true)
     @Field("comment")

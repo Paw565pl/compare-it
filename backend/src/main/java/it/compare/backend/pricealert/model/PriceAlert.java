@@ -3,7 +3,7 @@ package it.compare.backend.pricealert.model;
 import it.compare.backend.auth.model.User;
 import it.compare.backend.product.model.Product;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.core.mapping.*;
 @Document(collection = "price_alerts")
 public class PriceAlert {
     @MongoId
-    @Field(value = "_id", targetType = FieldType.OBJECT_ID)
+    @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
     @DBRef(lazy = true)
@@ -28,11 +28,11 @@ public class PriceAlert {
     @Field("product")
     @NonNull private Product product;
 
-    @Field(value = "targetPrice", targetType = FieldType.DECIMAL128)
+    @Field(name = "targetPrice", targetType = FieldType.DECIMAL128)
     @NonNull private BigDecimal targetPrice;
 
     @Field("isOutletAllowed")
-    private Boolean isOutletAllowed = false;
+    private Boolean isOutletAllowed;
 
     @Indexed
     @Field("isActive")
@@ -41,8 +41,8 @@ public class PriceAlert {
     @Indexed
     @CreatedDate
     @Field("createdAt")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Field("lastNotificationSent")
-    private LocalDateTime lastNotificationSent;
+    private Instant lastNotificationSent;
 }

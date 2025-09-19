@@ -2,7 +2,7 @@ package it.compare.backend.comment.model;
 
 import it.compare.backend.auth.model.User;
 import it.compare.backend.product.model.Product;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.core.mapping.*;
 public class Comment {
 
     @MongoId
-    @Field(value = "_id", targetType = FieldType.OBJECT_ID)
+    @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
     @DBRef(lazy = true)
@@ -30,7 +30,7 @@ public class Comment {
     @Indexed
     @CreatedDate
     @Field("createdAt")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @DBRef(lazy = true)
     @Field("product")
