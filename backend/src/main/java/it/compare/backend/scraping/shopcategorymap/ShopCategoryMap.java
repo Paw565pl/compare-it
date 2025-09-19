@@ -17,9 +17,9 @@ public class ShopCategoryMap {
         values.put(
                 Shop.RTV_EURO_AGD,
                 Map.of(
-                        Category.GRAPHICS_CARD,
+                        Category.GPU,
                         "karty-graficzne",
-                        Category.PROCESSOR,
+                        Category.CPU,
                         "procesory",
                         Category.MOTHERBOARD,
                         "plyty-glowne",
@@ -35,9 +35,9 @@ public class ShopCategoryMap {
         values.put(
                 Shop.MORELE_NET,
                 Map.of(
-                        Category.GRAPHICS_CARD,
+                        Category.GPU,
                         "/kategoria/karty-graficzne-12",
-                        Category.PROCESSOR,
+                        Category.CPU,
                         "/kategoria/procesory-45",
                         Category.MOTHERBOARD,
                         "/kategoria/plyty-glowne-42",
@@ -53,9 +53,9 @@ public class ShopCategoryMap {
         values.put(
                 Shop.MEDIA_EXPERT,
                 Map.of(
-                        Category.GRAPHICS_CARD,
+                        Category.GPU,
                         "/komputery-i-tablety/podzespoly-komputerowe/karty-graficzne",
-                        Category.PROCESSOR,
+                        Category.CPU,
                         "/komputery-i-tablety/podzespoly-komputerowe/procesory",
                         Category.MOTHERBOARD,
                         "/komputery-i-tablety/podzespoly-komputerowe/plyty-glowne",

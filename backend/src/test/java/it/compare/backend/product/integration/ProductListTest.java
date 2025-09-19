@@ -40,8 +40,8 @@ class ProductListTest extends ProductTest {
 
     static Stream<Arguments> categoryTestCases() {
         return Stream.of(
-                Arguments.of(Category.PROCESSOR.name(), 3),
-                Arguments.of(Category.GRAPHICS_CARD.name(), 2),
+                Arguments.of(Category.CPU.name(), 3),
+                Arguments.of(Category.GPU.name(), 2),
                 Arguments.of(Category.MOTHERBOARD.name(), 1),
                 Arguments.of(Category.RAM_MEMORY.name(), 0));
     }
@@ -49,11 +49,11 @@ class ProductListTest extends ProductTest {
     @ParameterizedTest
     @MethodSource("categoryTestCases")
     void shouldReturnFilteredProductsByCategory(String categoryName, int expectedCount) {
-        productTestDataFactory.createProductWithCategory(Category.PROCESSOR);
-        productTestDataFactory.createProductWithCategory(Category.PROCESSOR);
-        productTestDataFactory.createProductWithCategory(Category.PROCESSOR);
-        productTestDataFactory.createProductWithCategory(Category.GRAPHICS_CARD);
-        productTestDataFactory.createProductWithCategory(Category.GRAPHICS_CARD);
+        productTestDataFactory.createProductWithCategory(Category.CPU);
+        productTestDataFactory.createProductWithCategory(Category.CPU);
+        productTestDataFactory.createProductWithCategory(Category.CPU);
+        productTestDataFactory.createProductWithCategory(Category.GPU);
+        productTestDataFactory.createProductWithCategory(Category.GPU);
         productTestDataFactory.createProductWithCategory(Category.MOTHERBOARD);
 
         given().contentType(JSON)

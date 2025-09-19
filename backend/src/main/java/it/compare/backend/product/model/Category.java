@@ -1,8 +1,8 @@
 package it.compare.backend.product.model;
 
 public enum Category {
-    PROCESSOR,
-    GRAPHICS_CARD,
+    CPU,
+    GPU,
     MOTHERBOARD,
     RAM_MEMORY,
     SSD_DRIVE,
