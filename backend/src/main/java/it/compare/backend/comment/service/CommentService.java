@@ -45,7 +45,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final RatingRepository ratingRepository;
 
-    private static final String RATINGS_FIELD = "ratings";
+    private static final String RATINGS_COLLECTION = "ratings";
     private static final String SINGLE_RATING_FIELD = "rating";
     private static final String AUTHOR_FIELD = "author";
     private static final String CREATED_AT_FIELD = "createdAt";
@@ -56,7 +56,7 @@ public class CommentService {
     public Comment findCommentOrThrow(String id) {
         return commentRepository
                 .findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found."));
     }
 
     public Page<CommentResponseDto> findAllByProductId(
@@ -75,7 +75,7 @@ public class CommentService {
         var userId = Optional.ofNullable(oAuthUserDetails).map(OAuthUserDetails::getId);
         userId.ifPresent(userIdValue -> operations.add(getUserRatingAggregationOperation(userIdValue)));
 
-        operations.add(Aggregation.project().andExclude(RATINGS_FIELD));
+        operations.add(Aggregation.project().andExclude(RATINGS_COLLECTION));
 
         var validSortProperties = Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD);
         var sortOrders = pageable.getSort()
@@ -105,13 +105,13 @@ public class CommentService {
     }
 
     private List<AggregationOperation> getRatingsCountsAggregationOperations() {
-        var ratingsLookup = Aggregation.lookup(RATINGS_FIELD, "_id", "comment.$id", RATINGS_FIELD);
+        var ratingsLookup = Aggregation.lookup(RATINGS_COLLECTION, "_id", "comment.$id", RATINGS_COLLECTION);
         var authorLookup = Aggregation.lookup("users", "author.$id", "_id", AUTHOR_FIELD);
 
-        var positiveRatingsCountFilter = Filter.filter(RATINGS_FIELD)
+        var positiveRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
                 .as(SINGLE_RATING_FIELD)
                 .by(Eq.valueOf("$$rating.isPositive").equalToValue(true));
-        var negativeRatingsCountFilter = Filter.filter(RATINGS_FIELD)
+        var negativeRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
                 .as(SINGLE_RATING_FIELD)
                 .by(Eq.valueOf("$$rating.isPositive").equalToValue(false));
         var addFields = Aggregation.addFields()
@@ -123,7 +123,7 @@ public class CommentService {
     }
 
     private AddFieldsOperation getUserRatingAggregationOperation(String userId) {
-        var filterRatingsByUserId = Filter.filter(RATINGS_FIELD)
+        var filterRatingsByUserId = Filter.filter(RATINGS_COLLECTION)
                 .as(SINGLE_RATING_FIELD)
                 .by(Eq.valueOf("$$rating.author.$id").equalToValue(userId));
         var findFirstRating = ArrayOperators.First.firstOf(filterRatingsByUserId);
@@ -169,7 +169,7 @@ public class CommentService {
                 .aggregate(aggregation, Comment.class, CommentResponseDto.class)
                 .getUniqueMappedResult();
 
-        if (commentResponse == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+        if (commentResponse == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found.");
 
         return commentResponse;
     }
