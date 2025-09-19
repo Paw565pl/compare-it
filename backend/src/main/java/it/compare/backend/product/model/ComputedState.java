@@ -30,7 +30,7 @@ public class ComputedState {
     public static ComputedState fromProduct(Product product) {
         var computedState = new ComputedState();
 
-        var cutOff = Instant.now().minusSeconds(AVAILABILITY_DAYS_THRESHOLD.toSeconds());
+        var cutOff = Instant.now().minus(AVAILABILITY_DAYS_THRESHOLD);
         var availableOffers = product.getOffers().stream()
                 .filter(o -> !o.getPriceHistory().isEmpty()
                         && !o.getPriceHistory().getLast().getTimestamp().isBefore(cutOff))
