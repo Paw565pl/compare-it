@@ -1,7 +1,6 @@
 package it.compare.backend.product.model;
 
 import com.mongodb.lang.NonNull;
-import com.mongodb.lang.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Document(collection = "products")
 public class Product {
     @MongoId
-    @Field(value = "_id", targetType = FieldType.OBJECT_ID)
+    @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
     @NonNull @Indexed(unique = true)
@@ -46,8 +45,8 @@ public class Product {
     @NonNull @Field("offers")
     private List<Offer> offers = new ArrayList<>();
 
-    @Nullable @Field("computedState")
-    private ComputedState computedState;
+    @NonNull @Field("computedState")
+    private ComputedState computedState = new ComputedState();
 
     @CreatedDate
     @Field("createdAt")
