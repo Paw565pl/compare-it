@@ -8,7 +8,12 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 public record ProductDetailResponseDto(
-        String id, String ean, String name, Category category, List<String> images, List<OfferResponseDto> offers) {}
+        @NonNull String id,
+        @NonNull String ean,
+        @NonNull String name,
+        @NonNull Category category,
+        @NonNull List<String> images,
+        @NonNull List<OfferResponseDto> offers) {}
 
 record OfferResponseDto(@NonNull Shop shop, @NonNull String url, @NonNull List<PriceStampResponseDto> priceHistory) {
 
