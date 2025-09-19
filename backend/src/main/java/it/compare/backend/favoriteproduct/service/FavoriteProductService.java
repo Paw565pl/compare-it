@@ -2,17 +2,14 @@ package it.compare.backend.favoriteproduct.service;
 
 import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.auth.repository.UserRepository;
-import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
+import it.compare.backend.favoriteproduct.dto.FavoriteProductRequestDto;
+import it.compare.backend.favoriteproduct.dto.FavoriteProductStatusResponseDto;
 import it.compare.backend.favoriteproduct.model.FavoriteProduct;
 import it.compare.backend.favoriteproduct.repository.FavoriteProductRepository;
-import it.compare.backend.favoriteproduct.response.FavoriteProductStatusResponse;
-import it.compare.backend.product.aggregation.ProductAggregationBuilder;
-import it.compare.backend.product.model.Product;
-import it.compare.backend.product.response.ProductListResponse;
+import it.compare.backend.product.dto.ProductListResponseDto;
 import it.compare.backend.product.service.ProductService;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
-import org.bson.Document;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,9 +18,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
-import org.springframework.data.mongodb.core.aggregation.ConvertOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,95 +29,54 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class FavoriteProductService {
 
-    private final MongoTemplate mongoTemplate;
+    private static final String PRODUCT_FIELD = "product";
+
     private final UserRepository userRepository;
-    private final ProductService productService;
     private final FavoriteProductRepository favoriteProductRepository;
+    private final ProductService productService;
+    private final MongoTemplate mongoTemplate;
 
-    public Page<ProductListResponse> findAllByUser(OAuthUserDetails oAuthUserDetails, Pageable pageable) {
-        record FavoriteProductAggregationResult(String productId) {}
+    public Page<ProductListResponseDto> findAllByUser(OAuthUserDetails oAuthUserDetails, Pageable pageable) {
+        var criteria = Criteria.where("user.$id").is(oAuthUserDetails.getId());
+        var total = mongoTemplate.count(Query.query(criteria), FavoriteProduct.class);
+        if (total == 0) return Page.empty(pageable);
 
-        var userId = oAuthUserDetails.getId();
-        var sortDirection = pageable.getSort().stream()
-                .filter(sort -> sort.getProperty().equalsIgnoreCase("createdAt"))
-                .findFirst()
-                .map(Sort.Order::getDirection)
-                .orElse(Sort.Direction.DESC);
+        var operations = new ArrayList<AggregationOperation>();
+        operations.add(Aggregation.match(criteria));
 
-        var match = Aggregation.match(Criteria.where("user.$id").is(userId));
-        var sort = Aggregation.sort(sortDirection, "createdAt");
-        AggregationOperation project =
-                context -> new Document("$project", new Document("productId", "$product.$id").append("_id", 0));
+        operations.add(Aggregation.lookup("products", "product.$id", "_id", PRODUCT_FIELD));
+        operations.add(Aggregation.unwind(PRODUCT_FIELD));
+        operations.add(Aggregation.replaceRoot(PRODUCT_FIELD));
 
-        var favoriteProductAggregation = Aggregation.newAggregation(FavoriteProduct.class, match, sort, project);
-        var favoriteProductIds = mongoTemplate
-                .aggregate(favoriteProductAggregation, FavoriteProductAggregationResult.class)
-                .getMappedResults()
-                .stream()
-                .map(FavoriteProductAggregationResult::productId)
-                .toList();
+        var sortOrders = productService.getListSortOrders(pageable);
+        operations.add(Aggregation.sort(Sort.by(sortOrders)));
 
-        if (favoriteProductIds.isEmpty()) return Page.empty(pageable);
-        var total = favoriteProductIds.size();
+        operations.add(Aggregation.skip(pageable.getOffset()));
+        operations.add(Aggregation.limit(pageable.getPageSize()));
 
-        var matchFavoriteProductIds = Aggregation.match(Criteria.where("_id").in(favoriteProductIds));
-        var aggregationBuilder = ProductAggregationBuilder.builder().build();
+        var aggregation = Aggregation.newAggregation(FavoriteProduct.class, operations);
+        var content = mongoTemplate
+                .aggregate(aggregation, ProductListResponseDto.class)
+                .getMappedResults();
 
-        var aggregationPipeline = new ArrayList<AggregationOperation>();
-        aggregationPipeline.add(matchFavoriteProductIds);
-        aggregationPipeline.addAll(aggregationBuilder.createBaseAggregationOperations());
-        aggregationPipeline.addAll(aggregationBuilder.createPriceFilterOperations());
-        aggregationPipeline.addAll(aggregationBuilder.createGroupingOperations());
-
-        // add temporary field to properly match favoritedAt with right product using array indexOf
-        final var STRING_ID_FIELD = "__stringId";
-        var addStringIdField = Aggregation.addFields()
-                .addField(STRING_ID_FIELD)
-                .withValue(ConvertOperators.ToString.toString("$_id"))
-                .build();
-        aggregationPipeline.add(addStringIdField);
-
-        // add temporary field to sort by
-        final var FAVORITED_AT_FIELD = "__favoritedAt";
-        var addFavoritedAtField = Aggregation.addFields()
-                .addField(FAVORITED_AT_FIELD)
-                .withValue(
-                        ArrayOperators.IndexOfArray.arrayOf(favoriteProductIds).indexOf("$" + STRING_ID_FIELD))
-                .build();
-        aggregationPipeline.add(addFavoritedAtField);
-
-        // asc direction is necessary to keep order of sorting in first aggregation
-        var sortByFavoritedAt = Aggregation.sort(Sort.Direction.ASC, FAVORITED_AT_FIELD);
-        aggregationPipeline.add(sortByFavoritedAt);
-
-        aggregationPipeline.add(Aggregation.skip(pageable.getOffset()));
-        aggregationPipeline.add(Aggregation.limit(pageable.getPageSize()));
-        aggregationPipeline.add(aggregationBuilder.createProjectionOperation());
-
-        var aggregation = Aggregation.newAggregation(Product.class, aggregationPipeline);
-        var productResponses =
-                mongoTemplate.aggregate(aggregation, ProductListResponse.class).getMappedResults();
-
-        return new PageImpl<>(productResponses, pageable, total);
+        return new PageImpl<>(content, pageable, total);
     }
 
-    public FavoriteProductStatusResponse findFavoriteProductStatus(
+    public FavoriteProductStatusResponseDto findFavoriteProductStatus(
             OAuthUserDetails oAuthUserDetails, String productId) {
         productService.findProductOrThrow(productId);
-        var favoriteProductStatusResponse = new FavoriteProductStatusResponse();
-
         var isFavorite = favoriteProductRepository.existsByUserIdAndProductId(oAuthUserDetails.getId(), productId);
-        favoriteProductStatusResponse.setIsFavorite(isFavorite);
 
-        return favoriteProductStatusResponse;
+        return new FavoriteProductStatusResponseDto(isFavorite);
     }
 
     @Transactional
-    public void addFavoriteProduct(OAuthUserDetails oAuthUserDetails, FavoriteProductDto favoriteProductDto) {
+    public void addFavoriteProduct(
+            OAuthUserDetails oAuthUserDetails, FavoriteProductRequestDto favoriteProductRequestDto) {
         var user = userRepository
                 .findById(oAuthUserDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        var product = productService.findProductOrThrow(favoriteProductDto.productId());
+        var product = productService.findProductOrThrow(favoriteProductRequestDto.productId());
 
         try {
             var newFavoriteProduct = new FavoriteProduct(user, product);
@@ -132,11 +87,12 @@ public class FavoriteProductService {
     }
 
     @Transactional
-    public void removeFavoriteProduct(OAuthUserDetails oAuthUserDetails, FavoriteProductDto favoriteProductDto) {
+    public void removeFavoriteProduct(
+            OAuthUserDetails oAuthUserDetails, FavoriteProductRequestDto favoriteProductRequestDto) {
         var user = userRepository
                 .findById(oAuthUserDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        var product = productService.findProductOrThrow(favoriteProductDto.productId());
+        var product = productService.findProductOrThrow(favoriteProductRequestDto.productId());
 
         var favoriteProduct = favoriteProductRepository
                 .findByUserIdAndProductId(user.getId(), product.getId())
