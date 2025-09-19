@@ -11,6 +11,7 @@ import org.springframework.lang.Nullable;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CommentMapper {
+    @Mapping(target = "author", source = "comment.author.username")
     CommentResponseDto toResponseDto(
             Comment comment,
             @NonNull Long positiveRatingsCount,
