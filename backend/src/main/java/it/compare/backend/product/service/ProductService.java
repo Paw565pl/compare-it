@@ -63,7 +63,8 @@ public class ProductService {
                             ? Criteria.where(AVAILABLE_OFFERS_COUNT_FIELD).gte(1)
                             : Criteria.where(AVAILABLE_OFFERS_COUNT_FIELD).is(0));
 
-        var count = mongoTemplate.count(query, Product.class);
+        var total = mongoTemplate.count(query, Product.class);
+        if (total == 0) return Page.empty(pageable);
 
         var sortOrders = new ArrayList<>(pageable.getSort().stream()
                 .map(o -> {
@@ -83,7 +84,7 @@ public class ProductService {
         var products = mongoTemplate.find(query, Product.class);
         var content = products.stream().map(productMapper::toListResponseDto).toList();
 
-        return new PageImpl<>(content, pageable, count);
+        return new PageImpl<>(content, pageable, total);
     }
 
     public ProductDetailResponseDto findById(String id, Integer priceStampRangeDays) {
