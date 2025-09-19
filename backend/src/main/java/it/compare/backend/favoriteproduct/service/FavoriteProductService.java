@@ -46,10 +46,17 @@ public class FavoriteProductService {
 
         operations.add(Aggregation.lookup("products", "product.$id", "_id", PRODUCT_FIELD));
         operations.add(Aggregation.unwind(PRODUCT_FIELD));
-        operations.add(Aggregation.replaceRoot(PRODUCT_FIELD));
 
-        var sortOrders = productService.getListSortOrders(pageable);
+        var sortOrders = new ArrayList<>(productService.getListSortOrders(pageable).stream()
+                .map(o -> new Sort.Order(o.getDirection(), "product." + o.getProperty()))
+                .toList());
+        pageable.getSort().stream()
+                .filter(o -> o.getProperty().equalsIgnoreCase("createdAt"))
+                .findFirst()
+                .ifPresent(sortOrders::addFirst);
+
         operations.add(Aggregation.sort(Sort.by(sortOrders)));
+        operations.add(Aggregation.replaceRoot(PRODUCT_FIELD));
 
         operations.add(Aggregation.skip(pageable.getOffset()));
         operations.add(Aggregation.limit(pageable.getPageSize()));
