@@ -13,7 +13,7 @@ RUN ./gradlew --no-daemon clean bootJar
 
 FROM bellsoft/liberica-openjre-debian:21-cds
 
-ARG CHROME_VERSION=140.0.7339.201
+ARG CHROME_VERSION=139.0.7258.66
 
 ENV CHROME_VERSION=$CHROME_VERSION
 ENV SPRING_PROFILES_ACTIVE=prod

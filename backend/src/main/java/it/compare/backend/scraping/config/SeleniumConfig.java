@@ -33,7 +33,7 @@ public class SeleniumConfig {
         options.addArguments("--disable-blink-features=AutomationControlled");
         options.addArguments("--log-level=3");
         options.addArguments(
-                "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36");
+                "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36");
 
         var ublockOriginLiteCrx = new File("/app/ublockOriginLite.crx");
         if (ublockOriginLiteCrx.exists() && ublockOriginLiteCrx.isFile()) options.addExtensions(ublockOriginLiteCrx);
