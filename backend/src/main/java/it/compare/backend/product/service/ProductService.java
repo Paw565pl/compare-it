@@ -9,8 +9,8 @@ import it.compare.backend.product.repository.ProductRepository;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.domain.Page;
@@ -33,7 +33,7 @@ public class ProductService {
     private static final String BEST_OFFER_PRICE_FIELD = "computedState.bestOffer.price";
     private static final String AVAILABLE_OFFERS_COUNT_FIELD = "computedState.availableOffersCount";
 
-    private static final Map<String, String> sortPropertiesMap = Map.of(
+    private static final Map<String, String> validSortPropertiesMap = Map.of(
             "name", "name",
             "lowestcurrentprice", BEST_OFFER_PRICE_FIELD,
             "offerscount", AVAILABLE_OFFERS_COUNT_FIELD);
@@ -66,16 +66,7 @@ public class ProductService {
         var total = mongoTemplate.count(query, Product.class);
         if (total == 0) return Page.empty(pageable);
 
-        var sortOrders = new ArrayList<>(pageable.getSort().stream()
-                .map(o -> {
-                    var existingProperty = sortPropertiesMap.get(o.getProperty().toLowerCase());
-                    if (existingProperty == null) return null;
-
-                    return new Sort.Order(o.getDirection(), existingProperty);
-                })
-                .filter(Objects::nonNull)
-                .toList());
-        sortOrders.add(Sort.Order.asc("_id"));
+        var sortOrders = getListSortOrders(pageable);
         query.with(Sort.by(sortOrders));
 
         query.skip(pageable.getOffset());
@@ -85,6 +76,18 @@ public class ProductService {
         var content = products.stream().map(productMapper::toListResponseDto).toList();
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    public List<Sort.Order> getListSortOrders(Pageable pageable) {
+        var sortOrders = new ArrayList<>(pageable.getSort().stream()
+                .filter(o -> validSortPropertiesMap.containsKey(o.getProperty().toLowerCase()))
+                .map(o -> new Sort.Order(
+                        o.getDirection(),
+                        validSortPropertiesMap.get(o.getProperty().toLowerCase())))
+                .toList());
+        sortOrders.add(Sort.Order.asc("_id"));
+
+        return sortOrders;
     }
 
     public ProductDetailResponseDto findById(String id, Integer priceStampRangeDays) {
