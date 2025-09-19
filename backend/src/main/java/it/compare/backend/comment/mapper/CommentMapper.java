@@ -20,7 +20,8 @@ public interface CommentMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "product", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Comment toEntity(CommentRequestDto commentRequestDto);
 }
