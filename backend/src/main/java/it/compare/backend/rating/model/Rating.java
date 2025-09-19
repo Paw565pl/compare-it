@@ -5,13 +5,13 @@ import it.compare.backend.comment.model.Comment;
 import java.time.Instant;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.*;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Document(collection = "ratings")
@@ -33,12 +33,16 @@ public class Rating {
     @Field("isPositive")
     @NonNull private Boolean isPositive;
 
+    @DBRef(lazy = true)
+    @Field("comment")
+    @NonNull private Comment comment;
+
     @Indexed
     @CreatedDate
     @Field("createdAt")
     private Instant createdAt;
 
-    @DBRef(lazy = true)
-    @Field("comment")
-    @NonNull private Comment comment;
+    @LastModifiedDate
+    @Field("updatedAt")
+    private Instant updatedAt;
 }

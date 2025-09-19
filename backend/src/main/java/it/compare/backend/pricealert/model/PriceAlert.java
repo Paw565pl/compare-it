@@ -6,12 +6,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.*;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Document(collection = "price_alerts")
@@ -42,6 +42,10 @@ public class PriceAlert {
     @CreatedDate
     @Field("createdAt")
     private Instant createdAt;
+
+    @LastModifiedDate
+    @Field("updatedAt")
+    private Instant updatedAt;
 
     @Field("lastNotificationSent")
     private Instant lastNotificationSent;

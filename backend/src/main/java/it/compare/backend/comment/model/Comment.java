@@ -5,12 +5,12 @@ import it.compare.backend.product.model.Product;
 import java.time.Instant;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.*;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Document(collection = "comments")
@@ -27,12 +27,16 @@ public class Comment {
     @Field("text")
     @NonNull private String text;
 
+    @DBRef(lazy = true)
+    @Field("product")
+    @NonNull private Product product;
+
     @Indexed
     @CreatedDate
     @Field("createdAt")
     private Instant createdAt;
 
-    @DBRef(lazy = true)
-    @Field("product")
-    @NonNull private Product product;
+    @LastModifiedDate
+    @Field("updatedAt")
+    private Instant updatedAt;
 }

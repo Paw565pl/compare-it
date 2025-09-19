@@ -2,7 +2,7 @@ package it.compare.backend.favoriteproduct.model;
 
 import it.compare.backend.auth.model.User;
 import it.compare.backend.product.model.Product;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.*;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Document(collection = "favorite_products")
@@ -36,5 +35,5 @@ public class FavoriteProduct {
     @Indexed
     @CreatedDate
     @Field("createdAt")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }
