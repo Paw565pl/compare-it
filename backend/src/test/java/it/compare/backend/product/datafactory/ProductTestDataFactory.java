@@ -4,14 +4,15 @@ import it.compare.backend.core.config.FakerConfig;
 import it.compare.backend.core.datafactory.TestDataFactory;
 import it.compare.backend.product.model.*;
 import it.compare.backend.product.repository.ProductRepository;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import net.datafaker.Faker;
 import org.bson.types.ObjectId;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Import;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @TestComponent
 @Import(FakerConfig.class)
@@ -33,8 +34,10 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
 
         var product = new Product(
                 String.valueOf(faker.number().positive()), faker.commerce().productName(), Category.PROCESSOR);
+
         product.getOffers().add(offer);
         product.setId(new ObjectId().toString());
+        product.setComputedState(ComputedState.fromProduct(product));
 
         return product;
     }
@@ -61,7 +64,10 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
 
     public void createProductWithCategory(Category category) {
         var product = generate();
+
         product.setCategory(category);
+        product.setComputedState(ComputedState.fromProduct(product));
+
         productRepository.save(product);
     }
 
@@ -76,6 +82,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         offer.getPriceHistory().add(customPriceStamp);
         product.getOffers().add(offer);
 
+        product.setComputedState(ComputedState.fromProduct(product));
         productRepository.save(product);
     }
 
@@ -88,16 +95,22 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         offer.getPriceHistory().add(priceStamp);
 
         product.getOffers().add(offer);
+        product.setComputedState(ComputedState.fromProduct(product));
+
         productRepository.save(product);
     }
 
     public void createProductWithName(String name) {
         var product = generate();
+
         product.setName(name);
+        product.setComputedState(ComputedState.fromProduct(product));
+
         productRepository.save(product);
     }
 
-    public record OfferPriceStamp(Shop shop, BigDecimal price, Instant timestamp) {}
+    public record OfferPriceStamp(Shop shop, BigDecimal price, Instant timestamp) {
+    }
 
     public Product createProductWithOffers(List<OfferPriceStamp> offerPriceStamps) {
         var product = generate();
@@ -120,6 +133,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
             }
         });
 
+        product.setComputedState(ComputedState.fromProduct(product));
         return productRepository.save(product);
     }
 }
