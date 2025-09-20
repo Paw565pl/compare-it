@@ -86,9 +86,9 @@ class ProductListTest extends ProductTest {
 
     static Stream<Arguments> shopTestCases() {
         return Stream.of(
-                Arguments.of(Shop.RTV_EURO_AGD.getHumanReadableName(), 2),
-                Arguments.of(Shop.MEDIA_EXPERT.getHumanReadableName(), 3),
-                Arguments.of(Shop.MORELE_NET.getHumanReadableName(), 0));
+                Arguments.of(Shop.RTV_EURO_AGD.name(), 2),
+                Arguments.of(Shop.MEDIA_EXPERT.name(), 3),
+                Arguments.of(Shop.MORELE_NET.name(), 0));
     }
 
     @ParameterizedTest
@@ -101,7 +101,7 @@ class ProductListTest extends ProductTest {
         productTestDataFactory.createProductWithShop(Shop.MEDIA_EXPERT);
 
         given().contentType(JSON)
-                .param("shop", shopName)
+                .param("shops", shopName)
                 .when()
                 .get()
                 .then()
@@ -131,7 +131,6 @@ class ProductListTest extends ProductTest {
 
     @Test
     void shouldReturnSortedProductsByLowestCurrentPrice() {
-        // One offer
         productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(1000), Currency.PLN, Condition.NEW);
         productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(2000), Currency.PLN, Condition.NEW);
         productTestDataFactory.createProductWithPriceStamp(BigDecimal.valueOf(3000), Currency.PLN, Condition.NEW);
@@ -238,28 +237,28 @@ class ProductListTest extends ProductTest {
                 new ProductTestDataFactory.OfferPriceStamp(Shop.MORELE_NET, BigDecimal.valueOf(90), now)));
 
         given().contentType(JSON)
-                .param("sort", "offersCount,asc")
+                .param("sort", "availableOffersCount,asc")
                 .when()
                 .get()
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("content[0].offersCount", equalTo(0))
-                .body("content[1].offersCount", equalTo(1))
-                .body("content[2].offersCount", equalTo(2))
-                .body("content[3].offersCount", equalTo(3))
-                .body("content[4].offersCount", equalTo(3));
+                .body("content[0].availableOffersCount", equalTo(0))
+                .body("content[1].availableOffersCount", equalTo(1))
+                .body("content[2].availableOffersCount", equalTo(2))
+                .body("content[3].availableOffersCount", equalTo(3))
+                .body("content[4].availableOffersCount", equalTo(3));
 
         given().contentType(JSON)
-                .param("sort", "offersCount,desc")
+                .param("sort", "availableOffersCount,desc")
                 .when()
                 .get()
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("content[0].offersCount", equalTo(3))
-                .body("content[1].offersCount", equalTo(3))
-                .body("content[2].offersCount", equalTo(2))
-                .body("content[3].offersCount", equalTo(1))
-                .body("content[4].offersCount", equalTo(0));
+                .body("content[0].availableOffersCount", equalTo(3))
+                .body("content[1].availableOffersCount", equalTo(3))
+                .body("content[2].availableOffersCount", equalTo(2))
+                .body("content[3].availableOffersCount", equalTo(1))
+                .body("content[4].availableOffersCount", equalTo(0));
     }
 
     static Stream<Arguments> productLowestCurrentPriceAndOffersCountTestCases() {
@@ -281,7 +280,7 @@ class ProductListTest extends ProductTest {
                                 new ProductTestDataFactory.OfferPriceStamp(
                                         Shop.MORELE_NET, BigDecimal.valueOf(90), fiveDaysAgo)),
                         110,
-                        Shop.RTV_EURO_AGD.getHumanReadableName(),
+                        Shop.RTV_EURO_AGD.name(),
                         Currency.PLN,
                         2),
                 Arguments.of(
@@ -297,7 +296,7 @@ class ProductListTest extends ProductTest {
                                 new ProductTestDataFactory.OfferPriceStamp(
                                         Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo)),
                         90,
-                        Shop.MORELE_NET.getHumanReadableName(),
+                        Shop.MORELE_NET.name(),
                         Currency.PLN,
                         3),
                 Arguments.of(
@@ -309,7 +308,7 @@ class ProductListTest extends ProductTest {
                                 new ProductTestDataFactory.OfferPriceStamp(
                                         Shop.MORELE_NET, BigDecimal.valueOf(90), twoDaysAgo)),
                         90,
-                        Shop.MORELE_NET.getHumanReadableName(),
+                        Shop.MORELE_NET.name(),
                         Currency.PLN,
                         1),
                 Arguments.of(
@@ -337,8 +336,8 @@ class ProductListTest extends ProductTest {
     void shouldReturnProductsWithCorrectLowestCurrentPriceAndOffersCount(
             List<ProductTestDataFactory.OfferPriceStamp> testData,
             Integer expectedLowestPrice,
-            String expectedShop,
-            String expectedCurrency,
+            Shop expectedShop,
+            Currency expectedCurrency,
             Integer expectedOffersCount) {
 
         productTestDataFactory.createProductWithOffers(testData);
@@ -352,10 +351,10 @@ class ProductListTest extends ProductTest {
                         "content[0].lowestCurrentPrice",
                         equalTo(expectedLowestPrice),
                         "content[0].lowestPriceShop",
-                        equalTo(expectedShop),
+                        equalTo(expectedShop != null ? expectedShop.name() : null),
                         "content[0].lowestPriceCurrency",
-                        equalTo(expectedCurrency),
-                        "content[0].offersCount",
+                        equalTo(expectedCurrency != null ? expectedCurrency.name() : null),
+                        "content[0].availableOffersCount",
                         equalTo(expectedOffersCount));
 
         productTestDataFactory.clear();
