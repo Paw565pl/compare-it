@@ -94,15 +94,12 @@ class ScrapingServiceTest {
     @Test
     void shouldNotSaveIfListIsEmpty() {
         var scrapedProducts = List.<Product>of();
-        when(productRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
         scrapingService.createProductsOrAddPriceStamp(scrapedProducts);
 
         verify(productRepository).findAllByEanIn(List.of());
-        verify(productRepository).saveAll(productListCaptor.capture());
+        verify(productRepository, never()).saveAll(productListCaptor.capture());
         verify(priceAlertService, never()).checkPriceAlerts(anyList());
-
-        assertThat(productListCaptor.getValue(), (empty()));
     }
 
     @Test
@@ -113,16 +110,13 @@ class ScrapingServiceTest {
         var eans = List.of(PRODUCT_1_EAN);
 
         when(productRepository.findAllByEanIn(eans)).thenReturn(List.of(existingProduct));
-        when(productRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
         scrapingService.createProductsOrAddPriceStamp(scrapedProducts);
 
         verify(productRepository).findAllByEanIn(eans);
-        verify(productRepository).saveAll(productListCaptor.capture());
+        verify(productRepository, never()).saveAll(productListCaptor.capture());
         verify(priceAlertService, never()).checkPriceAlerts(anyList());
 
-        var savedProducts = productListCaptor.getValue();
-        assertThat(savedProducts, (empty()));
         assertThat(existingProduct.getOffers(), hasSize(2));
     }
 
@@ -137,16 +131,13 @@ class ScrapingServiceTest {
         var eans = List.of(PRODUCT_1_EAN);
 
         when(productRepository.findAllByEanIn(eans)).thenReturn(List.of(existingProduct));
-        when(productRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
         scrapingService.createProductsOrAddPriceStamp(scrapedProducts);
 
         verify(productRepository).findAllByEanIn(eans);
-        verify(productRepository).saveAll(productListCaptor.capture());
+        verify(productRepository, never()).saveAll(productListCaptor.capture());
         verify(priceAlertService, never()).checkPriceAlerts(anyList());
 
-        var savedProducts = productListCaptor.getValue();
-        assertThat(savedProducts, (empty()));
         assertThat(existingProduct.getOffers(), hasSize(2));
     }
 
