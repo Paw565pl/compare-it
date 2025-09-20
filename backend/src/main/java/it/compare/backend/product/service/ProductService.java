@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.bson.types.Decimal128;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,7 @@ public class ProductService {
     private static final Map<String, String> validSortPropertiesMap = Map.of(
             "name", "name",
             "lowestcurrentprice", BEST_OFFER_PRICE_FIELD,
-            "offerscount", AVAILABLE_OFFERS_COUNT_FIELD);
+            "availableofferscount", AVAILABLE_OFFERS_COUNT_FIELD);
     private static final int MAX_PRICE_STAMP_RANGE_DAYS = 180;
 
     private final ProductRepository productRepository;
@@ -47,16 +48,21 @@ public class ProductService {
         var query = new Query();
 
         if (filters.name() != null && !filters.name().isBlank())
-            query.addCriteria(
-                    TextCriteria.forDefaultLanguage().matching(filters.name()).caseSensitive(false));
+            query.addCriteria(TextCriteria.forDefaultLanguage()
+                    .matching("\"" + filters.name() + "\"")
+                    .caseSensitive(false));
         if (filters.category() != null)
-            query.addCriteria(Criteria.where("category").is(filters.category()));
+            query.addCriteria(Criteria.where("category").is(filters.category().name()));
         if (filters.shops() != null && !filters.shops().isEmpty())
-            query.addCriteria(Criteria.where("offers.shops").in(filters.shops()));
-        if (filters.minPrice() != null)
-            query.addCriteria(Criteria.where(BEST_OFFER_PRICE_FIELD).gte(filters.minPrice()));
-        if (filters.maxPrice() != null)
-            query.addCriteria(Criteria.where(BEST_OFFER_PRICE_FIELD).lte(filters.maxPrice()));
+            query.addCriteria(Criteria.where("offers.shop")
+                    .in(filters.shops().stream().map(Enum::name).toList()));
+
+        var priceFilterDocument = new Document();
+        if (filters.minPrice() != null) priceFilterDocument.append("$gte", new Decimal128(filters.minPrice()));
+        if (filters.maxPrice() != null) priceFilterDocument.append("$lte", new Decimal128(filters.maxPrice()));
+        if (!priceFilterDocument.isEmpty())
+            query.addCriteria(Criteria.where(BEST_OFFER_PRICE_FIELD).is(priceFilterDocument));
+
         if (filters.isAvailable() != null)
             query.addCriteria(
                     Boolean.TRUE.equals(filters.isAvailable())
