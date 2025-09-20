@@ -10,7 +10,6 @@ import it.compare.backend.product.model.Shop;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Stream;
 import org.bson.types.ObjectId;
@@ -66,18 +65,13 @@ class ProductDetailsTest extends ProductTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("offers.size()", equalTo(3))
                 .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.isAvailable",
-                                Shop.MEDIA_EXPERT.getHumanReadableName()),
+                        String.format("offers.find { it.shop == '%s' }.isAvailable", Shop.MEDIA_EXPERT.name()),
                         equalTo(true))
                 .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.isAvailable",
-                                Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        String.format("offers.find { it.shop == '%s' }.isAvailable", Shop.RTV_EURO_AGD.name()),
                         equalTo(true))
                 .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.isAvailable", Shop.MORELE_NET.getHumanReadableName()),
+                        String.format("offers.find { it.shop == '%s' }.isAvailable", Shop.MORELE_NET.name()),
                         equalTo(false));
     }
 
@@ -85,9 +79,9 @@ class ProductDetailsTest extends ProductTest {
         return Stream.of(
                 Arguments.of(3, 2, 1, 0),
                 Arguments.of(10, 3, 3, 2),
-                Arguments.of(-1, 1, 0, 0), // check if the priceStampRangeDays has a minimum value of 1
+                Arguments.of(-1, 0, 0, 0), // check if the priceStampRangeDays has a minimum value of 0
                 Arguments.of(400, 4, 4, 2), // check if the priceStampRangeDays has a maximum value of 180
-                Arguments.of(Integer.MIN_VALUE, 4, 3, 2) // check if the priceStampRangeDays has a default value of 90
+                Arguments.of(Integer.MIN_VALUE, 3, 3, 2) // check if the priceStampRangeDays has a default value of 30
                 );
     }
 
@@ -99,7 +93,7 @@ class ProductDetailsTest extends ProductTest {
         var now = Instant.now();
         var twoDaysAgo = Instant.now().minus(Duration.ofDays(2));
         var fiveDaysAgo = Instant.now().minus(Duration.ofDays(5));
-        var yearAgo = Instant.now().minus(Duration.of(1, ChronoUnit.YEARS));
+        var yearAgo = Instant.now().minus(Duration.ofDays(365));
         var weekAgo = Instant.now().minus(Duration.ofDays(7));
         var eightyNineDaysAgo = Instant.now().minus(Duration.ofDays(89));
         var ninetyOneDaysAgo = Instant.now().minus(Duration.ofDays(91));
@@ -122,9 +116,7 @@ class ProductDetailsTest extends ProductTest {
         var request = given().contentType(JSON);
 
         // testing for default value
-        if (rangeDays != Integer.MIN_VALUE) {
-            request = request.param("priceStampRangeDays", rangeDays);
-        }
+        if (rangeDays != Integer.MIN_VALUE) request = request.param("priceStampRangeDays", rangeDays);
 
         request.when()
                 .get("/{productId}", product.getId())
@@ -132,18 +124,13 @@ class ProductDetailsTest extends ProductTest {
                 .statusCode(HttpStatus.OK.value())
                 .body("offers", hasSize(3))
                 .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.MEDIA_EXPERT.getHumanReadableName()),
+                        String.format("offers.find { it.shop == '%s' }.priceHistory", Shop.MEDIA_EXPERT.name()),
                         hasSize(mediaExpertHistorySize))
                 .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory",
-                                Shop.RTV_EURO_AGD.getHumanReadableName()),
+                        String.format("offers.find { it.shop == '%s' }.priceHistory", Shop.RTV_EURO_AGD.name()),
                         hasSize(rtvEuroAgdHistorySize))
                 .body(
-                        String.format(
-                                "offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.getHumanReadableName()),
+                        String.format("offers.find { it.shop == '%s' }.priceHistory", Shop.MORELE_NET.name()),
                         hasSize(moreleNetHistorySize));
     }
 
@@ -151,6 +138,7 @@ class ProductDetailsTest extends ProductTest {
         var now = Instant.now();
         var twoDaysAgo = Instant.now().minus(Duration.ofDays(2));
         var fiveDaysAgo = Instant.now().minus(Duration.ofDays(5));
+
         return Stream.of(
                 Arguments.of(
                         List.of(
@@ -166,10 +154,7 @@ class ProductDetailsTest extends ProductTest {
                                         Shop.MEDIA_EXPERT, BigDecimal.valueOf(500), twoDaysAgo),
                                 new ProductTestDataFactory.OfferPriceStamp(
                                         Shop.MEDIA_EXPERT, BigDecimal.valueOf(100), now)),
-                        List.of(
-                                Shop.MEDIA_EXPERT.getHumanReadableName(),
-                                Shop.RTV_EURO_AGD.getHumanReadableName(),
-                                Shop.MORELE_NET.getHumanReadableName())),
+                        List.of(Shop.MEDIA_EXPERT.name(), Shop.RTV_EURO_AGD.name(), Shop.MORELE_NET.name())),
                 Arguments.of(
                         List.of(
                                 new ProductTestDataFactory.OfferPriceStamp(
@@ -180,10 +165,7 @@ class ProductDetailsTest extends ProductTest {
                                         Shop.RTV_EURO_AGD, BigDecimal.valueOf(199), now),
                                 new ProductTestDataFactory.OfferPriceStamp(
                                         Shop.MORELE_NET, BigDecimal.valueOf(205), now)),
-                        List.of(
-                                Shop.MEDIA_EXPERT.getHumanReadableName(),
-                                Shop.RTV_EURO_AGD.getHumanReadableName(),
-                                Shop.MORELE_NET.getHumanReadableName())),
+                        List.of(Shop.MEDIA_EXPERT.name(), Shop.RTV_EURO_AGD.name(), Shop.MORELE_NET.name())),
                 Arguments.of(
                         List.of(
                                 new ProductTestDataFactory.OfferPriceStamp(
@@ -192,10 +174,7 @@ class ProductDetailsTest extends ProductTest {
                                         Shop.RTV_EURO_AGD, BigDecimal.valueOf(150), now),
                                 new ProductTestDataFactory.OfferPriceStamp(
                                         Shop.MORELE_NET, BigDecimal.valueOf(250), now)),
-                        List.of(
-                                Shop.RTV_EURO_AGD.getHumanReadableName(),
-                                Shop.MORELE_NET.getHumanReadableName(),
-                                Shop.MEDIA_EXPERT.getHumanReadableName())));
+                        List.of(Shop.RTV_EURO_AGD.name(), Shop.MORELE_NET.name(), Shop.MEDIA_EXPERT.name())));
     }
 
     @ParameterizedTest
