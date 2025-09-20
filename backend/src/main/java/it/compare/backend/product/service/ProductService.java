@@ -14,6 +14,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.bson.types.Decimal128;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -100,7 +101,7 @@ public class ProductService {
         var clampedPriceStampRangeDays = Math.clamp(priceStampRangeDays, 0, MAX_PRICE_STAMP_RANGE_DAYS);
         var cutOff = Instant.now().minus(Duration.ofDays(clampedPriceStampRangeDays));
 
-        var matchOperation = Aggregation.match(Criteria.where("_id").is(id));
+        var matchOperation = Aggregation.match(Criteria.where("_id").is(new ObjectId(id)));
 
         var filterPriceHistoryOperation = ArrayOperators.Filter.filter("$$offer.priceHistory")
                 .as("priceHistoryEntry")
