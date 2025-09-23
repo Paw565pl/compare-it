@@ -12,7 +12,10 @@ import {
 import { H2 } from "@/core/components/ui/h2";
 import { H3 } from "@/core/components/ui/h3";
 import { Input } from "@/core/components/ui/input";
-import { ShopEntity, shopsHumanReadableNames } from "@/products/entities/shop-entity";
+import {
+  ShopEntity,
+  shopDisplayNameMap,
+} from "@/products/entities/shop-entity";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
 import {
   productFiltersSearchParams,
@@ -53,7 +56,7 @@ export const FiltersBar = () => {
   );
   const form = useForm<ProductFiltersFields>({
     defaultValues,
-  });  
+  });
 
   useEffect(() => form.reset(defaultValues), [form, defaultValues]);
 
@@ -64,9 +67,7 @@ export const FiltersBar = () => {
     shops,
   }: ProductFiltersFields) => {
     const parsedShop =
-      shops.length === 0 || shops.length === shopList?.length
-        ? null
-        : shops;
+      shops.length === 0 || shops.length === shopList?.length ? null : shops;
     const parsedIsAvailable = isAvailable ? null : true;
 
     const parsedFilters: Partial<typeof productFilters> = {
@@ -120,7 +121,7 @@ export const FiltersBar = () => {
                               />
                             </FormControl>
                             <FormLabel className="cursor-pointer sm:text-lg">
-                              {shopsHumanReadableNames[shop]}
+                              {shopDisplayNameMap[shop]}
                             </FormLabel>
                           </FormLabel>
                         </FormItem>
