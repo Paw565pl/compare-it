@@ -30,7 +30,7 @@ import { formatDate } from "@/core/utils/format-date";
 import { CurrencyEntity } from "@/products/entities/currency-entity";
 import {
   ShopEntity,
-  shopsHumanReadableNames,
+  shopDisplayNameMap,
 } from "@/products/entities/shop-entity";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { convertPriceDataToChartFormat } from "@/products/utils/convert-price-data-to-chart-format";
@@ -47,15 +47,15 @@ type TimeRangeFilterValue = "7" | "30" | "90" | "180";
 
 const chartConfig: Record<ShopEntity, { label: ReactNode; color: string }> = {
   MEDIA_EXPERT: {
-    label: shopsHumanReadableNames[ShopEntity.MEDIA_EXPERT],
+    label: shopDisplayNameMap[ShopEntity.MEDIA_EXPERT],
     color: "var(--media-expert-brand)",
   },
   MORELE_NET: {
-    label: shopsHumanReadableNames[ShopEntity.MORELE_NET],
+    label: shopDisplayNameMap[ShopEntity.MORELE_NET],
     color: "var(--morele-brand)",
   },
   RTV_EURO_AGD: {
-    label: shopsHumanReadableNames[ShopEntity.RTV_EURO_AGD],
+    label: shopDisplayNameMap[ShopEntity.RTV_EURO_AGD],
     color: "var(--rtv-euro-agd-brand)",
   },
 } satisfies ChartConfig;

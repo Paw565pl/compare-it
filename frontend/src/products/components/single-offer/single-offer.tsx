@@ -6,7 +6,7 @@ import { OfferEntity } from "@/products/entities/offer-entity";
 import { getShopLogoUrl } from "@/products/utils/get-shop-logo-url";
 import Link from "next/link";
 
-import { shopsHumanReadableNames } from "@/products/entities/shop-entity";
+import { shopDisplayNameMap } from "@/products/entities/shop-entity";
 import type { Route } from "next";
 
 interface SingleOfferProps {
@@ -32,7 +32,7 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
       >
         <ImageWithFallback
           src={getShopLogoUrl(offer.shop)}
-          alt={shopsHumanReadableNames[offer.shop]}
+          alt={shopDisplayNameMap[offer.shop]}
           fill
           sizes="(max-width: 359px) 100vw, 320px"
           containerClassName="w-40 h-6.25"

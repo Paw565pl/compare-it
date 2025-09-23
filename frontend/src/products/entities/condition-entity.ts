@@ -3,7 +3,7 @@ export enum ConditionEntity {
   OUTLET = "OUTLET",
 }
 
-export const conditionsHumanReadableNames: Record<ConditionEntity, string> = {
+export const conditionDisplayNameMap: Record<ConditionEntity, string> = {
   [ConditionEntity.NEW]: "Nowy",
   [ConditionEntity.OUTLET]: "Outlet",
 } as const;

@@ -9,6 +9,7 @@ import { productFiltersSearchParams } from "@/products/search-params/product-sea
 import { useRouter } from "next/navigation";
 import { useQueryStates } from "nuqs";
 
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
 import type { Route } from "next";
 
 export const CategoriesList = () => {
@@ -66,7 +67,7 @@ export const CategoriesList = () => {
                 variant="category"
                 onClick={() => handleCategoryChange(category)}
               >
-                <span>{category}</span>
+                <span>{categoryDisplayNameMap[category]}</span>
               </Button>
             </li>
           );

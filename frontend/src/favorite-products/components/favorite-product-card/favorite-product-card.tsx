@@ -11,7 +11,7 @@ import {
 import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
-import { categoriesHumanReadableNames } from "@/products/entities/category-entity";
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
 import { Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -61,7 +61,7 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
         </CardTitle>
 
         <CardDescription className="flex items-center justify-between">
-          <span>{categoriesHumanReadableNames[product.category]}</span>
+          <span>{categoryDisplayNameMap[product.category]}</span>
           <span>EAN: {product.ean}</span>
         </CardDescription>
       </CardHeader>

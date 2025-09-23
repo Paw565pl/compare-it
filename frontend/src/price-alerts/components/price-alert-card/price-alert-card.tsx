@@ -16,7 +16,7 @@ import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
 import { useUpdatePriceAlert } from "@/price-alerts/hooks/client/use-update-price-alert";
 import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
-import { categoriesHumanReadableNames } from "@/products/entities/category-entity";
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
 import { CurrencyEntity } from "@/products/entities/currency-entity";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { Pen, Trash2 } from "lucide-react";
@@ -87,7 +87,7 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
         <CardDescription className="flex items-center justify-between">
           <span>
             {product?.category
-              ? categoriesHumanReadableNames[product.category]
+              ? categoryDisplayNameMap[product.category]
               : null}
           </span>
           <span>EAN: {product?.ean}</span>

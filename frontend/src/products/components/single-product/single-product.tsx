@@ -1,9 +1,9 @@
 import { H1 } from "@/core/components/ui/h1";
 import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
-import { categoriesHumanReadableNames } from "@/products/entities/category-entity";
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
-import { shopsHumanReadableNames } from "@/products/entities/shop-entity";
+import { shopDisplayNameMap } from "@/products/entities/shop-entity";
 import Link from "next/link";
 
 interface SingleProductProps {
@@ -48,12 +48,11 @@ export const SingleProduct = ({
         </H1>
 
         <p className="text-secondary mb-4 text-sm">
-          Kategoria: {categoriesHumanReadableNames[category]}
+          Kategoria: {categoryDisplayNameMap[category]}
         </p>
 
         <p className="text-secondary mb-1 text-sm">
-          Sklep:{" "}
-          {lowestPriceShop ? shopsHumanReadableNames[lowestPriceShop] : "-"}
+          Sklep: {lowestPriceShop ? shopDisplayNameMap[lowestPriceShop] : "-"}
         </p>
 
         <p className="text-secondary mb-1 text-sm">
