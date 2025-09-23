@@ -73,9 +73,7 @@ public class ProductService {
         var total = mongoTemplate.count(query, Product.class);
         if (total == 0) return Page.empty(pageable);
 
-        var sortOrders = getListSortOrders(pageable);
-        query.with(Sort.by(sortOrders));
-
+        query.with(Sort.by(getListSortOrders(pageable)));
         query.skip(pageable.getOffset());
         query.limit(pageable.getPageSize());
 
