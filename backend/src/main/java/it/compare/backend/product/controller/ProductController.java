@@ -25,7 +25,7 @@ public class ProductController {
     @GetMapping
     public Page<ProductListResponseDto> findAll(
             ProductFilterDto filters,
-            @PageableDefault(size = 20, sort = "offersCount", direction = DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "availableOffersCount", direction = DESC) Pageable pageable) {
         return productService.findAll(filters, pageable);
     }
 
