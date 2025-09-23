@@ -24,7 +24,6 @@ public interface ProductMapper {
                 product.getComputedState().getBestOffer() != null
                         ? product.getComputedState().getBestOffer().getShop()
                         : null,
-                product.getComputedState().getAvailableOffersCount(),
-                product.getComputedState().getAvailableOffersCount() > 0);
+                product.getComputedState().getAvailableOffersCount());
     }
 }

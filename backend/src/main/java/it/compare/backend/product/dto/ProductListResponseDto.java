@@ -16,5 +16,4 @@ public record ProductListResponseDto(
         @Nullable BigDecimal lowestCurrentPrice,
         @Nullable Currency lowestPriceCurrency,
         @Nullable Shop lowestPriceShop,
-        @NonNull Integer availableOffersCount,
-        @NonNull Boolean isAvailable) {}
+        @NonNull Integer availableOffersCount) {}
