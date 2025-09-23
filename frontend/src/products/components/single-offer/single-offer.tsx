@@ -6,6 +6,8 @@ import { OfferEntity } from "@/products/entities/offer-entity";
 import { getShopLogoUrl } from "@/products/utils/get-shop-logo-url";
 import Link from "next/link";
 
+import type { Route } from "next";
+
 interface SingleOfferProps {
   readonly offer: OfferEntity;
 }
@@ -22,7 +24,7 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
   return (
     <div className="flex flex-col items-center justify-between gap-y-3 bg-white p-4 sm:flex-row">
       <Link
-        href={offer.url}
+        href={offer.url as Route}
         target="_blank"
         rel="nofollow noopener"
         className="bg-background px-2 py-4"
@@ -62,7 +64,11 @@ export const SingleOffer = ({ offer }: SingleOfferProps) => {
           asChild
           className="bg-primary hover:bg-hover font-semibold shadow-none"
         >
-          <Link href={offer.url} target="_blank" rel="nofollow noopener">
+          <Link
+            href={offer.url as Route}
+            target="_blank"
+            rel="nofollow noopener"
+          >
             PRZEJDŹ DO OFERTY
           </Link>
         </Button>

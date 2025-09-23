@@ -5,8 +5,8 @@ import { z } from "zod";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const clientEnv = createEnv({
   client: {
-    NEXT_PUBLIC_API_BASE_URL: z.string().trim().url(),
-    NEXT_PUBLIC_AUTH_AUTH0_ISSUER: z.string().trim().url(),
+    NEXT_PUBLIC_API_BASE_URL: z.url().trim(),
+    NEXT_PUBLIC_AUTH_AUTH0_ISSUER: z.url().trim(),
     NEXT_PUBLIC_AUTH_AUTH0_ID: z.string().trim(),
     NEXT_PUBLIC_SESSION_REFETCH_INTERVAL: z.coerce.number().positive(),
   },

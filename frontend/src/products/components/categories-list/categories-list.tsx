@@ -9,6 +9,8 @@ import { productFiltersSearchParams } from "@/products/search-params/product-sea
 import { useRouter } from "next/navigation";
 import { useQueryStates } from "nuqs";
 
+import type { Route } from "next";
+
 export const CategoriesList = () => {
   const { push } = useRouter();
   const { data: categoriesList } = useFetchCategoriesList();
@@ -26,7 +28,7 @@ export const CategoriesList = () => {
     const params = new URLSearchParams(paramsValues);
 
     const url = `/produkty?${params.toString()}`;
-    push(url);
+    push(url as Route);
   };
 
   return (
