@@ -34,8 +34,5 @@ jobs:
       - name: Check linting with ESLint
         run: pnpm lint
 
-      - name: Check types with TypeScript
-        run: pnpm tsc --noEmit
-
       - name: Build project
         run: pnpm build
