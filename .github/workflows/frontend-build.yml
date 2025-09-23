@@ -1,4 +1,4 @@
-name: Frontend Build
+name: Build Frontend
 run-name: ${{ github.actor }} is building frontend
 on: [push]
 
@@ -11,32 +11,16 @@ jobs:
         working-directory: ./frontend
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
+      - uses: actions/checkout@v5
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        id: pnpm-install
-        with:
-          package_json_file: "./frontend/package.json"
-          run_install: false
+        uses: pnpm/action-setup@v4
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          node-version: "24"
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install
@@ -46,6 +30,9 @@ jobs:
 
       - name: Check linting with ESLint
         run: pnpm lint
+
+      - name: Check types with TypeScript
+        run: pnpm tsc --noEmit
 
       - name: Build project
         run: pnpm build
