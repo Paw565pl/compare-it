@@ -13,15 +13,10 @@ import {
   loadProductPaginationSearchParams,
 } from "@/products/search-params/product-search-params";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { SearchParams } from "nuqs";
-
-interface ProductListPageProps {
-  readonly searchParams: Promise<SearchParams>;
-}
 
 export const ProductListPage = async ({
   searchParams,
-}: ProductListPageProps) => {
+}: PageProps<"/produkty">) => {
   const queryClient = getQueryClient();
 
   const productFilters = await loadProductFiltersSearchParams(searchParams);

@@ -9,11 +9,7 @@ import { prefetchProduct } from "@/products/hooks/server/prefetch-product";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
 
-export interface ProductPageProps {
-  readonly params: Promise<{ id: string }>;
-}
-
-export const ProductPage = async ({ params }: ProductPageProps) => {
+export const ProductPage = async ({ params }: PageProps<"/produkty/[id]">) => {
   const productId = (await params).id;
   const isProductIdValid = getIsObjectIdValid(productId);
 
