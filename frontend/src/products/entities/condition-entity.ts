@@ -1,4 +1,9 @@
 export enum ConditionEntity {
-  NEW = "Nowy",
-  OUTLET = "Outlet",
+  NEW = "NEW",
+  OUTLET = "OUTLET",
 }
+
+export const conditionsHumanReadableNames: Record<ConditionEntity, string> = {
+  [ConditionEntity.NEW]: "Nowy",
+  [ConditionEntity.OUTLET]: "Outlet",
+} as const;

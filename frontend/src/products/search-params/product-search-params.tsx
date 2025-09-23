@@ -9,10 +9,10 @@ import {
 export const productFiltersSearchParams = {
   name: parseAsString,
   category: parseAsString,
+  shops: parseAsString,
   minPrice: parseAsFloat,
   maxPrice: parseAsFloat,
   isAvailable: parseAsBoolean,
-  shop: parseAsString,
 } as const;
 
 export const loadProductFiltersSearchParams = createLoader(

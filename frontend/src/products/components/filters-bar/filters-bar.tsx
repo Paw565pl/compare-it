@@ -25,7 +25,7 @@ interface ProductFiltersFields {
   minPrice: string;
   maxPrice: string;
   isAvailable: boolean;
-  shop: string[];
+  shops: string[];
 }
 
 export const FiltersBar = () => {
@@ -46,7 +46,7 @@ export const FiltersBar = () => {
         isAvailable: productFilters.isAvailable
           ? !productFilters.isAvailable
           : true,
-        shop: productFilters.shop?.split(",") ?? shopList ?? [],
+        shops: productFilters.shops?.split(",") ?? shopList ?? [],
       }) as const,
     [shopList, productFilters],
   );
@@ -60,19 +60,19 @@ export const FiltersBar = () => {
     minPrice,
     maxPrice,
     isAvailable,
-    shop,
+    shops,
   }: ProductFiltersFields) => {
     const parsedShop =
-      shop.length === 0 || shop.length === shopList?.length
+      shops.length === 0 || shops.length === shopList?.length
         ? null
-        : shop.join(",");
+        : shops.join(",");
     const parsedIsAvailable = isAvailable ? null : true;
 
     const parsedFilters: Partial<typeof productFilters> = {
       minPrice: Number(minPrice) || null,
       maxPrice: Number(maxPrice) || null,
       isAvailable: parsedIsAvailable,
-      shop: parsedShop,
+      shops: parsedShop,
     } as const;
 
     setProductFilters((prevFilters) => ({
@@ -93,13 +93,13 @@ export const FiltersBar = () => {
 
             <FormField
               control={form.control}
-              name="shop"
+              name="shops"
               render={() => (
                 <FormItem className="block w-full">
                   {shopList?.map((shop, index) => (
                     <FormField
                       control={form.control}
-                      name="shop"
+                      name="shops"
                       key={index}
                       render={({ field }) => (
                         <FormItem key={index}>
