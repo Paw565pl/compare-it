@@ -70,7 +70,7 @@ val randomUserAgentGeneratorVersion = "1.3"
 val jsoupVersion = "1.21.2"
 val seleniumVersion = "4.35.0"
 val dataFakerVersion = "2.5.0"
-val junitJupiterParamsVersion = "5.13.4"
+val junitJupiterParamsVersion = "5.12.2"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
