@@ -18,7 +18,7 @@ export const categoryDisplayNameMap: Record<CategoryEntity, string> = {
   [CategoryEntity.PC_CASE]: "Obudowy",
 } as const;
 
-export const categorypByDisplayNameMap: Record<string, CategoryEntity> =
+export const categoryByDisplayNameMap: Record<string, CategoryEntity> =
   Object.fromEntries(
     Object.entries(categoryDisplayNameMap).map(([k, v]) => [
       v,
