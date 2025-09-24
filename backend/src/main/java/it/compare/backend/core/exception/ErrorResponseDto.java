@@ -7,19 +7,17 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 @Getter
-@Setter
 @ToString
 @JsonInclude(NON_NULL)
 public class ErrorResponseDto {
 
-    private Instant timestamp;
-    private Integer status;
-    private String error;
-    private String message;
+    private final Instant timestamp;
+    private final Integer status;
+    private final String error;
+    private final String message;
     private Map<String, List<String>> errors;
 
     public ErrorResponseDto(Integer status, String error, String message, Map<String, List<String>> errors) {
