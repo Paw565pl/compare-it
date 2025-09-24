@@ -9,7 +9,10 @@ import { productFiltersSearchParams } from "@/products/search-params/product-sea
 import { useRouter } from "next/navigation";
 import { useQueryStates } from "nuqs";
 
-import { categoryDisplayNameMap } from "@/products/entities/category-entity";
+import {
+  categoryDisplayNameMap,
+  CategoryEntity,
+} from "@/products/entities/category-entity";
 import type { Route } from "next";
 
 export const CategoriesList = () => {
@@ -18,13 +21,13 @@ export const CategoriesList = () => {
 
   const [productFilters] = useQueryStates(productFiltersSearchParams);
 
-  const handleCategoryChange = (category: string | null) => {
+  const handleCategoryChange = (category: CategoryEntity | null) => {
     const paramsValues: Partial<
       Pick<Record<keyof typeof productFilters, string>, "name" | "category">
     > = {};
 
     if (productFilters.name) paramsValues.name = productFilters.name;
-    if (category) paramsValues.category = category;
+    if (category) paramsValues.category = categoryDisplayNameMap[category];
 
     const params = new URLSearchParams(paramsValues);
 
