@@ -1,14 +1,15 @@
 package it.compare.backend.core.exception;
 
 import jakarta.validation.ConstraintViolationException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,16 +19,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        var errors = new HashMap<String, List<String>>();
-        e.getFieldErrors().forEach(fieldError -> {
-            var fieldName = fieldError.getField();
-            var errorMessage = fieldError.getDefaultMessage();
-
-            if (errorMessage == null) return;
-
-            if (errors.containsKey(fieldName)) errors.get(fieldName).add(errorMessage);
-            else errors.put(fieldName, new ArrayList<>(List.of(errorMessage)));
-        });
+        var errors = e.getFieldErrors().stream()
+                .filter(fieldError -> fieldError.getDefaultMessage() != null
+                        && !fieldError.getDefaultMessage().isBlank())
+                .collect(Collectors.groupingBy(
+                        FieldError::getField,
+                        Collectors.mapping(DefaultMessageSourceResolvable::getDefaultMessage, Collectors.toList())));
 
         var status = HttpStatus.BAD_REQUEST;
         var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
@@ -37,22 +34,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponseDto> handleConstraintViolationException(ConstraintViolationException e) {
-        var errors = new HashMap<String, List<String>>();
+        var errors = e.getConstraintViolations().stream()
+                .map(error -> {
+                    var propertyPathIterator = error.getPropertyPath().iterator();
 
-        e.getConstraintViolations().forEach(constraintViolation -> {
-            var propertyPathIterator = constraintViolation.getPropertyPath().iterator();
+                    String fieldName = "";
+                    while (propertyPathIterator.hasNext()) {
+                        fieldName = propertyPathIterator.next().getName();
+                    }
 
-            String fieldName = null;
-            while (propertyPathIterator.hasNext()) {
-                fieldName = propertyPathIterator.next().getName();
-            }
-
-            var errorMessage = constraintViolation.getMessage();
-            if (errorMessage == null) return;
-
-            if (errors.containsKey(fieldName)) errors.get(fieldName).add(errorMessage);
-            else errors.put(fieldName, new ArrayList<>(List.of(errorMessage)));
-        });
+                    return Map.entry(fieldName, error.getMessage());
+                })
+                .filter(entry -> !entry.getKey().isBlank()
+                        && entry.getValue() != null
+                        && !entry.getValue().isBlank())
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
 
         var status = HttpStatus.BAD_REQUEST;
         var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
