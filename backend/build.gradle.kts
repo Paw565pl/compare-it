@@ -10,7 +10,7 @@ plugins {
     id("se.solrike.sonarlint") version "2.2.0"
 }
 
-if (gradle.startParameter.taskNames.any { it.contains("bootJar") || it.contains("build") }) {
+if (gradle.startParameter.taskNames.any { it.contains("bootJar") }) {
     apply(plugin = "org.springframework.boot.aot")
 }
 
