@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -50,9 +51,10 @@ public class ProductService {
         var query = new Query();
 
         if (filters.name() != null && !filters.name().isBlank())
-            query.addCriteria(TextCriteria.forDefaultLanguage()
-                    .matching("\"" + filters.name() + "\"")
-                    .caseSensitive(false));
+            query = TextQuery.queryText(TextCriteria.forDefaultLanguage()
+                            .matchingPhrase(filters.name())
+                            .caseSensitive(false))
+                    .sortByScore();
         if (filters.category() != null)
             query.addCriteria(Criteria.where("category").is(filters.category().name()));
         if (filters.shops() != null && !filters.shops().isEmpty())
