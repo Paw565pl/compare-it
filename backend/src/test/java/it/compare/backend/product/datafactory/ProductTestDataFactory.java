@@ -28,8 +28,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     @Override
     public Product generate() {
         var priceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
-        var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
-        offer.getPriceHistory().add(priceStamp);
+        var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url(), priceStamp);
 
         var product = new Product(
                 String.valueOf(faker.number().positive()), faker.commerce().productName(), Category.CPU);
@@ -77,8 +76,7 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         customPriceStamp.setTimestamp(Instant.now());
         product.getOffers().clear();
 
-        var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
-        offer.getPriceHistory().add(customPriceStamp);
+        var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url(), customPriceStamp);
         product.getOffers().add(offer);
 
         product.setComputedState(ComputedState.fromProduct(product));
@@ -86,13 +84,11 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
     }
 
     public void createProductWithShop(Shop shop) {
+        var priceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
+        var offer = new Offer(shop, faker.internet().url(), priceStamp);
+
         var product = generate();
         product.getOffers().clear();
-        var offer = new Offer(shop, faker.internet().url());
-
-        var priceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
-        offer.getPriceHistory().add(priceStamp);
-
         product.getOffers().add(offer);
         product.setComputedState(ComputedState.fromProduct(product));
 
@@ -122,11 +118,12 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
                     .filter(o -> o.getShop().equals(offerPriceStamp.shop))
                     .findFirst();
 
-            if (offer.isPresent()) offer.get().getPriceHistory().add(priceStamp);
-            else {
+            if (offer.isPresent()) {
+                offer.get().addPriceStamp(priceStamp);
+            } else {
                 var newOffer =
-                        new Offer(offerPriceStamp.shop(), faker.internet().url());
-                newOffer.getPriceHistory().add(priceStamp);
+                        new Offer(offerPriceStamp.shop(), faker.internet().url(), priceStamp);
+                newOffer.addPriceStamp(priceStamp);
                 product.getOffers().add(newOffer);
             }
         });

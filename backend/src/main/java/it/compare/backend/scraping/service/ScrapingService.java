@@ -70,7 +70,7 @@ public class ScrapingService {
                             .findFirst();
 
                     offerFromExistingShop.ifPresentOrElse(
-                            offer -> offer.getPriceHistory().add(newPriceStamp), () -> offers.add(newOffer));
+                            offer -> offer.addPriceStamp(newPriceStamp), () -> offers.add(newOffer));
 
                     var computedState = ComputedState.fromProduct(existingProduct);
                     existingProduct.setComputedState(computedState);

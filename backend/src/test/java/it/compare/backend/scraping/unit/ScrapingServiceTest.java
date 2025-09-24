@@ -67,25 +67,19 @@ class ScrapingServiceTest {
                 new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
         existingPriceStamp2.setTimestamp(Instant.now().minus(Duration.ofDays(3)));
 
-        existingOfferFromShopA = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
-        existingOfferFromShopA.getPriceHistory().add(existingPriceStamp1);
-
-        existingOfferFromShopB = new Offer(Shop.MORELE_NET, faker.internet().url());
-        existingOfferFromShopB.getPriceHistory().add(existingPriceStamp2);
+        existingOfferFromShopA = new Offer(Shop.RTV_EURO_AGD, faker.internet().url(), existingPriceStamp1);
+        existingOfferFromShopB = new Offer(Shop.MORELE_NET, faker.internet().url(), existingPriceStamp2);
 
         existingProduct = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.CPU);
         existingProduct.getOffers().addAll(List.of(existingOfferFromShopA, existingOfferFromShopB));
 
         newPriceStamp = new PriceStamp(BigDecimal.valueOf(faker.number().positive()), Currency.PLN, Condition.NEW);
-
-        newOfferFromShopA = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
-        newOfferFromShopA.getPriceHistory().add(newPriceStamp);
+        newOfferFromShopA = new Offer(Shop.RTV_EURO_AGD, faker.internet().url(), newPriceStamp);
 
         newProduct1 = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.CPU);
         newProduct1.getOffers().add(newOfferFromShopA);
 
-        newOfferFromShopC = new Offer(Shop.MEDIA_EXPERT, faker.internet().url());
-        newOfferFromShopC.getPriceHistory().add(newPriceStamp);
+        newOfferFromShopC = new Offer(Shop.MEDIA_EXPERT, faker.internet().url(), newPriceStamp);
 
         newProduct2 = new Product(PRODUCT_2_EAN, faker.commerce().productName(), Category.MOTHERBOARD);
         newProduct2.getOffers().add(newOfferFromShopC);
@@ -105,27 +99,6 @@ class ScrapingServiceTest {
     @Test
     void shouldNotSaveIfProductHasNoOffers() {
         var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.CPU);
-
-        var scrapedProducts = List.of(product);
-        var eans = List.of(PRODUCT_1_EAN);
-
-        when(productRepository.findAllByEanIn(eans)).thenReturn(List.of(existingProduct));
-
-        scrapingService.createProductsOrAddPriceStamp(scrapedProducts);
-
-        verify(productRepository).findAllByEanIn(eans);
-        verify(productRepository, never()).saveAll(productListCaptor.capture());
-        verify(priceAlertService, never()).checkPriceAlerts(anyList());
-
-        assertThat(existingProduct.getOffers(), hasSize(2));
-    }
-
-    @Test
-    void shouldNotSaveIfOfferHasNoPriceStamps() {
-        var offer = new Offer(Shop.RTV_EURO_AGD, faker.internet().url());
-
-        var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.CPU);
-        product.getOffers().add(offer);
 
         var scrapedProducts = List.of(product);
         var eans = List.of(PRODUCT_1_EAN);
@@ -163,8 +136,7 @@ class ScrapingServiceTest {
 
     @Test
     void shouldSavePriceStampIfProductExistsButOfferDoesNot() {
-        var offer = new Offer(Shop.MEDIA_EXPERT, faker.internet().url());
-        offer.getPriceHistory().add(newPriceStamp);
+        var offer = new Offer(Shop.MEDIA_EXPERT, faker.internet().url(), newPriceStamp);
 
         var product = new Product(PRODUCT_1_EAN, faker.commerce().productName(), Category.CPU);
         product.getOffers().add(offer);
@@ -229,7 +201,7 @@ class ScrapingServiceTest {
         assertThat(updatedOffer.getPriceHistory(), hasItems(existingPriceStamp1, newPriceStamp));
 
         var existingOffer = updatedProduct.getOffers().stream()
-                .filter(o -> o.getShop() == existingOfferFromShopB.getShop())
+                .filter(o -> o.getShop().equals(existingOfferFromShopB.getShop()))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("existing offer not found in existing product"));
         assertThat(existingOffer.getPriceHistory(), hasSize(1));

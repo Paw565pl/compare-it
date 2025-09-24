@@ -57,13 +57,13 @@ class PriceAlertServiceTest {
 
     @Test
     void shouldSendEmailWhenPriceBelowTarget() {
+        var lowPriceStamp = new PriceStamp(BigDecimal.valueOf(90), Currency.PLN, Condition.NEW);
+        lowPriceStamp.setTimestamp(Instant.now());
+
+        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product", lowPriceStamp);
         var product = productFactory.generate();
 
         product.getOffers().clear();
-        var lowPriceStamp = new PriceStamp(BigDecimal.valueOf(90), Currency.PLN, Condition.NEW);
-        lowPriceStamp.setTimestamp(Instant.now());
-        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
-        offer.getPriceHistory().add(lowPriceStamp);
         product.getOffers().add(offer);
 
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));
@@ -101,8 +101,8 @@ class PriceAlertServiceTest {
         product.getOffers().clear();
         var highPriceStamp = new PriceStamp(BigDecimal.valueOf(150), Currency.PLN, Condition.NEW);
         highPriceStamp.setTimestamp(Instant.now());
-        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
-        offer.getPriceHistory().add(highPriceStamp);
+        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product", highPriceStamp);
+        offer.addPriceStamp(highPriceStamp);
         product.getOffers().add(offer);
 
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));
@@ -156,14 +156,14 @@ class PriceAlertServiceTest {
 
         var outletPriceStamp = new PriceStamp(outletPrice, Currency.PLN, Condition.OUTLET);
         outletPriceStamp.setTimestamp(Instant.now());
-        var outletOffer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/outlet");
-        outletOffer.getPriceHistory().add(outletPriceStamp);
+        var outletOffer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/outlet", outletPriceStamp);
+        outletOffer.addPriceStamp(outletPriceStamp);
         product.getOffers().add(outletOffer);
 
         var newPriceStamp = new PriceStamp(newPrice, Currency.PLN, Condition.NEW);
         newPriceStamp.setTimestamp(Instant.now());
-        var newOffer = new Offer(Shop.MEDIA_EXPERT, "https://example.com/new");
-        newOffer.getPriceHistory().add(newPriceStamp);
+        var newOffer = new Offer(Shop.MEDIA_EXPERT, "https://example.com/new", newPriceStamp);
+        newOffer.addPriceStamp(newPriceStamp);
         product.getOffers().add(newOffer);
 
         return product;

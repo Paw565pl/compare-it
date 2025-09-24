@@ -35,12 +35,12 @@ class PriceAlertIntegrationTest extends PriceAlertTest {
 
     @Test
     void shouldSendEmailAndDeactivateAlertWhenPriceReachesTheTarget() {
-        var product = productTestDataFactory.createOne();
-
-        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
         var lowPrice = new PriceStamp(BigDecimal.valueOf(90), Currency.PLN, Condition.NEW);
         lowPrice.setTimestamp(Instant.now());
-        offer.getPriceHistory().add(lowPrice);
+
+        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product", lowPrice);
+
+        var product = productTestDataFactory.createOne();
         product.getOffers().add(offer);
 
         var alert = new PriceAlert(product, BigDecimal.valueOf(100));

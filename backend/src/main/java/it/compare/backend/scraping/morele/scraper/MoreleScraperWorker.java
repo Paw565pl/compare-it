@@ -120,8 +120,7 @@ class MoreleScraperWorker implements ScraperWorker {
         var promoCodeElement = extractPromoCode(productDocument);
         promoCodeElement.ifPresent(priceStamp::setPromoCode);
 
-        var offer = new Offer(CURRENT_SHOP, href);
-        offer.getPriceHistory().add(priceStamp);
+        var offer = new Offer(CURRENT_SHOP, href, priceStamp);
 
         var productEntity = new Product(ean, title, category);
         productEntity.getImages().addAll(images);

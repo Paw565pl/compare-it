@@ -145,8 +145,7 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
         var priceStamp = new PriceStamp(price, Currency.PLN, condition);
         priceStamp.setPromoCode(promoCode);
 
-        var offer = new Offer(CURRENT_SHOP, getProductUrl(productResponse.identifiers()));
-        offer.getPriceHistory().add(priceStamp);
+        var offer = new Offer(CURRENT_SHOP, getProductUrl(productResponse.identifiers()), priceStamp);
 
         var ean = productResponse.eanCodes().getFirst();
         var images = getBigImages(productResponse.images());
