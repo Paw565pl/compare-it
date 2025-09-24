@@ -195,7 +195,7 @@ class MoreleScraperWorker implements ScraperWorker {
                 productDocument.selectFirst("aside.product-sidebar div.product-box-main div.product-price"));
         if (price.isEmpty()) return null;
 
-        var priceString = price.get().text().replaceAll("[^0-9,]", "").replace(",", ".");
+        var priceString = price.get().attr("data-price");
         return new BigDecimal(priceString);
     }
 
