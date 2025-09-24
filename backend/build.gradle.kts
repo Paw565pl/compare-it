@@ -19,7 +19,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -36,7 +36,7 @@ spotless {
         removeUnusedImports()
         cleanthat()
         lineEndings = LineEnding.UNIX
-        palantirJavaFormat()
+        palantirJavaFormat("2.74.0")
         trimTrailingWhitespace()
         endWithNewline()
         leadingTabsToSpaces()
@@ -65,7 +65,7 @@ repositories {
 val springdocVersion = "2.8.13"
 val mapstructVersion = "1.6.3"
 val apacheHttpClientVersion = "5.5"
-val apacheHttpCoreVersion = "5.3.5"
+val apacheHttpCoreVersion = "5.3.6"
 val randomUserAgentGeneratorVersion = "1.3"
 val jsoupVersion = "1.21.2"
 val seleniumVersion = "4.35.0"

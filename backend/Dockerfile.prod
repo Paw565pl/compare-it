@@ -1,4 +1,4 @@
-FROM bellsoft/liberica-openjdk-debian:21 AS builder
+FROM bellsoft/liberica-openjdk-debian:25 AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY . .
 
 RUN ./gradlew --no-daemon clean bootJar
 
-FROM bellsoft/liberica-openjre-debian:21-cds
+FROM bellsoft/liberica-openjre-debian:25-cds
 
 ARG CHROME_VERSION=139.0.7258.66
 
@@ -42,4 +42,4 @@ COPY --from=builder --chown=spring /app/build/libs/*.jar /app/app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-Dspring.aot.enabled=true", "-jar", "app.jar"]
