@@ -50,8 +50,9 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
             if (initialPage == null) return CompletableFuture.completedFuture(products);
 
             var pagesCount = (initialPage.productsCount() / PAGE_SIZE) + 1;
+            var maxStartFrom = pagesCount * PAGE_SIZE;
 
-            for (var startFrom = 0; startFrom <= pagesCount; startFrom += PAGE_SIZE) {
+            for (var startFrom = 0; startFrom <= maxStartFrom; startFrom += PAGE_SIZE) {
                 var productPage = fetchProductPage(startFrom, category, categoryLocator);
                 if (productPage == null
                         || productPage.results() == null
