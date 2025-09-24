@@ -4,6 +4,7 @@ import it.compare.backend.product.dto.ProductDetailResponseDto;
 import it.compare.backend.product.dto.ProductFilterDto;
 import it.compare.backend.product.dto.ProductListResponseDto;
 import it.compare.backend.product.mapper.ProductMapper;
+import it.compare.backend.product.model.ComputedState;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import java.time.Duration;
@@ -97,18 +98,29 @@ public class ProductService {
 
     public ProductDetailResponseDto findById(String id, Integer priceStampRangeDays) {
         var clampedPriceStampRangeDays = Math.clamp(priceStampRangeDays, 0, MAX_PRICE_STAMP_RANGE_DAYS);
-        var cutOff = Instant.now().minus(Duration.ofDays(clampedPriceStampRangeDays));
+        var rangeDaysCutOff = Instant.now().minus(Duration.ofDays(clampedPriceStampRangeDays));
+        var availabilityCutOff = Instant.now().minus(ComputedState.AVAILABILITY_DAYS_THRESHOLD);
 
         var matchOperation = Aggregation.match(Criteria.where("_id").is(new ObjectId(id)));
+        var sortOffersOperation =
+                ArrayOperators.SortArray.sortArray("$offers").by(Sort.by(Sort.Direction.ASC, "latestPriceStamp.price"));
 
-        var filterPriceHistoryOperation = ArrayOperators.Filter.filter("$$offer.priceHistory")
-                .as("priceHistoryEntry")
-                .by(ComparisonOperators.Gte.valueOf("$$priceHistoryEntry.timestamp")
-                        .greaterThanEqualToValue(cutOff));
-        var mapOffersOperation = VariableOperators.Map.itemsOf("offers")
+        var priceHistoryField = new Document(
+                "priceHistory",
+                ArrayOperators.Filter.filter("$$offer.priceHistory")
+                        .as("entry")
+                        .by(ComparisonOperators.Gte.valueOf("$$entry.timestamp")
+                                .greaterThanEqualToValue(rangeDaysCutOff)));
+        var isAvailableField = new Document(
+                "isAvailable",
+                ComparisonOperators.Gt.valueOf("$$offer.latestPriceStamp.timestamp")
+                        .greaterThanValue(availabilityCutOff));
+        var mapOffersOperation = VariableOperators.Map.itemsOf(sortOffersOperation)
                 .as("offer")
                 .andApply(ObjectOperators.MergeObjects.merge("$$offer")
-                        .mergeWith(new Document("priceHistory", filterPriceHistoryOperation)));
+                        .mergeWith(priceHistoryField)
+                        .mergeWith(isAvailableField));
+
         var projectOperation = Aggregation.project()
                 .andInclude("ean", "name", "category", "images")
                 .and(mapOffersOperation)
