@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
                         Collectors.mapping(DefaultMessageSourceResolvable::getDefaultMessage, Collectors.toList())));
 
         var status = HttpStatus.BAD_REQUEST;
-        var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
+        var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Validation failed", errors);
 
         return ResponseEntity.status(status).body(response);
     }
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
                         Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
 
         var status = HttpStatus.BAD_REQUEST;
-        var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Validation failed.", errors);
+        var response = new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Validation failed", errors);
 
         return ResponseEntity.status(status).body(response);
     }
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException ignored) {
         var status = HttpStatus.BAD_REQUEST;
         var response =
-                new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Required request body is missing.");
+                new ErrorResponseDto(status.value(), status.getReasonPhrase(), "Required request body is missing");
 
         return ResponseEntity.status(status).body(response);
     }
