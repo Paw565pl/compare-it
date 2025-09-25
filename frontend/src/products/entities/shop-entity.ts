@@ -12,5 +12,8 @@ export const shopDisplayNameMap: Record<ShopEntity, string> = {
 
 export const shopByDisplayNameMap: Record<string, ShopEntity> =
   Object.fromEntries(
-    Object.entries(shopDisplayNameMap).map(([k, v]) => [v, k as ShopEntity]),
+    Object.entries(shopDisplayNameMap).map(([k, v]) => [
+      v.toLowerCase(),
+      k as ShopEntity,
+    ]),
   );

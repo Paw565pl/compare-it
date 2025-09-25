@@ -21,7 +21,7 @@ export const categoryDisplayNameMap: Record<CategoryEntity, string> = {
 export const categoryByDisplayNameMap: Record<string, CategoryEntity> =
   Object.fromEntries(
     Object.entries(categoryDisplayNameMap).map(([k, v]) => [
-      v,
+      v.toLowerCase(),
       k as CategoryEntity,
     ]),
   );

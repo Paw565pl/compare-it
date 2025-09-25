@@ -10,6 +10,6 @@ export const categoryQueryParser = createParser<CategoryEntity>({
     return categoryByDisplayNameMap[value] ?? null;
   },
   serialize(value) {
-    return categoryDisplayNameMap[value] ?? null;
+    return categoryDisplayNameMap[value].toLowerCase() ?? null;
   },
 });

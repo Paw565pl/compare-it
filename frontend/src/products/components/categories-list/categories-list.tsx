@@ -27,7 +27,8 @@ export const CategoriesList = () => {
     > = {};
 
     if (productFilters.name) paramsValues.name = productFilters.name;
-    if (category) paramsValues.category = categoryDisplayNameMap[category];
+    if (category)
+      paramsValues.category = categoryDisplayNameMap[category].toLowerCase();
 
     const params = new URLSearchParams(paramsValues);
 

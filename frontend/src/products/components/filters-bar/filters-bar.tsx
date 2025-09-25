@@ -33,7 +33,7 @@ interface ProductFiltersFields {
 }
 
 export const FiltersBar = () => {
-  const { data: shopList } = useFetchShopsList();
+  const { data: allShops } = useFetchShopsList();
 
   const [productFilters, setProductFilters] = useQueryStates(
     productFiltersSearchParams,
@@ -50,9 +50,9 @@ export const FiltersBar = () => {
         isAvailable: productFilters.isAvailable
           ? !productFilters.isAvailable
           : true,
-        shops: productFilters.shops ?? shopList ?? [],
+        shops: productFilters.shops ?? allShops ?? [],
       }) as const,
-    [shopList, productFilters],
+    [allShops, productFilters],
   );
   const form = useForm<ProductFiltersFields>({
     defaultValues,
@@ -67,7 +67,7 @@ export const FiltersBar = () => {
     shops,
   }: ProductFiltersFields) => {
     const parsedShop =
-      shops.length === 0 || shops.length === shopList?.length ? null : shops;
+      shops.length === 0 || shops.length === allShops?.length ? null : shops;
     const parsedIsAvailable = isAvailable ? null : true;
 
     const parsedFilters: Partial<typeof productFilters> = {
@@ -98,7 +98,7 @@ export const FiltersBar = () => {
               name="shops"
               render={() => (
                 <FormItem className="block w-full">
-                  {shopList?.map((shop, index) => (
+                  {allShops?.map((shop, index) => (
                     <FormField
                       control={form.control}
                       name="shops"

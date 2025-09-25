@@ -10,6 +10,6 @@ export const shopsQueryParser = createParser<ShopEntity>({
     return shopByDisplayNameMap[value] ?? null;
   },
   serialize(value) {
-    return shopDisplayNameMap[value] ?? null;
+    return shopDisplayNameMap[value].toLowerCase() ?? null;
   },
 });
