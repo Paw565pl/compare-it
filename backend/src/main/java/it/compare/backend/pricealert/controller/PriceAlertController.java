@@ -40,28 +40,28 @@ public class PriceAlertController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PriceAlertResponseDto createPriceAlert(
+    public PriceAlertResponseDto create(
             @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody PriceAlertRequestDto alertDto) {
-        return priceAlertService.createPriceAlert(OAuthUserDetails.fromJwt(jwt), alertDto.productId(), alertDto);
+        return priceAlertService.create(OAuthUserDetails.fromJwt(jwt), alertDto.productId(), alertDto);
+    }
+
+    @PutMapping("/{alertId}")
+    public PriceAlertResponseDto update(
+            @AuthenticationPrincipal Jwt jwt,
+            @ValidPriceAlertId @PathVariable String alertId,
+            @Valid @RequestBody PriceAlertRequestDto alertDto) {
+        return priceAlertService.update(OAuthUserDetails.fromJwt(jwt), alertId, alertDto);
     }
 
     @DeleteMapping("/{alertId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePriceAlert(@AuthenticationPrincipal Jwt jwt, @ValidPriceAlertId @PathVariable String alertId) {
-        priceAlertService.deletePriceAlert(OAuthUserDetails.fromJwt(jwt), alertId);
+    public void deleteById(@AuthenticationPrincipal Jwt jwt, @ValidPriceAlertId @PathVariable String alertId) {
+        priceAlertService.deleteById(OAuthUserDetails.fromJwt(jwt), alertId);
     }
 
     @DeleteMapping("/inactive")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteInactivePriceAlerts(@AuthenticationPrincipal Jwt jwt) {
-        priceAlertService.deleteInactivePriceAlerts(OAuthUserDetails.fromJwt(jwt));
-    }
-
-    @PutMapping("/{alertId}")
-    public PriceAlertResponseDto updatePriceAlert(
-            @AuthenticationPrincipal Jwt jwt,
-            @ValidPriceAlertId @PathVariable String alertId,
-            @Valid @RequestBody PriceAlertRequestDto alertDto) {
-        return priceAlertService.updatePriceAlert(OAuthUserDetails.fromJwt(jwt), alertId, alertDto);
+    public void deleteInactive(@AuthenticationPrincipal Jwt jwt) {
+        priceAlertService.deleteInactive(OAuthUserDetails.fromJwt(jwt));
     }
 }

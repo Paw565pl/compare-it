@@ -32,22 +32,22 @@ public class FavoriteProductController {
     }
 
     @GetMapping("/{productId}/status")
-    public FavoriteProductStatusResponseDto findFavoriteProductStatus(
+    public FavoriteProductStatusResponseDto findStatus(
             @AuthenticationPrincipal Jwt jwt, @ValidProductId @PathVariable String productId) {
-        return favoriteProductService.findFavoriteProductStatus(OAuthUserDetails.fromJwt(jwt), productId);
+        return favoriteProductService.findStatus(OAuthUserDetails.fromJwt(jwt), productId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addFavoriteProduct(
+    public void add(
             @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody FavoriteProductRequestDto favoriteProductRequestDto) {
-        favoriteProductService.addFavoriteProduct(OAuthUserDetails.fromJwt(jwt), favoriteProductRequestDto);
+        favoriteProductService.add(OAuthUserDetails.fromJwt(jwt), favoriteProductRequestDto);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeFavoriteProduct(
+    public void remove(
             @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody FavoriteProductRequestDto favoriteProductRequestDto) {
-        favoriteProductService.removeFavoriteProduct(OAuthUserDetails.fromJwt(jwt), favoriteProductRequestDto);
+        favoriteProductService.remove(OAuthUserDetails.fromJwt(jwt), favoriteProductRequestDto);
     }
 }
