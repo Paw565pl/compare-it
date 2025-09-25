@@ -2,6 +2,7 @@ package it.compare.backend.comment.service;
 
 import it.compare.backend.auth.details.OAuthUserDetails;
 import it.compare.backend.auth.model.Role;
+import it.compare.backend.auth.model.User;
 import it.compare.backend.auth.repository.UserRepository;
 import it.compare.backend.auth.util.AuthUtil;
 import it.compare.backend.comment.dto.CommentRequestDto;
@@ -53,10 +54,13 @@ public class CommentService {
     private static final String NEGATIVE_RATINGS_COUNT_FIELD = "negativeRatingsCount";
     private static final String IS_POSITIVE_RATING_FIELD = "isRatingPositive";
 
+    private static final Set<String> validSortProperties =
+            Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD);
+
     public Comment findCommentOrThrow(String id) {
         return commentRepository
                 .findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
     }
 
     public Page<CommentResponseDto> findAllByProductId(
@@ -70,14 +74,14 @@ public class CommentService {
         var operations = new ArrayList<AggregationOperation>();
 
         operations.add(Aggregation.match(criteria));
-        operations.addAll(getRatingsCountsAggregationOperations());
+        operations.add(Aggregation.lookup("users", "author.$id", "_id", AUTHOR_FIELD));
 
+        operations.addAll(getRatingsCountsAggregationOperations());
         var userId = Optional.ofNullable(oAuthUserDetails).map(OAuthUserDetails::getId);
         userId.ifPresent(userIdValue -> operations.add(getUserRatingAggregationOperation(userIdValue)));
 
         operations.add(Aggregation.project().andExclude(RATINGS_COLLECTION));
 
-        var validSortProperties = Set.of(POSITIVE_RATINGS_COUNT_FIELD, NEGATIVE_RATINGS_COUNT_FIELD, CREATED_AT_FIELD);
         var sortOrders = pageable.getSort()
                 .filter(order -> validSortProperties.contains(order.getProperty()))
                 .toList();
@@ -106,7 +110,6 @@ public class CommentService {
 
     private List<AggregationOperation> getRatingsCountsAggregationOperations() {
         var ratingsLookup = Aggregation.lookup(RATINGS_COLLECTION, "_id", "comment.$id", RATINGS_COLLECTION);
-        var authorLookup = Aggregation.lookup("users", "author.$id", "_id", AUTHOR_FIELD);
 
         var positiveRatingsCountFilter = Filter.filter(RATINGS_COLLECTION)
                 .as(SINGLE_RATING_FIELD)
@@ -119,7 +122,7 @@ public class CommentService {
                 .addFieldWithValue(NEGATIVE_RATINGS_COUNT_FIELD, Size.lengthOfArray(negativeRatingsCountFilter))
                 .build();
 
-        return List.of(ratingsLookup, authorLookup, addFields);
+        return List.of(ratingsLookup, addFields);
     }
 
     private AddFieldsOperation getUserRatingAggregationOperation(String userId) {
@@ -147,9 +150,11 @@ public class CommentService {
                 .is(new ObjectId(productId))
                 .and("_id")
                 .is(new ObjectId(commentId));
-        operations.add(Aggregation.match(criteria));
-        operations.addAll(getRatingsCountsAggregationOperations());
 
+        operations.add(Aggregation.match(criteria));
+        operations.add(Aggregation.lookup("users", "author.$id", "_id", AUTHOR_FIELD));
+
+        operations.addAll(getRatingsCountsAggregationOperations());
         var userId = Optional.ofNullable(oAuthUserDetails).map(OAuthUserDetails::getId);
         userId.ifPresent(userIdValue -> operations.add(getUserRatingAggregationOperation(userIdValue)));
 
@@ -169,7 +174,7 @@ public class CommentService {
                 .aggregate(aggregation, Comment.class, CommentResponseDto.class)
                 .getUniqueMappedResult();
 
-        if (commentResponse == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found.");
+        if (commentResponse == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
 
         return commentResponse;
     }
@@ -200,7 +205,8 @@ public class CommentService {
         productService.findProductOrThrow(productId);
         var comment = findCommentOrThrow(commentId);
 
-        var canUpdate = userId.equals(comment.getAuthor().getId());
+        var canUpdate = userId.equals(
+                Optional.ofNullable(comment.getAuthor()).map(User::getId).orElse(null));
         if (!canUpdate) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
         comment.setText(commentRequestDto.text());
@@ -215,7 +221,9 @@ public class CommentService {
         productService.findProductOrThrow(productId);
         var comment = findCommentOrThrow(commentId);
 
-        var canDelete = userId.equals(comment.getAuthor().getId())
+        var canDelete = userId.equals(Optional.ofNullable(comment.getAuthor())
+                        .map(User::getId)
+                        .orElse(null))
                 || AuthUtil.hasRole(oAuthUserDetails.getAuthorities(), Role.ADMIN);
         if (!canDelete) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
