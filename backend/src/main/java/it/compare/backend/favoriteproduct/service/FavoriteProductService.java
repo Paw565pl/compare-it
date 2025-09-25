@@ -51,7 +51,7 @@ public class FavoriteProductService {
         var sortOrders = Stream.concat(
                         pageable.getSort().stream().filter(o -> o.getProperty().equalsIgnoreCase("createdAt")),
                         productService.getListSortOrders(pageable).stream()
-                                .map(o -> new Sort.Order(o.getDirection(), PRODUCT_FIELD + o.getProperty())))
+                                .map(o -> new Sort.Order(o.getDirection(), PRODUCT_FIELD + "." + o.getProperty())))
                 .toList();
 
         operations.add(Aggregation.sort(Sort.by(sortOrders)));
