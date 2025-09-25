@@ -1,7 +1,9 @@
 package it.compare.backend.product.mapper;
 
 import it.compare.backend.product.dto.ProductListResponseDto;
+import it.compare.backend.product.model.BestOffer;
 import it.compare.backend.product.model.Product;
+import java.util.Optional;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
@@ -15,15 +17,15 @@ public interface ProductMapper {
                 product.getEan(),
                 product.getCategory(),
                 !product.getImages().isEmpty() ? product.getImages().getFirst() : null,
-                product.getComputedState().getBestOffer() != null
-                        ? product.getComputedState().getBestOffer().getPrice()
-                        : null,
-                product.getComputedState().getBestOffer() != null
-                        ? product.getComputedState().getBestOffer().getCurrency()
-                        : null,
-                product.getComputedState().getBestOffer() != null
-                        ? product.getComputedState().getBestOffer().getShop()
-                        : null,
+                Optional.ofNullable(product.getComputedState().getBestOffer())
+                        .map(BestOffer::getPrice)
+                        .orElse(null),
+                Optional.ofNullable(product.getComputedState().getBestOffer())
+                        .map(BestOffer::getCurrency)
+                        .orElse(null),
+                Optional.ofNullable(product.getComputedState().getBestOffer())
+                        .map(BestOffer::getShop)
+                        .orElse(null),
                 product.getComputedState().getAvailableOffersCount());
     }
 }
