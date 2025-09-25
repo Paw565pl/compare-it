@@ -19,6 +19,9 @@ jobs:
           java-version: "25"
           distribution: liberica
           cache: gradle
+          cache-dependency-path: |
+            ./backend/*.gradle* |
+            ./backend/**/gradle-wrapper.properties
 
       - run: chmod +x ./gradlew
 
