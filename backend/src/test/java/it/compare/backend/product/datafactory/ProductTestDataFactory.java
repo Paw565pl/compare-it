@@ -131,4 +131,14 @@ public class ProductTestDataFactory implements TestDataFactory<Product> {
         product.setComputedState(ComputedState.fromProduct(product));
         return productRepository.save(product);
     }
+
+    public Product createProductWithOffer(Offer offer) {
+        var product = generate();
+
+        product.getOffers().clear();
+        product.getOffers().add(offer);
+        product.setComputedState(ComputedState.fromProduct(product));
+
+        return productRepository.save(product);
+    }
 }

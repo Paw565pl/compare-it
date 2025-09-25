@@ -65,6 +65,7 @@ class PriceAlertServiceTest {
 
         product.getOffers().clear();
         product.getOffers().add(offer);
+        product.setComputedState(ComputedState.fromProduct(product));
 
         var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), true);
         alert.setIsActive(true);
@@ -79,9 +80,9 @@ class PriceAlertServiceTest {
                         testUser.getEmail(),
                         product.getName(),
                         product.getId(),
-                        BigDecimal.valueOf(90),
                         BigDecimal.valueOf(100),
-                        Shop.RTV_EURO_AGD.getHumanReadableName(),
+                        BigDecimal.valueOf(90),
+                        Shop.RTV_EURO_AGD,
                         "https://example.com/product");
 
         var alertCaptor = ArgumentCaptor.forClass(PriceAlert.class);
@@ -137,14 +138,13 @@ class PriceAlertServiceTest {
                         testUser.getEmail(),
                         product.getName(),
                         product.getId(),
-                        BigDecimal.valueOf(80),
                         BigDecimal.valueOf(100),
-                        Shop.RTV_EURO_AGD.getHumanReadableName(),
+                        BigDecimal.valueOf(80),
+                        Shop.RTV_EURO_AGD,
                         "https://example.com/outlet");
     }
 
     private Product createProductWithNewAndOutletOffers(BigDecimal newPrice, BigDecimal outletPrice) {
-
         var product = productFactory.generate();
         product.getOffers().clear();
 
@@ -152,13 +152,15 @@ class PriceAlertServiceTest {
         outletPriceStamp.setTimestamp(Instant.now());
         var outletOffer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/outlet", outletPriceStamp);
         outletOffer.addPriceStamp(outletPriceStamp);
-        product.getOffers().add(outletOffer);
 
         var newPriceStamp = new PriceStamp(newPrice, Currency.PLN, Condition.NEW);
         newPriceStamp.setTimestamp(Instant.now());
         var newOffer = new Offer(Shop.MEDIA_EXPERT, "https://example.com/new", newPriceStamp);
         newOffer.addPriceStamp(newPriceStamp);
+
+        product.getOffers().add(outletOffer);
         product.getOffers().add(newOffer);
+        product.setComputedState(ComputedState.fromProduct(product));
 
         return product;
     }

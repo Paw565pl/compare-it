@@ -9,11 +9,9 @@ import it.compare.backend.pricealert.mapper.PriceAlertMapper;
 import it.compare.backend.pricealert.model.PriceAlert;
 import it.compare.backend.pricealert.respository.PriceAlertRepository;
 import it.compare.backend.product.model.Condition;
-import it.compare.backend.product.model.PriceStamp;
 import it.compare.backend.product.model.Product;
 import it.compare.backend.product.service.ProductService;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -67,27 +65,44 @@ public class PriceAlertService {
     }
 
     @Transactional
-    public PriceAlertResponseDto createPriceAlert(
-            OAuthUserDetails userDetails, String productId, PriceAlertRequestDto alertDto) {
+    public PriceAlertResponseDto create(OAuthUserDetails userDetails, String productId, PriceAlertRequestDto alertDto) {
         var user = userRepository
                 .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         var product = productService.findProductOrThrow(productId);
 
         if (priceAlertRepository.existsByUserIdAndProductIdAndIsActiveTrue(user.getId(), productId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Active alert already exists for this product.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Active alert already exists for this product");
         }
 
-        var alert = new PriceAlert(product, alertDto.targetPrice());
-        alert.setUser(user);
-        alert.setIsOutletAllowed(alertDto.isOutletAllowed());
+        var alert = new PriceAlert(user, product, alertDto.targetPrice(), alertDto.isOutletAllowed());
 
         var savedAlert = priceAlertRepository.save(alert);
         return priceAlertMapper.toResponse(savedAlert);
     }
 
     @Transactional
-    public void deletePriceAlert(OAuthUserDetails userDetails, String alertId) {
+    public PriceAlertResponseDto update(OAuthUserDetails userDetails, String alertId, PriceAlertRequestDto alertDto) {
+        var user = userRepository
+                .findById(userDetails.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        var alert = findAlertOrThrow(alertId);
+
+        if (!alert.getUser().getId().equals(user.getId())) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        if (alert.getIsActive().equals(false))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not update inactive alerts");
+
+        alert.setTargetPrice(alertDto.targetPrice());
+        alert.setIsOutletAllowed(alertDto.isOutletAllowed());
+        var savedAlert = priceAlertRepository.save(alert);
+
+        return priceAlertMapper.toResponse(savedAlert);
+    }
+
+    @Transactional
+    public void deleteById(OAuthUserDetails userDetails, String alertId) {
         var user = userRepository
                 .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -102,28 +117,7 @@ public class PriceAlertService {
     }
 
     @Transactional
-    public PriceAlertResponseDto updatePriceAlert(
-            OAuthUserDetails userDetails, String alertId, PriceAlertRequestDto alertDto) {
-        var user = userRepository
-                .findById(userDetails.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-
-        var alert = findAlertOrThrow(alertId);
-
-        if (!alert.getUser().getId().equals(user.getId())) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-
-        if (alert.getIsActive().equals(false))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can not update inactive alerts.");
-
-        alert.setTargetPrice(alertDto.targetPrice());
-        alert.setIsOutletAllowed(alertDto.isOutletAllowed());
-        var savedAlert = priceAlertRepository.save(alert);
-
-        return priceAlertMapper.toResponse(savedAlert);
-    }
-
-    @Transactional
-    public void deleteInactivePriceAlerts(OAuthUserDetails userDetails) {
+    public void deleteInactive(OAuthUserDetails userDetails) {
         var user = userRepository
                 .findById(userDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -144,40 +138,24 @@ public class PriceAlertService {
                 .collect(Collectors.groupingBy(alert -> alert.getProduct().getId()));
 
         for (var product : products) {
+            var bestOffer = product.getComputedState().getBestOffer();
             var productAlerts = alertsByProductId.get(product.getId());
-            if (productAlerts == null || productAlerts.isEmpty()) continue;
 
-            var latestPrices = product.getOffers().stream()
-                    .filter(offer -> !offer.getPriceHistory().isEmpty())
-                    .map(offer -> {
-                        var latestPrice = offer.getPriceHistory().stream()
-                                .max(Comparator.comparing(PriceStamp::getTimestamp))
-                                .orElse(null);
-                        return new OfferPriceData(offer.getShop().getHumanReadableName(), latestPrice, offer.getUrl());
-                    })
-                    .filter(latest -> latest.priceStamp() != null)
-                    .toList();
+            if (bestOffer == null || productAlerts == null || productAlerts.isEmpty()) continue;
 
             for (var alert : productAlerts) {
-                var filteredPrices = latestPrices.stream()
-                        .filter(latest -> alert.getIsOutletAllowed()
-                                || latest.priceStamp().getCondition() != Condition.OUTLET)
-                        .toList();
+                var bestOfferMeetsAlertCriteria = bestOffer.getPrice().compareTo(alert.getTargetPrice()) <= 0
+                        && (alert.getIsOutletAllowed() || bestOffer.getCondition() != Condition.OUTLET);
 
-                var lowestPriceData = filteredPrices.stream()
-                        .min(Comparator.comparing(latest -> latest.priceStamp().getPrice()))
-                        .orElse(null);
-
-                if (lowestPriceData != null
-                        && lowestPriceData.priceStamp().getPrice().compareTo(alert.getTargetPrice()) <= 0) {
+                if (bestOfferMeetsAlertCriteria) {
                     emailService.sendPriceAlert(
                             alert.getUser().getEmail(),
                             product.getName(),
                             product.getId(),
-                            lowestPriceData.priceStamp().getPrice(),
                             alert.getTargetPrice(),
-                            lowestPriceData.shop(),
-                            lowestPriceData.url());
+                            bestOffer.getPrice(),
+                            bestOffer.getShop(),
+                            bestOffer.getUrl());
 
                     alert.setLastNotificationSent(Instant.now());
                     alert.setIsActive(false);
@@ -187,6 +165,4 @@ public class PriceAlertService {
             }
         }
     }
-
-    private record OfferPriceData(String shop, PriceStamp priceStamp, String url) {}
 }

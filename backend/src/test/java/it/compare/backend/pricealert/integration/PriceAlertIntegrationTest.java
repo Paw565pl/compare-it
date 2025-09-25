@@ -39,9 +39,7 @@ class PriceAlertIntegrationTest extends PriceAlertTest {
         lowPrice.setTimestamp(Instant.now());
 
         var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product", lowPrice);
-
-        var product = productTestDataFactory.createOne();
-        product.getOffers().add(offer);
+        var product = productTestDataFactory.createProductWithOffer(offer);
 
         var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), true);
         alert.setIsActive(true);
@@ -56,9 +54,9 @@ class PriceAlertIntegrationTest extends PriceAlertTest {
                         testUser.getEmail(),
                         product.getName(),
                         product.getId(),
-                        BigDecimal.valueOf(90),
                         BigDecimal.valueOf(100),
-                        Shop.RTV_EURO_AGD.getHumanReadableName(),
+                        BigDecimal.valueOf(90),
+                        Shop.RTV_EURO_AGD,
                         "https://example.com/product");
 
         var updatedAlert = priceAlertRepository.findById(alert.getId()).orElseThrow();
