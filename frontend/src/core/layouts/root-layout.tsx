@@ -26,7 +26,7 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
       <body className="antialiased">
         <Providers>
           <Navbar />
-          <main className="bg-background container mx-auto px-2 pt-6 pb-4 sm:pt-8">
+          <main className="bg-background container mx-auto px-2 py-4">
             {children}
           </main>
           <Toaster closeButton />
