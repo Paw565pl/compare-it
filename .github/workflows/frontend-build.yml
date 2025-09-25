@@ -25,6 +25,13 @@ jobs:
           cache: pnpm
           cache-dependency-path: ./frontend/pnpm-lock.yaml
 
+      - name: Cache Next.js build output
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/frontend/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/pnpm-lock.yaml') }}-${{ hashFiles('frontend/**/*.js', 'frontend/**/*.jsx', 'frontend/**/*.ts', 'frontend/**/*.tsx') }}
+          restore-keys: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/pnpm-lock.yaml') }}-
+
       - name: Install dependencies
         run: pnpm install
 
