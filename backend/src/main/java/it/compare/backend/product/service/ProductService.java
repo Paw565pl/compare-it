@@ -9,9 +9,9 @@ import it.compare.backend.product.model.Product;
 import it.compare.backend.product.repository.ProductRepository;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.bson.types.Decimal128;
@@ -87,15 +87,16 @@ public class ProductService {
     }
 
     public List<Sort.Order> getListSortOrders(Pageable pageable) {
-        var sortOrders = new ArrayList<>(pageable.getSort().stream()
-                .filter(o -> validSortPropertiesMap.containsKey(o.getProperty().toLowerCase()))
-                .map(o -> new Sort.Order(
-                        o.getDirection(),
-                        validSortPropertiesMap.get(o.getProperty().toLowerCase())))
-                .toList());
-        sortOrders.add(Sort.Order.asc("_id"));
-
-        return sortOrders;
+        return Stream.concat(
+                        pageable.getSort().stream()
+                                .filter(o -> validSortPropertiesMap.containsKey(
+                                        o.getProperty().toLowerCase()))
+                                .map(o -> new Sort.Order(
+                                        o.getDirection(),
+                                        validSortPropertiesMap.get(
+                                                o.getProperty().toLowerCase()))),
+                        Stream.of(Sort.Order.asc("_id")))
+                .toList();
     }
 
     public ProductDetailResponseDto findById(String id, Integer priceStampRangeDays) {

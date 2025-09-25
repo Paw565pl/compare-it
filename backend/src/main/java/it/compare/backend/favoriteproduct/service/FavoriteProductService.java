@@ -9,6 +9,7 @@ import it.compare.backend.favoriteproduct.repository.FavoriteProductRepository;
 import it.compare.backend.product.dto.ProductListResponseDto;
 import it.compare.backend.product.service.ProductService;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -47,13 +48,11 @@ public class FavoriteProductService {
         operations.add(Aggregation.lookup("products", "product.$id", "_id", PRODUCT_FIELD));
         operations.add(Aggregation.unwind(PRODUCT_FIELD));
 
-        var sortOrders = new ArrayList<>(productService.getListSortOrders(pageable).stream()
-                .map(o -> new Sort.Order(o.getDirection(), "product." + o.getProperty()))
-                .toList());
-        pageable.getSort().stream()
-                .filter(o -> o.getProperty().equalsIgnoreCase("createdAt"))
-                .findFirst()
-                .ifPresent(sortOrders::addFirst);
+        var sortOrders = Stream.concat(
+                        pageable.getSort().stream().filter(o -> o.getProperty().equalsIgnoreCase("createdAt")),
+                        productService.getListSortOrders(pageable).stream()
+                                .map(o -> new Sort.Order(o.getDirection(), PRODUCT_FIELD + o.getProperty())))
+                .toList();
 
         operations.add(Aggregation.sort(Sort.by(sortOrders)));
         operations.add(Aggregation.replaceRoot(PRODUCT_FIELD));
@@ -69,8 +68,7 @@ public class FavoriteProductService {
         return new PageImpl<>(content, pageable, total);
     }
 
-    public FavoriteProductStatusResponseDto findFavoriteProductStatus(
-            OAuthUserDetails oAuthUserDetails, String productId) {
+    public FavoriteProductStatusResponseDto findStatus(OAuthUserDetails oAuthUserDetails, String productId) {
         productService.findProductOrThrow(productId);
         var isFavorite = favoriteProductRepository.existsByUserIdAndProductId(oAuthUserDetails.getId(), productId);
 
@@ -78,8 +76,7 @@ public class FavoriteProductService {
     }
 
     @Transactional
-    public void addFavoriteProduct(
-            OAuthUserDetails oAuthUserDetails, FavoriteProductRequestDto favoriteProductRequestDto) {
+    public void add(OAuthUserDetails oAuthUserDetails, FavoriteProductRequestDto favoriteProductRequestDto) {
         var user = userRepository
                 .findById(oAuthUserDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -89,13 +86,12 @@ public class FavoriteProductService {
             var newFavoriteProduct = new FavoriteProduct(user, product);
             favoriteProductRepository.save(newFavoriteProduct);
         } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException("This product is already in your favorites.");
+            throw new DataIntegrityViolationException("This product is already in your favorites");
         }
     }
 
     @Transactional
-    public void removeFavoriteProduct(
-            OAuthUserDetails oAuthUserDetails, FavoriteProductRequestDto favoriteProductRequestDto) {
+    public void remove(OAuthUserDetails oAuthUserDetails, FavoriteProductRequestDto favoriteProductRequestDto) {
         var user = userRepository
                 .findById(oAuthUserDetails.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -104,7 +100,7 @@ public class FavoriteProductService {
         var favoriteProduct = favoriteProductRepository
                 .findByUserIdAndProductId(user.getId(), product.getId())
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.BAD_REQUEST, "This product is not in your favorites."));
+                        new ResponseStatusException(HttpStatus.BAD_REQUEST, "This product is not in your favorites"));
         favoriteProductRepository.delete(favoriteProduct);
     }
 }
