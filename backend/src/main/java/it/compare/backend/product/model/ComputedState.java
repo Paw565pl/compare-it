@@ -1,7 +1,5 @@
 package it.compare.backend.product.model;
 
-import com.mongodb.lang.NonNull;
-import com.mongodb.lang.Nullable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
@@ -11,6 +9,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter

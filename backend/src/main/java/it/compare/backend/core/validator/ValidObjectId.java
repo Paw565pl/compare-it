@@ -15,7 +15,7 @@ import org.bson.types.ObjectId;
 @Target({FIELD, PARAMETER, ANNOTATION_TYPE})
 @Constraint(validatedBy = ObjectIdValidator.class)
 public @interface ValidObjectId {
-    String message() default "Invalid ObjectId format.";
+    String message() default "Invalid ObjectId format";
 
     Class<?>[] groups() default {};
 
@@ -28,11 +28,6 @@ class ObjectIdValidator implements ConstraintValidator<ValidObjectId, String> {
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null || value.isEmpty()) return true;
 
-        try {
-            new ObjectId(value);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return ObjectId.isValid(value);
     }
 }

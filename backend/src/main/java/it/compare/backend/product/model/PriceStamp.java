@@ -1,7 +1,5 @@
 package it.compare.backend.product.model;
 
-import com.mongodb.lang.NonNull;
-import com.mongodb.lang.Nullable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.Getter;
@@ -10,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter

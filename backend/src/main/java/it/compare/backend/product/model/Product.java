@@ -1,6 +1,5 @@
 package it.compare.backend.product.model;
 
-import com.mongodb.lang.NonNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.lang.NonNull;
 
 @Getter
 @Setter

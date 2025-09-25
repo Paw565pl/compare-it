@@ -1,6 +1,5 @@
 package it.compare.backend.product.model;
 
-import com.mongodb.lang.NonNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.lang.NonNull;
 
 @Getter
 @Setter

@@ -1,6 +1,5 @@
 package it.compare.backend.auth.model;
 
-import com.mongodb.lang.NonNull;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.lang.NonNull;
 
 @Getter
 @Setter
@@ -19,15 +19,15 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Document(collection = "users")
 public class User {
 
-    @MongoId
+    @NonNull @MongoId
     @Field(name = "_id")
-    @NonNull private String id;
+    private String id;
 
-    @Field("username")
-    @NonNull private String username;
+    @NonNull @Field("username")
+    private String username;
 
-    @Field("email")
-    @NonNull private String email;
+    @NonNull @Field("email")
+    private String email;
 
     @CreatedDate
     @Field("createdAt")

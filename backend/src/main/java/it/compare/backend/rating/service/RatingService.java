@@ -29,7 +29,7 @@ public class RatingService {
     public Rating findRatingOrThrow(String authorId, String commentId) {
         return ratingRepository
                 .findByAuthorIdAndCommentId(authorId, commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rating not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rating not found"));
     }
 
     public RatingResponseDto findByAuthorIdAndCommentId(
@@ -60,7 +60,7 @@ public class RatingService {
             var savedRating = ratingRepository.save(rating);
             return ratingMapper.toResponseDto(savedRating);
         } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException("You have already rated this comment.");
+            throw new DataIntegrityViolationException("You have already rated this comment");
         }
     }
 

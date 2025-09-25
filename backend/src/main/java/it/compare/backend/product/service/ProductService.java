@@ -133,7 +133,7 @@ public class ProductService {
                 .aggregate(aggregation, ProductDetailResponseDto.class)
                 .getUniqueMappedResult();
 
-        if (result == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found.");
+        if (result == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
 
         return result;
     }
@@ -141,6 +141,6 @@ public class ProductService {
     public Product findProductOrThrow(String id) {
         return productRepository
                 .findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
     }
 }

@@ -66,9 +66,7 @@ class PriceAlertServiceTest {
         product.getOffers().clear();
         product.getOffers().add(offer);
 
-        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
-        alert.setUser(testUser);
-        alert.setIsOutletAllowed(true);
+        var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), true);
         alert.setIsActive(true);
         alert.setCreatedAt(Instant.now());
 
@@ -105,9 +103,7 @@ class PriceAlertServiceTest {
         offer.addPriceStamp(highPriceStamp);
         product.getOffers().add(offer);
 
-        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
-        alert.setUser(testUser);
-        alert.setIsOutletAllowed(true);
+        var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), true);
         alert.setIsActive(true);
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
@@ -122,9 +118,7 @@ class PriceAlertServiceTest {
     void shouldRespectOutletAllowedWhenCheckingPrices() {
         var product = createProductWithNewAndOutletOffers(BigDecimal.valueOf(120), BigDecimal.valueOf(80));
 
-        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
-        alert.setUser(testUser);
-        alert.setIsOutletAllowed(false);
+        var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), false);
         alert.setIsActive(true);
         alert.setCreatedAt(Instant.now());
 

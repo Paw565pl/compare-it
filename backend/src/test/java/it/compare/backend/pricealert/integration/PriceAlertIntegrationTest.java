@@ -43,9 +43,7 @@ class PriceAlertIntegrationTest extends PriceAlertTest {
         var product = productTestDataFactory.createOne();
         product.getOffers().add(offer);
 
-        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
-        alert.setUser(testUser);
-        alert.setIsOutletAllowed(true);
+        var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), true);
         alert.setIsActive(true);
         alert.setCreatedAt(Instant.now());
 

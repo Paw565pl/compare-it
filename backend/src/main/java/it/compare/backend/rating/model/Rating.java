@@ -3,12 +3,17 @@ package it.compare.backend.rating.model;
 import it.compare.backend.auth.model.User;
 import it.compare.backend.comment.model.Comment;
 import java.time.Instant;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.*;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter
@@ -26,16 +31,16 @@ public class Rating {
     @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
-    @DBRef(lazy = true)
+    @Nullable @DBRef(lazy = true)
     @Field("author")
     private User author;
 
-    @Field("isPositive")
-    @NonNull private Boolean isPositive;
+    @NonNull @Field("isPositive")
+    private Boolean isPositive;
 
-    @DBRef(lazy = true)
+    @NonNull @DBRef(lazy = true)
     @Field("comment")
-    @NonNull private Comment comment;
+    private Comment comment;
 
     @Indexed
     @CreatedDate

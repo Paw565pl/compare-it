@@ -4,11 +4,16 @@ import it.compare.backend.auth.model.User;
 import it.compare.backend.product.model.Product;
 import java.math.BigDecimal;
 import java.time.Instant;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.*;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter
@@ -20,23 +25,26 @@ public class PriceAlert {
     @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
-    @DBRef(lazy = true)
+    @NonNull @DBRef(lazy = true)
     @Field("user")
     private User user;
 
-    @DBRef(lazy = true)
+    @NonNull @DBRef(lazy = true)
     @Field("product")
-    @NonNull private Product product;
+    private Product product;
 
-    @Field(name = "targetPrice", targetType = FieldType.DECIMAL128)
-    @NonNull private BigDecimal targetPrice;
+    @NonNull @Field(name = "targetPrice", targetType = FieldType.DECIMAL128)
+    private BigDecimal targetPrice;
 
-    @Field("isOutletAllowed")
+    @NonNull @Field("isOutletAllowed")
     private Boolean isOutletAllowed;
 
-    @Indexed
+    @NonNull @Indexed
     @Field("isActive")
     private Boolean isActive = true;
+
+    @Nullable @Field("lastNotificationSent")
+    private Instant lastNotificationSent;
 
     @Indexed
     @CreatedDate
@@ -46,7 +54,4 @@ public class PriceAlert {
     @LastModifiedDate
     @Field("updatedAt")
     private Instant updatedAt;
-
-    @Field("lastNotificationSent")
-    private Instant lastNotificationSent;
 }
