@@ -66,8 +66,8 @@ public class CommentService {
     public Page<CommentResponseDto> findAllByProductId(
             @Nullable OAuthUserDetails oAuthUserDetails, String productId, Pageable pageable) {
         productService.findProductOrThrow(productId);
-
         var criteria = Criteria.where("product.$id").is(new ObjectId(productId));
+
         var total = mongoTemplate.count(Query.query(criteria), Comment.class);
         if (total == 0) return Page.empty(pageable);
 
