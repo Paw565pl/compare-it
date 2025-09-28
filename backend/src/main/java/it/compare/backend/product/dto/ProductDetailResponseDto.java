@@ -21,7 +21,7 @@ public record ProductDetailResponseDto(
 record OfferResponseDto(
         @NonNull Shop shop,
         @NonNull String url,
-        @NonNull Boolean isAvailable,
+        boolean isAvailable,
         @NonNull List<PriceStampResponseDto> priceHistory) {}
 
 record PriceStampResponseDto(

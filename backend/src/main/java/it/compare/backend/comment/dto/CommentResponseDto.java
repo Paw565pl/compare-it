@@ -9,6 +9,6 @@ public record CommentResponseDto(
         @Nullable String author,
         @NonNull String text,
         @NonNull Instant createdAt,
-        @NonNull Long positiveRatingsCount,
-        @NonNull Long negativeRatingsCount,
+        long positiveRatingsCount,
+        long negativeRatingsCount,
         @Nullable Boolean isRatingPositive) {}

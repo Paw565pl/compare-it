@@ -9,7 +9,6 @@ import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 @Getter
@@ -23,9 +22,9 @@ public class ComputedState {
     @Nullable @Field("bestOffer")
     private BestOffer bestOffer;
 
-    @NonNull @Indexed
+    @Indexed
     @Field("availableOffersCount")
-    private Integer availableOffersCount = 0;
+    private int availableOffersCount = 0;
 
     public static ComputedState fromProduct(Product product) {
         var computedState = new ComputedState();

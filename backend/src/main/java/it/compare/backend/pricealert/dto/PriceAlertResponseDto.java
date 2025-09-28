@@ -11,7 +11,7 @@ public record PriceAlertResponseDto(
         @NonNull String productName,
         @NonNull BigDecimal targetPrice,
         @Nullable BigDecimal currentLowestPrice,
-        @NonNull Boolean isOutletAllowed,
-        @NonNull Boolean isActive,
+        boolean isOutletAllowed,
+        boolean isActive,
         @NonNull Instant createdAt,
         @Nullable Instant lastNotificationSent) {}

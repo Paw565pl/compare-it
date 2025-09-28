@@ -15,12 +15,12 @@ import lombok.ToString;
 public class ErrorResponseDto {
 
     private final Instant timestamp;
-    private final Integer status;
+    private final int status;
     private final String error;
     private final String message;
     private Map<String, List<String>> errors;
 
-    public ErrorResponseDto(Integer status, String error, String message, Map<String, List<String>> errors) {
+    public ErrorResponseDto(int status, String error, String message, Map<String, List<String>> errors) {
         this.timestamp = Instant.now();
         this.status = status;
         this.error = error;
@@ -28,7 +28,7 @@ public class ErrorResponseDto {
         this.errors = errors;
     }
 
-    public ErrorResponseDto(Integer status, String error, String message) {
+    public ErrorResponseDto(int status, String error, String message) {
         this.timestamp = Instant.now();
         this.status = status;
         this.error = error;
