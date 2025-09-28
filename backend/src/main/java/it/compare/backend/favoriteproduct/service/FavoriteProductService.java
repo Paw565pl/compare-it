@@ -7,6 +7,8 @@ import it.compare.backend.favoriteproduct.dto.FavoriteProductStatusResponseDto;
 import it.compare.backend.favoriteproduct.model.FavoriteProduct;
 import it.compare.backend.favoriteproduct.repository.FavoriteProductRepository;
 import it.compare.backend.product.dto.ProductListResponseDto;
+import it.compare.backend.product.mapper.ProductMapper;
+import it.compare.backend.product.model.Product;
 import it.compare.backend.product.service.ProductService;
 import java.util.ArrayList;
 import java.util.stream.Stream;
@@ -34,11 +36,13 @@ public class FavoriteProductService {
 
     private final UserRepository userRepository;
     private final FavoriteProductRepository favoriteProductRepository;
+    private final ProductMapper productMapper;
     private final ProductService productService;
     private final MongoTemplate mongoTemplate;
 
     public Page<ProductListResponseDto> findAllByUser(OAuthUserDetails oAuthUserDetails, Pageable pageable) {
         var criteria = Criteria.where("user.$id").is(oAuthUserDetails.getId());
+
         var total = mongoTemplate.count(Query.query(criteria), FavoriteProduct.class);
         if (total == 0) return Page.empty(pageable);
 
@@ -61,9 +65,9 @@ public class FavoriteProductService {
         operations.add(Aggregation.limit(pageable.getPageSize()));
 
         var aggregation = Aggregation.newAggregation(FavoriteProduct.class, operations);
-        var content = mongoTemplate
-                .aggregate(aggregation, ProductListResponseDto.class)
-                .getMappedResults();
+        var content = mongoTemplate.aggregate(aggregation, Product.class).getMappedResults().stream()
+                .map(productMapper::toListResponseDto)
+                .toList();
 
         return new PageImpl<>(content, pageable, total);
     }
