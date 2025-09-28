@@ -39,11 +39,11 @@ const sortOptions: SelectOption[] = [
   },
   {
     label: "Liczba ofert (rosnąco)",
-    value: "offersCount",
+    value: "availableOffersCount",
   },
   {
     label: "Liczba ofert (malejąco)",
-    value: "offersCount,desc",
+    value: "availableOffersCount,desc",
   },
 ] as const;
 

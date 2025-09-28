@@ -50,7 +50,7 @@
     "@tanstack/eslint-plugin-query": "^5.91.0",
     "@tanstack/react-query-devtools": "^5.90.2",
     "@types/node": "^24.5.2",
-    "@types/react": "19.1.14",
+    "@types/react": "19.1.15",
     "@types/react-dom": "19.1.9",
     "eslint": "^9.36.0",
     "eslint-config-next": "15.5.4",
