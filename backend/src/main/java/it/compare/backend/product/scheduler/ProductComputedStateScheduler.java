@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ProductComputedStateScheduler {
@@ -22,12 +21,11 @@ public class ProductComputedStateScheduler {
 
     @Scheduled(cron = "0 0 3 * * *")
     public void run() {
-        log.info("started product computed state scheduler job");
         productComputedStateRefreshComponent.recalculateStateForStaleProducts();
-        log.info("finished product computed state scheduler job");
     }
 }
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 class ProductComputedStateRefreshComponent {
@@ -38,6 +36,7 @@ class ProductComputedStateRefreshComponent {
 
     @Async
     public void recalculateStateForStaleProducts() {
+        log.info("started recalculating state for stale products");
         var cutOff = Instant.now().minus(ComputedState.AVAILABILITY_DAYS_THRESHOLD);
 
         Pageable pageable = PageRequest.of(0, BATCH_SIZE);
@@ -57,5 +56,7 @@ class ProductComputedStateRefreshComponent {
             if (!products.isEmpty()) productRepository.saveAll(products);
             pageable = page.nextPageable();
         } while (page.hasNext());
+
+        log.info("finished recalculating state for stale products");
     }
 }
