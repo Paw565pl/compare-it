@@ -23,16 +23,12 @@ public class MailConfig {
 
     @Bean
     public JavaMailSender javaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        var mailSender = new JavaMailSenderImpl();
         mailSender.setHost(host);
         mailSender.setPort(port);
 
-        if (username != null && !username.isEmpty()) {
-            mailSender.setUsername(username);
-        }
-        if (password != null && !password.isEmpty()) {
-            mailSender.setPassword(password);
-        }
+        if (username != null && !username.isBlank()) mailSender.setUsername(username);
+        if (password != null && !password.isBlank()) mailSender.setPassword(password);
 
         return mailSender;
     }

@@ -12,6 +12,8 @@ import { formatCurrency } from "@/core/utils/format-currency";
 import { formatDate } from "@/core/utils/format-date";
 import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
+import { CurrencyEntity } from "@/products/entities/currency-entity";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { Clock, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -42,7 +44,9 @@ export const PriceAlertNotificationCard = ({
     });
   };
 
-  const formattedPrice = formatCurrency(priceAlert.currentLowestPrice, "PLN");
+  const formattedPrice = priceAlert.currentLowestPrice
+    ? formatCurrency(priceAlert.currentLowestPrice, CurrencyEntity.PLN)
+    : "-";
   const formattedNotificationDate = priceAlert.lastNotificationSent
     ? formatDate(priceAlert.lastNotificationSent)
     : "-";
@@ -65,7 +69,11 @@ export const PriceAlertNotificationCard = ({
         </CardTitle>
 
         <CardDescription className="flex items-center justify-between">
-          <span>{product?.category}</span>
+          <span>
+            {product?.category
+              ? categoryDisplayNameMap[product.category]
+              : null}
+          </span>
           <span>EAN: {product?.ean}</span>
         </CardDescription>
       </CardHeader>

@@ -115,13 +115,12 @@ class MoreleScraperWorker implements ScraperWorker {
         var images = extractImages(productDocument);
 
         var condition = extractCondition(productDocument);
-        var priceStamp = new PriceStamp(price, "PLN", condition);
+        var priceStamp = new PriceStamp(price, Currency.PLN, condition);
 
         var promoCodeElement = extractPromoCode(productDocument);
         promoCodeElement.ifPresent(priceStamp::setPromoCode);
 
-        var offer = new Offer(CURRENT_SHOP, href);
-        offer.getPriceHistory().add(priceStamp);
+        var offer = new Offer(CURRENT_SHOP, href, priceStamp);
 
         var productEntity = new Product(ean, title, category);
         productEntity.getImages().addAll(images);
@@ -196,7 +195,7 @@ class MoreleScraperWorker implements ScraperWorker {
                 productDocument.selectFirst("aside.product-sidebar div.product-box-main div.product-price"));
         if (price.isEmpty()) return null;
 
-        var priceString = price.get().text().replaceAll("[^0-9,]", "").replace(",", ".");
+        var priceString = price.get().attr("data-price");
         return new BigDecimal(priceString);
     }
 

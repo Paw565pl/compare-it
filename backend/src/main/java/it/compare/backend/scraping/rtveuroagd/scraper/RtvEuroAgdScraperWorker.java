@@ -44,14 +44,19 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
             rtvEuroAgdSemaphore.acquire();
             isSemaphorePermitAcquired = true;
 
-            var currentStartFrom = 0;
             var products = new ArrayList<Product>();
 
-            while (true) {
-                var productPage = fetchProductPage(currentStartFrom, category, categoryLocator);
+            var initialPage = fetchProductPage(0, category, categoryLocator);
+            if (initialPage == null) return CompletableFuture.completedFuture(products);
+
+            var pagesCount = (initialPage.productsCount() / PAGE_SIZE) + 1;
+            var maxStartFrom = pagesCount * PAGE_SIZE;
+
+            for (var startFrom = 0; startFrom <= maxStartFrom; startFrom += PAGE_SIZE) {
+                var productPage = fetchProductPage(startFrom, category, categoryLocator);
                 if (productPage == null
                         || productPage.results() == null
-                        || productPage.results().isEmpty()) break;
+                        || productPage.results().isEmpty()) continue;
 
                 var newProducts = productPage.results().stream()
                         .map(productResponse -> createProduct(category, productResponse))
@@ -59,7 +64,6 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                         .toList();
                 products.addAll(newProducts);
 
-                currentStartFrom += PAGE_SIZE;
                 ScrapingUtil.sleep();
             }
 
@@ -79,10 +83,10 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
         return CURRENT_SHOP;
     }
 
-    private RtvEuroAgdResponse fetchProductPage(int currentStartFrom, Category category, String categoryLocator) {
+    private RtvEuroAgdResponse fetchProductPage(int startFrom, Category category, String categoryLocator) {
         var uri = UriComponentsBuilder.fromUriString(BASE_URL)
                 .queryParam("numberOfItems", PAGE_SIZE)
-                .queryParam("startFrom", currentStartFrom)
+                .queryParam("startFrom", startFrom)
                 .queryParam("category", categoryLocator)
                 .queryParam("developSearchMode", "false")
                 .build()
@@ -100,20 +104,20 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
             log.warn(
                     "http error has occurred while scraping category {} on page start index {} - {}",
                     category,
-                    currentStartFrom,
+                    startFrom,
                     e.getStatusCode().value());
         } catch (ResourceAccessException e) {
             log.warn(
                     "timeout occurred while scraping category {} on page start index {} - {}",
                     category,
-                    currentStartFrom,
+                    startFrom,
                     e.getMessage());
         } catch (Exception e) {
             log.error(
                     "unexpected error of {} has occurred while scraping category {} on page start index {} - {}",
                     e.getClass(),
                     category,
-                    currentStartFrom,
+                    startFrom,
                     e.getMessage());
         }
 
@@ -139,11 +143,10 @@ class RtvEuroAgdScraperWorker implements ScraperWorker {
                 .map(outletDetails -> Condition.OUTLET)
                 .orElse(Condition.NEW);
 
-        var priceStamp = new PriceStamp(price, "PLN", condition);
+        var priceStamp = new PriceStamp(price, Currency.PLN, condition);
         priceStamp.setPromoCode(promoCode);
 
-        var offer = new Offer(CURRENT_SHOP, getProductUrl(productResponse.identifiers()));
-        offer.getPriceHistory().add(priceStamp);
+        var offer = new Offer(CURRENT_SHOP, getProductUrl(productResponse.identifiers()), priceStamp);
 
         var ean = productResponse.eanCodes().getFirst();
         var images = getBigImages(productResponse.images());

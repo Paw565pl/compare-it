@@ -3,46 +3,55 @@ package it.compare.backend.pricealert.model;
 import it.compare.backend.auth.model.User;
 import it.compare.backend.product.model.Product;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import lombok.*;
+import java.time.Instant;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.*;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Document(collection = "price_alerts")
 public class PriceAlert {
     @MongoId
-    @Field(value = "_id", targetType = FieldType.OBJECT_ID)
+    @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
-    @DBRef(lazy = true)
+    @NonNull @DBRef(lazy = true)
     @Field("user")
     private User user;
 
-    @DBRef(lazy = true)
+    @NonNull @DBRef(lazy = true)
     @Field("product")
-    @NonNull private Product product;
+    private Product product;
 
-    @Field(value = "targetPrice", targetType = FieldType.DECIMAL128)
-    @NonNull private BigDecimal targetPrice;
+    @NonNull @Field(name = "targetPrice", targetType = FieldType.DECIMAL128)
+    private BigDecimal targetPrice;
 
-    @Field("isOutletAllowed")
-    private Boolean isOutletAllowed = false;
+    @NonNull @Field("isOutletAllowed")
+    private Boolean isOutletAllowed;
 
-    @Indexed
+    @NonNull @Indexed
     @Field("isActive")
     private Boolean isActive = true;
+
+    @Nullable @Field("lastNotificationSent")
+    private Instant lastNotificationSent;
 
     @Indexed
     @CreatedDate
     @Field("createdAt")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    @Field("lastNotificationSent")
-    private LocalDateTime lastNotificationSent;
+    @LastModifiedDate
+    @Field("updatedAt")
+    private Instant updatedAt;
 }

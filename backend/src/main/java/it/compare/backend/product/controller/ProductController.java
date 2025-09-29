@@ -2,9 +2,9 @@ package it.compare.backend.product.controller;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
-import it.compare.backend.product.dto.ProductFiltersDto;
-import it.compare.backend.product.response.ProductDetailResponse;
-import it.compare.backend.product.response.ProductListResponse;
+import it.compare.backend.product.dto.ProductDetailResponseDto;
+import it.compare.backend.product.dto.ProductFilterDto;
+import it.compare.backend.product.dto.ProductListResponseDto;
 import it.compare.backend.product.service.ProductService;
 import it.compare.backend.product.validator.ValidProductId;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +23,16 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public Page<ProductListResponse> findAll(
-            ProductFiltersDto filters,
-            @PageableDefault(size = 20, sort = "offersCount", direction = DESC) Pageable pageable) {
+    public Page<ProductListResponseDto> findAll(
+            ProductFilterDto filters,
+            @PageableDefault(size = 20, sort = "availableOffersCount", direction = DESC) Pageable pageable) {
         return productService.findAll(filters, pageable);
     }
 
     @GetMapping("/{id}")
-    public ProductDetailResponse findById(
+    public ProductDetailResponseDto findById(
             @ValidProductId @PathVariable String id,
-            @RequestParam(required = false, defaultValue = "90") Integer priceStampRangeDays) {
+            @RequestParam(required = false, defaultValue = "30") Integer priceStampRangeDays) {
         return productService.findById(id, priceStampRangeDays);
     }
 }

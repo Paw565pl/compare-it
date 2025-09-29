@@ -1,7 +1,9 @@
 import { H1 } from "@/core/components/ui/h1";
 import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
+import { shopDisplayNameMap } from "@/products/entities/shop-entity";
 import Link from "next/link";
 
 interface SingleProductProps {
@@ -17,10 +19,10 @@ export const SingleProduct = ({
     lowestCurrentPrice,
     lowestPriceCurrency,
     lowestPriceShop,
-    offersCount,
-    isAvailable,
+    availableOffersCount,
   },
 }: SingleProductProps) => {
+  const isAvailable = availableOffersCount > 0;
   const formattedPrice =
     lowestCurrentPrice && lowestPriceCurrency
       ? formatCurrency(lowestCurrentPrice, lowestPriceCurrency)
@@ -45,14 +47,16 @@ export const SingleProduct = ({
           <Link href={`/produkty/${id}`}>{name}</Link>
         </H1>
 
-        <p className="text-secondary mb-4 text-sm">Kategoria: {category}</p>
-
-        <p className="text-secondary mb-1 text-sm">
-          Sklep: {lowestPriceShop || "-"}
+        <p className="text-secondary mb-4 text-sm">
+          Kategoria: {categoryDisplayNameMap[category]}
         </p>
 
         <p className="text-secondary mb-1 text-sm">
-          Liczba dostępnych ofert: {offersCount}
+          Sklep: {lowestPriceShop ? shopDisplayNameMap[lowestPriceShop] : "-"}
+        </p>
+
+        <p className="text-secondary mb-1 text-sm">
+          Liczba dostępnych ofert: {availableOffersCount}
         </p>
 
         <div className="mb-4 text-sm">

@@ -4,7 +4,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 
 import generator.RandomUserAgentGenerator;
 import it.compare.backend.product.repository.ProductRepository;
-import it.compare.backend.scraping.scraper.ScrapingManager;
+import it.compare.backend.scraping.service.ScrapingService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,12 +30,12 @@ public class Application {
 
     @Bean
     @Profile("!test")
-    public CommandLineRunner commandLineRunner(ProductRepository productRepository, ScrapingManager scrapingManager) {
+    public CommandLineRunner commandLineRunner(ProductRepository productRepository, ScrapingService scrapingService) {
         return args -> {
             // initialize random user agent generator
             RandomUserAgentGenerator.getNext();
 
-            if (productRepository.count() == 0) scrapingManager.scrapeAll();
+            if (productRepository.count() == 0) scrapingService.scrapeAll();
         };
     }
 }

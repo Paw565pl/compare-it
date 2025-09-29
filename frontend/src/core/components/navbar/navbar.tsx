@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export const Navbar = () => {
   return (
-    <nav className="mb-6 flex flex-col items-center justify-between sm:mb-8 sm:flex-row">
+    <nav className="flex flex-col items-center justify-between sm:flex-row">
       {/* Mobile View Link */}
       <Link href="/" className="hidden sm:flex">
         <Logo />

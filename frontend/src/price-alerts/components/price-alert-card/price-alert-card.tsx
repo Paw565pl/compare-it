@@ -16,6 +16,8 @@ import { PriceAlertEntity } from "@/price-alerts/entities/price-alert-entity";
 import { useDeletePriceAlert } from "@/price-alerts/hooks/client/use-delete-price-alert";
 import { useUpdatePriceAlert } from "@/price-alerts/hooks/client/use-update-price-alert";
 import { PriceAlertFormValues } from "@/price-alerts/schemas/price-alert-schema";
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
+import { CurrencyEntity } from "@/products/entities/currency-entity";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { Pen, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -60,7 +62,10 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
     });
   };
 
-  const formattedDesiredPrice = formatCurrency(priceAlert.targetPrice, "PLN");
+  const formattedDesiredPrice = formatCurrency(
+    priceAlert.targetPrice,
+    CurrencyEntity.PLN,
+  );
 
   return (
     <Card className="w-88">
@@ -80,7 +85,11 @@ export const PriceAlertCard = ({ priceAlert }: PriceAlertCardProps) => {
         </CardTitle>
 
         <CardDescription className="flex items-center justify-between">
-          <span>{product?.category}</span>
+          <span>
+            {product?.category
+              ? categoryDisplayNameMap[product.category]
+              : null}
+          </span>
           <span>EAN: {product?.ean}</span>
         </CardDescription>
       </CardHeader>

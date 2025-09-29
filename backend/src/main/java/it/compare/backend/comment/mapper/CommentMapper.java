@@ -1,26 +1,23 @@
 package it.compare.backend.comment.mapper;
 
-import it.compare.backend.comment.dto.CommentDto;
+import it.compare.backend.comment.dto.CommentRequestDto;
+import it.compare.backend.comment.dto.CommentResponseDto;
 import it.compare.backend.comment.model.Comment;
-import it.compare.backend.comment.response.CommentResponse;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.springframework.lang.Nullable;
 
-@Component
-@RequiredArgsConstructor
-public class CommentMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface CommentMapper {
+    @Mapping(target = "author", source = "comment.author.username")
+    CommentResponseDto toResponseDto(
+            Comment comment, long positiveRatingsCount, long negativeRatingsCount, @Nullable Boolean isRatingPositive);
 
-    private final ModelMapper modelMapper;
-
-    public CommentResponse toResponse(Comment comment) {
-        var response = modelMapper.map(comment, CommentResponse.class);
-        if (comment.getAuthor() != null) response.setAuthor(comment.getAuthor().getUsername());
-
-        return response;
-    }
-
-    public Comment toEntity(CommentDto commentDto) {
-        return modelMapper.map(commentDto, Comment.class);
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "author", ignore = true)
+    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    Comment toEntity(CommentRequestDto commentRequestDto);
 }

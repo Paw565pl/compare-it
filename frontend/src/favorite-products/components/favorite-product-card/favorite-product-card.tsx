@@ -11,6 +11,7 @@ import {
 import { ImageWithFallback } from "@/core/components/ui/image-with-fallback";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { useDeleteFavoriteProduct } from "@/favorite-products/hooks/client/use-delete-favorite-product";
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
 import { ProductListEntity } from "@/products/entities/product-list-entity";
 import { Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -38,6 +39,7 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
     );
   };
 
+  const isAvailable = product.availableOffersCount > 0;
   const formattedPrice =
     product.lowestCurrentPrice && product.lowestPriceCurrency
       ? formatCurrency(product.lowestCurrentPrice, product.lowestPriceCurrency)
@@ -59,14 +61,14 @@ export const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
         </CardTitle>
 
         <CardDescription className="flex items-center justify-between">
-          <span>{product.category}</span>
+          <span>{categoryDisplayNameMap[product.category]}</span>
           <span>EAN: {product.ean}</span>
         </CardDescription>
       </CardHeader>
 
       <CardContent className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {product.isAvailable ? (
+          {isAvailable ? (
             <>
               <span className="h-2 w-2 rounded-full bg-green-500" />
               <span className="text-sm text-green-500">Dostępny</span>

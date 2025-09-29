@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const priceAlertSchema = z.object({
   targetPrice: z
-    .string({ required_error: "Cena docelowa jest wymagana." })
+    .string({ error: "Cena docelowa jest wymagana." })
     .refine((value) => !isNaN(Number(value)), {
       message: "Cena docelowa musi być liczbą.",
     })

@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import it.compare.backend.core.mock.AuthMock;
-import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
+import it.compare.backend.favoriteproduct.dto.FavoriteProductRequestDto;
 import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import java.util.List;
 import org.bson.types.ObjectId;
@@ -31,14 +31,14 @@ class FavoriteProductDeleteTest extends FavoriteProductTest {
 
     @Test
     void shouldReturnUnauthorized() {
-        var body = new FavoriteProductDto(new ObjectId().toString());
+        var body = new FavoriteProductRequestDto(new ObjectId().toString());
 
         given().contentType(JSON).body(body).when().delete().then().statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
     void shouldReturnNotFoundIfProductDoesNotExist() {
-        var body = new FavoriteProductDto(new ObjectId().toString());
+        var body = new FavoriteProductRequestDto(new ObjectId().toString());
 
         given().contentType(JSON)
                 .auth()
@@ -53,7 +53,7 @@ class FavoriteProductDeleteTest extends FavoriteProductTest {
     @Test
     void shouldReturnBadRequestIfProductIsNotFavorite() {
         var product = productTestDataFactory.createOne();
-        var body = new FavoriteProductDto(product.getId());
+        var body = new FavoriteProductRequestDto(product.getId());
 
         given().contentType(JSON)
                 .auth()
@@ -68,7 +68,7 @@ class FavoriteProductDeleteTest extends FavoriteProductTest {
     @Test
     void shouldDeleteFavoriteProduct() {
         var favoriteProduct = favoriteProductTestDataFactory.createOne();
-        var body = new FavoriteProductDto(favoriteProduct.getProduct().getId());
+        var body = new FavoriteProductRequestDto(favoriteProduct.getProduct().getId());
 
         var mockToken = AuthMock.getToken(
                 favoriteProduct.getUser().getId(),

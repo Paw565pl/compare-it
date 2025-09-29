@@ -2,11 +2,12 @@
 
 import { Button } from "@/core/components/ui/button";
 import { getClientEnv } from "@/core/libs/env/client-env";
+import type { Route } from "next";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export const SignOutButton = () => {
-  const router = useRouter();
+  const { replace } = useRouter();
 
   const handleSignOut = async () => {
     const returnTo = window.location.origin;
@@ -18,7 +19,7 @@ export const SignOutButton = () => {
 
     const signOutUrl = `${getClientEnv("NEXT_PUBLIC_AUTH_AUTH0_ISSUER")}/v2/logout?federated&client_id=${getClientEnv("NEXT_PUBLIC_AUTH_AUTH0_ID")}&returnTo=${encodeURIComponent(returnTo)}`;
 
-    router.replace(signOutUrl);
+    replace(signOutUrl as Route);
   };
 
   return (

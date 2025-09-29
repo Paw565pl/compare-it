@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { useQueryStates } from "nuqs";
 import { FormEvent, useEffect, useRef } from "react";
 
+import type { Route } from "next";
+
 export const SearchBar = () => {
   const { push } = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,7 +28,7 @@ export const SearchBar = () => {
     else searchElement.value = name;
   }, [productFilters.name]);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const name = inputRef.current?.value.trim();
 
@@ -42,7 +44,7 @@ export const SearchBar = () => {
     const params = new URLSearchParams(paramsValues);
 
     const url = `/produkty?${params.toString()}`;
-    push(url);
+    push(url as Route);
   };
 
   return (

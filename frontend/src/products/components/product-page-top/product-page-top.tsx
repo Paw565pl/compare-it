@@ -11,6 +11,7 @@ import {
   ProductPageImages,
   ProductPageOffers,
 } from "@/products/components";
+import { categoryDisplayNameMap } from "@/products/entities/category-entity";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { HttpStatusCode } from "axios";
 import { notFound } from "next/navigation";
@@ -57,7 +58,7 @@ export const ProductPageTop = ({ productId }: ProductPageTopProps) => {
                 Kod EAN: {productData.ean}
               </p>
               <p className="text-md mb-1 text-gray-500">
-                Kategoria: {productData.category}
+                Kategoria: {categoryDisplayNameMap[productData.category]}
               </p>
 
               <p className="text-sm text-gray-600">

@@ -1,5 +1,9 @@
+import { categoryQueryParser } from "@/products/search-params/category-query-parser";
+import { shopsQueryParser } from "@/products/search-params/shop-query-parser";
+
 import {
   createLoader,
+  parseAsArrayOf,
   parseAsBoolean,
   parseAsFloat,
   parseAsInteger,
@@ -8,11 +12,11 @@ import {
 
 export const productFiltersSearchParams = {
   name: parseAsString,
-  category: parseAsString,
+  category: categoryQueryParser,
+  shops: parseAsArrayOf(shopsQueryParser),
   minPrice: parseAsFloat,
   maxPrice: parseAsFloat,
   isAvailable: parseAsBoolean,
-  shop: parseAsString,
 } as const;
 
 export const loadProductFiltersSearchParams = createLoader(

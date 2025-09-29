@@ -13,9 +13,9 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER})
 @Constraint(validatedBy = {})
-@ValidObjectId(message = "commentId must be a valid ObjectId.")
+@ValidObjectId(message = "CommentId must be a valid ObjectId")
 public @interface ValidCommentId {
-    String message() default "Invalid commentId format.";
+    String message() default "Invalid commentId format";
 
     Class<?>[] groups() default {};
 

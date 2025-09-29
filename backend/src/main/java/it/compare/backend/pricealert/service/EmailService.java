@@ -1,6 +1,7 @@
 package it.compare.backend.pricealert.service;
 
 import it.compare.backend.core.properties.CorsProperties;
+import it.compare.backend.product.model.Shop;
 import jakarta.mail.MessagingException;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +25,9 @@ public class EmailService {
             String recipientEmail,
             String productName,
             String productId,
-            BigDecimal currentPrice,
             BigDecimal targetPrice,
-            String shopName,
+            BigDecimal currentPrice,
+            Shop shop,
             String offerUrl) {
         try {
             var message = mailSender.createMimeMessage();
@@ -37,7 +38,7 @@ public class EmailService {
             context.setVariable("productId", productId);
             context.setVariable("currentPrice", currentPrice);
             context.setVariable("targetPrice", targetPrice);
-            context.setVariable("shopName", shopName);
+            context.setVariable("shopName", shop.getHumanReadableName());
             context.setVariable("url", offerUrl);
             context.setVariable(
                     "frontendUrl", corsProperties.getAllowedOrigins().getFirst());

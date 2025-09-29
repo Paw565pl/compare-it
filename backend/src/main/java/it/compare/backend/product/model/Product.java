@@ -1,42 +1,58 @@
 package it.compare.backend.product.model;
 
-import com.mongodb.lang.NonNull;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.lang.NonNull;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Document(collection = "products")
 public class Product {
     @MongoId
-    @Field(value = "_id", targetType = FieldType.OBJECT_ID)
+    @Field(name = "_id", targetType = FieldType.OBJECT_ID)
     private String id;
 
-    @Indexed(unique = true)
+    @NonNull @Indexed(unique = true)
     @Field("ean")
-    @NonNull private String ean;
+    private String ean;
 
-    @TextIndexed
+    @NonNull @TextIndexed
     @Field("name")
-    @NonNull private String name;
+    private String name;
 
-    @Indexed
+    @NonNull @Indexed
     @Field("category")
-    @NonNull private Category category;
+    private Category category;
 
-    @Field("images")
-    @NonNull private List<String> images = new ArrayList<>();
+    @NonNull @Field("images")
+    private List<String> images = new ArrayList<>();
 
-    @Field("offers")
-    @NonNull private List<Offer> offers = new ArrayList<>();
+    @NonNull @Field("offers")
+    private List<Offer> offers = new ArrayList<>();
+
+    @NonNull @Field("computedState")
+    private ComputedState computedState = new ComputedState();
+
+    @CreatedDate
+    @Field("createdAt")
+    private Instant createdAt;
+
+    @LastModifiedDate
+    @Field("updatedAt")
+    private Instant updatedAt;
 }

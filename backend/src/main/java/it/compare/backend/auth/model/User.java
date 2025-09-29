@@ -1,26 +1,39 @@
 package it.compare.backend.auth.model;
 
-import com.mongodb.lang.NonNull;
-import lombok.*;
+import java.time.Instant;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.lang.NonNull;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Document(collection = "users")
 public class User {
 
-    @MongoId
-    @Field(value = "_id")
-    @NonNull private String id;
+    @NonNull @MongoId
+    @Field(name = "_id")
+    private String id;
 
-    @Field("username")
-    @NonNull private String username;
+    @NonNull @Field("username")
+    private String username;
 
-    @Field("email")
-    @NonNull private String email;
+    @NonNull @Field("email")
+    private String email;
+
+    @CreatedDate
+    @Field("createdAt")
+    private Instant createdAt;
+
+    @LastModifiedDate
+    @Field("updatedAt")
+    private Instant updatedAt;
 }

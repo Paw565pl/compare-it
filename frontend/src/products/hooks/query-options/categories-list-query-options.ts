@@ -1,15 +1,16 @@
 import { apiService } from "@/core/services/api";
 import { ErrorResponse } from "@/core/services/api/types/error-response";
+import { CategoryEntity } from "@/products/entities/category-entity";
 import { queryOptions } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 const fetchCategoriesList = async () => {
-  const { data } = await apiService.get<string[]>("/api/v1/categories");
+  const { data } = await apiService.get<CategoryEntity[]>("/api/v1/categories");
   return data;
 };
 
 export const categoriesListQueryOptions = queryOptions<
-  string[],
+  CategoryEntity[],
   AxiosError<ErrorResponse>
 >({
   queryKey: ["categories"] as const,

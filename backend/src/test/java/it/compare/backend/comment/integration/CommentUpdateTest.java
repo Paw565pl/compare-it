@@ -5,7 +5,7 @@ import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import it.compare.backend.comment.dto.CommentDto;
+import it.compare.backend.comment.dto.CommentRequestDto;
 import it.compare.backend.comment.model.Comment;
 import it.compare.backend.product.model.Product;
 import org.bson.types.ObjectId;
@@ -29,7 +29,7 @@ class CommentUpdateTest extends CommentTest {
 
     @Test
     void shouldReturnUnauthorized() {
-        var commentDto = new CommentDto("Updated comment");
+        var commentDto = new CommentRequestDto("Updated comment");
 
         given().contentType(JSON)
                 .body(commentDto)
@@ -43,7 +43,7 @@ class CommentUpdateTest extends CommentTest {
 
     @Test
     void shouldReturnNotFoundIfProductDoesNotExist() {
-        var commentDto = new CommentDto("Updated comment");
+        var commentDto = new CommentRequestDto("Updated comment");
 
         given().contentType(JSON)
                 .auth()
@@ -59,7 +59,7 @@ class CommentUpdateTest extends CommentTest {
 
     @Test
     void shouldReturnNotFoundIfCommentDoesNotExist() {
-        var commentDto = new CommentDto("Updated comment");
+        var commentDto = new CommentRequestDto("Updated comment");
 
         given().contentType(JSON)
                 .auth()
@@ -81,7 +81,7 @@ class CommentUpdateTest extends CommentTest {
         commentWithDifferentAuthor.setAuthor(anotherUser);
         commentWithDifferentAuthor = commentRepository.save(commentWithDifferentAuthor);
 
-        var commentDto = new CommentDto("Updated comment");
+        var commentDto = new CommentRequestDto("Updated comment");
 
         given().contentType(JSON)
                 .auth()
@@ -98,7 +98,7 @@ class CommentUpdateTest extends CommentTest {
     @Test
     void shouldSuccessfullyUpdateComment() {
         var updatedContent = "Updated comment content";
-        var commentDto = new CommentDto(updatedContent);
+        var commentDto = new CommentRequestDto(updatedContent);
 
         given().contentType(JSON)
                 .auth()

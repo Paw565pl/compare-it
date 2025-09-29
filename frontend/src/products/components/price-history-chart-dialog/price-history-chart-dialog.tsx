@@ -27,7 +27,11 @@ import {
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { formatCurrency } from "@/core/utils/format-currency";
 import { formatDate } from "@/core/utils/format-date";
-import { ShopEntity } from "@/products/entities/shop-entity";
+import { CurrencyEntity } from "@/products/entities/currency-entity";
+import {
+  ShopEntity,
+  shopDisplayNameMap,
+} from "@/products/entities/shop-entity";
 import { useFetchProduct } from "@/products/hooks/client/use-fetch-product";
 import { convertPriceDataToChartFormat } from "@/products/utils/convert-price-data-to-chart-format";
 import { ChartNoAxesCombined } from "lucide-react";
@@ -42,16 +46,16 @@ interface PriceHistoryChartDialogProps {
 type TimeRangeFilterValue = "7" | "30" | "90" | "180";
 
 const chartConfig: Record<ShopEntity, { label: ReactNode; color: string }> = {
-  "Media Expert": {
-    label: "Media Expert",
+  MEDIA_EXPERT: {
+    label: shopDisplayNameMap[ShopEntity.MEDIA_EXPERT],
     color: "var(--media-expert-brand)",
   },
-  "Morele.net": {
-    label: "Morele.net",
+  MORELE_NET: {
+    label: shopDisplayNameMap[ShopEntity.MORELE_NET],
     color: "var(--morele-brand)",
   },
-  "RTV Euro AGD": {
-    label: "RTV Euro AGD",
+  RTV_EURO_AGD: {
+    label: shopDisplayNameMap[ShopEntity.RTV_EURO_AGD],
     color: "var(--rtv-euro-agd-brand)",
   },
 } satisfies ChartConfig;
@@ -195,7 +199,10 @@ export const PriceHistoryChartDialog = ({
                       })
                     }
                     valueFormatter={(value) =>
-                      formatCurrency(Number(value.replace(/,/g, ".")), "PLN")
+                      formatCurrency(
+                        Number(value.replace(/,/g, ".")),
+                        CurrencyEntity.PLN,
+                      )
                     }
                   />
                 }

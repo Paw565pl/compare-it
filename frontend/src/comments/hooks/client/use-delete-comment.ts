@@ -54,10 +54,9 @@ export const useDeleteComment = (
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: commentPageQueryKey });
 
-      const previousCommentInfiniteData =
-        queryClient.getQueryData<InfiniteData<PaginatedData<CommentEntity>>>(
-          commentPageQueryKey,
-        );
+      const previousCommentInfiniteData = queryClient.getQueryData<
+        InfiniteData<PaginatedData<CommentEntity>>
+      >(commentPageQueryKey) ?? { pageParams: [], pages: [] };
 
       const newCommentPages = previousCommentInfiniteData?.pages.map(
         ({ page, content }) => ({

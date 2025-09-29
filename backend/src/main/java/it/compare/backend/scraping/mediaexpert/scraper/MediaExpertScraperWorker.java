@@ -201,11 +201,10 @@ class MediaExpertScraperWorker implements ScraperWorker {
                         .toList();
 
             var condition = getCondition(document);
-            var priceStamp = new PriceStamp(price, "PLN", condition);
+            var priceStamp = new PriceStamp(price, Currency.PLN, condition);
             priceStamp.setPromoCode(promoCode);
 
-            var offer = new Offer(CURRENT_SHOP, uri.toString());
-            offer.getPriceHistory().add(priceStamp);
+            var offer = new Offer(CURRENT_SHOP, uri.toString(), priceStamp);
 
             var product = new Product(ean, name, category);
             product.getImages().addAll(images);

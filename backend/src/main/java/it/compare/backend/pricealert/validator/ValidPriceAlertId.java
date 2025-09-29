@@ -13,9 +13,9 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER})
 @Constraint(validatedBy = {})
-@ValidObjectId(message = "priceAlertId must be a valid ObjectId.")
+@ValidObjectId(message = "PriceAlertId must be a valid ObjectId")
 public @interface ValidPriceAlertId {
-    String message() default "Invalid priceAlertId format.";
+    String message() default "Invalid priceAlertId format";
 
     Class<?>[] groups() default {};
 

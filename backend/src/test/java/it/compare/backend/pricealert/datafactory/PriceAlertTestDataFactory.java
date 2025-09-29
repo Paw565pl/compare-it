@@ -42,11 +42,7 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
 
         var targetPrice = BigDecimal.valueOf(faker.number().randomDouble(2, 50, 5000));
 
-        var priceAlert = new PriceAlert(product, targetPrice);
-        priceAlert.setUser(user);
-        priceAlert.setIsOutletAllowed(true);
-
-        return priceAlert;
+        return new PriceAlert(user, product, targetPrice, true);
     }
 
     @Override
@@ -72,20 +68,20 @@ public class PriceAlertTestDataFactory implements TestDataFactory<PriceAlert> {
     public PriceAlert createPriceAlertForUser(User user) {
         var product = productTestDataFactory.createOne();
         var alert = new PriceAlert(
+                user,
                 product,
-                product.getOffers().getFirst().getPriceHistory().getFirst().getPrice());
-        alert.setUser(user);
-        alert.setIsOutletAllowed(faker.bool().bool());
+                product.getOffers().getFirst().getPriceHistory().getFirst().getPrice(),
+                faker.bool().bool());
 
         return priceAlertRepository.save(alert);
     }
 
     public PriceAlert createPriceAlertWithUserAndProduct(User user, Product product) {
         var alert = new PriceAlert(
+                user,
                 product,
-                product.getOffers().getFirst().getPriceHistory().getFirst().getPrice());
-        alert.setUser(user);
-        alert.setIsOutletAllowed(faker.bool().bool());
+                product.getOffers().getFirst().getPriceHistory().getFirst().getPrice(),
+                faker.bool().bool());
 
         return priceAlertRepository.save(alert);
     }

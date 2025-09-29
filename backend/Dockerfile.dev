@@ -1,6 +1,6 @@
-FROM bellsoft/liberica-openjdk-debian:21
+FROM bellsoft/liberica-openjdk-debian:25
 
-ARG CHROME_VERSION=136.0.7103.113
+ARG CHROME_VERSION=139.0.7258.66
 
 ENV CHROME_VERSION=$CHROME_VERSION
 

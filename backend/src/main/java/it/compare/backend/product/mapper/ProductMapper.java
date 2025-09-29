@@ -1,22 +1,31 @@
 package it.compare.backend.product.mapper;
 
+import it.compare.backend.product.dto.ProductListResponseDto;
+import it.compare.backend.product.model.BestOffer;
 import it.compare.backend.product.model.Product;
-import it.compare.backend.product.response.ProductDetailResponse;
-import it.compare.backend.product.response.ProductListResponse;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import java.util.Optional;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 
-@Component
-@RequiredArgsConstructor
-public class ProductMapper {
-    private final ModelMapper modelMapper;
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface ProductMapper {
 
-    public ProductListResponse toListResponse(Product product) {
-        return modelMapper.map(product, ProductListResponse.class);
-    }
-
-    public ProductDetailResponse toDetailResponse(Product product) {
-        return modelMapper.map(product, ProductDetailResponse.class);
+    default ProductListResponseDto toListResponseDto(Product product) {
+        return new ProductListResponseDto(
+                product.getId(),
+                product.getName(),
+                product.getEan(),
+                product.getCategory(),
+                !product.getImages().isEmpty() ? product.getImages().getFirst() : null,
+                Optional.ofNullable(product.getComputedState().getBestOffer())
+                        .map(BestOffer::getPrice)
+                        .orElse(null),
+                Optional.ofNullable(product.getComputedState().getBestOffer())
+                        .map(BestOffer::getCurrency)
+                        .orElse(null),
+                Optional.ofNullable(product.getComputedState().getBestOffer())
+                        .map(BestOffer::getShop)
+                        .orElse(null),
+                product.getComputedState().getAvailableOffersCount());
     }
 }

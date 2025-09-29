@@ -12,6 +12,10 @@ import {
 import { H2 } from "@/core/components/ui/h2";
 import { H3 } from "@/core/components/ui/h3";
 import { Input } from "@/core/components/ui/input";
+import {
+  ShopEntity,
+  shopDisplayNameMap,
+} from "@/products/entities/shop-entity";
 import { useFetchShopsList } from "@/products/hooks/client/use-fetch-shops-list";
 import {
   productFiltersSearchParams,
@@ -25,11 +29,11 @@ interface ProductFiltersFields {
   minPrice: string;
   maxPrice: string;
   isAvailable: boolean;
-  shop: string[];
+  shops: ShopEntity[];
 }
 
 export const FiltersBar = () => {
-  const { data: shopList } = useFetchShopsList();
+  const { data: allShops } = useFetchShopsList();
 
   const [productFilters, setProductFilters] = useQueryStates(
     productFiltersSearchParams,
@@ -46,9 +50,9 @@ export const FiltersBar = () => {
         isAvailable: productFilters.isAvailable
           ? !productFilters.isAvailable
           : true,
-        shop: productFilters.shop?.split(",") ?? shopList ?? [],
+        shops: productFilters.shops ?? allShops ?? [],
       }) as const,
-    [shopList, productFilters],
+    [allShops, productFilters],
   );
   const form = useForm<ProductFiltersFields>({
     defaultValues,
@@ -60,19 +64,17 @@ export const FiltersBar = () => {
     minPrice,
     maxPrice,
     isAvailable,
-    shop,
+    shops,
   }: ProductFiltersFields) => {
     const parsedShop =
-      shop.length === 0 || shop.length === shopList?.length
-        ? null
-        : shop.join(",");
+      shops.length === 0 || shops.length === allShops?.length ? null : shops;
     const parsedIsAvailable = isAvailable ? null : true;
 
     const parsedFilters: Partial<typeof productFilters> = {
       minPrice: Number(minPrice) || null,
       maxPrice: Number(maxPrice) || null,
       isAvailable: parsedIsAvailable,
-      shop: parsedShop,
+      shops: parsedShop,
     } as const;
 
     setProductFilters((prevFilters) => ({
@@ -93,13 +95,13 @@ export const FiltersBar = () => {
 
             <FormField
               control={form.control}
-              name="shop"
+              name="shops"
               render={() => (
                 <FormItem className="block w-full">
-                  {shopList?.map((shop, index) => (
+                  {allShops?.map((shop, index) => (
                     <FormField
                       control={form.control}
-                      name="shop"
+                      name="shops"
                       key={index}
                       render={({ field }) => (
                         <FormItem key={index}>
@@ -119,7 +121,7 @@ export const FiltersBar = () => {
                               />
                             </FormControl>
                             <FormLabel className="cursor-pointer sm:text-lg">
-                              {shop}
+                              {shopDisplayNameMap[shop]}
                             </FormLabel>
                           </FormLabel>
                         </FormItem>

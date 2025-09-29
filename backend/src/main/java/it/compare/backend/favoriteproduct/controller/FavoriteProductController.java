@@ -2,10 +2,10 @@ package it.compare.backend.favoriteproduct.controller;
 
 import it.compare.backend.auth.annotation.IsAuthenticated;
 import it.compare.backend.auth.details.OAuthUserDetails;
-import it.compare.backend.favoriteproduct.dto.FavoriteProductDto;
-import it.compare.backend.favoriteproduct.response.FavoriteProductStatusResponse;
+import it.compare.backend.favoriteproduct.dto.FavoriteProductRequestDto;
+import it.compare.backend.favoriteproduct.dto.FavoriteProductStatusResponseDto;
 import it.compare.backend.favoriteproduct.service.FavoriteProductService;
-import it.compare.backend.product.response.ProductListResponse;
+import it.compare.backend.product.dto.ProductListResponseDto;
 import it.compare.backend.product.validator.ValidProductId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,27 +27,27 @@ public class FavoriteProductController {
     private final FavoriteProductService favoriteProductService;
 
     @GetMapping
-    public Page<ProductListResponse> findAllByUser(@AuthenticationPrincipal Jwt jwt, Pageable pageable) {
+    public Page<ProductListResponseDto> findAllByUser(@AuthenticationPrincipal Jwt jwt, Pageable pageable) {
         return favoriteProductService.findAllByUser(OAuthUserDetails.fromJwt(jwt), pageable);
     }
 
     @GetMapping("/{productId}/status")
-    public FavoriteProductStatusResponse findFavoriteProductStatus(
+    public FavoriteProductStatusResponseDto findStatus(
             @AuthenticationPrincipal Jwt jwt, @ValidProductId @PathVariable String productId) {
-        return favoriteProductService.findFavoriteProductStatus(OAuthUserDetails.fromJwt(jwt), productId);
+        return favoriteProductService.findStatus(OAuthUserDetails.fromJwt(jwt), productId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addFavoriteProduct(
-            @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody FavoriteProductDto favoriteProductDto) {
-        favoriteProductService.addFavoriteProduct(OAuthUserDetails.fromJwt(jwt), favoriteProductDto);
+    public void add(
+            @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody FavoriteProductRequestDto favoriteProductRequestDto) {
+        favoriteProductService.add(OAuthUserDetails.fromJwt(jwt), favoriteProductRequestDto);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeFavoriteProduct(
-            @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody FavoriteProductDto favoriteProductDto) {
-        favoriteProductService.removeFavoriteProduct(OAuthUserDetails.fromJwt(jwt), favoriteProductDto);
+    public void remove(
+            @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody FavoriteProductRequestDto favoriteProductRequestDto) {
+        favoriteProductService.remove(OAuthUserDetails.fromJwt(jwt), favoriteProductRequestDto);
     }
 }

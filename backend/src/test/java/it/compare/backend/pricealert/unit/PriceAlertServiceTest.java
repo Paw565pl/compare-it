@@ -16,7 +16,7 @@ import it.compare.backend.product.datafactory.ProductTestDataFactory;
 import it.compare.backend.product.model.*;
 import it.compare.backend.user.datafactory.UserTestDataFactory;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,20 +57,19 @@ class PriceAlertServiceTest {
 
     @Test
     void shouldSendEmailWhenPriceBelowTarget() {
+        var lowPriceStamp = new PriceStamp(BigDecimal.valueOf(90), Currency.PLN, Condition.NEW);
+        lowPriceStamp.setTimestamp(Instant.now());
+
+        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product", lowPriceStamp);
         var product = productFactory.generate();
 
         product.getOffers().clear();
-        var lowPriceStamp = new PriceStamp(BigDecimal.valueOf(90), "PLN", Condition.NEW);
-        lowPriceStamp.setTimestamp(LocalDateTime.now());
-        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
-        offer.getPriceHistory().add(lowPriceStamp);
         product.getOffers().add(offer);
+        product.setComputedState(ComputedState.fromProduct(product));
 
-        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
-        alert.setUser(testUser);
-        alert.setIsOutletAllowed(true);
+        var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), true);
         alert.setIsActive(true);
-        alert.setCreatedAt(LocalDateTime.now());
+        alert.setCreatedAt(Instant.now());
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
@@ -81,9 +80,9 @@ class PriceAlertServiceTest {
                         testUser.getEmail(),
                         product.getName(),
                         product.getId(),
-                        BigDecimal.valueOf(90),
                         BigDecimal.valueOf(100),
-                        Shop.RTV_EURO_AGD.getHumanReadableName(),
+                        BigDecimal.valueOf(90),
+                        Shop.RTV_EURO_AGD,
                         "https://example.com/product");
 
         var alertCaptor = ArgumentCaptor.forClass(PriceAlert.class);
@@ -99,15 +98,13 @@ class PriceAlertServiceTest {
         var product = productFactory.generate();
 
         product.getOffers().clear();
-        var highPriceStamp = new PriceStamp(BigDecimal.valueOf(150), "PLN", Condition.NEW);
-        highPriceStamp.setTimestamp(LocalDateTime.now());
-        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product");
-        offer.getPriceHistory().add(highPriceStamp);
+        var highPriceStamp = new PriceStamp(BigDecimal.valueOf(150), Currency.PLN, Condition.NEW);
+        highPriceStamp.setTimestamp(Instant.now());
+        var offer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/product", highPriceStamp);
+        offer.addPriceStamp(highPriceStamp);
         product.getOffers().add(offer);
 
-        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
-        alert.setUser(testUser);
-        alert.setIsOutletAllowed(true);
+        var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), true);
         alert.setIsActive(true);
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
@@ -122,11 +119,9 @@ class PriceAlertServiceTest {
     void shouldRespectOutletAllowedWhenCheckingPrices() {
         var product = createProductWithNewAndOutletOffers(BigDecimal.valueOf(120), BigDecimal.valueOf(80));
 
-        var alert = new PriceAlert(product, BigDecimal.valueOf(100));
-        alert.setUser(testUser);
-        alert.setIsOutletAllowed(false);
+        var alert = new PriceAlert(testUser, product, BigDecimal.valueOf(100), false);
         alert.setIsActive(true);
-        alert.setCreatedAt(LocalDateTime.now());
+        alert.setCreatedAt(Instant.now());
 
         when(mongoTemplate.find(any(Query.class), eq(PriceAlert.class))).thenReturn(List.of(alert));
 
@@ -143,28 +138,29 @@ class PriceAlertServiceTest {
                         testUser.getEmail(),
                         product.getName(),
                         product.getId(),
-                        BigDecimal.valueOf(80),
                         BigDecimal.valueOf(100),
-                        Shop.RTV_EURO_AGD.getHumanReadableName(),
+                        BigDecimal.valueOf(80),
+                        Shop.RTV_EURO_AGD,
                         "https://example.com/outlet");
     }
 
     private Product createProductWithNewAndOutletOffers(BigDecimal newPrice, BigDecimal outletPrice) {
-
         var product = productFactory.generate();
         product.getOffers().clear();
 
-        var outletPriceStamp = new PriceStamp(outletPrice, "PLN", Condition.OUTLET);
-        outletPriceStamp.setTimestamp(LocalDateTime.now());
-        var outletOffer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/outlet");
-        outletOffer.getPriceHistory().add(outletPriceStamp);
-        product.getOffers().add(outletOffer);
+        var outletPriceStamp = new PriceStamp(outletPrice, Currency.PLN, Condition.OUTLET);
+        outletPriceStamp.setTimestamp(Instant.now());
+        var outletOffer = new Offer(Shop.RTV_EURO_AGD, "https://example.com/outlet", outletPriceStamp);
+        outletOffer.addPriceStamp(outletPriceStamp);
 
-        var newPriceStamp = new PriceStamp(newPrice, "PLN", Condition.NEW);
-        newPriceStamp.setTimestamp(LocalDateTime.now());
-        var newOffer = new Offer(Shop.MEDIA_EXPERT, "https://example.com/new");
-        newOffer.getPriceHistory().add(newPriceStamp);
+        var newPriceStamp = new PriceStamp(newPrice, Currency.PLN, Condition.NEW);
+        newPriceStamp.setTimestamp(Instant.now());
+        var newOffer = new Offer(Shop.MEDIA_EXPERT, "https://example.com/new", newPriceStamp);
+        newOffer.addPriceStamp(newPriceStamp);
+
+        product.getOffers().add(outletOffer);
         product.getOffers().add(newOffer);
+        product.setComputedState(ComputedState.fromProduct(product));
 
         return product;
     }

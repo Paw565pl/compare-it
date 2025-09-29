@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import it.compare.backend.auth.model.User;
 import it.compare.backend.core.mock.AuthMock;
-import it.compare.backend.pricealert.dto.PriceAlertDto;
+import it.compare.backend.pricealert.dto.PriceAlertRequestDto;
 import java.math.BigDecimal;
 import java.util.List;
 import org.bson.types.ObjectId;
@@ -192,7 +192,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     @Test
     void shouldReturnConflictAfterCreatingPriceAlertForTheSameProductWithActiveStatus() {
         var alert = priceAlertTestDataFactory.createPriceAlertForUser(testUser);
-        var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
+        var alertDto = new PriceAlertRequestDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
 
         given().contentType(JSON)
                 .auth()
@@ -207,7 +207,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     @Test
     void shouldReturnCreatedAfterCreatingPriceAlertForTheSameProductWithInactiveStatus() {
         var alert = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
-        var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
+        var alertDto = new PriceAlertRequestDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
 
         given().contentType(JSON)
                 .auth()
@@ -224,7 +224,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     @CsvSource({"100, true", "200, false", "300, true", "500, false"})
     void shouldReturnCreatedAfterCreatingPriceAlert(BigDecimal targetPrice, boolean isOutletAllowed) {
         var product = productTestDataFactory.createOne();
-        var alertDto = new PriceAlertDto(product.getId(), targetPrice, isOutletAllowed);
+        var alertDto = new PriceAlertRequestDto(product.getId(), targetPrice, isOutletAllowed);
 
         given().contentType(JSON)
                 .auth()
@@ -290,7 +290,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
         priceAlertTestDataFactory.createPriceAlertForUser(testUser);
         var anotherUser = userTestDataFactory.createOne();
         var anotherAlert = priceAlertTestDataFactory.createPriceAlertForUser(anotherUser);
-        var alertDto = new PriceAlertDto(anotherAlert.getProduct().getId(), BigDecimal.valueOf(100), true);
+        var alertDto = new PriceAlertRequestDto(anotherAlert.getProduct().getId(), BigDecimal.valueOf(100), true);
 
         given().contentType(JSON)
                 .auth()
@@ -305,7 +305,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     @Test
     void shouldReturnBadRequestAfterUpdatingPriceAlertThatIsInactive() {
         var alert = priceAlertTestDataFactory.createPriceAlertWithActiveStatus(testUser, false);
-        var alertDto = new PriceAlertDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
+        var alertDto = new PriceAlertRequestDto(alert.getProduct().getId(), BigDecimal.valueOf(100), true);
 
         given().contentType(JSON)
                 .auth()
@@ -321,7 +321,7 @@ class PriceAlertControllerTest extends PriceAlertTest {
     @CsvSource({"100, true", "200, false", "300, true", "500, false"})
     void shouldReturnUpdatedPriceAlert(BigDecimal targetPrice, boolean outletAllowed) {
         var alert = priceAlertTestDataFactory.createPriceAlertForUser(testUser);
-        var alertDto = new PriceAlertDto(alert.getProduct().getId(), targetPrice, outletAllowed);
+        var alertDto = new PriceAlertRequestDto(alert.getProduct().getId(), targetPrice, outletAllowed);
 
         given().contentType(JSON)
                 .auth()

@@ -5,7 +5,7 @@ import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import it.compare.backend.rating.dto.RatingDto;
+import it.compare.backend.rating.dto.RatingRequestDto;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +16,7 @@ class RatingCreateTest extends RatingTest {
 
     @Test
     void shouldReturnUnauthorized() {
-        var body = new RatingDto(true);
+        var body = new RatingRequestDto(true);
 
         given().contentType(JSON)
                 .body(body)
@@ -30,7 +30,7 @@ class RatingCreateTest extends RatingTest {
 
     @Test
     void shouldReturnNotFoundIfProductDoesNotExist() {
-        var body = new RatingDto(true);
+        var body = new RatingRequestDto(true);
 
         given().contentType(JSON)
                 .auth()
@@ -46,7 +46,7 @@ class RatingCreateTest extends RatingTest {
 
     @Test
     void shouldReturnNotFoundIfCommentDoesNotExist() {
-        var body = new RatingDto(true);
+        var body = new RatingRequestDto(true);
 
         given().contentType(JSON)
                 .auth()
@@ -62,7 +62,7 @@ class RatingCreateTest extends RatingTest {
 
     @Test
     void shouldReturnBadRequestIfIsPositiveIsNull() {
-        var body = new RatingDto(null);
+        var body = new RatingRequestDto(null);
 
         given().contentType(JSON)
                 .auth()
@@ -79,7 +79,7 @@ class RatingCreateTest extends RatingTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void shouldReturnCreatedAfterCreatingRating(boolean isPositive) {
-        var body = new RatingDto(isPositive);
+        var body = new RatingRequestDto(isPositive);
 
         given().contentType(JSON)
                 .auth()

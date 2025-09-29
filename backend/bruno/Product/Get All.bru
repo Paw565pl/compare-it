@@ -5,15 +5,15 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/api/v1/products
+  url: {{baseUrl}}/api/v1/products
   body: none
   auth: none
 }
 
 params:query {
-  ~category: Procesory
+  ~category: CPU
   ~name: Intel
-  ~shop: Rtv euro agd
+  ~shop: RTV_EURO_AGD
   ~minPrice: 200
   ~maxPrice: 800
   ~isAvailable: true
